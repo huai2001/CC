@@ -1,0 +1,124 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "type": "shell",
+    "command": "make",
+    "options": {
+        "cwd": "${workspaceRoot}/build"
+    },
+    "problemMatcher": [
+        "$gcc"
+    ],
+    "tasks": [
+        {
+            "label": "proxy_server",
+            "args": [".bin","target=examples","build=proxy_server","debug=1"],
+        },
+        {
+            "label": "build-event",
+            "args": [".dylib","target=event","debug=1"],
+        },
+        {
+            "label": "build-json",
+            "args": [".dylib","target=json","debug=1"],
+        },
+        {
+            "label": "build-xml",
+            "args": [".dylib","target=xml","debug=1"],
+        },
+        {
+            "label": "build-ini",
+            "args": [".dylib","target=ini","debug=1"],
+        },
+        {
+            "label": "build-db",
+            "args": [".dylib","target=db","debug=1"],
+        },
+        {
+            "label": "build-widgets",
+            "args": [".dylib","target=widgets","debug=1"],
+        },
+        {
+            "label": "clean",
+            "args": ["clean"],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+        },
+        {
+            "label": "build-all",
+            "command": "./build.sh",
+            "args": [],
+        },
+        {
+            "label": "transfer-files-server",
+            "args": [".bin","debug=1", "server=1"],
+            "options": {
+                "cwd": "${workspaceRoot}/widgets/Transfer-files/"
+            },
+        },
+        {
+            "label": "transfer-files-client",
+            "args": [".bin","debug=1"],
+            "options": {
+                "cwd": "${workspaceRoot}/widgets/Transfer-files/"
+            },
+        },
+        {
+            "label": "build-debug-SyncFiles",
+            "args": [".bin","debug=1"],
+            "options": {
+                "cwd": "${workspaceRoot}/widgets/SyncFiles/"
+            },
+        },
+        {
+            "label": "build-debug-UpdateBuilder",
+            "args": [".bin","debug=1"],
+            "options": {
+                "cwd": "${workspaceRoot}/widgets/UpdateBuilder/"
+            },
+        },
+        {
+            "label": "path",
+            "args": ["path"],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+        },
+        {
+            "label": "build",
+            "args": [".a"],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+        },
+        {
+			"label": "build-debug",
+            "args": [".a", "debug=1"],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "new",
+				"showReuseMessage": true,
+				"clear": false	
+			}
+		
+		}
+    ]
+}

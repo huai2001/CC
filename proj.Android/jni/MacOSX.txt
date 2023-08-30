@@ -1,0 +1,9 @@
+配置一下你的.bash_profile; 开启终端,输入命令 pico .bash_profile 
+
+首先添加一行 export PATH=${PATH}:/Users/jarrahwu/Documents/android-ndk-r8d
+
+然后再来一行 A_NDK_ROOT=/Users/jarrahwu/Documents/android-ndk-r8d
+
+最后来一行  export A_NDK_ROOT
+
+.contrl + x 保存一下,再输入 Y确认,最后来个enter.最后的最后,关闭终端

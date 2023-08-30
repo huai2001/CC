@@ -1,0 +1,455 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="src\JSON">
+      <UniqueIdentifier>{10198a31-7cfd-4e50-85b4-1a6a8cd3815a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\JSON">
+      <UniqueIdentifier>{315d4f84-32e4-4002-828f-dae3e1eb708e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\thread">
+      <UniqueIdentifier>{369ba964-d92d-4023-932d-88836499bd04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\thread\windows">
+      <UniqueIdentifier>{b74737c4-4543-41ca-bec4-7a164258ea23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{01ff5427-4a3f-4278-bec0-d7b763c9c84a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc">
+      <UniqueIdentifier>{082f0bd5-ae24-443c-96ba-dbb67c5f44b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\thread">
+      <UniqueIdentifier>{d38c3a63-ea89-4732-b728-066fafdf4495}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\thread\windows">
+      <UniqueIdentifier>{b92361ab-37ee-4bc6-8ea6-b0d32aa4b24e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\power">
+      <UniqueIdentifier>{2aa75d2a-51b8-4277-b502-2699ea77c60a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\power\windows">
+      <UniqueIdentifier>{d495fdc3-0945-4ccd-8493-5203cb8767cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\time">
+      <UniqueIdentifier>{471d9533-e3df-4a8e-b2b0-a9bf8d138cc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\time\windows">
+      <UniqueIdentifier>{928852ca-1a6d-4224-8fea-61ffcb9c581f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{2650d116-e1e2-4474-8dd3-2338da636b30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\windows">
+      <UniqueIdentifier>{7e7ad889-67df-48f1-877f-4a00363f4f2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\core">
+      <UniqueIdentifier>{4c38b1f2-2a98-4966-99ae-c85519b9e3f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\core\windows">
+      <UniqueIdentifier>{5fb476ab-87b8-4637-bb8f-8cb54bb9a14b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\loadso">
+      <UniqueIdentifier>{5eb08e38-1199-4cd2-90cf-182e25225abc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\loadso\windows">
+      <UniqueIdentifier>{a7569514-27dc-407b-852b-06b153da227f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\atomic">
+      <UniqueIdentifier>{4ad9a9c3-28fd-4c88-86a5-b47e12b04872}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\socket">
+      <UniqueIdentifier>{c6b21a30-6f38-4183-a70b-4df75d1b1955}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\socket\windows">
+      <UniqueIdentifier>{8cb9ec9a-6218-4a03-a6d3-5369f0afba1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\socket">
+      <UniqueIdentifier>{c47bbfa5-77da-4ae9-bb88-769cc97a036a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\socket\windows">
+      <UniqueIdentifier>{9e86c5c1-7478-457b-9932-057c5fe3a05d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\DB">
+      <UniqueIdentifier>{dbe62928-0639-4a4e-9021-aa9058160952}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\DB">
+      <UniqueIdentifier>{9ce1b669-917d-49da-b6c7-3c92832b3919}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\XML">
+      <UniqueIdentifier>{55248caa-742c-4980-8f15-d90df1329c0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\XML">
+      <UniqueIdentifier>{19f03f51-13d2-493a-9183-80e9318be572}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\INI">
+      <UniqueIdentifier>{f289b440-ba70-4845-a622-1b6c333d1b48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cc\INI">
+      <UniqueIdentifier>{d43d40db-0161-4b93-87c1-05a1da5e9410}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\aes.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\array.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\base64.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\des.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\list.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\md5.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\rand.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\queue.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\string.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\url.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\thread\windows\sys_mutex.c">
+      <Filter>src\thread\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\thread\windows\sys_sem.c">
+      <Filter>src\thread\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\thread\windows\sys_thread.c">
+      <Filter>src\thread\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\thread\thread.c">
+      <Filter>src\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\json\json.c">
+      <Filter>src\JSON</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\power\power.c">
+      <Filter>src\power</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\time\windows\sys_time.c">
+      <Filter>src\time\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\thread\windows\sys_cond.c">
+      <Filter>src\thread\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\loadso\windows\sys_loadso.c">
+      <Filter>src\loadso\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\windows.c">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\atomic\atomic.c">
+      <Filter>src\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\atomic\spinlock.c">
+      <Filter>src\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\cpu_info.c">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ring.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UTF.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\buf.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\generic.c">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\socket\windows\sys_socket.c">
+      <Filter>src\socket\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\socket\inet.c">
+      <Filter>src\socket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\socket\socket.c">
+      <Filter>src\socket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\db\mysql.c">
+      <Filter>src\db</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sha1.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sha256.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sha512.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\md2.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\md4.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\db\sqlite.c">
+      <Filter>src\DB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\time\time.c">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\db\sqlsvr.c">
+      <Filter>src\DB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\atomic\rwlock.c">
+      <Filter>src\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\rbtree.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\file.c">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\windows\sys_core.c">
+      <Filter>src\core\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\windows\sys_dirent.c">
+      <Filter>src\core\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\windows\sys_file.c">
+      <Filter>src\core\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\power\windows\sys_power.c">
+      <Filter>src\power\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crc.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\time\strptime.c">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\json\json.parser.c">
+      <Filter>src\JSON</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\xml\xml.c">
+      <Filter>src\XML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\xml\xml.parser.c">
+      <Filter>src\XML</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\base16.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\hashtable.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ini\ini.c">
+      <Filter>src\INI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ini\ini.parser.c">
+      <Filter>src\INI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\alloc.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\logger.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\windows\sys_locale.c">
+      <Filter>src\core\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\xxtea.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\uuid.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\hmac.c">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\cc\thread\windows\sys_thread.h">
+      <Filter>include\cc\thread\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\thread\sys_thread.h">
+      <Filter>include\cc\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\aes.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\array.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\base64.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\des.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\dirent.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\list.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\logger.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\md5.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\mutex.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\rand.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\queue.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\string.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\tchar.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\thread.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\types.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\url.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\version.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\power.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\time.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\loadso.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\core\windows.h">
+      <Filter>include\cc\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\atomic.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\core.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\endian.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\core\cpu_info.h">
+      <Filter>include\cc\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\ring.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\buf.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\UTF.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\socket\socket.h">
+      <Filter>include\cc\socket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\socket\windows\sys_socket.h">
+      <Filter>include\cc\socket\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\sha.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\md2.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\md4.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\db\sql.h">
+      <Filter>include\cc\DB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\rbtree.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\core\compiler.h">
+      <Filter>include\cc\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\core\platform.h">
+      <Filter>include\cc\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\core\file.h">
+      <Filter>include\cc\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\core\windows\sys_flock.h">
+      <Filter>include\cc\core\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\socket\windows\sys_iocp.h">
+      <Filter>include\cc\socket\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\crc.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\math.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\json\json.c.h">
+      <Filter>src\JSON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\json\json.h">
+      <Filter>include\cc\JSON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\xml\xml.h">
+      <Filter>include\cc\XML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\hashtable.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\xml\xml.c.h">
+      <Filter>src\XML</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\base16.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ini\ini.c.h">
+      <Filter>src\INI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\ini\ini.h">
+      <Filter>include\cc\INI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\alloc.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\thread\windows\sys_thread.c.h">
+      <Filter>src\thread\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cc\uuid.h">
+      <Filter>include\cc</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

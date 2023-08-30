@@ -1,0 +1,24 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+ifeq ($(NDK_DEBUG),1)
+    LOCAL_CFLAGS +=  -DDEBUG
+endif
+
+#LOCAL_CFLAGS +=  -D_CC_JNI_BUILD_SHARED_LIBRARY_
+
+LOCAL_MODULE := inject
+LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog
+LOCAL_C_INCLUDES := ../../include
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
+
+LOCAL_SRC_FILES := ./ptrace.c
+
+#LOCAL_STATIC_LIBRARIES := cpufeatures
+
+LOCAL_LDLIBS := -ldl -llog -landroid
+#LOCAL_EXPORT_LDLIBS := $(LOCAL_LDLIBS)
+#include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_EXECUTABLE)
