@@ -1,6 +1,6 @@
 #SHELL = /bin/sh #/bin/bash
 #指定第三方库安装路径
-THIRD_PARTY_PATH = $(abspath $(SRCROOT)/..)/third-party
+INCLUDE_PATH += $(abspath $(SRCROOT)/..)/third-party
 #编译器路径(不一定要指定，如果用20060119版本的，需要指定)
 #GCC_PATH	=
 CC		= gcc
