@@ -202,10 +202,11 @@ static void Android_JNI_CreateKey_once(void) {
 JNIEXPORT jboolean JNICALL _CC_JNI_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass jcls);
 
 JNIEXPORT void JNICALL _CC_JNI_INTERFACE(setPowerInfo)(JNIEnv *env, jclass jcls, jint plugged, jint charged,
-                                                       jint battery, jint seconds, jint percent);
+        jint battery, jint seconds, jint percent);
 
 static JNINativeMethod _cc_jni_native_methods[] = {{"nativeSetupJNI", "()Z", _CC_JNI_INTERFACE(nativeSetupJNI)},
-                                                   {"setPowerInfo", "(IIIII)V", _CC_JNI_INTERFACE(setPowerInfo)}};
+    {"setPowerInfo", "(IIIII)V", _CC_JNI_INTERFACE(setPowerInfo)}
+};
 
 static void register_methods(JNIEnv *env, const char *classname, JNINativeMethod *methods, int nb) {
     jclass clazz = (*env)->FindClass(env, classname);
@@ -239,14 +240,14 @@ JNIEnv *_cc_jni_onload(JavaVM *vm, void *reserved, jint version) {
                  Functions called by JNI
 *******************************************************************************/
 JNIEXPORT void JNICALL _CC_JNI_INTERFACE(setPowerInfo)(JNIEnv *env, jclass cls, jint plugged, jint charged,
-                                                       jint battery, jint seconds, jint percent) {
+        jint battery, jint seconds, jint percent) {
     _android_power_info.plugged = plugged;
     _android_power_info.charged = charged;
     _android_power_info.battery = battery;
     _android_power_info.seconds = seconds;
     _android_power_info.percent = percent;
 }
-
+void printSign();
 /* Activity initialization */
 JNIEXPORT jboolean JNICALL _CC_JNI_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cls) {
     _cc_logger_debug("nativeSetupJNI()");
@@ -284,15 +285,71 @@ JNIEXPORT jboolean JNICALL _CC_JNI_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass
     mid_show_toast = _CC_JNI_GET_STATIC_METHOD_ID(env, _activity_class, "showToast", "(Ljava/lang/String;IIII)I");
 
     if (!mid_clipboard_get_text || !mid_clipboard_has_text || !mid_clipboard_set_text || !mid_register_power_info ||
-        !mid_get_cache_path || !mid_get_files_path || !mid_get_package_name || !mid_get_context || !mid_open_url ||
-        !mid_show_toast || !mid_is_simulator) {
+            !mid_get_cache_path || !mid_get_files_path || !mid_get_package_name || !mid_get_context || !mid_open_url ||
+            !mid_show_toast || !mid_is_simulator) {
         _cc_logger_error("Missing some Java callbacks, do you have the latest version of CC.java?");
         return JNI_FALSE;
     }
 
+    //printSign();
     return JNI_TRUE;
 }
+#if 0
+static jobject getApplication(JNIEnv *env) {
+    jclass localClass = (*env)->FindClass(env, "android/app/ActivityThread");
+    if (localClass != NULL) {
+        jmethodID mApplication = (*env)->GetStaticMethodID(env, localClass, "currentApplication","()Landroid/app/Application;");
+        if (mApplication != NULL) {
+            return (*env)->CallStaticObjectMethod(env, localClass, mApplication);
+        }
+    }
+    return NULL;
+}
 
+void printSign() {
+    JNIEnv *env = _cc_jni_get_env();
+    int length;
+    jbyte *bytes;
+    jobjectArray signatures;
+    jbyteArray signatureBytes;
+    jclass activity,packageManagerClass,packageInfoClass,signatureClass;
+    jmethodID mid,mPackageName,mPackageInfo,mByteArray;
+    jfieldID signaturesField;
+    jstring packageName;
+    jobject packageManager, packageInfo, signature;
+    jobject context = getApplication(env);
+
+    if (context == NULL) {
+        return ;
+    }
+
+    activity = (*env)->GetObjectClass(env, context);
+    mid = (*env)->GetMethodID(env, activity, "getPackageManager", "()Landroid/content/pm/PackageManager;");
+    packageManager = (*env)->CallObjectMethod(env, context, mid);
+    packageManagerClass = (*env)->GetObjectClass(env, packageManager);
+    mPackageName = (*env)->GetMethodID(env, activity, "getPackageName", "()Ljava/lang/String;");
+    packageName = (jstring)((*env)->CallObjectMethod(env, context, mPackageName));
+    mPackageInfo = (*env)->GetMethodID(env, packageManagerClass, "getPackageInfo", "(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;");
+    packageInfo = (*env)->CallObjectMethod(env, packageManager, mPackageInfo, packageName, 64);
+    packageInfoClass = (*env)->GetObjectClass(env, packageInfo);
+    signaturesField = (*env)->GetFieldID(env, packageInfoClass, "signatures", "[Landroid/content/pm/Signature;");
+    signatures = (jobjectArray)((*env)->GetObjectField(env, packageInfo, signaturesField));
+    signature = (*env)->GetObjectArrayElement(env, signatures, 0);
+    signatureClass = (*env)->GetObjectClass(env, signature);
+    mByteArray = (*env)->GetMethodID(env, signatureClass, "toByteArray", "()[B");
+    signatureBytes = (jbyteArray)(*env)->CallObjectMethod(env, signature, mByteArray);
+
+
+    // 对获取的key进程16进制转换
+    length = (*env)->GetArrayLength(env, signatureBytes);
+    bytes = (*env)->GetByteArrayElements(env, signatureBytes, 0);
+    {
+        tchar_t results[33];
+        _cc_md5(bytes, length, results);
+        _cc_logger_debug("Signature:%s", results);
+    }
+}
+#endif
 /*******************************************************************************
              Functions called by CC into Java
 *******************************************************************************/

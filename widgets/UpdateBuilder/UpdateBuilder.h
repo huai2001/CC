@@ -13,6 +13,13 @@ extern "C" {
 
 extern _cc_sql_driver_t sqlDriver;
 
+extern int32_t updateDirectoryLen;
+extern tchar_t updateDirectory[_CC_MAX_PATH_];
+
+extern int32_t sourceDirectoryLen;
+extern tchar_t sourceDirectory[_CC_MAX_PATH_];
+
+
 int builder_ReloadList(void);
 int builder_UpdateList(void);
 

@@ -27,7 +27,7 @@ _cc_sql_t* openSQLite3(void) {
 
     _cc_get_module_directory(_T("UpdateBuilder.db"), directory, _cc_countof(directory));
     
-    _sntprintf(sqliteFile,_cc_countof(sqliteFile), _T("SQLITE://127.0.0.1/%s"), directory);
+    _sntprintf(sqliteFile,_cc_countof(sqliteFile), _T("SQLITE://x/%s"), directory);
 
     sql = sqlDriver.connect(sqliteFile);
     if (sql == NULL) {

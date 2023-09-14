@@ -3,7 +3,8 @@
 #include <cc/json/json.h>
 #include <zlib.h>
 
-#define CHUNK 1024 * 16
+#define CHUNK_SOURCE (1024 * 6)
+#define CHUNK_DEST (1024 * 8)
 
 /* Compress from file source to file dest until EOF on source.
  def() returns Z_OK on success, Z_MEM_ERROR if memory could not be
@@ -11,12 +12,12 @@
  level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
  version of the library linked do not match, or Z_ERRNO if there is
  an error reading or writing the files. */
-_CC_FORCE_INLINE_ int def(FILE *source, FILE *dest, int level, uint64_t *resultSize) {
+static int def(FILE *source, FILE *dest, int level, uint64_t *resultSize) {
     int res, flush;
     unsigned have;
     z_stream strm;
-    byte_t in[CHUNK];
-    byte_t out[CHUNK];
+    byte_t in_buffer[CHUNK_SOURCE];
+    byte_t out_buffer[CHUNK_DEST];
     uint64_t r;
     
     /* allocate deflate state */
@@ -24,29 +25,31 @@ _CC_FORCE_INLINE_ int def(FILE *source, FILE *dest, int level, uint64_t *resultS
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
     res = deflateInit(&strm, level);
-    if (res != Z_OK)
+    //res = deflateInit2(&strm, level, Z_DEFLATED, MAX_WBITS + 16, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+    if (res != Z_OK) {
         return res;
+    }
     
     /* compress until end of file */
     r = 0;
     do {
-        strm.avail_in = (uint32_t)fread(in, 1, CHUNK, source);
+        strm.avail_in = (uint32_t)fread(in_buffer, 1, CHUNK_SOURCE, source);
         if (ferror(source)) {
             (void)deflateEnd(&strm);
             return Z_ERRNO;
         }
 
         flush = feof(source) ? Z_FINISH : Z_NO_FLUSH;
-        strm.next_in = (Bytef*)in;
+        strm.next_in = (Bytef*)in_buffer;
         
         /* run deflate() on input until output buffer not full, finish compression if all of source has been read in */
         do {
-            strm.avail_out = CHUNK;
-            strm.next_out = (Bytef*)out;
+            strm.avail_out = CHUNK_DEST;
+            strm.next_out = (Bytef*)out_buffer;
             res = deflate(&strm, flush);        /* no bad return value */
             _cc_assert(res != Z_STREAM_ERROR);  /* state not clobbered */
-            have = CHUNK - strm.avail_out;
-            if (fwrite(out, sizeof(byte_t), have, dest) != have || ferror(dest)) {
+            have = CHUNK_DEST - strm.avail_out;
+            if (fwrite(out_buffer, sizeof(byte_t), have, dest) != have || ferror(dest)) {
                 (void)deflateEnd(&strm);
                 return Z_ERRNO;
             }
@@ -70,7 +73,7 @@ _CC_FORCE_INLINE_ int def(FILE *source, FILE *dest, int level, uint64_t *resultS
 }
 
 /* report a zlib or i/o error */
-_CC_FORCE_INLINE_ void zerr(int res) {
+static void zerr(int res) {
     switch (res) {
         case Z_ERRNO:
             if (ferror(stdin))
@@ -92,7 +95,7 @@ _CC_FORCE_INLINE_ void zerr(int res) {
     }
 }
 
-_CC_FORCE_INLINE_ int compressZipFile(const char *source, const char *dest, uint64_t *resultSize) {
+static int compressZipFile(const char *source, const char *dest, uint64_t *resultSize) {
     int res;
     FILE *filein, *fileout;
     
@@ -119,7 +122,7 @@ _CC_FORCE_INLINE_ int compressZipFile(const char *source, const char *dest, uint
     return res;
 }
 
-_CC_FORCE_INLINE_ bool_t isCompressFile(tchar_t *name, int32_t namlen) {
+static bool_t isCompressFile(tchar_t *name, int32_t namlen) {
     char a = _tolower(*(name + namlen - 3));
     char b = _tolower(*(name + namlen - 2));
     char c = _tolower(*(name + namlen - 1));
@@ -145,10 +148,10 @@ _CC_FORCE_INLINE_ bool_t isCompressFile(tchar_t *name, int32_t namlen) {
     return false;
 }
 
-_CC_FORCE_INLINE_ uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
+static uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
     byte_t t = 0;
     byte_t md[_CC_MD5_DIGEST_LENGTH_];
-    byte_t buf[CHUNK];
+    byte_t buf[CHUNK_SOURCE];
     int32_t i;
     _cc_md5_t c;
     FILE *fp = _tfopen(fileName, _T("rb"));
@@ -182,18 +185,18 @@ _CC_FORCE_INLINE_ uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
 
 }
 #ifndef __CC_WINDOWS__
-_CC_FORCE_INLINE_ void CopyFile(const tchar_t *source, const tchar_t *dest) {
+static void CopyFile(const tchar_t *source, const tchar_t *dest) {
     bool_t err = false;
     FILE *fw = NULL;
     FILE* fr = _tfopen(source, _T("rb"));
     if (fr) {
         fw = _tfopen(dest, _T("wb"));
         if (fw) {
-            byte_t out[CHUNK];
+            byte_t out[CHUNK_SOURCE];
             while (!feof(fr)) {
                 size_t writeSize = 0;
                 size_t left = 0;
-                size_t readSize = fread(out, sizeof(byte_t), CHUNK, fr);
+                size_t readSize = fread(out, sizeof(byte_t), CHUNK_SOURCE, fr);
                 
                 while ((writeSize = fwrite(out + left, sizeof(byte_t), readSize - left, fw)) > 0) {
                     left += writeSize;
@@ -224,7 +227,6 @@ _CC_FORCE_INLINE_ void CopyFile(const tchar_t *source, const tchar_t *dest) {
 int createUpdateFile(const tchar_t *,_cc_sql_t *);
 
 int builder_UpdateList(void) {
-    tchar_t directory[_CC_MAX_PATH_];
     _cc_sql_result_t *resultSQL = NULL;
     _cc_sql_result_t *resultUpdated = NULL;
     tchar_t name[64];
@@ -232,15 +234,9 @@ int builder_UpdateList(void) {
     tchar_t requestMD5[33];
     tchar_t oldCheck[33];
     int32_t sqlID = 0;
-    int32_t len = 0;
     uint64_t fileSize = 0;
     uint64_t resultSize = 0;
     tchar_t sqlString[1024] = {0};
-
-    tchar_t sourceFile[_CC_MAX_PATH_] = {0};
-    tchar_t updateFile[_CC_MAX_PATH_] = {0};
-    int32_t sourcePathLen = 0;
-    int32_t updatePathLen = 0;
 
     _cc_sql_t *sql = openSQLite3();
 
@@ -248,27 +244,20 @@ int builder_UpdateList(void) {
         return 1;
     }
 
-    len = _cc_get_module_directory(NULL, directory, _cc_countof(directory));
-
-    sourceFile[0] = 0;
-    updateFile[0] = 0;
-    sourcePathLen = _sntprintf(sourceFile, _cc_countof(sourceFile), _T("%s/Source"), directory);
-    updatePathLen = _sntprintf(updateFile, _cc_countof(updateFile), _T("%s/Update"), directory);
-
     sqlDriver.prepare(sql, _T("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;"),&resultUpdated);
     sqlDriver.execute(sql, _T("select `ID`, `Name`, `CheckMD5`, `Path` from `FileList`;"), &resultSQL);
     while (sqlDriver.fetch(resultSQL)) {
         int32_t isCompress = 0;
-        sourceFile[sourcePathLen] = 0;
-        updateFile[updatePathLen] = 0;
+        sourceDirectory[sourceDirectoryLen] = 0;
+        updateDirectory[updateDirectoryLen] = 0;
 
         sqlID = sqlDriver.get_int(resultSQL, 0);
         sqlDriver.get_string(resultSQL, 1, name, 64);
         sqlDriver.get_string(resultSQL, 3, path, 256);
         
-        _tcscat(sourceFile + sourcePathLen - 1, path);
+        _tcscat(sourceDirectory + sourceDirectoryLen - 1, path);
 
-        fileSize = fileCheck(sourceFile, requestMD5);
+        fileSize = fileCheck(sourceDirectory, requestMD5);
         if (fileSize == 0) {
             _sntprintf(sqlString, _cc_countof(sqlString), _T("DELETE FROM `FileList` WHERE `ID`=%d;"),sqlID);
             sqlDriver.execute(sql, sqlString, NULL);
@@ -280,12 +269,12 @@ int builder_UpdateList(void) {
             continue;
         }
         
-        _tcscat(updateFile + updatePathLen - 1, path);
-        _cc_mkdir(updateFile);
+        _tcscat(updateDirectory + updateDirectoryLen - 1, path);
+        _cc_mkdir(updateDirectory);
 
         if (!isCompressFile(name, strlen(name))) {
             resultSize = 0;
-            if (compressZipFile(sourceFile, updateFile, &resultSize) == 0) {
+            if (compressZipFile(sourceDirectory, updateDirectory, &resultSize) == 0) {
                 isCompress = 1;
             } else {
                 resultSize = fileSize;
@@ -293,7 +282,7 @@ int builder_UpdateList(void) {
         }
 
         if (!isCompress) {
-            CopyFile(sourceFile, updateFile);
+            CopyFile(sourceDirectory, updateDirectory);
         }
         sqlDriver.reset(sql, resultUpdated);
         sqlDriver.bind(resultUpdated, 0, &requestMD5,32,_CC_SQL_TYPE_STRING_);
@@ -302,7 +291,7 @@ int builder_UpdateList(void) {
         sqlDriver.bind(resultUpdated, 3, &fileSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
         sqlDriver.bind(resultUpdated, 4, &sqlID, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
         sqlDriver.step(sql, resultUpdated);
-        printf("%s\t(%s)\n",&sourceFile[sourcePathLen],requestMD5);
+        printf("%s\t(%s)\n",&sourceDirectory[sourceDirectoryLen],requestMD5);
     }
     sqlDriver.free_result(sql, resultUpdated);
     puts("更新完成\n");
@@ -310,10 +299,10 @@ int builder_UpdateList(void) {
         sqlDriver.free_result(sql, resultSQL);
     }
 
-    updateFile[updatePathLen] = 0;
-    _tcscat(updateFile + updatePathLen - 1, _T("/project.manifest"));
+    updateDirectory[updateDirectoryLen] = 0;
+    _tcscat(updateDirectory + updateDirectoryLen - 1, _T("/project.manifest"));
 
-    createUpdateFile(updateFile, sql);
+    createUpdateFile(updateDirectory, sql);
 
     closeSQLit3(sql);
 

@@ -614,7 +614,7 @@ static bool_t _mysql_bind(_cc_sql_result_t *result, int32_t index, const void *v
             break;
         case _CC_SQL_TYPE_NULL_:
             b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_BLOB;
+            b->buffer_type = MYSQL_TYPE_NULL;
             break;
         case _CC_SQL_TYPE_DATETIME_: {
             struct tm *timeinfo = (struct tm*)value;

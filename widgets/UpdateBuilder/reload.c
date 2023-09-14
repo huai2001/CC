@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include "UpdateBuilder.h"
 
-static int32_t removeDirectoryLen = 0;
-static tchar_t updateDirectory[_CC_MAX_PATH_];
-
 struct{
     const tchar_t* name;
     long len;
@@ -52,7 +49,7 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
         _tcscat(sourceFile,d->d_name);
         
         _tstat( sourceFile, &stat_buf);
-        _sntprintf(updateFile, _cc_countof(updateFile),_T("%s\\%s"), updateDirectory, sourceFile + removeDirectoryLen);
+        _sntprintf(updateFile, _cc_countof(updateFile),_T("%s\\%s"), updateDirectory, sourceFile + updateDirectoryLen);
 
         if (S_ISDIR(stat_buf.st_mode) == 0) {
             int i = 0;
@@ -60,7 +57,7 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
             sqlDriver.bind(result, i++, &d->d_name, d->d_namlen, _CC_SQL_TYPE_STRING_);
             sqlDriver.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
             sqlDriver.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
-            sqlDriver.bind(result, i++, (sourceFile + removeDirectoryLen), -1, _CC_SQL_TYPE_STRING_);
+            sqlDriver.bind(result, i++, (sourceFile + sourceDirectoryLen), -1, _CC_SQL_TYPE_STRING_);
             sqlDriver.step(sql, result);
         } else {
             _cc_mkdir(updateFile);
@@ -71,22 +68,12 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
 }
 
 int builder_ReloadList(void) {
-    tchar_t directory[_CC_MAX_PATH_];
-    tchar_t sourceDirectory[_CC_MAX_PATH_];
     _cc_sql_result_t *result = NULL;
 
     _cc_sql_t *sql = openSQLite3();
     if (sql == NULL) {
         return 1;
     }
-
-    _cc_get_module_directory(NULL, directory, _cc_countof(directory));
-
-    removeDirectoryLen = _sntprintf(sourceDirectory, _cc_countof(sourceDirectory),_T("%s/Source"), directory);
-    _sntprintf(updateDirectory, _cc_countof(updateDirectory),_T("%s/Update"), directory);
-    
-    _cc_mkdir(sourceDirectory);
-    _cc_mkdir(updateDirectory);
 
     sqlDriver.execute(sql, _T("delete from `FileList`;"), NULL);
     sqlDriver.execute(sql, _T("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'FileList';"), NULL);

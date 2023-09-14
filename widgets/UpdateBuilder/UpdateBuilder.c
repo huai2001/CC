@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include "UpdateBuilder.h"
 
+int32_t updateDirectoryLen = 0;
+tchar_t updateDirectory[_CC_MAX_PATH_] = {0};
+
+
+int32_t sourceDirectoryLen = 0;
+tchar_t sourceDirectory[_CC_MAX_PATH_] = {0};
+
 #ifdef __CC_WINDOWS__
 //  从 Windows 头文件中排除极少使用的信息
 #define WIN32_LEAN_AND_MEAN
@@ -73,6 +80,29 @@ void DeleteDeepDirectory(const tchar_t *directory) {
 
 int main(int argc, char const *argv[]) {
     _cc_init_sqlite(&sqlDriver);
+
+    if (argc < 3) {
+        return 0;
+    }
+
+    if (!_cc_isdir(argv[1])) {
+        _cc_logger_warin("%s directory does not exist", argv[1]);
+        return 0;
+    }
+    
+    if (!_cc_isdir(argv[2])) {
+        _cc_logger_warin("%s directory does not exist", argv[2]);
+        return 0;
+    }
+
+    _tcsncpy(sourceDirectory, argv[1], _cc_countof(sourceDirectory));
+    sourceDirectory[_cc_countof(sourceDirectory) - 1] = 0;
+    _tcsncpy(updateDirectory, argv[2], _cc_countof(updateDirectory));
+    updateDirectory[_cc_countof(updateDirectory) - 1] = 0;
+
+    sourceDirectoryLen = _tcslen(sourceDirectory);
+    updateDirectoryLen = _tcslen(updateDirectory);
+
     builder_ReloadList();
     builder_UpdateList();
     system("pause");
