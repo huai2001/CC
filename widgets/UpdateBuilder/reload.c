@@ -41,7 +41,7 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
     
     while ((d = readdir(dpath)) != NULL) {
         //
-        if (isFillerList(d->d_name, d->d_namlen)) continue;
+        if (isFillerList(d->d_name, -1)) continue;
 
         sourceFile[0] = 0;
         _tcscat(sourceFile,directory);
@@ -54,7 +54,7 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
         if (S_ISDIR(stat_buf.st_mode) == 0) {
             int i = 0;
             sqlDriver.reset(sql, result);
-            sqlDriver.bind(result, i++, &d->d_name, d->d_namlen, _CC_SQL_TYPE_STRING_);
+            sqlDriver.bind(result, i++, &d->d_name, -1, _CC_SQL_TYPE_STRING_);
             sqlDriver.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
             sqlDriver.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
             sqlDriver.bind(result, i++, (sourceFile + sourceDirectoryLen), -1, _CC_SQL_TYPE_STRING_);
