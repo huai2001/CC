@@ -52,27 +52,6 @@
             "args": [],
         },
         {
-            "label": "transfer-files-server",
-            "args": [".bin","debug=1", "server=1"],
-            "options": {
-                "cwd": "${workspaceRoot}/widgets/Transfer-files/"
-            },
-        },
-        {
-            "label": "transfer-files-client",
-            "args": [".bin","debug=1"],
-            "options": {
-                "cwd": "${workspaceRoot}/widgets/Transfer-files/"
-            },
-        },
-        {
-            "label": "build-debug-SyncFiles",
-            "args": [".bin","debug=1"],
-            "options": {
-                "cwd": "${workspaceRoot}/widgets/SyncFiles/"
-            },
-        },
-        {
             "label": "build-debug-UpdateBuilder",
             "args": [".bin","debug=1"],
             "options": {
