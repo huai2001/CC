@@ -112,7 +112,7 @@ struct _cc_sql_driver {
     /**/
     size_t (*get_blob)(_cc_sql_result_t *, int32_t, byte_t **);
     /**/
-    struct tm* (*get_datetime)(_cc_sql_result_t *, int32_t);
+    bool_t (*get_datetime)(_cc_sql_result_t *, int32_t, struct tm*);
 };
 
 /**

@@ -668,17 +668,16 @@ static size_t _sqlite_get_blob(_cc_sql_result_t *result, int32_t index, byte_t *
     return _sqlite3_column_bytes(result->stmt, index);
 }
 
-static struct tm* _sqlite_get_datetime(_cc_sql_result_t *result, int32_t index) {
+static bool_t _sqlite_get_datetime(_cc_sql_result_t *result, int32_t index,struct tm* timeinfo) {
     const tchar_t *v;
-    static struct tm timeinfo = {0};
     _cc_assert(result->stmt != NULL);
 
     v = (const tchar_t *)_sqlite3_column_text(result->stmt, index);
     if (v) {
-        _cc_strptime(v, _T("%Y-%m-%d %H:%M:%S"), &timeinfo);
-        return &timeinfo;
+        _cc_strptime(v, _T("%Y-%m-%d %H:%M:%S"), timeinfo);
+        return true;
     }
-    return &timeinfo;
+    return false;
 }
 
 /**/

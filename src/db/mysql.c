@@ -617,16 +617,20 @@ static bool_t _mysql_bind(_cc_sql_result_t *result, int32_t index, const void *v
             b->buffer_type = MYSQL_TYPE_NULL;
             break;
         case _CC_SQL_TYPE_DATETIME_: {
-            struct tm *timeinfo = (struct tm*)value;
+            struct tm timeinfo;// = (struct tm*)value;
             MYSQL_TIME *datetime = (MYSQL_TIME*)b->buffer;
-            b->buffer_type = MYSQL_TYPE_DATETIME;
             
-            datetime->year = timeinfo->tm_year + 1900;
-            datetime->month = timeinfo->tm_mon + 1;
-            datetime->day = timeinfo->tm_mday;
-            datetime->hour = timeinfo->tm_hour;
-            datetime->minute = timeinfo->tm_min;
-            datetime->second = timeinfo->tm_sec;
+            b->buffer_type = MYSQL_TYPE_TIMESTAMP;
+            b->buffer_length = sizeof(MYSQL_TIME);
+            
+            memcpy(&timeinfo, value, sizeof(struct tm));
+
+            datetime->year = timeinfo.tm_year + 1900;
+            datetime->month = timeinfo.tm_mon + 1;
+            datetime->day = timeinfo.tm_mday;
+            datetime->hour = timeinfo.tm_hour;
+            datetime->minute = timeinfo.tm_min;
+            datetime->second = timeinfo.tm_sec;
         }
             break;
         case _CC_SQL_TYPE_TIMESTAMP_:
@@ -731,37 +735,33 @@ static size_t _mysql_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **
 }
 
 /**/
-static struct tm* _mysql_get_datetime(_cc_sql_result_t *result, int32_t index) {
+static bool_t _mysql_get_datetime(_cc_sql_result_t *result, int32_t index,struct tm* timeinfo) {
     MYSQL_BIND *b;
     MYSQL_TIME *datetime;
-    static struct tm timeinfo = {0};
     _cc_assert(result != NULL);
     if (index >= result->num_fields) {
-        return &timeinfo;
+        return false;
     }
     b = &result->bind_result[index];
-    switch (b->buffer_type) {
-        case MYSQL_TYPE_DATETIME:
-        case MYSQL_TYPE_DATE:
-        case MYSQL_TYPE_TIME:{
-            datetime = (MYSQL_TIME*)(b->buffer);
-            timeinfo.tm_year = 0;
-            timeinfo.tm_mon = 0;
-            if (datetime->year >= 1900) {
-                timeinfo.tm_year = datetime->year - 1900;
-            }
-            if (datetime->month >= 1) {
-                timeinfo.tm_mon = datetime->month - 1;
-            }
-            timeinfo.tm_mday = datetime->day;
-            timeinfo.tm_hour = datetime->hour;
-            timeinfo.tm_min = datetime->minute;
-            timeinfo.tm_sec = datetime->second;
-            return &timeinfo;
+    if (b->buffer_type == MYSQL_TYPE_DATETIME ||
+        b->buffer_type == MYSQL_TYPE_DATE ||
+        b->buffer_type == MYSQL_TYPE_TIME) {
+        datetime = (MYSQL_TIME*)(b->buffer);
+        timeinfo->tm_year = 0;
+        timeinfo->tm_mon = 0;
+        if (datetime->year >= 1900) {
+            timeinfo->tm_year = datetime->year - 1900;
         }
-        default:
-            return &timeinfo;
+        if (datetime->month >= 1) {
+            timeinfo->tm_mon = datetime->month - 1;
+        }
+        timeinfo->tm_mday = datetime->day;
+        timeinfo->tm_hour = datetime->hour;
+        timeinfo->tm_min = datetime->minute;
+        timeinfo->tm_sec = datetime->second;
+        return true;
     }
+    return false;
 }
 /**/
 bool_t _cc_init_mysql(_cc_sql_driver_t *driver) {

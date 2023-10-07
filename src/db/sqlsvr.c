@@ -511,8 +511,7 @@ static size_t _sqlsvr_get_blob(_cc_sql_result_t *result, int32_t index, byte_t *
     return 0;
 }
 
-static struct tm * _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t index) {
-    static struct tm timeinfo = {0};
+static bool_t _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm* timeinfo) {
     /*
      SQLLEN got = 0;
     SQLRETURN rc = 0;
@@ -526,7 +525,7 @@ static struct tm * _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t index)
 
     _cc_strptime(dateString, fmt, tp);
     return true;*/
-    return &timeinfo;
+    return false;
 }
 
 /**/

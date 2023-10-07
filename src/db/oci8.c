@@ -565,10 +565,9 @@ static size_t _oci8_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **b
 }
 
 /**/
-static struct tm* _oci8_get_datetime(_cc_sql_result_t *result, int32_t index, const tchar_t *fmt, struct tm *tp) {
-    static struct tm timeinfo = {0};
+static bool_t _oci8_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm *tp) {
     _cc_assert(result->stmt != NULL);
-    return &timeinfo;
+    return false;
 }
 
 /**/
