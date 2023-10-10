@@ -401,6 +401,8 @@ static bool_t _mysql_prepare(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_
         _cc_sql_result_t *res = (_cc_sql_result_t *)_cc_malloc(sizeof(_cc_sql_result_t));
         bzero(res, sizeof(_cc_sql_result_t));
         res->stmt = stmt;
+        res->binds = NULL;
+        res->bind_result = NULL;
         res->meta = NULL;
         res->num_fields = 0;
         res->bind_fields = bind_fields;
@@ -501,6 +503,7 @@ static bool_t _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_
     *result = res;
     return _mysql_step(ctx, res);
 }
+
 /**/
 static bool_t _mysql_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     _cc_assert(ctx != NULL && result != NULL);
@@ -535,6 +538,13 @@ static bool_t _mysql_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     __free_bind_result(result);
     
     if (result->binds) {
+        int i;
+        for (i = 0; i < result->bind_fields;i++) {
+            MYSQL_BIND *data = &(result->binds[i]);
+            if (data->buffer_type == MYSQL_TYPE_DATETIME) {
+                _cc_free(data->buffer);
+            }
+        }
         _cc_free(result->binds);
     }
     
@@ -616,26 +626,24 @@ static bool_t _mysql_bind(_cc_sql_result_t *result, int32_t index, const void *v
             b->is_unsigned = false;
             b->buffer_type = MYSQL_TYPE_NULL;
             break;
-        case _CC_SQL_TYPE_DATETIME_: {
-            struct tm timeinfo;// = (struct tm*)value;
-            MYSQL_TIME *datetime = (MYSQL_TIME*)b->buffer;
-            
-            b->buffer_type = MYSQL_TYPE_TIMESTAMP;
-            b->buffer_length = sizeof(MYSQL_TIME);
-            
-            memcpy(&timeinfo, value, sizeof(struct tm));
-
-            datetime->year = timeinfo.tm_year + 1900;
-            datetime->month = timeinfo.tm_mon + 1;
-            datetime->day = timeinfo.tm_mday;
-            datetime->hour = timeinfo.tm_hour;
-            datetime->minute = timeinfo.tm_min;
-            datetime->second = timeinfo.tm_sec;
-        }
-            break;
         case _CC_SQL_TYPE_TIMESTAMP_:
+        case _CC_SQL_TYPE_DATETIME_: {
+            struct tm *timeinfo = (struct tm *)value;
+            MYSQL_TIME *datetime;
+
+            b->buffer_length = sizeof(MYSQL_TIME);
+            b->buffer = _cc_malloc(b->buffer_length);
+            b->buffer_type = MYSQL_TYPE_DATETIME;
             b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_TIMESTAMP;
+
+            datetime = (MYSQL_TIME*)b->buffer;
+            datetime->year = timeinfo->tm_year + 1900;
+            datetime->month = timeinfo->tm_mon + 1;
+            datetime->day = timeinfo->tm_mday;
+            datetime->hour = timeinfo->tm_hour;
+            datetime->minute = timeinfo->tm_min;
+            datetime->second = timeinfo->tm_sec;
+        }
             break;
         case _CC_SQL_TYPE_JSON_: {
             b->is_unsigned = false;
