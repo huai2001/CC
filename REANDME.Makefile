@@ -35,3 +35,11 @@ $NDK/ndk-build NDK_DEBUG=1 NDK_UNICODE=1
 
 #Unicode_Release
 $NDK/ndk-build NDK_UNICODE=1
+
+
+#Install MySQL8 devel
+#Centos
+wget https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm
+rpm -ivh mysql80-community-release-el7-7.noarch.rpm
+
+yum -y install mysql-devel

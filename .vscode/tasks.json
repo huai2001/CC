@@ -12,8 +12,8 @@
     ],
     "tasks": [
         {
-            "label": "proxy_server",
-            "args": [".bin","target=examples","build=proxy_server","debug=1"],
+            "label": "test_mysql",
+            "args": [".bin","target=examples","build=test_mysql","debug=1"],
         },
         {
             "label": "build-event",

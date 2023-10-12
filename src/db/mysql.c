@@ -150,7 +150,7 @@ static bool_t _mysql_reconnect(_cc_sql_t *ctx) {
         return false;
     }
 
-    mysql_options(ctx->sql, MYSQL_OPT_RECONNECT, &value);
+    //mysql_options(ctx->sql, MYSQL_OPT_RECONNECT, &value);
 
     charset = ctx->charset[0] == 0 ? "utf8mb4" : ctx->charset;
 #if (MYSQL_VERSION_ID > 41000)
@@ -633,7 +633,7 @@ static bool_t _mysql_bind(_cc_sql_result_t *result, int32_t index, const void *v
 
             b->buffer_length = sizeof(MYSQL_TIME);
             b->buffer = _cc_malloc(b->buffer_length);
-            b->buffer_type = MYSQL_TYPE_DATETIME;
+            b->buffer_type = MYSQL_TYPE_TIMESTAMP;
             b->is_unsigned = false;
 
             datetime = (MYSQL_TIME*)b->buffer;
