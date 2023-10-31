@@ -113,8 +113,10 @@ int32_t _cc_get_computer_name(tchar_t *name, int32_t maxlen) {
 
 /**/
 int32_t _cc_get_current_directory(tchar_t *cwd, int32_t maxlen) {
-    getcwd(cwd, maxlen);
-    return (int32_t)strlen(cwd);
+    if (getcwd(cwd, maxlen) != NULL) {
+        return (int32_t)strlen(cwd);
+    }
+    return 0;
 }
 
 /**/

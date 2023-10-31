@@ -58,35 +58,37 @@ int main(int argc, char *const arvg[]) {
         sql_driver.step(conn_ptr1, sql_result);
         //int num_fields = sql_driver.get_num_fields(sql_result);
         while(sql_driver.fetch(sql_result)) {
-            static struct tm *t;
-            char buf[128];
-            char buf2[128];
+            static struct tm t;
+            char text[128];
+            char desc[128];
             
             int id = sql_driver.get_int(sql_result, 0);
             int mid = sql_driver.get_int(sql_result, 1);
-            t = sql_driver.get_datetime(sql_result, 2);
-            sql_driver.get_string(sql_result, 3, buf, 128);
-            sql_driver.get_string(sql_result, 4, buf2, 128);
-            printf("%d | %d | %4d-%02d-%02d %02d:%02d:%02d | %s\n", id, mid, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour,
-                   t->tm_min, t->tm_sec, buf);
+            sql_driver.get_datetime(sql_result, 2, &t);
+            sql_driver.get_string(sql_result, 3, text, 128);
+            sql_driver.get_string(sql_result, 4, desc, 128);
+            printf("%d | %d | %4d-%02d-%02d %02d:%02d:%02d | %s\n", id, mid, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour,
+                   t.tm_min, t.tm_sec, text);
         }
         sql_driver.free_result(conn_ptr1, sql_result);
     }
     
     puts("-----------\n");
     
-    if (sql_driver.execute(conn_ptr1, "select `id`,`mid`,`update_time`,`text` from test;", &sql_result)) {
+    if (sql_driver.execute(conn_ptr1, "select `id`,`mid`,`update_time`,`text`,`desc` from test;", &sql_result)) {
         //int num_fields = sql_driver.get_num_fields(sql_result);
         while(sql_driver.fetch(sql_result)) {
-            static struct tm *t;
-            char buf[128];
+            static struct tm t;
+            char text[128];
+            char desc[128];
             
             int id = sql_driver.get_int(sql_result, 0);
             int mid = sql_driver.get_int(sql_result, 1);
-            t = sql_driver.get_datetime(sql_result, 2);
-            sql_driver.get_string(sql_result, 3, buf, 128);
-            printf("%d | %d | %4d-%02d-%02d %02d:%02d:%02d | %s\n", id, mid, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour,
-                   t->tm_min, t->tm_sec, buf);
+            sql_driver.get_datetime(sql_result, 2,&t);
+            sql_driver.get_string(sql_result, 3, text, 128);
+            sql_driver.get_string(sql_result, 4, desc, 128);
+            printf("%d | %d | %4d-%02d-%02d %02d:%02d:%02d | %s | %s\n", id, mid, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour,
+                   t.tm_min, t.tm_sec, text, desc);
         }
         sql_driver.free_result(conn_ptr1, sql_result);
     }

@@ -154,6 +154,7 @@
 
 #if defined(linux) || defined(__linux) || \
     defined(__linux__) || defined(__GLIBC__)
+
     #define __CC_LINUX__ 1
     #define _CC_PLATFORM_NAME_ "linux"
 

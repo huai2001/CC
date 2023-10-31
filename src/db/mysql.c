@@ -66,27 +66,30 @@ struct _cc_sql_result {
 };
 
 static bool_t _get_url_query(const _cc_str_t *keyword, const tchar_t *p, char_t *buf, int32_t length) {
-    int i = 0;
-    tchar_t value[128];
+    int i;
     const tchar_t *r = _tcsstr(p, keyword->data);
     if (r == NULL) {
         return false;
     }
 
+#ifdef _CC_UNICODE_
+    r += keyword->length;
+    for (i = 0; *r && *r != _T('&'); i++){}
+    if (i >= 0) {
+        _cc_utf16_to_utf8((uint16_t *)r, (uint16_t *)(r + i),(uint8_t *)buf, (uint8_t *)(buf + length), false);
+    } else {
+        buf[0] = 0;
+    }
+
+#else
     r += keyword->length;
     for (i = 0; *r && *r != _T('&'); i++) {
-        value[i] = *r++;
+        buf[i] = *r++;
         if (i >= length) {
             break;
         }
     }
-    value[i] = 0;
-
-#ifdef _CC_UNICODE_
-    _cc_utf16_to_utf8((uint16_t *)value, (uint16_t *)(value + i),(uint8_t *)buf, (uint8_t *)(buf + length), false);
-#else
-    _tcsncpy(buf, value, length);
-    buf[length - 1] = 0;
+    buf[i] = 0;
 #endif
     return true;
 }
@@ -126,7 +129,6 @@ static bool_t _mysql_error(_cc_sql_t *ctx) {
 
 static bool_t _mysql_reconnect(_cc_sql_t *ctx) {
     MYSQL *res = NULL;
-    char value = 1;
     char *charset;
     ctx->sql = mysql_init(NULL);
     if (_cc_unlikely(ctx->sql == NULL)) {
@@ -149,8 +151,6 @@ static bool_t _mysql_reconnect(_cc_sql_t *ctx) {
         _cc_logger_error(_T("Connection error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
-
-    //mysql_options(ctx->sql, MYSQL_OPT_RECONNECT, &value);
 
     charset = ctx->charset[0] == 0 ? "utf8mb4" : ctx->charset;
 #if (MYSQL_VERSION_ID > 41000)
@@ -195,14 +195,14 @@ static _cc_sql_t *_mysql_connect(const tchar_t *sql_connection_string) {
     _cc_utf16_to_utf8((uint16_t *)params.password, (uint16_t *)(params.password + _tcslen(params.password)),
                       (uint8_t *)ctx->user_pass, (uint8_t *)&ctx->user_pass[64], false);
 #else
-    _tcsncpy(ctx->db_name, (params.path + 1), _cc_countof(ctx->db_name));
-    _tcsncpy(ctx->host, (params.host), _cc_countof(ctx->host));
-    _tcsncpy(ctx->user_name, (params.username), _cc_countof(ctx->user_name));
-    _tcsncpy(ctx->user_pass, (params.password), _cc_countof(ctx->user_pass));
-    ctx->db_name[_cc_countof(ctx->db_name) - 1] = 0;
-    ctx->host[_cc_countof(ctx->host) - 1] = 0;
-    ctx->user_name[_cc_countof(ctx->user_name) - 1] = 0;
-    ctx->user_pass[_cc_countof(ctx->user_pass) - 1] = 0;
+    strncpy(ctx->db_name, (params.path + 1), _cc_countof(ctx->db_name));
+    ctx->db_name[_cc_countof(ctx->db_name) - 1] = '\0';
+    strncpy(ctx->host, (params.host), _cc_countof(ctx->host));
+    ctx->host[_cc_countof(ctx->host) - 1] = '\0';
+    strncpy(ctx->user_name, (params.username), _cc_countof(ctx->user_name));
+    ctx->user_name[_cc_countof(ctx->user_name) - 1] = '\0';
+    strncpy(ctx->user_pass, (params.password), _cc_countof(ctx->user_pass));
+    ctx->user_pass[_cc_countof(ctx->user_pass) - 1] = '\0';
 #endif
     ctx->port = params.port;
     ctx->use_SSL = false;
@@ -541,7 +541,7 @@ static bool_t _mysql_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
         int i;
         for (i = 0; i < result->bind_fields;i++) {
             MYSQL_BIND *data = &(result->binds[i]);
-            if (data->buffer_type == MYSQL_TYPE_DATETIME) {
+            if (data->buffer_type == MYSQL_TYPE_TIMESTAMP) {
                 _cc_free(data->buffer);
             }
         }
@@ -712,11 +712,11 @@ static size_t _mysql_get_string(_cc_sql_result_t *result, int32_t index, tchar_t
     *buffer = 0;
 
     b = &result->bind_result[index];
-    bytes_length = _tcslen((tchar_t*)b->buffer);
-    if (bytes_length == 0) {
+    if (((tchar_t*)b->buffer)[0] == 0) {
         return 0;
     }
-
+    
+    bytes_length = _tcslen((tchar_t*)b->buffer);
     if (bytes_length >= length) {
         bytes_length = length - 1;
     }

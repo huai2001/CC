@@ -79,7 +79,7 @@
 
 /* Should be safe for any weird systems that do not define it */
 #ifndef _CC_MAX_PATH_
-    #define _CC_MAX_PATH_ (1024 * 4)
+    #define _CC_MAX_PATH_ (256)
 #endif
 
 /*CR: Carriage Return*/

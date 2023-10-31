@@ -33,6 +33,10 @@
     #define _CC_DB_API(t) t
 #endif
 
+#ifndef __CC_WINDOWS__
+#define _CC_USE_SYSTEM_SQLITE3_LIB_     1
+#endif
+
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {

@@ -27,8 +27,8 @@
 #include <stdlib.h>
 #include <sys/errno.h>
 #include <sys/stat.h>
-#include <sys/sysctl.h>
 #include <sys/types.h>
+#include <string.h>
 #include <unistd.h>
 
 #include <cc/alloc.h>
@@ -39,6 +39,7 @@
 #if defined(__CC_FREEBSD__) || defined(__CC_OPENBSD__)
 #include <sys/sysctl.h>
 #endif
+
 
 int32_t _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, int32_t size) {
     return _cc_utf8_to_utf16((const uint8_t *)s1, (const uint8_t *)(s1 + s1_len), (uint16_t *)s2,
@@ -90,8 +91,10 @@ int32_t _cc_get_computer_name(tchar_t *name, int32_t maxlen) {
 
 /**/
 int32_t _cc_get_current_directory(tchar_t *cwd, int32_t maxlen) {
-    getcwd(cwd, maxlen);
-    return (int32_t)strlen(cwd);
+    if (getcwd(cwd, maxlen) != NULL) {
+        return (int32_t)strlen(cwd);
+    }
+    return 0;
 }
 
 /**/
@@ -153,29 +156,25 @@ int32_t _cc_get_module_cache_directory(tchar_t *cwd, int32_t maxlen) {
 
 /* QNX's /proc/self/exefile is a text file and not a symlink. */
 #if !defined(__CC_QNXNTO__)
-static tchar_t *readSymLink(const char *path, tchar_t *cwd, size_t *maxlen) {
-    ssize_t rc = readlink(path, cwd, *maxlen);
+static int32_t readSymLink(const char *path, tchar_t *cwd, int32_t maxlen) {
+    int32_t rc = (int32_t)readlink(path, cwd, maxlen);
     /* not a symlink, i/o error, etc. */
     if (rc == -1) {
-        return NULL;
-    } else if (rc < *maxlen) {
+        return -1;
+    } else if (rc < maxlen) {
         /* readlink doesn't null-terminate. */
         cwd[rc] = '\0';
-
-        *maxlen = (size_t)rc;
-        return cwd;
+    } else {
+        cwd[maxlen - 1] = '\0';
     }
-
-    *maxlen = 0;
-    return NULL;
+    return rc;
 }
 #endif
 
 static int32_t _sym_link(tchar_t *cwd, int32_t maxlen) {
-    char *retval = NULL;
-    int32_t rc = maxlen;
-
+    int32_t rc = 0;
 #if defined(__CC_FREEBSD__)
+    rc = maxlen;
     const int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
     if (sysctl(mib, _cc_countof(mib), cwd, (size_t *)&rc, NULL, 0) != -1) {
         if (!cwd) {
@@ -200,7 +199,7 @@ static int32_t _sym_link(tchar_t *cwd, int32_t maxlen) {
 #endif
 
 #if defined(__CC_SOLARIS__)
-    retval = getexecname();
+    char *retval = getexecname();
     if ((retval != NULL) && (retval[0] == '/')) { /* must be absolute path... */
         _tcsncpy(cwd, retval, maxlen);
         cwd[maxlen - 1] = 0;
@@ -210,26 +209,24 @@ static int32_t _sym_link(tchar_t *cwd, int32_t maxlen) {
 
     /* is a Linux-style /proc filesystem available? */
     if (access("/proc", F_OK) == 0) {
-        rc = maxlen;
         /* !!! FIXME: after 2.0.6 ships, let's delete this code and just
                       use the /proc/%llu version. There's no reason to have
                       two copies of this plus all the #ifdefs. --ryan. */
 #if defined(__CC_FREEBSD__)
-        retval = readSymLink("/proc/curproc/file", cwd, &rc);
+        rc = readSymLink("/proc/curproc/file", cwd, maxlen);
 #elif defined(__CC_NETBSD__)
-        retval = readSymLink("/proc/curproc/exe", cwd, &rc);
+        rc = readSymLink("/proc/curproc/exe", cwd, maxlen);
 #else
-        retval = readSymLink("/proc/self/exe", cwd, (size_t *)&rc); /* linux. */
-        if (retval == NULL) {
+        rc = readSymLink("/proc/self/exe", cwd, maxlen); /* linux. */
+        if (rc <= 0) {
             /* older kernels don't have /proc/self ... try PID version... */
             char path[64];
             snprintf(path, _cc_countof(path), "/proc/%llu/exe", (unsigned long long)getpid());
 
-            rc = maxlen;
-            retval = readSymLink(path, cwd, (size_t *)&rc);
+            rc = readSymLink(path, cwd, maxlen);
         }
 #endif
-        if (retval == NULL) {
+        if (rc <= 0) {
             return 0;
         }
     }
@@ -277,8 +274,5 @@ bool_t _cc_set_current_directory(tchar_t *cwd) {
     if (cwd == NULL) {
         return false;
     }
-
-    chdir(cwd);
-
-    return true;
+    return chdir(cwd) == 0;
 }

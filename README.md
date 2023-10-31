@@ -50,6 +50,14 @@ cd proj.Android/JNI
 #4、通过Xcode 编译(macOS,iOS)
 proj.OSX/cc.xcodeproj
 proj.IOS/cc.xcodeproj
+
+#5、ubuntu 编译
+sudo apt-get install libmysqlclient-dev
+sudo apt-get install sqlite3
+sudo apt-get install libsqlite3-dev 
+sudo apt-get install libjpeg-dev
+sudo apt-get install libpng-dev
+
 ```
 
 ## ⚡️ 入门与体验

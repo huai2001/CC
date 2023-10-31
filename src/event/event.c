@@ -31,46 +31,37 @@
 #define _CC_EVENT_INVALID_ID_ 0xffffffff
 
 static struct {
-    int32_t r;
-    int32_t w;
     int32_t size;
     _cc_atomic32_t round;
     _cc_event_t *storage;
-    uint32_t *unused;
     _cc_atomic32_t alloc;
     _cc_atomic32_t ref;
-    _cc_spinlock_t elock;
+    _cc_mutex_t *elock;
+    _cc_list_iterator_t idles;
     _cc_array_t cycles;
 } g = {0};
 
 static _cc_event_t *_cc_reserve_event(byte_t baseid) {
     uint32_t round;
-    uint32_t index;
+    _cc_list_iterator_t *lnk;
     _cc_event_t *e;
-    do {
-        _cc_spin_lock(&g.elock);
-        if (g.r == g.w) {
-            _cc_spin_unlock(&g.elock);
-            return NULL;
-        }
-        index = g.unused[g.r];
-        g.r = (g.r + 1) % g.size;
-        _cc_spin_unlock(&g.elock);
 
-        e = &g.storage[index];
+    _cc_mutex_lock(g.elock);
+    lnk = _cc_list_iterator_pop(&g.idles);
+    _cc_mutex_unlock(g.elock);
 
-        if (_cc_atomic32_cas((_cc_atomic32_t *)&e->ident, _CC_EVENT_INVALID_ID_, 0)) {
-            round = _cc_atomic32_inc(&(g.round)) & 0xff;
-            round = _CC_BUILD_INT16(round, baseid);
-            e->ident = _CC_BUILD_INT32(index, round);
+    if (lnk == &g.idles) {
+        return NULL;
+    }
 
-            return e;
-        }
-        //_cc_logger_warin(_T("The event has been used"));
-    } while (1);
+    e = _cc_upcast(lnk, _cc_event_t, lnk);
 
-    _cc_logger_error(_T("event buffer is filled up!"));
-    return NULL;
+    round = _cc_atomic32_inc(&(g.round)) & 0xff;
+    round = _CC_BUILD_INT16(round, baseid);
+
+    e->ident = _CC_BUILD_INT32(e->ident, round);
+
+    return e;
 }
 
 /**/
@@ -234,8 +225,6 @@ bool_t _cc_event_wait_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 /**/
 void _cc_free_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_socket_t fd;
-    int32_t w;
-    int32_t index = _CC_LO_UINT16(e->ident);
 
     if (e->buffer) {
         _cc_unbind_event_buffer(cycle, &e->buffer);
@@ -248,7 +237,7 @@ void _cc_free_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     fd = e->fd;
 
     e->fd = _CC_INVALID_SOCKET_;
-    e->ident = _CC_EVENT_INVALID_ID_;
+    e->ident = _CC_LO_UINT16(e->ident);
     e->flags = _CC_EVENT_UNKNOWN_;
     e->marks = _CC_EVENT_UNKNOWN_;
 
@@ -256,13 +245,9 @@ void _cc_free_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
         _cc_close_socket(fd);
     }
 
-    _cc_spin_lock(&g.elock);
-    w = (g.w + 1) % g.size;
-    if (g.r != w) {
-        g.unused[g.w] = (index % g.size);
-        g.w = w;
-    }
-    _cc_spin_unlock(&g.elock);
+    _cc_mutex_lock(g.elock);
+    _cc_list_iterator_push(&g.idles, &e->lnk);
+    _cc_mutex_unlock(g.elock);
 }
 
 /**/
@@ -353,22 +338,18 @@ bool_t _cc_event_cycle_init(_cc_event_cycle_t *cycle) {
     _cc_assert(cycle != NULL);
 
     if (_cc_atomic32_inc_ref(&g.ref)) {
+        _cc_list_iterator_cleanup(&g.idles);
         g.round = 1;
-        g.w = 0;
-        g.r = 0;
         g.size = _event_get_max_limit();
         g.storage = _cc_calloc(g.size, sizeof(_cc_event_t));
-        g.unused = _cc_calloc(g.size, sizeof(uint32_t));
         _cc_assert(g.storage != NULL);
-        _cc_assert(g.unused != NULL);
-        _cc_spin_lock_init(&g.elock);
+        g.elock = _cc_create_mutex();
 
         for (i = 0; i < g.size; i++) {
-            g.storage[i].ident = _CC_EVENT_INVALID_ID_;
-            g.unused[i] = i;
+            _cc_event_t *e = &g.storage[i];
+            e->ident = i;
+            _cc_list_iterator_push(&g.idles, &e->lnk);
         }
-        g.w = i;
-
         g.alloc = 0;
         _cc_array_alloc(&g.cycles, _CC_MAX_CYCLES_);
     }
@@ -479,9 +460,10 @@ bool_t _cc_event_cycle_quit(_cc_event_cycle_t *cycle) {
     cycle->driver.quit = NULL;
 
     if (_cc_atomic32_dec_ref(&g.ref)) {
+        _cc_list_iterator_cleanup(&g.idles);
         _cc_safe_free(g.storage);
-        _cc_safe_free(g.unused);
         _cc_array_free(&g.cycles);
+        _cc_destroy_mutex(&g.elock);
     }
     return true;
 }
