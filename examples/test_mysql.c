@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libcc.h>
-#include <cc/db/sql.h>=
+#include <cc/db/sql.h>
 
 #define MYSQL_DB "mysql://root:123654asd@127.0.0.1:3306/test"
 
@@ -50,6 +50,17 @@ int main(int argc, char *const arvg[]) {
     sql_driver.commit(conn_ptr1);
     
     
+    if (sql_driver.prepare(conn_ptr1, _T("call `UpdateDevice`(?,?,?,?);"), &sql_result)) {
+        uint32_t update_time = 100000;
+        int a = 0;
+        sql_driver.bind(sql_result, 0, "aaaaa", -1, _CC_SQL_TYPE_STRING_);
+        sql_driver.bind(sql_result, 1, "127.0.0.1", -1, _CC_SQL_TYPE_STRING_);
+        sql_driver.bind(sql_result, 2, &a, sizeof(uint32_t), _CC_SQL_TYPE_UINT32_);
+        sql_driver.bind(sql_result, 3, &update_time, sizeof(uint32_t), _CC_SQL_TYPE_UINT32_);
+        sql_driver.step(conn_ptr1, sql_result);
+        sql_driver.free_result(conn_ptr1, sql_result);
+    }
+
     if (sql_driver.prepare(conn_ptr1, "select `id`,`mid`,`update_time`,`text`,`desc` from test where text like ?;", &sql_result)) {
         //int v = 1;
         char *date = "2023%%";
