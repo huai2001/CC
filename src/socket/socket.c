@@ -212,7 +212,8 @@ int32_t _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len) {
         } else if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
             return 0;
         }
-        _cc_logger_error(_T("socketfd:%d, send failed, error code:%d,%s"), fd, err, _cc_last_error(err));
+        _cc_logger_error(_T("socketfd:%d, send(%d) failed, error code:%d,%s"), fd, sent, err, _cc_last_error(err));
+        sent = _CC_SOCKET_ERROR_;
     }
 
     return sent;
@@ -236,7 +237,8 @@ int32_t _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_so
             } else if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
                 continue;
             }
-            _cc_logger_error(_T("socket sendto %d, error code:%d,%s\n"), sent, err, _cc_last_error(err));
+            _cc_logger_error(_T("socketfd:%d, sendto(%d) failed, error code:%d,%s"), fd, sent, err, _cc_last_error(err));
+            sent = _CC_SOCKET_ERROR_;
             return sent;
         }
 

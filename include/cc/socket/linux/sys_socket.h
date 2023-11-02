@@ -70,7 +70,7 @@ extern "C" {
 
 #define _CC_SHUT_RD_          SHUT_RD
 #define _CC_SHUT_WR_          SHUT_WR
-#define _CC_SHUT_RD_WR_        SHUT_RDWR
+#define _CC_SHUT_RD_WR_       SHUT_RDWR
 
 #define _cc_getaddrinfo          getaddrinfo
 #define _cc_freeaddrinfo         freeaddrinfo

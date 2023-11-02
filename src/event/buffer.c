@@ -167,6 +167,8 @@ int32_t _cc_event_sendbuf(_cc_event_t *e) {
         if (wbuf->r == wbuf->w) {
             _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         }
+    } else if (off < 0) {
+        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
     _cc_spin_unlock(&wbuf->wlock);
 

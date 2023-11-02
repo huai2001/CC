@@ -405,6 +405,8 @@ int32_t _SSL_sendbuf(_cc_SSL_t *ssl, _cc_event_t *e) {
         if (wbuf->r == wbuf->w) {
             _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         }
+    } else if (off < 0) {
+        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
     _cc_spin_unlock(&wbuf->wlock);
     return off;
@@ -441,6 +443,7 @@ int32_t _SSL_send(_cc_SSL_t *ssl, const pvoid_t buf, int32_t len) {
                 return 0;
             }
             _SSL_error("_SSL_send");
+            rc = -1;
         }
         break;
         }
@@ -478,7 +481,8 @@ int32_t _SSL_read(_cc_SSL_t *ssl, pvoid_t buf, int32_t len) {
                 return true;
             }
             _SSL_error("SSL_read");
-        } break;
+            break;
+        }
         default:
             _SSL_error("SSL_read");
         }

@@ -319,6 +319,7 @@ static bool_t __bind_result(_cc_sql_result_t *result) {
              */
             switch (field->type) {
                 case MYSQL_TYPE_DATETIME:
+                case MYSQL_TYPE_TIMESTAMP:
                 case MYSQL_TYPE_DATE:
                 case MYSQL_TYPE_TIME:
                     b->buffer_length = sizeof(MYSQL_TIME);
