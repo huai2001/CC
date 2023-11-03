@@ -23,6 +23,11 @@
 
 /**/
 bool_t _cc_mkdir(const tchar_t *path) {
+    return _cc_create_directory(path, false);
+}
+
+/**/
+bool_t _cc_create_directory(const tchar_t *path, bool_t is_dir) {
     int32_t i = 0;
     const tchar_t *cp = NULL;
     tchar_t cpath[_CC_MAX_PATH_];
@@ -44,12 +49,13 @@ bool_t _cc_mkdir(const tchar_t *path) {
         }
         cpath[i++] = *cp++;
     }
-    /*
-    cpath[i] = 0;
-    if (_taccess(cpath, 0) != 0) {
-        _tmkdir(cpath);
+
+    if (is_dir) {
+        cpath[i] = 0;
+        if (_taccess(cpath, 0) != 0) {
+            _tmkdir(cpath);
+        }
     }
-    */
     return true;
 }
 

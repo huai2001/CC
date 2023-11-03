@@ -113,10 +113,10 @@ BUILD_PATH = $(SRCROOT)/build/intermediates
 endif
 
 #定义输出目录名
-EXT_OBJ_PATH = $(BUILD_PATH)/$(TARGET_NAME)/objs/
-EXT_LST_PATH = $(BUILD_PATH)/$(TARGET_NAME)/lsts/
-EXT_LIB_PATH = $(SRCROOT)/lib/
-EXT_BIN_PATH = $(SRCROOT)/bin/
+EXT_OBJ_PATH = $(BUILD_PATH)/$(TARGET_NAME)/objs
+EXT_LST_PATH = $(BUILD_PATH)/$(TARGET_NAME)/lsts
+EXT_LIB_PATH = $(SRCROOT)/lib
+EXT_BIN_PATH = $(SRCROOT)/bin
 
 #要包含的路径(本用例包含iclude,lib,bin 三个目录)
 INCLUDE_PATH += $(SRCROOT)/include
@@ -203,7 +203,7 @@ define build-successfully
 endef
 
 define build-local-src-files
-	@if test -d $(EXT_OBJ_PATH); then $(RM) $(EXT_OBJ_PATH)*.*;else $(MKDIR) -p -m 777 $(EXT_OBJ_PATH);fi
+	@if test -d $(EXT_OBJ_PATH); then $(RM) $(EXT_OBJ_PATH)/*.*;else $(MKDIR) -p -m 777 $(EXT_OBJ_PATH);fi
 	@$(MAKE) $(LOCAL_SRC_FILES) $(2)
 	@$(MAKE) $(TARGET_NAME)$(1) $(2)
 endef
@@ -230,7 +230,7 @@ help:
 	@echo "====================== Version2.6 ============================"
 	@exit
 
-OUTPUT_OBJ_OPTION = $(EXT_OBJ_PATH)$(subst /,_,$(subst $(SRCROOT),obj,$@))
+OUTPUT_OBJ_OPTION = $(EXT_OBJ_PATH)/$(subst /,_,$(subst $(SRCROOT),obj,$@))
 
 ##将.cpp文件编译成目标文件(.o)##
 %$(OBJ_SUF) : %$(CPP_SUF)
@@ -254,33 +254,33 @@ OUTPUT_OBJ_OPTION = $(EXT_OBJ_PATH)$(subst /,_,$(subst $(SRCROOT),obj,$@))
 
 ##将.o文件编译成lib文件(.a)##
 %$(LIB_SUF) :
-	$(RM) $(EXT_LIB_PATH)lib$@
-	$(AR) $(EXT_LIB_PATH)lib$@ $(wildcard $(EXT_OBJ_PATH)$(OBJ_SUFFIX))
+	$(RM) $(EXT_LIB_PATH)/lib$@
+	$(AR) $(EXT_LIB_PATH)/lib$@ $(wildcard $(EXT_OBJ_PATH)/$(OBJ_SUFFIX))
 	$(call build-successfully,$(EXT_LIB_PATH),lib$@)
 
 
 ##将.o文件编译成动态文件(.dll)##
 %$(DLL_SUF) :
-	$(RM) $(EXT_BIN_PATH)lib$@
-	$(CC) -shared -o $(EXT_BIN_PATH)lib$@ $(EXT_OBJ_PATH)* $(LDFLAGS) $(INSTALL_NAME)
+	$(RM) $(EXT_BIN_PATH)/lib$@
+	$(CC) -shared -o $(EXT_BIN_PATH)/lib$@ $(EXT_OBJ_PATH)/* $(LDFLAGS) $(INSTALL_NAME)
 	$(call build-successfully,$(EXT_LIB_PATH),lib$@)
 
 ##将.o文件编译成动态文件(.so)##
 %$(SO_SUF) :
-	$(RM) $(EXT_BIN_PATH)lib$@
-	$(CC) -shared -o $(EXT_BIN_PATH)lib$@ $(EXT_OBJ_PATH)* $(LDFLAGS) $(INSTALL_NAME)
+	$(RM) $(EXT_BIN_PATH)/lib$@
+	$(CC) -shared -o $(EXT_BIN_PATH)/lib$@ $(EXT_OBJ_PATH)/* $(LDFLAGS) $(INSTALL_NAME)
 	$(call build-successfully,$(EXT_LIB_PATH),lib$@)
 
 ##将.o文件编译成动态文件(.dylib)##
 %$(DYLIB_SUF) :
-	$(RM) $(EXT_BIN_PATH)lib$@
-	$(CC) -dynamiclib -o $(EXT_BIN_PATH)lib$@ $(EXT_OBJ_PATH)* $(LDFLAGS) $(INSTALL_NAME)
+	$(RM) $(EXT_BIN_PATH)/lib$@
+	$(CC) -dynamiclib -o $(EXT_BIN_PATH)/lib$@ $(EXT_OBJ_PATH)/* $(LDFLAGS) $(INSTALL_NAME)
 	$(call build-successfully,$(EXT_BIN_PATH),lib$@)
 
 ##将.o文件编译成可执行文件##
 %$(BIN_SUF) :
-	$(RM) $(EXT_BIN_PATH)$(basename $@)
-	$(CC) -o $(EXT_BIN_PATH)$(basename $@) $(EXT_OBJ_PATH)* $(LDFLAGS)
+	$(RM) $(EXT_BIN_PATH)/$(basename $@)
+	$(CC) -o $(EXT_BIN_PATH)/$(basename $@) $(EXT_OBJ_PATH)/* $(LDFLAGS)
 	$(call build-successfully,$(EXT_BIN_PATH),$(basename $@))
 
 #编译静态库文件

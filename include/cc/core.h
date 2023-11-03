@@ -337,6 +337,15 @@ _CC_API(int32_t) _cc_get_executable_directory(tchar_t *cwd, int32_t maxlen);
  * @return true if successful or false on error.
  */
 _CC_API(bool_t) _cc_mkdir(const tchar_t *path);
+/**
+ * @brief mkdir
+ *
+ * @param path
+ * @param is_dir true: Full Directory, false: file
+ *
+ * @return true if successful or false on error.
+ */
+_CC_API(bool_t) _cc_create_directory(const tchar_t *path, bool_t is_dir);
 
 /**
  * @brief Get system errno

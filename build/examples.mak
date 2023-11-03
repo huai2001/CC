@@ -4,15 +4,15 @@ ifdef build
 endif
 
 ifneq (,$(filter $(PLATFORM),mac64 mac32))
-	LIBRARY_PATH	+= /usr/local/mysql/lib/
+	LIBRARY_PATH	+= /usr/local/mysql/lib
 	MACROS	+= _CC_ENABLE_UNIXODBC_=1
-	INCLUDE_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/include/
-	LIBRARY_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/lib/
+	INCLUDE_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/include
+	LIBRARY_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/lib
 
 	LIBS += ssl.3 crypto.3 mysqlclient.21 odbc
 else
-	LIBRARY_PATH	+= /usr/lib64/mysql/
-	INCLUDE_PATH	+= /usr/include/
+	LIBRARY_PATH	+= /usr/lib64/mysql
+	INCLUDE_PATH	+= /usr/include
 	LIBS += ssl crypto mysqlclient
 endif
 
