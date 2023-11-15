@@ -8,7 +8,7 @@
 /**
  *  convert 1-4 bytes to an integer, little-endian.
  */
-static uint32_t bytes2integer(const byte_t* ip, int count) {
+_CC_API_PRIVATE(uint32_t) bytes2integer(const byte_t* ip, int count) {
     int i;
     uint32_t res;
 
@@ -27,7 +27,7 @@ static uint32_t bytes2integer(const byte_t* ip, int count) {
 /**
  *  read 'len' of bytes to 'buf', from 'fp' at 'offset'
  */
-static int32_t read_from_file(FILE* fp,
+_CC_API_PRIVATE(int32_t) read_from_file(FILE* fp,
                                          uint32_t offset,
                                          byte_t* buf,
                                          int len) {
@@ -52,7 +52,7 @@ static int32_t read_from_file(FILE* fp,
     return rlen;
 }
 
-static int32_t get_area_addr(FILE* fp,
+_CC_API_PRIVATE(int32_t) get_area_addr(FILE* fp,
                                         uint32_t offset,
                                         byte_t* result,
                                         int32_t len) {
@@ -77,7 +77,7 @@ static int32_t get_area_addr(FILE* fp,
     return result_len;
 }
 
-static int32_t get_addr(FILE* fp,
+_CC_API_PRIVATE(int32_t) get_addr(FILE* fp,
                                    uint32_t offset,
                                    byte_t* addr,
                                    uint32_t len) {
@@ -133,7 +133,7 @@ static int32_t get_addr(FILE* fp,
     return 0;
 }
 
-static void set_ip_range(int rec_no, _cc_ip_locator_t* f) {
+_CC_API_PRIVATE(void) set_ip_range(int rec_no, _cc_ip_locator_t* f) {
     byte_t buf[7];
     uint32_t offset = 0;
 
@@ -156,7 +156,7 @@ static void set_ip_range(int rec_no, _cc_ip_locator_t* f) {
 /**
  *  get IP location, return 0 if error
  */
-static int32_t _ip_locator_get_ip_addr(_cc_ip_locator_t* f,
+_CC_API_PRIVATE(int32_t) _ip_locator_get_ip_addr(_cc_ip_locator_t* f,
                                                   uint32_t ip,
                                                   byte_t* addr,
                                                   int32_t len) {
@@ -196,14 +196,14 @@ static int32_t _ip_locator_get_ip_addr(_cc_ip_locator_t* f,
     return 0;
 }
 
-static int32_t _ip_locator_get_version(_cc_ip_locator_t* f,
+_CC_API_PRIVATE(int32_t) _ip_locator_get_version(_cc_ip_locator_t* f,
                                                   byte_t* version,
                                                   int32_t len) {
     /* the last item is the version information. */
     return _ip_locator_get_ip_addr(f, 0xffffff00, version, len);
 }
 
-static void _ip_locator_quit(_cc_ip_locator_t* f) {
+_CC_API_PRIVATE(void) _ip_locator_quit(_cc_ip_locator_t* f) {
     if (f && f->fp) {
         fclose(f->fp);
     }

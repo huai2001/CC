@@ -20,7 +20,7 @@
 */
 #include <cc/socket/socket.h>
 
-static SOCKET _tcp_socket(void) {
+_CC_API_PRIVATE(SOCKET) _tcp_socket(void) {
 #if _CC_USE_WSASOCKET_
     return WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, 0);
 #else
@@ -29,7 +29,7 @@ static SOCKET _tcp_socket(void) {
 }
 
 /* oh, the humanity! */
-static int _cc_pipe(int filedes[2]) {
+_CC_API_PUBLIC(int) _cc_pipe(int filedes[2]) {
     static int id = 0;
     FD_SET rs;
     SOCKET ls;

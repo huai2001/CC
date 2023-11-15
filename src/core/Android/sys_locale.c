@@ -23,6 +23,6 @@
 #include <cc/core/android.h>
 #include <sys/errno.h>
 
-void _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
     _cc_jni_get_locale(buf, buflen);
 }

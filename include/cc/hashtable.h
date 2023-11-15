@@ -89,7 +89,7 @@ _CC_FORCE_INLINE_ uint32_t _cc_hashtable_length(_cc_hashtable_t *ctx) {
  *
  * @return a new empty hashtable
  */
-_CC_API(bool_t)
+_CC_API_PUBLIC(bool_t)
 _cc_hashtable_alloc(_cc_hashtable_t *ctx, uint32_t initial_size, _cc_hashtable_keyword_equals_func_t equals_func,
                     _cc_hashtable_keyword_hash_func_t hash_func);
 /**
@@ -97,7 +97,7 @@ _cc_hashtable_alloc(_cc_hashtable_t *ctx, uint32_t initial_size, _cc_hashtable_k
  *
  * @param ctx hashtable context
  */
-_CC_API(bool_t) _cc_hashtable_free(_cc_hashtable_t *ctx);
+_CC_API_PUBLIC(bool_t) _cc_hashtable_free(_cc_hashtable_t *ctx);
 /**
  * @brief Creates a new empty hashtable.
  *
@@ -107,7 +107,7 @@ _CC_API(bool_t) _cc_hashtable_free(_cc_hashtable_t *ctx);
  *
  * @return a new empty hashtable
  */
-_CC_API(_cc_hashtable_t *)
+_CC_API_PUBLIC(_cc_hashtable_t *)
 _cc_create_hashtable(uint32_t initial_size, _cc_hashtable_keyword_equals_func_t equals_func,
                      _cc_hashtable_keyword_hash_func_t hash_func);
 /**
@@ -115,20 +115,20 @@ _cc_create_hashtable(uint32_t initial_size, _cc_hashtable_keyword_equals_func_t 
  *
  * @param ctx hashtable context
  */
-_CC_API(void) _cc_destroy_hashtable(_cc_hashtable_t **ctx);
+_CC_API_PUBLIC(void) _cc_destroy_hashtable(_cc_hashtable_t **ctx);
 /**/
-_CC_API(pvoid_t) _cc_hashtable_value(pvoid_t);
+_CC_API_PUBLIC(pvoid_t) _cc_hashtable_value(pvoid_t);
 /**
  * @brief Removes all items.
  */
-_CC_API(bool_t) _cc_hashtable_cleanup(_cc_hashtable_t *);
+_CC_API_PUBLIC(bool_t) _cc_hashtable_cleanup(_cc_hashtable_t *);
 /**/
-_CC_API(bool_t)
+_CC_API_PUBLIC(bool_t)
 _cc_hashtable_insert(_cc_hashtable_t *, const pvoid_t keyword, const pvoid_t custom);
 /**/
-_CC_API(pvoid_t) _cc_hashtable_find(_cc_hashtable_t *, const pvoid_t keyword);
+_CC_API_PUBLIC(pvoid_t) _cc_hashtable_find(_cc_hashtable_t *, const pvoid_t keyword);
 /**/
-_CC_API(pvoid_t) _cc_hashtable_remove(_cc_hashtable_t *, const pvoid_t keyword);
+_CC_API_PUBLIC(pvoid_t) _cc_hashtable_remove(_cc_hashtable_t *, const pvoid_t keyword);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

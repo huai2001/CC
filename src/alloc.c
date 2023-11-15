@@ -45,7 +45,7 @@
 
 #ifdef _CC_ENABLE_MEMORY_TRACKED_
 
-static void _write_timestamp(FILE *wfp) {
+_CC_API_PRIVATE(void) _write_timestamp(FILE *wfp) {
     time_t now_time = time(NULL);
     struct tm *t = localtime(&now_time);
 
@@ -53,13 +53,13 @@ static void _write_timestamp(FILE *wfp) {
             t->tm_min, t->tm_sec);
 }
 
-static void __cc_tracked_memory_unlink(pvoid_t ptr) {
+_CC_API_PRIVATE(void) __cc_tracked_memory_unlink(pvoid_t ptr) {
     tchar_t _memory_file[_CC_MAX_PATH_];
     _sntprintf(_memory_file, _cc_countof(_memory_file), _T("./memory/%p.mem"), ptr);
     _cc_unlink(_memory_file);
 }
 
-static void __cc_tracked_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
+_CC_API_PRIVATE(void) __cc_tracked_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
     tchar_t _memory_file[_CC_MAX_PATH_];
     FILE *fp;
     _sntprintf(_memory_file, _cc_countof(_memory_file), _T("./memory/%p.mem"), ptr);
@@ -76,7 +76,7 @@ static void __cc_tracked_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
 #endif
 
 /**/
-static pvoid_t __cc_check_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
+_CC_API_PRIVATE(pvoid_t) __cc_check_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
     if (_cc_unlikely(NULL == ptr)) {
         _cc_logger_error(_T("%s: Out of memory trying to allocate %zu bytes"), msg, size);
         _cc_abort();
@@ -89,17 +89,17 @@ static pvoid_t __cc_check_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
 }
 
 /**/
-pvoid_t _cc_malloc(size_t n) {
+_CC_API_PUBLIC(pvoid_t) _cc_malloc(size_t n) {
     return __cc_check_memory(malloc(n), n, _T("_cc_malloc"));
 }
 
 /**/
-pvoid_t _cc_calloc(size_t c, size_t n) {
+_CC_API_PUBLIC(pvoid_t) _cc_calloc(size_t c, size_t n) {
     return __cc_check_memory(calloc(c, n), c * n, _T("_cc_calloc"));
 }
 
 /**/
-pvoid_t _cc_realloc(void *d, size_t n) {
+_CC_API_PUBLIC(pvoid_t) _cc_realloc(void *d, size_t n) {
     if (_cc_unlikely(n <= 0)) {
         _cc_free(d);
         return NULL;
@@ -117,7 +117,7 @@ pvoid_t _cc_realloc(void *d, size_t n) {
 }
 
 /**/
-void _cc_free(pvoid_t p) {
+_CC_API_PUBLIC(void) _cc_free(pvoid_t p) {
     _cc_assert(p != NULL);
     free(p);
 #ifdef _CC_ENABLE_MEMORY_TRACKED_
@@ -126,17 +126,17 @@ void _cc_free(pvoid_t p) {
 }
 
 /**/
-wchar_t *_cc_strdupW(const wchar_t *str) {
+_CC_API_PUBLIC(wchar_t*) _cc_strdupW(const wchar_t *str) {
     return _cc_strndupW(str, wcslen(str));
 }
 
 /**/
-char_t *_cc_strdupA(const char_t *str) {
+_CC_API_PUBLIC(char_t*) _cc_strdupA(const char_t *str) {
     return _cc_strndupA(str, strlen(str));
 }
 
 /**/
-wchar_t *_cc_strndupW(const wchar_t *str, size_t str_len) {
+_CC_API_PUBLIC(wchar_t*) _cc_strndupW(const wchar_t *str, size_t str_len) {
     wchar_t *req_str;
 
     if (_cc_unlikely(str_len <= 0)) {
@@ -153,7 +153,7 @@ wchar_t *_cc_strndupW(const wchar_t *str, size_t str_len) {
 }
 
 /**/
-char_t *_cc_strndupA(const char_t *str, size_t str_len) {
+_CC_API_PUBLIC(char_t*) _cc_strndupA(const char_t *str, size_t str_len) {
     char_t *req_str;
 
     if (_cc_unlikely(str_len <= 0)) {

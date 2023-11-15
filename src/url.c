@@ -80,7 +80,7 @@ const _cc_url_scheme_t _url_supported_schemes[] = {
 };
 
 /**/
-static bool_t _url_exists_user_password(const tchar_t *s) {
+_CC_API_PRIVATE(bool_t) _url_exists_user_password(const tchar_t *s) {
     const tchar_t *p = s;
 
     while (*p != '\0' && *p != _T('/')) {
@@ -94,7 +94,7 @@ static bool_t _url_exists_user_password(const tchar_t *s) {
 }
 
 /**/
-static tchar_t *_url_user_password_copy(const tchar_t *s, size_t len) {
+_CC_API_PRIVATE(tchar_t*) _url_user_password_copy(const tchar_t *s, size_t len) {
     tchar_t *d = (tchar_t *)_cc_malloc(sizeof(tchar_t) * (len + 1));
     _cc_raw_url_decode(s, (int32_t)len, d, (int32_t)len);
     return d;
@@ -102,7 +102,7 @@ static tchar_t *_url_user_password_copy(const tchar_t *s, size_t len) {
 
 /* Returns the scheme type if the scheme is supported, or SCHEME_INVALID if not.
  */
-static void parse_url_scheme(_cc_url_t *u, const tchar_t *scheme, int32_t scheme_len) {
+_CC_API_PRIVATE(void) parse_url_scheme(_cc_url_t *u, const tchar_t *scheme, int32_t scheme_len) {
     int32_t i;
 
     u->scheme.ident = _CC_SCHEME_UNKNOWN_;
@@ -125,13 +125,13 @@ static void parse_url_scheme(_cc_url_t *u, const tchar_t *scheme, int32_t scheme
 
 #if 0
 /* check host name, i.e. A-Z or 0-9 or -.:*/
-static bool_t is_valid_host_char(tchar_t chr) {
+_CC_API_PRIVATE(bool_t) is_valid_host_char(tchar_t chr) {
     return ( _CC_ISALPHA(chr) != 0 || _CC_ISDIGIT(chr) 
             || chr == _T('-') || chr == _T('.') || chr == _T(':') || chr == _T('_'));
 }
 
 /*check Host*/
-static bool_t is_valid_host(const tchar_t *_host) {
+_CC_API_PRIVATE(bool_t) is_valid_host(const tchar_t *_host) {
     _cc_assert(_host);
     if ( !_host ) {
         return false;
@@ -151,7 +151,7 @@ static bool_t is_valid_host(const tchar_t *_host) {
 #endif
 
 /*create url*/
-static _cc_url_t *_create_url(_cc_url_t *u, const tchar_t *url) {
+_CC_API_PRIVATE(_cc_url_t*) _create_url(_cc_url_t *u, const tchar_t *url) {
     const tchar_t *curstr, *tmpstr;
     const tchar_t *user_name = NULL, *user_password = NULL;
 
@@ -321,7 +321,7 @@ URL_PRASE_PATH_PARAMS:
     return u;
 }
 
-bool_t _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
+_CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
     if (_create_url(u, url) == NULL) {
         return false;
     }
@@ -329,7 +329,7 @@ bool_t _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
 }
 
 /*create url*/
-_cc_url_t *_cc_create_url(const tchar_t *url) {
+_CC_API_PUBLIC(_cc_url_t*) _cc_create_url(const tchar_t *url) {
     _cc_url_t *u = _CC_MALLOC(_cc_url_t);
     if (_create_url(u, url) == NULL) {
         _cc_free(u);
@@ -338,7 +338,7 @@ _cc_url_t *_cc_create_url(const tchar_t *url) {
     return u;
 }
 /**/
-bool_t _cc_free_url(_cc_url_t *url) {
+_CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *url) {
     if (url->request != NULL && url->request != _URL_PATH_ROOT_) {
         _cc_free(url->request);
         url->request = NULL;
@@ -362,7 +362,7 @@ bool_t _cc_free_url(_cc_url_t *url) {
     return true;
 }
 /**/
-bool_t _cc_destroy_url(_cc_url_t **url) {
+_CC_API_PUBLIC(bool_t) _cc_destroy_url(_cc_url_t **url) {
     if (_cc_likely(url && *url)) {
         _cc_free_url(*url);
         _cc_free((*url));
@@ -376,7 +376,7 @@ bool_t _cc_destroy_url(_cc_url_t **url) {
 /* {{{ url_encode
  */
 
-int32_t _cc_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
+_CC_API_PUBLIC(int32_t) _cc_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
     register int c;
     register int32_t x, y;
 
@@ -411,7 +411,7 @@ int32_t _cc_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_
 
 /* {{{ url_decode
  */
-int32_t _cc_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
+_CC_API_PUBLIC(int32_t) _cc_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
     register int32_t i = 0;
     const tchar_t *s = src;
     const tchar_t *e = src + src_len;
@@ -452,7 +452,7 @@ int32_t _cc_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_
 
 /* {{{ raw_url_encode
  */
-int32_t _cc_raw_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
+_CC_API_PUBLIC(int32_t) _cc_raw_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
     register int c;
     register int32_t x, y;
 
@@ -484,7 +484,7 @@ int32_t _cc_raw_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, in
 
 /* {{{ raw_url_decode
  */
-int32_t _cc_raw_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
+_CC_API_PUBLIC(int32_t) _cc_raw_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len) {
     register int32_t i = 0;
     const tchar_t *s = src;
     const tchar_t *e = src + src_len;

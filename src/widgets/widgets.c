@@ -2,7 +2,7 @@
 #include <cc/event/event.h>
 
 /**/
-bool_t _cc_event_writef(_cc_event_t *e, const char_t *fmt, ...) {
+_CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const char_t *fmt, ...) {
     char_t buf[_CC_IO_BUFFER_SIZE_];
     int32_t off = 0;
     va_list arg;

@@ -41,7 +41,7 @@ static struct {
     _cc_array_t cycles;
 } g = {0};
 
-static _cc_event_t *_cc_reserve_event(byte_t baseid) {
+_CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(byte_t baseid) {
     uint32_t round;
     _cc_list_iterator_t *lnk;
     _cc_event_t *e;
@@ -65,7 +65,7 @@ static _cc_event_t *_cc_reserve_event(byte_t baseid) {
 }
 
 /**/
-_cc_event_cycle_t *_cc_get_event_cycle(void) {
+_CC_API_PUBLIC(_cc_event_cycle_t*) _cc_get_event_cycle(void) {
     _cc_event_cycle_t *cycle;
     _cc_event_cycle_t *n;
     int32_t i, count;
@@ -95,7 +95,7 @@ _cc_event_cycle_t *_cc_get_event_cycle(void) {
 }
 
 /**/
-_cc_event_t *_cc_get_event_by_id(uint32_t ident) {
+_CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
     _cc_event_t *e = &g.storage[_CC_LO_UINT16(ident)];
 
     if (e->ident == ident) {
@@ -106,7 +106,7 @@ _cc_event_t *_cc_get_event_by_id(uint32_t ident) {
 }
 
 /**/
-_cc_event_cycle_t *_cc_get_event_cycle_by_id(uint32_t ident) {
+_CC_API_PUBLIC(_cc_event_cycle_t*) _cc_get_event_cycle_by_id(uint32_t ident) {
     uint16_t index = ((uint16_t)(ident >> 24));
     if (_cc_unlikely(index >= g.cycles.size)) {
         return NULL;
@@ -115,7 +115,7 @@ _cc_event_cycle_t *_cc_get_event_cycle_by_id(uint32_t ident) {
 }
 
 /**/
-bool_t _cc_valid_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_valid_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_cc_unlikely(e->ident == _CC_EVENT_INVALID_ID_)) {
         return false;
     }
@@ -128,7 +128,7 @@ bool_t _cc_valid_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-uint32_t _cc_valid_connected(_cc_event_t *e, uint32_t events) {
+_CC_API_PUBLIC(uint32_t) _cc_valid_connected(_cc_event_t *e, uint32_t events) {
     if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, events) != 0) {
         _CC_MODIFY_BIT(_CC_EVENT_READABLE_, _CC_EVENT_CONNECT_, e->flags);
         if (!_cc_event_fd_valid(e)) {
@@ -139,7 +139,7 @@ uint32_t _cc_valid_connected(_cc_event_t *e, uint32_t events) {
 }
 
 /**/
-bool_t _cc_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t events) {
+_CC_API_PUBLIC(bool_t) _cc_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t events) {
     /**/
     cycle->processed++;
     
@@ -147,15 +147,14 @@ bool_t _cc_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t eve
     if (e->callback && e->callback(cycle, e, events)) {
         _cc_list_iterator_swap(&cycle->pending, &e->lnk);
         return true;
-    } else if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags)) {
-        /**/
+    }/* else if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags)) {
         if (e->descriptor & (_CC_EVENT_DESC_SOCKET_ | _CC_EVENT_DESC_FILE_)) {
             //_cc_shutdown_socket(e->fd, _CC_SHUT_RD_);
             _CC_MODIFY_BIT(_CC_EVENT_DISCONNECT_, _CC_EVENT_READABLE_, e->flags);
             _cc_list_iterator_swap(&cycle->pending, &e->lnk);
             return true;
         }
-    }
+    }*/
 
     /*force disconnect socket*/
     _cc_cleanup_event(cycle, e);
@@ -163,7 +162,7 @@ bool_t _cc_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t eve
 }
 
 /**/
-_cc_event_t *_cc_alloc_event(_cc_event_cycle_t *cycle, const uint32_t flags) {
+_CC_API_PUBLIC(_cc_event_t*) _cc_alloc_event(_cc_event_cycle_t *cycle, const uint32_t flags) {
     _cc_event_t *e;
 
     e = _cc_reserve_event(cycle->ident);
@@ -201,7 +200,7 @@ _cc_event_t *_cc_alloc_event(_cc_event_cycle_t *cycle, const uint32_t flags) {
 }
 
 /**/
-bool_t _cc_event_wait_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_event_wait_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     bool_t results = true;
     if (cycle->running == 0) {
         return false;
@@ -223,7 +222,7 @@ bool_t _cc_event_wait_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-void _cc_free_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PUBLIC(void) _cc_free_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_socket_t fd;
 
     if (e->buffer) {
@@ -251,7 +250,7 @@ void _cc_free_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-void _cc_cleanup_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PUBLIC(void) _cc_cleanup_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     e->callback(cycle, e, _CC_EVENT_DELETED_);
 
     if (cycle->cleanup) {
@@ -262,7 +261,7 @@ void _cc_cleanup_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-void _cc_reset_pending_event(_cc_event_cycle_t *cycle, void (*_reset_event)(_cc_event_cycle_t *, _cc_event_t *)) {
+_CC_API_PUBLIC(void) _cc_reset_pending_event(_cc_event_cycle_t *cycle, void (*_reset_event)(_cc_event_cycle_t *, _cc_event_t *)) {
     _cc_list_iterator_t *head;
     _cc_list_iterator_t *next;
     _cc_list_iterator_t *curr;
@@ -292,7 +291,7 @@ void _cc_reset_pending_event(_cc_event_cycle_t *cycle, void (*_reset_event)(_cc_
 }
 
 /**/
-bool_t _cc_event_change_flag(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t flags) {
+_CC_API_PUBLIC(bool_t) _cc_event_change_flag(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t flags) {
     if (cycle == NULL) {
         cycle = _cc_get_event_cycle_by_id(e->ident);
         if (cycle == NULL) {
@@ -309,7 +308,7 @@ bool_t _cc_event_change_flag(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t 
     return _cc_event_wait_reset(cycle, e);
 }
 /*
-void _cc_print_cycle_processed(void) {
+_CC_API_PUBLIC(void) _cc_print_cycle_processed(void) {
     uint32_t i;
     for (i = 0; i < g.cycles.length; i++) {
         _cc_event_cycle_t *cycle = (_cc_event_cycle_t*)g.cycles.data[i];
@@ -321,7 +320,7 @@ void _cc_print_cycle_processed(void) {
 }
 */
 
-static int32_t _event_get_max_limit() {
+_CC_API_PRIVATE(int32_t) _event_get_max_limit() {
 #if defined(__CC_LINUX__) || defined(__CC_APPLE__)
     struct rlimit limit;
     if (getrlimit(RLIMIT_NOFILE, &limit) == 0) {
@@ -333,7 +332,7 @@ static int32_t _event_get_max_limit() {
 }
 
 /**/
-bool_t _cc_event_cycle_init(_cc_event_cycle_t *cycle) {
+_CC_API_PUBLIC(bool_t) _cc_event_cycle_init(_cc_event_cycle_t *cycle) {
     int i, j;
     _cc_assert(cycle != NULL);
 
@@ -390,7 +389,7 @@ bool_t _cc_event_cycle_init(_cc_event_cycle_t *cycle) {
     return true;
 }
 
-static void _event_link_free(_cc_event_cycle_t *cycle, _cc_list_iterator_t *head) {
+_CC_API_PRIVATE(void) _event_link_free(_cc_event_cycle_t *cycle, _cc_list_iterator_t *head) {
     _cc_list_iterator_t *next;
     _cc_list_iterator_t *curr;
     _cc_event_t *e;
@@ -413,7 +412,7 @@ static void _event_link_free(_cc_event_cycle_t *cycle, _cc_list_iterator_t *head
 }
 
 /**/
-bool_t _cc_event_cycle_quit(_cc_event_cycle_t *cycle) {
+_CC_API_PUBLIC(bool_t) _cc_event_cycle_quit(_cc_event_cycle_t *cycle) {
     int i, j, c;
     _cc_event_t *e;
     _cc_assert(cycle != NULL);
@@ -469,7 +468,7 @@ bool_t _cc_event_cycle_quit(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-bool_t _cc_event_fd_valid(_cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_event_fd_valid(_cc_event_t *e) {
     int results = 0;
     socklen_t len = sizeof(results);
 
@@ -492,25 +491,25 @@ bool_t _cc_event_fd_valid(_cc_event_t *e) {
 }
 
 /**/
-bool_t _cc_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_assert(cycle != NULL && cycle->driver.attach != NULL);
     return cycle->driver.attach(cycle, e);
 }
 
 /**/
-bool_t _cc_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
+_CC_API_PUBLIC(bool_t) _cc_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
     _cc_assert(cycle != NULL && cycle->driver.connect != NULL && sa != NULL);
     return cycle->driver.connect(cycle, e, sa, sa_len);
 }
 
 /**/
-_cc_socket_t _cc_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
+_CC_API_PUBLIC(_cc_socket_t) _cc_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
     _cc_assert(cycle != NULL && cycle->driver.accept != NULL && e != NULL);
     return cycle->driver.accept(cycle, e, sa, sa_len);
 }
 
 /**/
-bool_t _cc_event_disconnect(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_event_disconnect(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     /**/
     if (e->descriptor & (_CC_EVENT_DESC_SOCKET_ | _CC_EVENT_DESC_FILE_)) {
         _cc_shutdown_socket(e->fd, _CC_SHUT_RD_);
@@ -521,7 +520,7 @@ bool_t _cc_event_disconnect(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-bool_t _cc_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PUBLIC(bool_t) _cc_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
     _cc_assert(cycle != NULL && cycle->driver.wait != NULL);
     return cycle->driver.wait(cycle, timeout);
 }

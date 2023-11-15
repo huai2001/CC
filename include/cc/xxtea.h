@@ -37,7 +37,7 @@ extern "C" {
  *
  * Caller is responsible for freeing the returned buffer.
  */
-_CC_API(byte_t*) _cc_xxtea_encrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length);
+_CC_API_PUBLIC(byte_t*) _cc_xxtea_encrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length);
 
 /**
  * Function: xxtea_decrypt
@@ -49,7 +49,7 @@ _CC_API(byte_t*) _cc_xxtea_encrypt(const byte_t *data, size_t len, const byte_t 
  *
  * Caller is responsible for freeing the returned buffer.
  */
-_CC_API(byte_t*) _cc_xxtea_decrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length);
+_CC_API_PUBLIC(byte_t*) _cc_xxtea_decrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length);
 
 #ifdef __cplusplus
 }

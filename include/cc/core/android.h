@@ -58,7 +58,7 @@ int64_t Android_JNI_FileSize(AAsset *asset);
 int64_t Android_JNI_FileSeek(AAsset *asset, int64_t offset, int whence);
 void Android_JNI_FileClose(AAsset *asset);
 
-_CC_API(bool_t) _cc_jni_get_locale(char *buf, size_t buflen);
+_CC_API_PUBLIC(bool_t) _cc_jni_get_locale(char *buf, size_t buflen);
 
 /**
  * @brief JNI onload(JNI_OnLoad) Android Virtual Machine System.loadLibrary()
@@ -69,20 +69,20 @@ _CC_API(bool_t) _cc_jni_get_locale(char *buf, size_t buflen);
  *
  * @return JNIEnv
  */
-_CC_API(JNIEnv *) _cc_jni_onload(JavaVM *vm, pvoid_t reserved, jint version);
+_CC_API_PUBLIC(JNIEnv *) _cc_jni_onload(JavaVM *vm, pvoid_t reserved, jint version);
 
 /**
  * @brief Get JNI File Mangager
  *
  * @return AssertManager Handle
  */
-_CC_API(AAssetManager *) _cc_jni_get_asset_manager(void);
+_CC_API_PUBLIC(AAssetManager *) _cc_jni_get_asset_manager(void);
 /**
  * @brief Set JNI File Mangager
  *
  * @param asset_manager AAssetManager
  */
-_CC_API(void) _cc_jni_set_asset_manager(AAssetManager *asset_manager);
+_CC_API_PUBLIC(void) _cc_jni_set_asset_manager(AAssetManager *asset_manager);
 /**
  * @brief Power support
  *
@@ -94,7 +94,7 @@ _CC_API(void) _cc_jni_set_asset_manager(AAssetManager *asset_manager);
  *
  * @return 0
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_jni_get_power_info(int *plugged, int *charged, int *battery, int *seconds, byte_t *percent);
 /**
  * @brief JNI Set clipboard Text
@@ -103,7 +103,7 @@ _cc_jni_get_power_info(int *plugged, int *charged, int *battery, int *seconds, b
  *
  * @return 0
  */
-_CC_API(int) _cc_jni_set_clipboard_text(const tchar_t *text);
+_CC_API_PUBLIC(int) _cc_jni_set_clipboard_text(const tchar_t *text);
 /**
  * @brief JNI Get clipboard Text
  *
@@ -112,45 +112,45 @@ _CC_API(int) _cc_jni_set_clipboard_text(const tchar_t *text);
  *
  * @return Length of string
  */
-_CC_API(int) _cc_jni_get_clipboard_text(tchar_t *str, int32_t len);
+_CC_API_PUBLIC(int) _cc_jni_get_clipboard_text(tchar_t *str, int32_t len);
 /**
  * @brief JNI Check the clipboard for strings
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_jni_has_clipboard_text(void);
+_CC_API_PUBLIC(bool_t) _cc_jni_has_clipboard_text(void);
 /**
  * @brief JNI get the cache path
  *
  * @return Length of string
  */
-_CC_API(int) _cc_jni_get_cache_directory(tchar_t *str, int32_t len);
+_CC_API_PUBLIC(int) _cc_jni_get_cache_directory(tchar_t *str, int32_t len);
 /**
  * @brief JNI get the files path
  *
  * @return Length of string
  */
-_CC_API(int) _cc_jni_get_files_directory(tchar_t *str, int32_t len);
+_CC_API_PUBLIC(int) _cc_jni_get_files_directory(tchar_t *str, int32_t len);
 /**
  * @brief JNI get the apk package name
  *
  * @return Length of string
  */
-_CC_API(int) _cc_jni_get_package_name(tchar_t *str, int32_t len);
+_CC_API_PUBLIC(int) _cc_jni_get_package_name(tchar_t *str, int32_t len);
 /**
  * @brief JNI Check if it's an emulator
  *
  * @return true or FLASE
  */
-_CC_API(bool_t) _cc_jni_is_simulator(void);
+_CC_API_PUBLIC(bool_t) _cc_jni_is_simulator(void);
 /**
  * @brief JNI Open URL
  */
-_CC_API(int) _cc_jni_open_url(const char *url);
+_CC_API_PUBLIC(int) _cc_jni_open_url(const char *url);
 /**
  * @brief JNI Show toast notification
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_jni_show_toast(const char *message, int duration, int gravity, int xOffset, int yOffset);
 
 /* Ends C function definitions when using C++ */

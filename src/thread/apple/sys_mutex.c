@@ -21,7 +21,7 @@
 #include "sys_thread.c.h"
 
 /** Create a mutex, initialized unlocked */
-_cc_mutex_t *_cc_create_mutex(void) {
+_CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
     /* Allocate mutex memory */
     _cc_mutex_t *mutex = (_cc_mutex_t *)_cc_malloc(sizeof(_cc_mutex_t));
     bzero(mutex, sizeof(_cc_mutex_t));
@@ -31,7 +31,7 @@ _cc_mutex_t *_cc_create_mutex(void) {
 }
 
 /* Free the mutex */
-void _cc_destroy_mutex(_cc_mutex_t **mutex) {
+_CC_API_PUBLIC(void) _cc_destroy_mutex(_cc_mutex_t **mutex) {
     if (*mutex) {
         _cc_free(*mutex);
         *mutex = NULL;
@@ -39,7 +39,7 @@ void _cc_destroy_mutex(_cc_mutex_t **mutex) {
 }
 
 /* Lock the mutex */
-bool_t _cc_mutex_lock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
     pthread_t self;
     if (mutex == NULL) {
         _cc_logger_error(_T("Passed a NULL mutex"));
@@ -58,7 +58,7 @@ bool_t _cc_mutex_lock(_cc_mutex_t *mutex) {
 }
 
 /* Try Lock the mutex */
-int _cc_mutex_try_lock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     pthread_t self;
     if (mutex == NULL) {
         _cc_logger_error(_T("Passed a NULL mutex"));
@@ -79,7 +79,7 @@ int _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 }
 
 /* Unlock the mutex */
-bool_t _cc_mutex_unlock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
         _cc_logger_error(_T("Passed a NULL mutex"));
         return false;

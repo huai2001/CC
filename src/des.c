@@ -230,11 +230,11 @@ static const uint32_t RHs[16] = {
         b = t;          \
     }
 
-void _cc_des_init(_cc_des_t* ctx) {
+_CC_API_PUBLIC(void) _cc_des_init(_cc_des_t* ctx) {
     bzero(ctx, sizeof(_cc_des_t));
 }
 
-void _cc_des3_init(_cc_des3_t* ctx) {
+_CC_API_PUBLIC(void) _cc_des3_init(_cc_des3_t* ctx) {
     bzero(ctx, sizeof(_cc_des3_t));
 }
 
@@ -249,7 +249,7 @@ static const byte_t odd_parity_table[128] = {
     211, 213, 214, 217, 218, 220, 223, 224, 227, 229, 230, 233, 234, 236, 239,
     241, 242, 244, 247, 248, 251, 253, 254};
 
-void _cc_des_key_set_parity(byte_t key[_CC_DES_KEY_SIZE_]) {
+_CC_API_PUBLIC(void) _cc_des_key_set_parity(byte_t key[_CC_DES_KEY_SIZE_]) {
     int i;
 
     for (i = 0; i < _CC_DES_KEY_SIZE_; i++) {
@@ -260,7 +260,7 @@ void _cc_des_key_set_parity(byte_t key[_CC_DES_KEY_SIZE_]) {
 /*
  * Check the given key's parity, returns false on failure, true on SUCCESS
  */
-bool_t _cc_des_key_check_key_parity(const byte_t key[_CC_DES_KEY_SIZE_]) {
+_CC_API_PUBLIC(bool_t) _cc_des_key_check_key_parity(const byte_t key[_CC_DES_KEY_SIZE_]) {
     int i;
 
     for (i = 0; i < _CC_DES_KEY_SIZE_; i++) {
@@ -314,7 +314,7 @@ static const byte_t weak_key_table[WEAK_KEY_COUNT][_CC_DES_KEY_SIZE_] = {
     {0xE0, 0xFE, 0xE0, 0xFE, 0xF1, 0xFE, 0xF1, 0xFE},
     {0xFE, 0xE0, 0xFE, 0xE0, 0xFE, 0xF1, 0xFE, 0xF1}};
 
-bool_t _cc_des_key_check_weak(const byte_t key[_CC_DES_KEY_SIZE_]) {
+_CC_API_PUBLIC(bool_t) _cc_des_key_check_weak(const byte_t key[_CC_DES_KEY_SIZE_]) {
     int i;
 
     for (i = 0; i < WEAK_KEY_COUNT; i++) {
@@ -326,7 +326,7 @@ bool_t _cc_des_key_check_weak(const byte_t key[_CC_DES_KEY_SIZE_]) {
     return false;
 }
 
-void _cc_des_setkey(uint32_t SK[32], const byte_t key[_CC_DES_KEY_SIZE_]) {
+_CC_API_PUBLIC(void) _cc_des_setkey(uint32_t SK[32], const byte_t key[_CC_DES_KEY_SIZE_]) {
     int i;
     uint32_t X, Y, T;
 
@@ -397,14 +397,14 @@ void _cc_des_setkey(uint32_t SK[32], const byte_t key[_CC_DES_KEY_SIZE_]) {
 /*
  * DES key schedule (56-bit, encryption)
  */
-void _cc_des_setkey_enc(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]) {
+_CC_API_PUBLIC(void) _cc_des_setkey_enc(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]) {
     _cc_des_setkey(ctx->sk, key);
 }
 
 /*
  * DES key schedule (56-bit, decryption)
  */
-void _cc_des_setkey_dec(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]) {
+_CC_API_PUBLIC(void) _cc_des_setkey_dec(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]) {
     int i;
 
     _cc_des_setkey(ctx->sk, key);
@@ -415,7 +415,7 @@ void _cc_des_setkey_dec(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]) {
     }
 }
 
-static void des3_set2key(uint32_t esk[96], uint32_t dsk[96], const byte_t key[_CC_DES_KEY_SIZE_ * 2]) {
+_CC_API_PRIVATE(void) des3_set2key(uint32_t esk[96], uint32_t dsk[96], const byte_t key[_CC_DES_KEY_SIZE_ * 2]) {
     int i;
 
     _cc_des_setkey(esk, key);
@@ -439,7 +439,7 @@ static void des3_set2key(uint32_t esk[96], uint32_t dsk[96], const byte_t key[_C
 /*
  * Triple-DES key schedule (112-bit, encryption)
  */
-void _cc_des3_set2key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]) {
+_CC_API_PUBLIC(void) _cc_des3_set2key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]) {
     uint32_t sk[96];
 
     des3_set2key(ctx->sk, sk, key);
@@ -448,13 +448,13 @@ void _cc_des3_set2key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 
 /*
  * Triple-DES key schedule (112-bit, decryption)
  */
-void _cc_des3_set2key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]) {
+_CC_API_PUBLIC(void) _cc_des3_set2key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]) {
     uint32_t sk[96];
 
     des3_set2key(sk, ctx->sk, key);
 }
 
-static void des3_set3key(uint32_t esk[96], uint32_t dsk[96], const byte_t key[24]) {
+_CC_API_PRIVATE(void) des3_set3key(uint32_t esk[96], uint32_t dsk[96], const byte_t key[24]) {
     int i;
 
     _cc_des_setkey(esk, key);
@@ -476,7 +476,7 @@ static void des3_set3key(uint32_t esk[96], uint32_t dsk[96], const byte_t key[24
 /*
  * Triple-DES key schedule (168-bit, encryption)
  */
-void _cc_des3_set3key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]) {
+_CC_API_PUBLIC(void) _cc_des3_set3key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]) {
     uint32_t sk[96];
 
     des3_set3key(ctx->sk, sk, key);
@@ -485,7 +485,7 @@ void _cc_des3_set3key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 
 /*
  * Triple-DES key schedule (168-bit, decryption)
  */
-void _cc_des3_set3key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]) {
+_CC_API_PUBLIC(void) _cc_des3_set3key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]) {
     uint32_t sk[96];
 
     des3_set3key(sk, ctx->sk, key);
@@ -495,7 +495,7 @@ void _cc_des3_set3key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 
  * DES-ECB block encryption/decryption
  */
 #if !defined(_CC_DES_CRYPT_ECB_ALT_)
-void _cc_des_crypt_ecb(_cc_des_t *ctx, const byte_t input[8], byte_t output[8]) {
+_CC_API_PUBLIC(void) _cc_des_crypt_ecb(_cc_des_t *ctx, const byte_t input[8], byte_t output[8]) {
     int i;
     uint32_t X, Y, T, *SK;
 
@@ -522,7 +522,7 @@ void _cc_des_crypt_ecb(_cc_des_t *ctx, const byte_t input[8], byte_t output[8]) 
 /*
  * DES-CBC buffer encryption/decryption
  */
-int _cc_des_crypt_cbc(_cc_des_t *ctx, int mode, size_t length, byte_t iv[8], const byte_t *input, byte_t *output) {
+_CC_API_PUBLIC(int) _cc_des_crypt_cbc(_cc_des_t *ctx, int mode, size_t length, byte_t iv[8], const byte_t *input, byte_t *output) {
     int i;
     byte_t temp[8];
     /*length & 7 == length % 8*/
@@ -568,7 +568,7 @@ int _cc_des_crypt_cbc(_cc_des_t *ctx, int mode, size_t length, byte_t iv[8], con
  * 3DES-ECB block encryption/decryption
  */
 #if !defined(_CC_DES3_CRYPT_ECB_ALT_)
-void _cc_des3_crypt_ecb(_cc_des3_t *ctx, const byte_t input[8], byte_t output[8]) {
+_CC_API_PUBLIC(void) _cc_des3_crypt_ecb(_cc_des3_t *ctx, const byte_t input[8], byte_t output[8]) {
     int i;
     uint32_t X, Y, T, *SK;
 
@@ -605,7 +605,7 @@ void _cc_des3_crypt_ecb(_cc_des3_t *ctx, const byte_t input[8], byte_t output[8]
 /*
  * 3DES-CBC buffer encryption/decryption
  */
-int _cc_des3_crypt_cbc(_cc_des3_t *ctx, int mode, size_t length, byte_t iv[8], const byte_t *input, byte_t *output) {
+_CC_API_PUBLIC(int) _cc_des3_crypt_cbc(_cc_des3_t *ctx, int mode, size_t length, byte_t iv[8], const byte_t *input, byte_t *output) {
     int i;
     byte_t temp[8];
 

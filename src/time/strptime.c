@@ -66,7 +66,7 @@ static const tchar_t *abmon[12] = {_T("Jan"), _T("Feb"), _T("Mar"), _T("Apr"), _
 #define _SPT_AM_ _T("AM")
 #define _SPT_PM_ _T("PM")
 
-static int to_num(const tchar_t **buf, int *dest, int llim, int ulim) {
+_CC_API_PRIVATE(int) to_num(const tchar_t **buf, int *dest, int llim, int ulim) {
     int result = 0;
 
     /* The limit also determines the number of valid digits. */
@@ -90,7 +90,7 @@ static int to_num(const tchar_t **buf, int *dest, int llim, int ulim) {
     return (1);
 }
 
-const tchar_t *_cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *_cp) {
+_CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *_cp) {
     tchar_t c;
     const tchar_t *bp;
     size_t len = 0;

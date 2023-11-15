@@ -20,7 +20,7 @@
 */
 #include "http.h"
 
-static void random_masking(byte_t* buf, int32_t len) {
+_CC_API_PRIVATE(void) random_masking(byte_t* buf, int32_t len) {
     int32_t i;
     for (i = 0; i < len; i++) {
         buf[i] = (byte_t)(rand() % 255) + 1;
@@ -62,14 +62,14 @@ bool_t _cc_http_init_websocket(_cc_http_t* res) {
     return false;
 }
 
-static void inverted(byte_t* dest, byte_t* src, int32_t length) {
+_CC_API_PRIVATE(void) inverted(byte_t* dest, byte_t* src, int32_t length) {
     int32_t i;
     for (i = 0; i < length; i++) {
         *(dest + i) = *(src + length - 1 - i);
     }
 }
 
-static bool_t _websocket_decoding(_cc_event_rbuf_t* r,
+_CC_API_PRIVATE(bool_t) _websocket_decoding(_cc_event_rbuf_t* r,
                                   _websocket_frame_header_t* head) {
     int32_t rr = 2;
 

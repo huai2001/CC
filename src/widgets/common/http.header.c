@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 
-static bool_t __http_header_line(_cc_dict_t *headers, tchar_t *line, int length) {
+_CC_API_PRIVATE(bool_t) __http_header_line(_cc_dict_t *headers, tchar_t *line, int length) {
     int first = 0, last = 0, i = 0;
     tchar_t *name;
     tchar_t *value;
@@ -68,7 +68,7 @@ static bool_t __http_header_line(_cc_dict_t *headers, tchar_t *line, int length)
 }
 
 /**/
-static int _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg, _cc_event_rbuf_t* r) {
+_CC_API_PRIVATE(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg, _cc_event_rbuf_t* r) {
     int i = 0;
     byte_t *n;
     byte_t *start = (byte_t*)r->buf;

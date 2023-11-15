@@ -34,14 +34,14 @@ extern "C" {
 typedef byte_t _cc_uuid_t[16];
 
 /**/
-_CC_API(void) _cc_uuid(_cc_uuid_t *u);
+_CC_API_PUBLIC(void) _cc_uuid(_cc_uuid_t *u);
 /**/
-_CC_API(void) _cc_uuid_to_bytes(_cc_uuid_t *u, const tchar_t *buf);
+_CC_API_PUBLIC(void) _cc_uuid_to_bytes(_cc_uuid_t *u, const tchar_t *buf);
 
 /**/
-_CC_API(int32_t) _cc_uuid_lower(_cc_uuid_t *u, tchar_t *buf, int32_t length);
+_CC_API_PUBLIC(int32_t) _cc_uuid_lower(_cc_uuid_t *u, tchar_t *buf, int32_t length);
 /**/
-_CC_API(int32_t) _cc_uuid_upper(_cc_uuid_t *u, tchar_t *buf, int32_t length);
+_CC_API_PUBLIC(int32_t) _cc_uuid_upper(_cc_uuid_t *u, tchar_t *buf, int32_t length);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

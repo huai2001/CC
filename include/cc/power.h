@@ -52,7 +52,7 @@ typedef enum _CC_POWER_STATE_ {
  *
  *  @return The state of the battery (if any).
  */
-_CC_API(_CC_POWER_STATE_ENUM_) _cc_get_power_info(int32_t* secs, byte_t* pct);
+_CC_API_PUBLIC(_CC_POWER_STATE_ENUM_) _cc_get_power_info(int32_t* secs, byte_t* pct);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

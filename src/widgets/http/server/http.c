@@ -34,7 +34,7 @@
 #define WBUF_LEN(rw) (rw)->w.length
 #define WBUF(rw) (rw)->w.buf
 
-static void _free_and_init_http(_cc_http_t* res) {
+_CC_API_PRIVATE(void) _free_and_init_http(_cc_http_t* res) {
     res->request.keep_alive = false;
     res->request.parsing = false;
     res->request.finished = false;
@@ -73,7 +73,7 @@ static void _free_and_init_http(_cc_http_t* res) {
     res->response.length = 0;
 }
 
-static void _destroy_http(_cc_http_t** http_res) {
+_CC_API_PRIVATE(void) _destroy_http(_cc_http_t** http_res) {
     _cc_http_t* res = *http_res;
     _cc_assert(res != NULL);
     if (res == NULL) {
@@ -102,7 +102,7 @@ static void _destroy_http(_cc_http_t** http_res) {
     *http_res = NULL;
 }
 
-static _cc_http_t* _init_http(_cc_http_listener_t* listener) {
+_CC_API_PRIVATE(_cc_http_t*) _init_http(_cc_http_listener_t* listener) {
     _cc_http_t* res = (_cc_http_t*)_cc_malloc(sizeof(_cc_http_t));
     if (res == NULL) {
         return NULL;
@@ -167,7 +167,7 @@ bool_t _websocket_callback(_cc_event_t* e,
 }
 
 /**/
-static bool_t _event_sendbuf(_cc_event_t* e, _SSL_t* ssl) {
+_CC_API_PRIVATE(bool_t) _event_sendbuf(_cc_event_t* e, _SSL_t* ssl) {
     _cc_event_wbuf_t* wbuf;
     int32_t off;
     if (e->buffer == NULL) {
@@ -201,7 +201,7 @@ static bool_t _event_sendbuf(_cc_event_t* e, _SSL_t* ssl) {
     return (off >= 0);
 }
 
-static bool_t _http_event_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) _http_event_callback(_cc_event_cycle_t* cycle,
                                    _cc_event_t* e,
                                    const uint16_t events) {
     if (events & _CC_EVENT_ACCEPT_) {

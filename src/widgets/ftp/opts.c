@@ -1,6 +1,6 @@
 #include <cc/widgets/ftp.h>
 
-static bool_t libftp_opts(_cc_ftp_t* ftp,
+_CC_API_PRIVATE(bool_t) libftp_opts(_cc_ftp_t* ftp,
                                      const byte_t* buf,
                                      uint32_t len) {
     uint16_t flag = ftp->resp.flag;

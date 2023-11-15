@@ -21,7 +21,7 @@
 #include <cc/alloc.h>
 #import <Foundation/Foundation.h>
 
-FILE* _osx_open_file_m(const tchar_t *file, const tchar_t *mode) {
+_CC_API_PRIVATE(FILE*) _osx_open_file_m(const tchar_t *file, const tchar_t *mode) {
     @autoreleasepool {
         FILE* fp = NULL;
 
@@ -46,7 +46,7 @@ FILE* _osx_open_file_m(const tchar_t *file, const tchar_t *mode) {
 }
 
 /**/
-bool_t _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
+_CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
     f->fp = (pvoid_t)_osx_open_file_m(filename, mode);
     return f->fp != NULL;
 }

@@ -32,7 +32,7 @@ typedef struct _cc_thread_args {
 } _cc_thread_args_t;
 
 /**/
-void _cc_thread_running_function(void *args) {
+_CC_API_PUBLIC(void) _cc_thread_running_function(void *args) {
     _cc_thread_args_t *thread_args;
     _cc_thread_t *self;
     _cc_thread_callback_t user_func;
@@ -66,11 +66,11 @@ void _cc_thread_running_function(void *args) {
     }
 }
 /**/
-_cc_thread_t *_cc_create_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
+_CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
     return _cc_create_thread_with_stacksize(callback, name, 0, args);
 }
 /**/
-_cc_thread_t *_cc_create_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize,
+_CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize,
                                                pvoid_t args) {
     _cc_thread_t *self;
     _cc_thread_args_t thread_args;
@@ -114,7 +114,7 @@ _cc_thread_t *_cc_create_thread_with_stacksize(_cc_thread_callback_t callback, c
 }
 
 /**/
-bool_t _cc_thread_start(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
+_CC_API_PUBLIC(bool_t) _cc_thread_start(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
     _cc_thread_t *self = _cc_create_thread_with_stacksize(callback, name, 0, args);
     if (_cc_likely(self)) {
         _cc_detach_thread(self);
@@ -124,12 +124,12 @@ bool_t _cc_thread_start(_cc_thread_callback_t callback, const tchar_t *name, pvo
 }
 
 /**/
-int32_t _cc_get_thread_id(_cc_thread_t *self) {
+_CC_API_PUBLIC(int32_t) _cc_get_thread_id(_cc_thread_t *self) {
     return _cc_get_sys_thread_id(self);
 }
 
 /**/
-void _cc_wait_thread(_cc_thread_t *self, int32_t *status) {
+_CC_API_PUBLIC(void) _cc_wait_thread(_cc_thread_t *self, int32_t *status) {
     _cc_assert(self != NULL);
 
     _cc_wait_sys_thread(self);
@@ -141,7 +141,7 @@ void _cc_wait_thread(_cc_thread_t *self, int32_t *status) {
 }
 
 /**/
-void _cc_detach_thread(_cc_thread_t *self) {
+_CC_API_PUBLIC(void) _cc_detach_thread(_cc_thread_t *self) {
     _cc_assert(self != NULL);
 
     /* Grab dibs if the state is alive+joinable. */

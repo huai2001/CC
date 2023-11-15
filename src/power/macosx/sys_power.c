@@ -29,7 +29,7 @@
 #define GETVAL(k, v) CFDictionaryGetValueIfPresent(dict, CFSTR(k), (const void **)v)
 
 /* Note that AC power sources also include a laptop battery it is charging. */
-static void checkps(CFDictionaryRef dict, bool_t *have_ac, bool_t *have_battery, bool_t *charging,
+_CC_API_PRIVATE(void) checkps(CFDictionaryRef dict, bool_t *have_ac, bool_t *have_battery, bool_t *charging,
                                int32_t *seconds, byte_t *percent) {
     CFStringRef strval;
     CFBooleanRef bval;
@@ -114,7 +114,7 @@ static void checkps(CFDictionaryRef dict, bool_t *have_ac, bool_t *have_battery,
 #undef GETVAL
 #undef STRMATCH
 
-bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
+_CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     CFTypeRef blob = IOPSCopyPowerSourcesInfo();
 
     *seconds = -1;

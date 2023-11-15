@@ -31,7 +31,7 @@ struct _cc_event_cycle_priv {
     struct kevent changelist[_CC_KQUEUE_EVENTS_];
 };
 
-static bool_t _update_kevent(_cc_event_cycle_priv_t *priv) {
+_CC_API_PRIVATE(bool_t) _update_kevent(_cc_event_cycle_priv_t *priv) {
     /**/
     int r = kevent(priv->fd, priv->changelist, priv->nchanges, NULL, 0, NULL);
     if (_cc_unlikely(r)) {
@@ -51,7 +51,7 @@ static bool_t _update_kevent(_cc_event_cycle_priv_t *priv) {
     } while (0)
 
 /**/
-static bool_t _kqueue_event_update(_cc_event_cycle_priv_t *priv, _cc_event_t *e, bool_t rm) {
+_CC_API_PRIVATE(bool_t) _kqueue_event_update(_cc_event_cycle_priv_t *priv, _cc_event_t *e, bool_t rm) {
     uint16_t addevents = e->flags & ~e->marks;
     uint16_t delevents = ~e->flags & e->marks;
 
@@ -88,7 +88,7 @@ static bool_t _kqueue_event_update(_cc_event_cycle_priv_t *priv, _cc_event_t *e,
 
 #undef EV_UPDATE_KEVENT
 /**/
-bool_t _kqueue_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _kqueue_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_assert(cycle != NULL && e != NULL);
     e->descriptor |= _CC_EVENT_DESC_POLL_KQUEUE_;
 
@@ -96,7 +96,7 @@ bool_t _kqueue_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-bool_t _kqueue_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa,
+_CC_API_PRIVATE(bool_t) _kqueue_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa,
                              const _cc_socklen_t sa_len) {
     if (__cc_stdlib_socket_connect(e->fd, sa, sa_len)) {
         return _kqueue_event_attach(cycle, e);
@@ -105,13 +105,13 @@ bool_t _kqueue_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc
 }
 
 /**/
-static _cc_socket_t _kqueue_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
+_CC_API_PRIVATE(_cc_socket_t) _kqueue_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
                                          _cc_socklen_t *sa_len) {
     return _cc_socket_accept(e->fd, sa, sa_len);
 }
 
 /**/
-static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         if (_CC_EVENT_IS_SOCKET(e->marks)) {
             _kqueue_event_update(cycle->priv, e, true);
@@ -139,7 +139,7 @@ static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _kqueue_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PRIVATE(bool_t) _kqueue_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
     int32_t rc, i;
 
     struct timespec tv;
@@ -263,7 +263,7 @@ KEVENT_END:
 }
 
 /**/
-static bool_t _kqueue_event_quit(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _kqueue_event_quit(_cc_event_cycle_t *cycle) {
     _cc_assert(cycle != NULL);
 
     if (cycle->priv) {
@@ -279,7 +279,7 @@ static bool_t _kqueue_event_quit(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-bool_t _kqueue_event_init(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _kqueue_event_init(_cc_event_cycle_t *cycle) {
     int r = 0;
     _cc_event_cycle_priv_t *priv;
 
@@ -331,7 +331,7 @@ bool_t _kqueue_event_init(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-bool_t _cc_init_event_kqueue(_cc_event_cycle_t *cycle) {
+_CC_API_PUBLIC(bool_t) _cc_init_event_kqueue(_cc_event_cycle_t *cycle) {
 #define ASET(x) cycle->driver.x = _kqueue_event_##x
 #define XSET(x) cycle->driver.x = _cc_event_##x
 

@@ -82,7 +82,7 @@ typedef _cc_sbuf_wchar_t _cc_sbuf_tchar_t;
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_buf_jump_comments(_cc_sbuf_tchar_t* const buffer);
+_CC_API_PUBLIC(bool_t) _cc_buf_jump_comments(_cc_sbuf_tchar_t* const buffer);
 
 /**
  * @brief buf structure
@@ -108,7 +108,7 @@ typedef struct _cc_buf {
  *
  * @return _cc_buf_t structure
  */
-_CC_API(_cc_buf_t*) _cc_load_buf(const tchar_t* file_name);
+_CC_API_PUBLIC(_cc_buf_t*) _cc_load_buf(const tchar_t* file_name);
 /**
  * @brief Initialize buf
  *
@@ -117,7 +117,7 @@ _CC_API(_cc_buf_t*) _cc_load_buf(const tchar_t* file_name);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_buf_alloc(_cc_buf_t* ctx, size_t initsize);
+_CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t* ctx, size_t initsize);
 /**
  * @brief free buf
  *
@@ -125,7 +125,7 @@ _CC_API(bool_t) _cc_buf_alloc(_cc_buf_t* ctx, size_t initsize);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_buf_free(_cc_buf_t* ctx);
+_CC_API_PUBLIC(bool_t) _cc_buf_free(_cc_buf_t* ctx);
 /**
  * @brief Create buf
  *
@@ -133,7 +133,7 @@ _CC_API(bool_t) _cc_buf_free(_cc_buf_t* ctx);
  *
  * @return _cc_buf_t structure
  */
-_CC_API(_cc_buf_t*) _cc_create_buf(size_t initsize);
+_CC_API_PUBLIC(_cc_buf_t*) _cc_create_buf(size_t initsize);
 /**
  * @brief Destroy buf
  *
@@ -141,7 +141,7 @@ _CC_API(_cc_buf_t*) _cc_create_buf(size_t initsize);
  *
  * @return true if successful or false on error.
  */
-_CC_API(void) _cc_destroy_buf(_cc_buf_t** ctx);
+_CC_API_PUBLIC(void) _cc_destroy_buf(_cc_buf_t** ctx);
 /**
  * @brief Expand buf
  *
@@ -150,7 +150,7 @@ _CC_API(void) _cc_destroy_buf(_cc_buf_t** ctx);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_buf_expand(_cc_buf_t* ctx, size_t size);
+_CC_API_PUBLIC(bool_t) _cc_buf_expand(_cc_buf_t* ctx, size_t size);
 /**
  * @brief Written buf
  *
@@ -160,7 +160,7 @@ _CC_API(bool_t) _cc_buf_expand(_cc_buf_t* ctx, size_t size);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_buf_write(_cc_buf_t* ctx, const void* data, size_t size);
+_CC_API_PUBLIC(bool_t) _cc_buf_write(_cc_buf_t* ctx, const void* data, size_t size);
 /**
  * @brief Written the string to buf
  *
@@ -169,7 +169,7 @@ _CC_API(bool_t) _cc_buf_write(_cc_buf_t* ctx, const void* data, size_t size);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_bufA_puts(_cc_buf_t* ctx, const char_t* s);
+_CC_API_PUBLIC(bool_t) _cc_bufA_puts(_cc_buf_t* ctx, const char_t* s);
 /**
  * @brief Written the foramt string to buf
  *
@@ -178,7 +178,7 @@ _CC_API(bool_t) _cc_bufA_puts(_cc_buf_t* ctx, const char_t* s);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_bufA_putsvf(_cc_buf_t* ctx, const char_t* fmt, va_list arg);
+_CC_API_PUBLIC(bool_t) _cc_bufA_putsvf(_cc_buf_t* ctx, const char_t* fmt, va_list arg);
 /**
  * @brief Written the foramt string to buf
  *
@@ -187,7 +187,7 @@ _CC_API(bool_t) _cc_bufA_putsvf(_cc_buf_t* ctx, const char_t* fmt, va_list arg);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_bufA_putsf(_cc_buf_t* ctx, const char_t* fmt, ...);
+_CC_API_PUBLIC(bool_t) _cc_bufA_putsf(_cc_buf_t* ctx, const char_t* fmt, ...);
 /**
  * @brief Written the string to buf
  *
@@ -196,7 +196,7 @@ _CC_API(bool_t) _cc_bufA_putsf(_cc_buf_t* ctx, const char_t* fmt, ...);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_bufW_puts(_cc_buf_t* ctx, const wchar_t* s);
+_CC_API_PUBLIC(bool_t) _cc_bufW_puts(_cc_buf_t* ctx, const wchar_t* s);
 /**
  * @brief Written the foramt string to buf
  *
@@ -205,7 +205,7 @@ _CC_API(bool_t) _cc_bufW_puts(_cc_buf_t* ctx, const wchar_t* s);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_bufW_putsvf(_cc_buf_t* ctx, const wchar_t* fmt, va_list arg);
+_CC_API_PUBLIC(bool_t) _cc_bufW_putsvf(_cc_buf_t* ctx, const wchar_t* fmt, va_list arg);
 /**
  * @brief Written the foramt string to buf
  *
@@ -214,7 +214,7 @@ _CC_API(bool_t) _cc_bufW_putsvf(_cc_buf_t* ctx, const wchar_t* fmt, va_list arg)
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_bufW_putsf(_cc_buf_t* ctx, const wchar_t* fmt, ...);
+_CC_API_PUBLIC(bool_t) _cc_bufW_putsf(_cc_buf_t* ctx, const wchar_t* fmt, ...);
 /**
  * @brief Transform coding
  *
@@ -223,7 +223,7 @@ _CC_API(bool_t) _cc_bufW_putsf(_cc_buf_t* ctx, const wchar_t* fmt, ...);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t* ctx, uint32_t offset);
+_CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t* ctx, uint32_t offset);
 /**
  * @brief Transform coding
  *
@@ -232,7 +232,7 @@ _CC_API(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t* ctx, uint32_t offset);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t* ctx, uint32_t offset);
+_CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t* ctx, uint32_t offset);
 
 #ifdef _CC_UNICODE_
 #define _cc_buf_putts _cc_bufW_puts

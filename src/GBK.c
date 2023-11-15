@@ -2931,14 +2931,14 @@ static const uint16_t gs_uni2gbk_table1[]= {
 	0xFEF9, 0xFEFA, 0xFEFB, 0xFEFC, 0xFEFD, 0xFEFE
 };
 
-static uint16_t gbk2uni(uint8_t ch, uint8_t cl) {
+_CC_API_PRIVATE(uint16_t) gbk2uni(uint8_t ch, uint8_t cl) {
     ch -= 0x81;
     cl -= 0x40;
 
     return ((ch < 0x7E) && (cl < 0xBF)) ? gs_gbk2uni_table[ch * 0xBF + cl] : 0;
 }
 
-static uint16_t uni2gbk2(uint16_t uni) {
+_CC_API_PRIVATE(uint16_t) uni2gbk2(uint16_t uni) {
 	uni -= 0x4E02;
 
 	if (uni < _cc_countof(gs_uni2gbk_table0)) {
@@ -2955,7 +2955,7 @@ static uint16_t uni2gbk2(uint16_t uni) {
 }
 
 //(in_len*3)/2 + 4
-int32_t _cc_gbk_to_utf8( const uint8_t *source_start,
+_CC_API_PUBLIC(int32_t) _cc_gbk_to_utf8( const uint8_t *source_start,
                          const uint8_t *source_end,
                          uint8_t *target_start,
                          uint8_t *target_end) {
@@ -2988,7 +2988,7 @@ int32_t _cc_gbk_to_utf8( const uint8_t *source_start,
 	return (int32_t)(p - target_start);
 }
 //(in_len*2)/3 + 4
-int32_t _cc_utf8_to_gbk( const uint8_t *source_start,
+_CC_API_PUBLIC(int32_t) _cc_utf8_to_gbk( const uint8_t *source_start,
                          const uint8_t *source_end,
                          uint8_t *target_start,
                          uint8_t *target_end) {

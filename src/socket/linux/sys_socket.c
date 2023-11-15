@@ -27,7 +27,7 @@
 
 static _cc_atomic32_t _socket_started = 0;
 
-bool_t _cc_install_socket(void) {
+_CC_API_PUBLIC(bool_t) _cc_install_socket(void) {
     void (*handler)(int);
 
     if (_cc_atomic32_inc_ref(&_socket_started)) {
@@ -42,7 +42,7 @@ bool_t _cc_install_socket(void) {
     return true;
 }
 
-bool_t _cc_uninstall_socket(void) {
+_CC_API_PUBLIC(bool_t) _cc_uninstall_socket(void) {
     void (*handler)(int);
 
     if (_socket_started == 0) {
@@ -61,7 +61,7 @@ bool_t _cc_uninstall_socket(void) {
 }
 
 /**/
-int _cc_close_socket(_cc_socket_t fd) {
+_CC_API_PUBLIC(int) _cc_close_socket(_cc_socket_t fd) {
 #ifdef _CC_DEBUG_
     int result = close(fd);
 
@@ -75,11 +75,11 @@ int _cc_close_socket(_cc_socket_t fd) {
 #endif
 }
 
-int _cc_set_socket_nodelay(_cc_socket_t fd, int enable) {
+_CC_API_PUBLIC(int) _cc_set_socket_nodelay(_cc_socket_t fd, int enable) {
     return setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
 }
 
-int _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
+_CC_API_PUBLIC(int) _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
     int flags = __cc_get_fcntl(fd);
 
     if (nonblocking) {
@@ -103,7 +103,7 @@ int _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
     return __cc_set_fcntl(fd, flags);
 }
 
-int _cc_set_socket_keepalive(_cc_socket_t fd, int enable, int delay) {
+_CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int enable, int delay) {
     int err = 0;
     err = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable));
     if (err == -1) {

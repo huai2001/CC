@@ -38,7 +38,7 @@
 #endif
 
 /* Create a semaphore */
-_cc_semaphore_t *_cc_create_semaphore(int32_t initial_value) {
+_CC_API_PUBLIC(_cc_semaphore_t*) _cc_create_semaphore(int32_t initial_value) {
     /* Allocate sem memory */
     _cc_semaphore_t *sem = _CC_MALLOC(_cc_semaphore_t);
     /* Create the semaphore, with max value 32K */
@@ -53,7 +53,7 @@ _cc_semaphore_t *_cc_create_semaphore(int32_t initial_value) {
 }
 
 /* Free the semaphore */
-void _cc_destroy_semaphore(_cc_semaphore_t **sem) {
+_CC_API_PUBLIC(void) _cc_destroy_semaphore(_cc_semaphore_t **sem) {
     if (sem && *sem) {
         if ((*sem)->ident) {
             _CC_CloseHandle((*sem)->ident);
@@ -65,7 +65,7 @@ void _cc_destroy_semaphore(_cc_semaphore_t **sem) {
 }
 
 /**/
-int _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t timeout) {
+_CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t timeout) {
     bool_t retval = 0;
     DWORD dwMilliseconds;
 
@@ -97,17 +97,17 @@ int _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t timeout) {
 }
 
 /**/
-int _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(int) _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
     return _cc_semaphore_wait_timeout(sem, 0);
 }
 
 /**/
-int _cc_semaphore_wait(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(int) _cc_semaphore_wait(_cc_semaphore_t *sem) {
     return _cc_semaphore_wait_timeout(sem, _CC_MUTEX_MAXWAIT_);
 }
 
 /* Returns the current count of the semaphore */
-uint32_t _cc_semaphore_value(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(uint32_t) _cc_semaphore_value(_cc_semaphore_t *sem) {
     if (!sem) {
         _cc_logger_error(_T("Passed a NULL sem"));
         return 0;
@@ -116,7 +116,7 @@ uint32_t _cc_semaphore_value(_cc_semaphore_t *sem) {
 }
 
 /**/
-bool_t _cc_semaphore_post(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(bool_t) _cc_semaphore_post(_cc_semaphore_t *sem) {
     if (!sem) {
         _cc_logger_error(_T("Passed a NULL sem"));
         return false;

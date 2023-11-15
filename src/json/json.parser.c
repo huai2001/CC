@@ -27,16 +27,16 @@ typedef struct {
 
 static _cc_json_error_t _cc_global_json_error = {NULL, 0};
 
-const tchar_t *_cc_json_error(void) {
+_CC_API_PUBLIC(const tchar_t*) _cc_json_error(void) {
     if (_cc_unlikely(_cc_global_json_error.content == NULL)) {
         return NULL;
     }
     return (_cc_global_json_error.content + _cc_global_json_error.position);
 }
 
-static bool_t _json_read(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item);
+_CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item);
 
-static tchar_t *_json_parser_string(_cc_sbuf_tchar_t *const buffer) {
+_CC_API_PRIVATE(tchar_t*) _json_parser_string(_cc_sbuf_tchar_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = NULL;
     size_t alloc_length = 0;
@@ -142,7 +142,7 @@ JSON_FAIL:
     return NULL;
 }
 
-static bool_t _json_parser_number(_cc_sbuf_tchar_t *const buffer, _cc_json_t *const item) {
+_CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_tchar_t *const buffer, _cc_json_t *const item) {
     _cc_number_t num;
     const tchar_t *start = _cc_sbuf_offset(buffer);
     const tchar_t *s = _cc_to_number(start, &num);
@@ -164,7 +164,7 @@ static bool_t _json_parser_number(_cc_sbuf_tchar_t *const buffer, _cc_json_t *co
     return _cc_buf_jump_comments(buffer);
 }
 
-static bool_t _json_parser_key_and_value(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
+_CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
     /*parse the name of the key*/
     item->name = _json_parser_string(buffer);
     if (_cc_unlikely(!item->name)) {
@@ -189,7 +189,7 @@ static bool_t _json_parser_key_and_value(_cc_sbuf_tchar_t *const buffer, _cc_jso
     return true;
 }
 
-static bool_t _json_parser_object(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
+_CC_API_PRIVATE(bool_t) _json_parser_object(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
     _cc_json_t *curr_item = NULL;
     _CC_RB_INIT_ROOT(&item->object.uni_object);
 
@@ -254,7 +254,7 @@ JSON_FAIL:
     return false;
 }
 
-static bool_t _json_parser_array(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
+_CC_API_PRIVATE(bool_t) _json_parser_array(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
     _cc_json_t *curr_item = NULL;
     _CC_RB_INIT_ROOT(&item->object.uni_object);
 
@@ -321,7 +321,7 @@ JSON_FAIL:
     return false;
 }
 
-static bool_t _json_read(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
+_CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
     if (buffer == NULL || buffer->content == NULL) {
         return false;
     }
@@ -374,7 +374,7 @@ static bool_t _json_read(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
     return false;
 }
 
-_cc_json_t *_cc_josn_parser(_cc_sbuf_tchar_t *const buffer) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_tchar_t *const buffer) {
     _cc_json_t *item = NULL;
     _cc_json_error_t local_error;
 
@@ -402,7 +402,7 @@ _cc_json_t *_cc_josn_parser(_cc_sbuf_tchar_t *const buffer) {
     return NULL;
 }
 
-_cc_json_t *_cc_open_json_file(const tchar_t *file_name) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_open_json_file(const tchar_t *file_name) {
     _cc_sbuf_tchar_t buffer;
     _cc_json_t *item = NULL;
 
@@ -450,7 +450,7 @@ _cc_json_t *_cc_open_json_file(const tchar_t *file_name) {
     return item;
 }
 
-_cc_json_t *_cc_parse_json(const tchar_t *src) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_parse_json(const tchar_t *src) {
     _cc_sbuf_tchar_t buffer;
     buffer.content = src;
     buffer.length = _tcslen(src);

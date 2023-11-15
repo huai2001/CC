@@ -2,7 +2,7 @@
 #include <cc/alloc.h>
 #include <cc/widgets/smtp.h>
 
-static bool_t libsmtp_EHLO(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_EHLO(_cc_smtp_t* smtp,
                                       const byte_t* buf,
                                       uint32_t len) {
     if (smtp->resp.flag != _CC_LIBSMTP_RESP_EHLO) {
@@ -22,7 +22,7 @@ static bool_t libsmtp_EHLO(_cc_smtp_t* smtp,
     return false;
 }
 
-static bool_t sendEHLO(_cc_smtp_t* smtp) {
+_CC_API_PRIVATE(bool_t) sendEHLO(_cc_smtp_t* smtp) {
     char_t cmd[1024];
     char_t pcname[256] = {0};
     int32_t cmd_len = 0;
@@ -37,7 +37,7 @@ static bool_t sendEHLO(_cc_smtp_t* smtp) {
 }
 
 /**/
-static bool_t libsmtp_connected(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_connected(_cc_smtp_t* smtp,
                                            const byte_t* buf,
                                            uint32_t len) {
     if (smtp->resp.flag != _CC_LIBSMTP_RESP_CONNECTED) {

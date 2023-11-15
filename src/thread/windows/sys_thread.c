@@ -65,14 +65,14 @@ typedef struct _win_thread_params {
 } _win_thread_params_t;
 
 /**/
-static DWORD RunThread(void* args) {
+_CC_API_PRIVATE(DWORD) RunThread(void* args) {
     /* Call the thread function! */
     _cc_thread_running_function(args);
     return 0;
 }
 
 /**/
-static DWORD WINAPI RunThreadViaCreateThread(LPVOID data) {
+_CC_API_PRIVATE(DWORD WINAPI) RunThreadViaCreateThread(LPVOID data) {
     return RunThread(data);
 }
 
@@ -80,7 +80,7 @@ static DWORD WINAPI RunThreadViaCreateThread(LPVOID data) {
 #define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
 #endif
 /**/
-bool_t _cc_create_sys_thread(_cc_thread_t* thrd, pvoid_t args) {
+_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t* thrd, pvoid_t args) {
     int flags = thrd->stacksize ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0;
     DWORD thread_id = 0;
     thrd->handle = CreateThread(NULL, thrd->stacksize, RunThreadViaCreateThread,
@@ -108,7 +108,7 @@ typedef HRESULT(WINAPI* pfnSetThreadDescription)(HANDLE, PCWSTR);
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 /**/
-void _cc_setup_sys_thread(const tchar_t* name) {
+_CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t* name) {
 /* Visual Studio 2015, MSVC++ 14.0*/
 #if (_MSC_VER >= 1900)
     pfnSetThreadDescription pSetThreadDescription = NULL;
@@ -160,12 +160,12 @@ void _cc_setup_sys_thread(const tchar_t* name) {
 }
 
 /**/
-uint32_t _cc_get_current_sys_thread_id(void) {
+_CC_API_PUBLIC(uint32_t) _cc_get_current_sys_thread_id(void) {
     return ((uint32_t)GetCurrentThreadId());
 }
 
 /**/
-bool_t _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
+_CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
     int value;
 
     if (priority == _CC_THREAD_PRIORITY_LOW_) {
@@ -183,7 +183,7 @@ bool_t _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
 }
 
 /**/
-uint32_t _cc_get_sys_thread_id(_cc_thread_t* thrd) {
+_CC_API_PUBLIC(uint32_t) _cc_get_sys_thread_id(_cc_thread_t* thrd) {
     uint32_t id;
 
     if (thrd) {
@@ -195,7 +195,7 @@ uint32_t _cc_get_sys_thread_id(_cc_thread_t* thrd) {
 }
 
 /**/
-void _cc_wait_sys_thread(_cc_thread_t* thrd) {
+_CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t* thrd) {
     if (thrd->handle != NULL) {
         WaitForSingleObject(thrd->handle, INFINITE);
         CloseHandle(thrd->handle);
@@ -204,7 +204,7 @@ void _cc_wait_sys_thread(_cc_thread_t* thrd) {
     }
 }
 
-void _cc_detach_sys_thread(_cc_thread_t* thrd) {
+_CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t* thrd) {
     CloseHandle(thrd->handle);
     thrd->handle = NULL;
 }

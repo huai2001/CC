@@ -21,7 +21,7 @@
 #include <cc/alloc.h>
 #import <Foundation/Foundation.h>
 
-void _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
 @autoreleasepool {
     NSArray *languages = NSLocale.preferredLanguages;
     size_t numlangs = 0;

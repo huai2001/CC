@@ -410,7 +410,7 @@ content=\"text/html; charset=UTF-8\"/>\n<title>RPC-Service</title>\n</head>\n")
 **
 ** The one on the left might be a NULL pointer and it might be quoted.
 */
-static int _compare_etags(const tchar_t* zA, const tchar_t* zB) {
+_CC_API_PRIVATE(int) _compare_etags(const tchar_t* zA, const tchar_t* zB) {
     if (zA == 0)
         return 1;
     if (zA[0] == '"') {

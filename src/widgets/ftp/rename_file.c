@@ -6,7 +6,7 @@ typedef struct _libftp_rename {
     char_t* dst;
 } _libftp_rename_t;
 
-static _libftp_rename_t* libftp_alloc_rename(const char_t* src,
+_CC_API_PRIVATE(_libftp_rename_t*) libftp_alloc_rename(const char_t* src,
                                                         const char_t* dst) {
     _libftp_rename_t* rn = (_libftp_rename_t*)_cc_malloc(sizeof(_libftp_rename_t));
 
@@ -16,7 +16,7 @@ static _libftp_rename_t* libftp_alloc_rename(const char_t* src,
     return rn;
 }
 
-static void libftp_free_rename(_libftp_rename_t* rn) {
+_CC_API_PRIVATE(void) libftp_free_rename(_libftp_rename_t* rn) {
     if (rn == NULL)
         return;
 
@@ -29,7 +29,7 @@ static void libftp_free_rename(_libftp_rename_t* rn) {
     _cc_free(rn);
 }
 
-static bool_t libftp_rename_RNTO(_cc_ftp_t* ftp,
+_CC_API_PRIVATE(bool_t) libftp_rename_RNTO(_cc_ftp_t* ftp,
                                             const byte_t* buf,
                                             uint32_t len) {
     if (ftp->resp.flag != _CC_LIBFTP_RESP_RENAME_FILE) {
@@ -50,7 +50,7 @@ static bool_t libftp_rename_RNTO(_cc_ftp_t* ftp,
     return false;
 }
 
-static bool_t libftp_rename_RNFR(_cc_ftp_t* ftp,
+_CC_API_PRIVATE(bool_t) libftp_rename_RNFR(_cc_ftp_t* ftp,
                                             const byte_t* buf,
                                             uint32_t len) {
     char_t cmd[_CC_MAX_PATH_];

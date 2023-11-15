@@ -41,7 +41,7 @@
 
 #ifdef _CC_ENABLE_MEMORY_TRACKED_
 /**/
-static byte_t* __cc_abort_out_of_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
+_CC_API_PRIVATE(byte_t*) __cc_abort_out_of_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
     if (_cc_unlikely(NULL == ptr)) {
         _cc_logger_error(_T("%s: Out of memory trying to allocate %zu bytes"), msg, size);
         _cc_abort();
@@ -50,7 +50,7 @@ static byte_t* __cc_abort_out_of_memory(pvoid_t ptr, size_t size, const tchar_t 
 }
 
 /**/
-pvoid_t _cc_mem_calloc(size_t data_count, size_t data_size, const tchar_t *file, const int line, const tchar_t *func) {
+_CC_API_PUBLIC(pvoid_t) _cc_mem_calloc(size_t data_count, size_t data_size, const tchar_t *file, const int line, const tchar_t *func) {
     byte_t* dat = __cc_abort_out_of_memory(malloc(data_count * data_size + sizeof(_ccmem_element_link_t)), data_size * data_count, _T("_cc_mem_calloc"));
     bzero(dat, data_count * data_size + sizeof(_ccmem_element_link_t));
     
@@ -60,7 +60,7 @@ pvoid_t _cc_mem_calloc(size_t data_count, size_t data_size, const tchar_t *file,
 }
 
 /**/
-pvoid_t _cc_mem_malloc(size_t data_size, const tchar_t *file, const int line, const tchar_t *func) {
+_CC_API_PUBLIC(pvoid_t) _cc_mem_malloc(size_t data_size, const tchar_t *file, const int line, const tchar_t *func) {
     byte_t* dat = __cc_abort_out_of_memory(malloc(data_size + sizeof(_ccmem_element_link_t)), data_size, _T("_cc_mem_malloc"));
 
     _ccmem_tracked_insert(dat, data_size, file, func, line, _CC_MEM_MALLOC);
@@ -69,7 +69,7 @@ pvoid_t _cc_mem_malloc(size_t data_size, const tchar_t *file, const int line, co
 }
 
 /**/
-pvoid_t _cc_mem_realloc(void *dat, size_t data_size, const tchar_t *file, const int line, const tchar_t *func) {
+_CC_API_PUBLIC(pvoid_t) _cc_mem_realloc(void *dat, size_t data_size, const tchar_t *file, const int line, const tchar_t *func) {
     byte_t* redat;
     
 
@@ -94,7 +94,7 @@ pvoid_t _cc_mem_realloc(void *dat, size_t data_size, const tchar_t *file, const 
 }
 
 /**/
-void _cc_mem_free(void *dat, const tchar_t *file, const int line, const tchar_t *func) {
+_CC_API_PUBLIC(void) _cc_mem_free(void *dat, const tchar_t *file, const int line, const tchar_t *func) {
     byte_t *r;
     if (_cc_unlikely(dat == NULL)) {
         return;
@@ -106,17 +106,17 @@ void _cc_mem_free(void *dat, const tchar_t *file, const int line, const tchar_t 
 }
 
 /**/
-wchar_t *_cc_mem_strdupW(const wchar_t *str, const tchar_t *file, const int line, const tchar_t *func) {
+_CC_API_PUBLIC(wchar_t*) _cc_mem_strdupW(const wchar_t *str, const tchar_t *file, const int line, const tchar_t *func) {
     return _cc_mem_strndupW(str, wcslen(str), file, line, func);
 }
 
 /**/
-char_t *_cc_mem_strdupA(const char_t *str, const tchar_t *file, const int line, const tchar_t *func) {
+_CC_API_PUBLIC(char_t*) _cc_mem_strdupA(const char_t *str, const tchar_t *file, const int line, const tchar_t *func) {
     return _cc_mem_strndupA(str, strlen(str), file, line, func);
 }
 
 /**/
-wchar_t *_cc_mem_strndupW(const wchar_t *str, size_t str_len, const tchar_t *file, const int line,
+_CC_API_PUBLIC(wchar_t*) _cc_mem_strndupW(const wchar_t *str, size_t str_len, const tchar_t *file, const int line,
                           const tchar_t *func) {
     wchar_t *req_str;
     if (_cc_unlikely(str_len <= 0)) {
@@ -135,7 +135,7 @@ wchar_t *_cc_mem_strndupW(const wchar_t *str, size_t str_len, const tchar_t *fil
 }
 
 /**/
-char_t *_cc_mem_strndupA(const char_t *str, size_t str_len, const tchar_t *file, const int line, const tchar_t *func) {
+_CC_API_PUBLIC(char_t*)_cc_mem_strndupA(const char_t *str, size_t str_len, const tchar_t *file, const int line, const tchar_t *func) {
     char_t *req_str;
     if (_cc_unlikely(str_len <= 0)) {
         return NULL;

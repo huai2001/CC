@@ -23,20 +23,20 @@
 #include <cc/widgets/http.h>
 #include "../common/http.request.parser.c"
 
-static bool_t _SendResp(_cc_event_t *e, const char_t *str) {
+_CC_API_PRIVATE(bool_t) _SendResp(_cc_event_t *e, const char_t *str) {
     return _cc_send(e->fd, (byte_t*)str, strlen(str));
 }
 /*
-static bool_t _SendAuthorization407(_cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _SendAuthorization407(_cc_event_t *e) {
     _cc_strA_t authorization = _cc_string("HTTP/1.0 407 Proxy Authentication Required\r\nProxy-Authenticate: Basic realm=\".Qiu\"\r\n\r\n");
     return _cc_event_send(e, (byte_t*)authorization.data, authorization.length);
 }
-static bool_t _SendAuthorization401(_cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _SendAuthorization401(_cc_event_t *e) {
     _cc_strA_t authorization = _cc_string("HTTP/1.1 401 Authentication Required\r\nWWWW-Authenticate: Basic realm=\".Qiu\"\r\n\r\n");
     return _cc_event_send(e, (byte_t*)authorization.data, authorization.length);
 }*/
 
-static bool_t _proxy_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
+_CC_API_PRIVATE(bool_t) _proxy_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
     if (events & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_event_t *event;

@@ -20,7 +20,7 @@
 */
 #include "dns.h"
 
-static bool_t _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
+_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
 	if (events & _CC_EVENT_READABLE_) {
         struct sockaddr_in sa;
         int32_t n = 0, res = 0;

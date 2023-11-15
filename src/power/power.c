@@ -24,7 +24,7 @@
 bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_*, int32_t*, byte_t*);
 
 /**/
-_CC_POWER_STATE_ENUM_ _cc_get_power_info(int32_t* seconds, byte_t* percent) {
+_CC_API_PUBLIC(_CC_POWER_STATE_ENUM_) _cc_get_power_info(int32_t* seconds, byte_t* percent) {
     int32_t _seconds;
     byte_t _percent;
     _CC_POWER_STATE_ENUM_ retval;

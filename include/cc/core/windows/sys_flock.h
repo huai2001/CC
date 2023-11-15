@@ -41,7 +41,7 @@ extern "C" {
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) flock(int, int32_t);
+_CC_API_PUBLIC(bool_t) flock(int, int32_t);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

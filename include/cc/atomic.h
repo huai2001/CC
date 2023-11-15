@@ -59,25 +59,25 @@ extern "C" {
 #define _cc_atomic32_inc(a) _cc_atomic32_add(a, 1)
 #define _cc_atomic32_dec(a) _cc_atomic32_sub(a, 1)
 
-_CC_API(int32_t) _cc_atomic32_add(_cc_atomic32_t*,int32_t);
-_CC_API(int32_t) _cc_atomic32_sub(_cc_atomic32_t*,int32_t);
-_CC_API(int32_t) _cc_atomic32_set(_cc_atomic32_t*,int32_t);
-_CC_API(int32_t) _cc_atomic32_get(_cc_atomic32_t *a);
-_CC_API(int32_t) _cc_atomic32_and(_cc_atomic32_t*,int32_t);
-_CC_API(int32_t) _cc_atomic32_or(_cc_atomic32_t*,int32_t);
-_CC_API(int32_t) _cc_atomic32_xor(_cc_atomic32_t*,int32_t);
-_CC_API(bool_t) _cc_atomic32_cas(_cc_atomic32_t*,int32_t,int32_t);
+_CC_API_PUBLIC(int32_t) _cc_atomic32_add(_cc_atomic32_t*,int32_t);
+_CC_API_PUBLIC(int32_t) _cc_atomic32_sub(_cc_atomic32_t*,int32_t);
+_CC_API_PUBLIC(int32_t) _cc_atomic32_set(_cc_atomic32_t*,int32_t);
+_CC_API_PUBLIC(int32_t) _cc_atomic32_get(_cc_atomic32_t *a);
+_CC_API_PUBLIC(int32_t) _cc_atomic32_and(_cc_atomic32_t*,int32_t);
+_CC_API_PUBLIC(int32_t) _cc_atomic32_or(_cc_atomic32_t*,int32_t);
+_CC_API_PUBLIC(int32_t) _cc_atomic32_xor(_cc_atomic32_t*,int32_t);
+_CC_API_PUBLIC(bool_t) _cc_atomic32_cas(_cc_atomic32_t*,int32_t,int32_t);
 
 #define _cc_atomic64_inc(a) _cc_atomic64_add(a, 1)
 #define _cc_atomic64_dec(a) _cc_atomic64_sub(a, 1)
-_CC_API(int64_t) _cc_atomic64_add(_cc_atomic64_t*,int64_t);
-_CC_API(int64_t) _cc_atomic64_sub(_cc_atomic64_t*,int64_t);
-_CC_API(int64_t) _cc_atomic64_set(_cc_atomic64_t*,int64_t);
-_CC_API(int64_t) _cc_atomic64_get(_cc_atomic64_t *a);
-_CC_API(int64_t) _cc_atomic64_and(_cc_atomic64_t*,int64_t);
-_CC_API(int64_t) _cc_atomic64_or(_cc_atomic64_t*,int64_t);
-_CC_API(int64_t) _cc_atomic64_xor(_cc_atomic64_t*,int64_t);
-_CC_API(bool_t) _cc_atomic64_cas(_cc_atomic64_t*,int64_t,int64_t);
+_CC_API_PUBLIC(int64_t) _cc_atomic64_add(_cc_atomic64_t*,int64_t);
+_CC_API_PUBLIC(int64_t) _cc_atomic64_sub(_cc_atomic64_t*,int64_t);
+_CC_API_PUBLIC(int64_t) _cc_atomic64_set(_cc_atomic64_t*,int64_t);
+_CC_API_PUBLIC(int64_t) _cc_atomic64_get(_cc_atomic64_t *a);
+_CC_API_PUBLIC(int64_t) _cc_atomic64_and(_cc_atomic64_t*,int64_t);
+_CC_API_PUBLIC(int64_t) _cc_atomic64_or(_cc_atomic64_t*,int64_t);
+_CC_API_PUBLIC(int64_t) _cc_atomic64_xor(_cc_atomic64_t*,int64_t);
+_CC_API_PUBLIC(bool_t) _cc_atomic64_cas(_cc_atomic64_t*,int64_t,int64_t);
 
 /**
  * @brief Increment an atomic variable used as a reference count.
@@ -120,27 +120,27 @@ _CC_API(bool_t) _cc_atomic64_cas(_cc_atomic64_t*,int64_t,int64_t);
 typedef _cc_atomic32_t  _cc_rwlock_t;
 #define _CC_LOCK_SPIN_  2048
 /**/
-_CC_API(void) _cc_lock(_cc_atomic32_t *lock, uint32_t value, uint32_t spin);
+_CC_API_PUBLIC(void) _cc_lock(_cc_atomic32_t *lock, uint32_t value, uint32_t spin);
 
 /**/
-_CC_API(void) _cc_rwlock_init(_cc_rwlock_t *lock);
+_CC_API_PUBLIC(void) _cc_rwlock_init(_cc_rwlock_t *lock);
 /**/
-_CC_API(void) _cc_rwlock_rlock(_cc_rwlock_t *lock);
+_CC_API_PUBLIC(void) _cc_rwlock_rlock(_cc_rwlock_t *lock);
 /**/
-_CC_API(void) _cc_rwlock_wlock(_cc_rwlock_t *lock);
+_CC_API_PUBLIC(void) _cc_rwlock_wlock(_cc_rwlock_t *lock);
 /**/
-_CC_API(void) _cc_rwlock_unlock(_cc_rwlock_t *lock);
+_CC_API_PUBLIC(void) _cc_rwlock_unlock(_cc_rwlock_t *lock);
 /**/
-_CC_API(void) _cc_rwlock_downgrade(_cc_rwlock_t *lock);
+_CC_API_PUBLIC(void) _cc_rwlock_downgrade(_cc_rwlock_t *lock);
 
 typedef _cc_atomic32_t _cc_spinlock_t;
 
 /**/
-_CC_API(void) _cc_spin_lock_init(_cc_spinlock_t *lock);
+_CC_API_PUBLIC(void) _cc_spin_lock_init(_cc_spinlock_t *lock);
 /**/
-_CC_API(void) _cc_spin_lock(_cc_spinlock_t *lock);
+_CC_API_PUBLIC(void) _cc_spin_lock(_cc_spinlock_t *lock);
 /**/
-_CC_API(void) _cc_spin_unlock(_cc_spinlock_t *lock);
+_CC_API_PUBLIC(void) _cc_spin_unlock(_cc_spinlock_t *lock);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

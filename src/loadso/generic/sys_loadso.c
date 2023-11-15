@@ -21,16 +21,16 @@
 #include <cc/loadso.h>
 #include <cc/logger.h>
 
-void *_cc_load_object(const tchar_t *sofile) {
+_CC_API_PUBLIC(void*) _cc_load_object(const tchar_t *sofile) {
     _cc_logger_error(_T("Failed loading %s : _cc_load_object() not implemented Failed"), sofile);
     return NULL;
 }
 
-void *_cc_load_function(void *handle, const char_t *name) {
+_CC_API_PUBLIC(void*) _cc_load_function(void *handle, const char_t *name) {
     _cc_logger_error(_T("Failed loading : _cc_load_function() not implemented"));
     return NULL;
 }
 
-void _cc_unload_object(void *handle) {
+_CC_API_PUBLIC(void) _cc_unload_object(void *handle) {
     /* no-op. */
 }

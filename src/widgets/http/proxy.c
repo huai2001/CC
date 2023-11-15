@@ -9,7 +9,7 @@ typedef struct _cc_http_proxy {
     _cc_event_t *e;
 } _cc_http_proxy_t;
 
-static void _proxy_free(_cc_http_proxy_t *proxy) {
+_CC_API_PRIVATE(void) _proxy_free(_cc_http_proxy_t *proxy) {
     if (proxy) {
         if (proxy->e) {
             _cc_event_change_flag(NULL, proxy->e, _CC_EVENT_DISCONNECT_);
@@ -18,7 +18,7 @@ static void _proxy_free(_cc_http_proxy_t *proxy) {
     }
 }
 
-static bool_t _proxy_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
+_CC_API_PRIVATE(bool_t) _proxy_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
     if (events & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_sockaddr_t remote_addr = {0};

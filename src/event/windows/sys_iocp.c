@@ -38,9 +38,9 @@
 
 #define IOCPPort (cycle->priv->port)
 /**/
-// static bool_t _iocp_event_disconnect(_cc_event_cycle_t *cycle,
+//_CC_API_PRIVATE(bool_t) _iocp_event_disconnect(_cc_event_cycle_t *cycle,
 //_cc_event_t *e);
-static bool_t _iocp_event_del(_cc_event_cycle_t *cycle, _cc_event_t *e);
+_CC_API_PRIVATE(bool_t) _iocp_event_del(_cc_event_cycle_t *cycle, _cc_event_t *e);
 
 /*close socket*/
 void _iocp_event_close_socket(_cc_socket_t fd) {
@@ -56,14 +56,14 @@ void _iocp_event_close_socket(_cc_socket_t fd) {
 }
 
 /**/
-static void _iocp_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _iocp_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (e->accept_fd != _CC_INVALID_SOCKET_) {
         _iocp_event_close_socket(e->accept_fd);
     }
 }
 
 /**/
-static bool_t _iocp_event_accept_event(_cc_socket_t fd, _iocp_overlapped_t *iocp_overlapped) {
+_CC_API_PRIVATE(bool_t) _iocp_event_accept_event(_cc_socket_t fd, _iocp_overlapped_t *iocp_overlapped) {
     int result;
 
     iocp_overlapped->flag = _CC_EVENT_ACCEPT_;
@@ -78,7 +78,7 @@ static bool_t _iocp_event_accept_event(_cc_socket_t fd, _iocp_overlapped_t *iocp
 }
 
 /**/
-static bool_t _iocp_event_write_event(_iocp_overlapped_t *iocp_overlapped) {
+_CC_API_PRIVATE(bool_t) _iocp_event_write_event(_iocp_overlapped_t *iocp_overlapped) {
     int result;
 
     if (!_cc_event_fd_valid(iocp_overlapped->e)) {
@@ -98,7 +98,7 @@ static bool_t _iocp_event_write_event(_iocp_overlapped_t *iocp_overlapped) {
 }
 
 /**/
-static bool_t _iocp_event_receive_event(_iocp_overlapped_t *iocp_overlapped) {
+_CC_API_PRIVATE(bool_t) _iocp_event_receive_event(_iocp_overlapped_t *iocp_overlapped) {
     int result;
 
     if (!_cc_event_fd_valid(iocp_overlapped->e)) {
@@ -117,7 +117,7 @@ static bool_t _iocp_event_receive_event(_iocp_overlapped_t *iocp_overlapped) {
 }
 
 /**/
-static bool_t _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _iocp_overlapped_t *iocp_overlapped = NULL;
     uint16_t addevents = e->flags & ~e->marks;
     uint16_t delevents = ~e->flags & e->marks;
@@ -187,7 +187,7 @@ static bool_t _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _iocp_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _iocp_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     int32_t i = 0;
     _cc_assert(cycle != NULL && e != NULL);
 
@@ -216,7 +216,7 @@ static bool_t _iocp_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _iocp_bind_connect(_cc_event_cycle_t *cycle, const _cc_event_t *e, int family) {
+_CC_API_PRIVATE(bool_t) _iocp_bind_connect(_cc_event_cycle_t *cycle, const _cc_event_t *e, int family) {
     _cc_socklen_t socklen = 0;
     _cc_sockaddr_t *sockaddr_any;
 
@@ -253,7 +253,7 @@ static bool_t _iocp_bind_connect(_cc_event_cycle_t *cycle, const _cc_event_t *e,
 }
 
 /**/
-static bool_t _iocp_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa,
+_CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa,
                                   const _cc_socklen_t sa_len) {
     _iocp_overlapped_t *iocp_overlapped = NULL;
 
@@ -287,7 +287,7 @@ static bool_t _iocp_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, cons
     return true;
 }
 /*
-static bool_t _iocp_event_disconnect(_cc_event_cycle_t *cycle,
+_CC_API_PRIVATE(bool_t) _iocp_event_disconnect(_cc_event_cycle_t *cycle,
                                                           _cc_event_t *e) {
     int result = 0;
     DWORD dwFlags = TF_REUSE_SOCKET;
@@ -323,7 +323,7 @@ static bool_t _iocp_event_disconnect(_cc_event_cycle_t *cycle,
 }
 */
 /**/
-static _cc_socket_t _iocp_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
+_CC_API_PRIVATE(_cc_socket_t) _iocp_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
                                        _cc_socklen_t *sa_len) {
     long i = 0;
     _cc_socket_t fd = e->accept_fd;
@@ -351,7 +351,7 @@ static _cc_socket_t _iocp_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e,
 }
 
 /**/
-static bool_t _iocp_event_dispatch(_cc_event_cycle_t *cycle, LPOVERLAPPED overlapped,
+_CC_API_PRIVATE(bool_t) _iocp_event_dispatch(_cc_event_cycle_t *cycle, LPOVERLAPPED overlapped,
                                    _iocp_overlapped_t *iocp_overlaaped) {
     uint16_t events = _CC_EVENT_UNKNOWN_;
     _cc_event_t *e = iocp_overlaaped->e;
@@ -392,7 +392,7 @@ static bool_t _iocp_event_dispatch(_cc_event_cycle_t *cycle, LPOVERLAPPED overla
 }
 
 /**/
-static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         /*delete*/
         _cc_cleanup_event(cycle, e);
@@ -418,7 +418,7 @@ static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
     ULONG_PTR key = 0;
     DWORD transferred = 0;
     LPOVERLAPPED overlapped = NULL;
@@ -525,7 +525,7 @@ static bool_t _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
 }
 
 /**/
-static bool_t _iocp_event_quit(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _iocp_event_quit(_cc_event_cycle_t *cycle) {
     int32_t i = 0;
     _cc_assert(cycle != NULL);
     if (cycle == NULL) {
@@ -545,7 +545,7 @@ static bool_t _iocp_event_quit(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-static bool_t _iocp_event_init(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _iocp_event_init(_cc_event_cycle_t *cycle) {
     _cc_event_cycle_priv_t *priv;
 
     if (!_cc_event_cycle_init(cycle)) {
@@ -567,7 +567,7 @@ static bool_t _iocp_event_init(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-bool_t _cc_init_event_iocp(_cc_event_cycle_t *cycle) {
+_CC_API_PUBLIC(bool_t) _cc_init_event_iocp(_cc_event_cycle_t *cycle) {
 #define ASET(x) cycle->driver.x = _iocp_event_##x
 #define XSET(x) cycle->driver.x = _cc_event_##x
 

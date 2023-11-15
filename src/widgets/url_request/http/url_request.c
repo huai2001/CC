@@ -25,11 +25,11 @@
 #include "../../common/http.response.parser.c"
 
 /**/
-bool_t _cc_url_read_response_body(_cc_url_request_t *request, byte_t *source, size_t length);
-bool_t _cc_url_read_response_chunked(_cc_url_request_t *, _cc_event_rbuf_t *);
+_CC_API_PUBLIC(bool_t) _cc_url_read_response_body(_cc_url_request_t *request, byte_t *source, size_t length);
+_CC_API_PUBLIC(bool_t) _cc_url_read_response_chunked(_cc_url_request_t *, _cc_event_rbuf_t *);
 
 /**/
-bool_t _cc_free_url_request(_cc_url_request_t *request) {
+_CC_API_PUBLIC(bool_t) _cc_free_url_request(_cc_url_request_t *request) {
     if (request == NULL) {
         return false;
     }
@@ -53,7 +53,7 @@ bool_t _cc_free_url_request(_cc_url_request_t *request) {
 }
 
 /**/
-bool_t _cc_url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
     request->status = _CC_HTTP_RESPONSE_HEADER_;
     if (request->response) {
         _free_response_header(&request->response);
@@ -71,7 +71,7 @@ bool_t _cc_url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
 }
 
 /**/
-bool_t _cc_url_request_ssl_handshake(_cc_url_request_t *request, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_url_request_ssl_handshake(_cc_url_request_t *request, _cc_event_t *e) {
 #ifdef _CC_OPENSSL_HTTPS_
     switch (_SSL_do_handshake(request->ssl)) {
     case _CC_SSL_HS_ESTABLISHED_:
@@ -93,7 +93,7 @@ bool_t _cc_url_request_ssl_handshake(_cc_url_request_t *request, _cc_event_t *e)
     return true;
 }
 
-static long get_content_length(_cc_dict_t *headers) {
+_CC_API_PRIVATE(long) get_content_length(_cc_dict_t *headers) {
     const tchar_t *data;
     long content_length = 0;
 
@@ -106,27 +106,27 @@ static long get_content_length(_cc_dict_t *headers) {
     return content_length;
 }
 
-static int is_chunked_transfer(_cc_dict_t *headers) {
+_CC_API_PRIVATE(int) is_chunked_transfer(_cc_dict_t *headers) {
     const tchar_t *data;
     data = _cc_dict_find(headers, _T("Transfer-Encoding"));
     return (data && !_tcsicmp(data, _T("chunked"))) ? _CC_URL_TRANSFER_ENCODING_CHUNKED_ :
                                                       _CC_URL_TRANSFER_ENCODING_UNKNOWN_;
 }
 
-static int get_content_encoding(_cc_dict_t *headers) {
+_CC_API_PRIVATE(int) get_content_encoding(_cc_dict_t *headers) {
     const tchar_t *data;
     data = _cc_dict_find(headers, _T("Content-Encoding"));
     return (data && !_tcsicmp(data, _T("gzip"))) ? _CC_URL_CONTENT_ENCODING_GZIP_ : _CC_URL_CONTENT_ENCODING_PLAINTEXT_;
 }
 
-static bool_t is_keep_alive(_cc_dict_t *headers) {
+_CC_API_PRIVATE(bool_t) is_keep_alive(_cc_dict_t *headers) {
     const tchar_t *data;
     data = _cc_dict_find(headers, _T("Connection"));
     return data ? !_tcsicmp(data, _T("keep-alive")) : false;
 }
 
 /**/
-bool_t _cc_url_request_response_header(_cc_url_request_t *request, _cc_event_rbuf_t *r) {
+_CC_API_PUBLIC(bool_t) _cc_url_request_response_header(_cc_url_request_t *request, _cc_event_rbuf_t *r) {
     _cc_assert(r != NULL);
     if (request->status == _CC_HTTP_RESPONSE_HEADER_) {
         _cc_http_response_header_t *response;
@@ -152,7 +152,7 @@ bool_t _cc_url_request_response_header(_cc_url_request_t *request, _cc_event_rbu
 }
 
 /**/
-bool_t _cc_url_request_response_body(_cc_url_request_t *request, _cc_event_rbuf_t *r) {
+_CC_API_PUBLIC(bool_t) _cc_url_request_response_body(_cc_url_request_t *request, _cc_event_rbuf_t *r) {
     _cc_http_response_header_t *response = request->response;
     _cc_assert(r != NULL);
     /**/
@@ -180,7 +180,7 @@ bool_t _cc_url_request_response_body(_cc_url_request_t *request, _cc_event_rbuf_
 }
 
 /**/
-bool_t _cc_url_request_read(_cc_url_request_t *request, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_url_request_read(_cc_url_request_t *request, _cc_event_t *e) {
 #ifdef _CC_OPENSSL_HTTPS_
     if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->ssl) {
         return _SSL_event_read(request->ssl, e);
@@ -190,7 +190,7 @@ bool_t _cc_url_request_read(_cc_url_request_t *request, _cc_event_t *e) {
 }
 
 /**/
-bool_t _cc_url_request_sendbuf(_cc_url_request_t *request, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_url_request_sendbuf(_cc_url_request_t *request, _cc_event_t *e) {
 #ifdef _CC_OPENSSL_HTTPS_
     if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->ssl) {
         return _SSL_sendbuf(request->ssl, e) >= 0;
@@ -200,7 +200,7 @@ bool_t _cc_url_request_sendbuf(_cc_url_request_t *request, _cc_event_t *e) {
 }
 
 /**/
-_cc_url_request_t *_cc_url_request(const tchar_t *url, pvoid_t args) {
+_CC_API_PUBLIC(_cc_url_request_t*) _cc_url_request(const tchar_t *url, pvoid_t args) {
     _cc_url_request_t *request;
     _cc_assert(url != NULL);
     if (url == NULL) {

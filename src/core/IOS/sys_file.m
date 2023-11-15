@@ -21,7 +21,7 @@
 #include <cc/alloc.h>
 #import <Foundation/Foundation.h>
 /*
-const byte_t * _cc_ios_file_context(const char_t *file,
+_CC_API_PUBLIC(const byte_t*) _cc_ios_file_context(const char_t *file,
                                     const char_t *type,
                                     int32_t *file_len) {
     NSString *fileName;
@@ -42,14 +42,14 @@ const byte_t * _cc_ios_file_context(const char_t *file,
     return source;
 }
 */
-bool_t _cc_file_is_exist_of_path(const tchar_t *filename) {
+_CC_API_PUBLIC(bool_t) _cc_file_is_exist_of_path(const tchar_t *filename) {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *filePath = [NSString stringWithUTF8String:filename];
     
     return [fileManager fileExistsAtPath:filePath] ? true : false;
 }
 
-int _cc_ios_unlink(const tchar_t *filename) {
+_CC_API_PUBLIC(int) _cc_ios_unlink(const tchar_t *filename) {
     NSFileManager *fileManage = [NSFileManager defaultManager];
     NSString *filePath = [NSString stringWithUTF8String:filename];
     
@@ -59,7 +59,7 @@ int _cc_ios_unlink(const tchar_t *filename) {
     return -1;
 }
 /*
-static BOOL _cc_create_file_with_path(NSString *filePath) {
+_CC_API_PRIVATE(BOOL) _cc_create_file_with_path(NSString *filePath) {
     BOOL isSuccess = YES;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:filePath]) {

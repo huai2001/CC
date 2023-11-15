@@ -74,28 +74,28 @@ typedef struct _cc_rbtree {
 #define _CC_RB_INIT_ROOT(root) ((root)->rb_node = NULL)
 #define _CC_RB_EMPTY_ROOT(root) ((root)->rb_node == NULL)
 
-_CC_API(void) _cc_rbtree_insert_color(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
-_CC_API(void) _cc_rbtree_erase(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
-_CC_API(void)
+_CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
+_CC_API_PUBLIC(void) _cc_rbtree_erase(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
+_CC_API_PUBLIC(void)
 _cc_rbtree_destroy(_cc_rbtree_t *, void (*_func)(_cc_rbtree_iterator_t *));
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*_func)(_cc_rbtree_iterator_t *, pvoid_t), pvoid_t args);
 
 /* Find logical next and previous nodes in a tree */
-_CC_API(_cc_rbtree_iterator_t *) _cc_rbtree_next(const _cc_rbtree_iterator_t *);
-_CC_API(_cc_rbtree_iterator_t *) _cc_rbtree_prev(const _cc_rbtree_iterator_t *);
-_CC_API(_cc_rbtree_iterator_t *) _cc_rbtree_first(const _cc_rbtree_t *);
-_CC_API(_cc_rbtree_iterator_t *) _cc_rbtree_last(const _cc_rbtree_t *);
+_CC_API_PUBLIC(_cc_rbtree_iterator_t *) _cc_rbtree_next(const _cc_rbtree_iterator_t *);
+_CC_API_PUBLIC(_cc_rbtree_iterator_t *) _cc_rbtree_prev(const _cc_rbtree_iterator_t *);
+_CC_API_PUBLIC(_cc_rbtree_iterator_t *) _cc_rbtree_first(const _cc_rbtree_t *);
+_CC_API_PUBLIC(_cc_rbtree_iterator_t *) _cc_rbtree_last(const _cc_rbtree_t *);
 
 /* Fast replacement of a single node without remove/rebalance/add/rebalance */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_rbtree_replace_node(_cc_rbtree_t *root, _cc_rbtree_iterator_t *victim, _cc_rbtree_iterator_t *replacement);
 
 /**/
-_CC_API(_cc_rbtree_iterator_t *)
+_CC_API_PUBLIC(_cc_rbtree_iterator_t *)
 _cc_rbtree_get(const _cc_rbtree_t *root, pvoid_t args, int32_t (*func)(_cc_rbtree_iterator_t *, pvoid_t));
 /**/
-_CC_API(bool_t)
+_CC_API_PUBLIC(bool_t)
 _cc_rbtree_push(_cc_rbtree_t *root, _cc_rbtree_iterator_t *data,
                 int32_t (*func)(_cc_rbtree_iterator_t *, _cc_rbtree_iterator_t *));
 

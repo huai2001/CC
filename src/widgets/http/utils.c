@@ -95,7 +95,7 @@ tchar_t* _http_header_read(tchar_t* z,
     return result;
 }
 
-static bool_t is_end_line(int r) {
+_CC_API_PRIVATE(bool_t) is_end_line(int r) {
     return r == _CC_CR_ || r == _CC_LF_;
 }
 

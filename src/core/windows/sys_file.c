@@ -22,7 +22,7 @@
 
 #define _GET_HANDLE(x) (HANDLE)(x->fp)
 /**/
-bool_t flock(int fd, int32_t op) {
+_CC_API_PUBLIC(bool_t) flock(int fd, int32_t op) {
 #ifndef __CC_WIN32_CE__
     HANDLE hdl = (HANDLE)_get_osfhandle(fd);
     DWORD low = 1, high = 0;
@@ -51,7 +51,7 @@ bool_t flock(int fd, int32_t op) {
     return false;
 }
 
-static int64_t _cc_win_file_size(_cc_file_t *context) {
+_CC_API_PRIVATE(int64_t) _cc_win_file_size(_cc_file_t *context) {
     LARGE_INTEGER size;
 
     if (!context || _GET_HANDLE(context) == INVALID_HANDLE_VALUE) {
@@ -67,7 +67,7 @@ static int64_t _cc_win_file_size(_cc_file_t *context) {
     return size.QuadPart;
 }
 
-static bool_t _cc_win_file_seek(_cc_file_t *context, int64_t offset, int whence) {
+_CC_API_PRIVATE(bool_t) _cc_win_file_seek(_cc_file_t *context, int64_t offset, int whence) {
     DWORD windowswhence;
     LARGE_INTEGER windowsoffset;
 
@@ -99,7 +99,7 @@ static bool_t _cc_win_file_seek(_cc_file_t *context, int64_t offset, int whence)
     return true;
 }
 
-static size_t _cc_win_file_read(_cc_file_t *context, pvoid_t ptr, size_t size, size_t maxnum) {
+_CC_API_PRIVATE(size_t) _cc_win_file_read(_cc_file_t *context, pvoid_t ptr, size_t size, size_t maxnum) {
     size_t total_need;
     DWORD byte_read;
 
@@ -116,7 +116,7 @@ static size_t _cc_win_file_read(_cc_file_t *context, pvoid_t ptr, size_t size, s
     return byte_read;
 }
 
-static size_t _cc_win_file_write(_cc_file_t *context, const pvoid_t ptr, size_t size, size_t num) {
+_CC_API_PRIVATE(size_t) _cc_win_file_write(_cc_file_t *context, const pvoid_t ptr, size_t size, size_t num) {
     size_t total_bytes = size * num;
     DWORD byte_written = 0;
 
@@ -138,7 +138,7 @@ static size_t _cc_win_file_write(_cc_file_t *context, const pvoid_t ptr, size_t 
     return ((size_t)byte_written / size);
 }
 
-static bool_t _cc_win_file_close(_cc_file_t *context) {
+_CC_API_PRIVATE(bool_t) _cc_win_file_close(_cc_file_t *context) {
     if (!context || _GET_HANDLE(context) == NULL) {
         _cc_logger_error(_T("_cc_win_file_close: invalid context/file not closed"));
         return false;
@@ -154,7 +154,7 @@ static bool_t _cc_win_file_close(_cc_file_t *context) {
     return true;
 }
 /**/
-bool_t _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
+_CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
     HANDLE h;
     DWORD r_right = 0, w_right = 0;
     const tchar_t *p = mode;

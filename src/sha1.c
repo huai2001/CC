@@ -46,7 +46,7 @@
 /*
  * SHA-1 context setup
  */
-void _cc_sha1_init(_cc_sha1_t *ctx) {
+_CC_API_PUBLIC(void) _cc_sha1_init(_cc_sha1_t *ctx) {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
@@ -58,7 +58,7 @@ void _cc_sha1_init(_cc_sha1_t *ctx) {
 }
 
 #if !defined(_CC_SHA1_PROCESS_ALT)
-void _cc_sha1_process(_cc_sha1_t *ctx, const byte_t data[64]) {
+_CC_API_PUBLIC(void) _cc_sha1_process(_cc_sha1_t *ctx, const byte_t data[64]) {
     uint32_t temp, W[16], A, B, C, D, E;
 
     GET_UINT32_BE(W[0], data, 0);
@@ -214,7 +214,7 @@ void _cc_sha1_process(_cc_sha1_t *ctx, const byte_t data[64]) {
 /*
  * SHA-1 process buffer
  */
-void _cc_sha1_update(_cc_sha1_t *ctx, const byte_t *input, size_t ilen) {
+_CC_API_PUBLIC(void) _cc_sha1_update(_cc_sha1_t *ctx, const byte_t *input, size_t ilen) {
     size_t fill;
     uint32_t left;
 
@@ -258,7 +258,7 @@ static const byte_t sha1_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 /*
  * SHA-1 final digest
  */
-void _cc_sha1_final(_cc_sha1_t *ctx, byte_t *output) {
+_CC_API_PUBLIC(void) _cc_sha1_final(_cc_sha1_t *ctx, byte_t *output) {
     uint32_t last, padn;
     uint32_t high, low;
     byte_t msglen[8];
@@ -286,7 +286,7 @@ void _cc_sha1_final(_cc_sha1_t *ctx, byte_t *output) {
 /*
     Digests a file.
  */
-bool_t _cc_sha1_fp(FILE *fp, tchar_t *output) {
+_CC_API_PUBLIC(bool_t) _cc_sha1_fp(FILE *fp, tchar_t *output) {
     byte_t results[_CC_SHA1_DIGEST_LENGTH_];
     byte_t buf[1024 * 16];
     size_t i;
@@ -317,7 +317,7 @@ bool_t _cc_sha1_fp(FILE *fp, tchar_t *output) {
 /*
     Digests a file.
  */
-bool_t _cc_sha1file(const tchar_t *filename, tchar_t *output) {
+_CC_API_PUBLIC(bool_t) _cc_sha1file(const tchar_t *filename, tchar_t *output) {
     FILE *fp = _tfopen(filename, _T("rb"));
 
     if (fp) {
@@ -331,7 +331,7 @@ bool_t _cc_sha1file(const tchar_t *filename, tchar_t *output) {
 /*
  * output = SHA-1( input buffer )
  */
-void _cc_sha1(const byte_t *input, size_t ilen, tchar_t *output) {
+_CC_API_PUBLIC(void) _cc_sha1(const byte_t *input, size_t ilen, tchar_t *output) {
     _cc_sha1_t ctx;
     byte_t results[_CC_SHA1_DIGEST_LENGTH_];
 

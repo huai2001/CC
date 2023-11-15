@@ -81,19 +81,19 @@ int __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const 
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_install_socket(void);
+_CC_API_PUBLIC(bool_t) _cc_install_socket(void);
 
 /**
  * @brief Uninitialize System Socket
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_uninstall_socket(void);
+_CC_API_PUBLIC(bool_t) _cc_uninstall_socket(void);
 
 /*
 
 */
-_CC_API(_cc_socket_t) _cc_socket(uint32_t domain, uint32_t type, uint32_t protocol);
+_CC_API_PUBLIC(_cc_socket_t) _cc_socket(uint32_t domain, uint32_t type, uint32_t protocol);
 
 /**
  * @brief Shutdown Socket
@@ -114,7 +114,7 @@ _CC_FORCE_INLINE_ int _cc_shutdown_socket(_cc_socket_t fd, byte_t how) {
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_close_socket(_cc_socket_t fd);
+_CC_API_PUBLIC(int) _cc_close_socket(_cc_socket_t fd);
 
 #ifndef __CC_WINDOWS__
 /** 
@@ -124,7 +124,7 @@ _CC_API(int) _cc_close_socket(_cc_socket_t fd);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_set_socket_closeonexec(_cc_socket_t fd);
+_CC_API_PUBLIC(bool_t) _cc_set_socket_closeonexec(_cc_socket_t fd);
 #endif
 
 /** 
@@ -135,7 +135,7 @@ _CC_API(bool_t) _cc_set_socket_closeonexec(_cc_socket_t fd);
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_set_socket_reuseport(_cc_socket_t fd,int opt);
+_CC_API_PUBLIC(int) _cc_set_socket_reuseport(_cc_socket_t fd,int opt);
 /** 
  * @brief reuse socket
  *
@@ -143,7 +143,7 @@ _CC_API(int) _cc_set_socket_reuseport(_cc_socket_t fd,int opt);
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_set_socket_reuseaddr(_cc_socket_t fd);
+_CC_API_PUBLIC(int) _cc_set_socket_reuseaddr(_cc_socket_t fd);
 /**
  * @brief Set the socket to nodelay mode
  *
@@ -152,7 +152,7 @@ _CC_API(int) _cc_set_socket_reuseaddr(_cc_socket_t fd);
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_set_socket_nodelay(_cc_socket_t fd, int opt);
+_CC_API_PUBLIC(int) _cc_set_socket_nodelay(_cc_socket_t fd, int opt);
 /**
  * @brief Set the socket to nonblocking mode
  *
@@ -161,7 +161,7 @@ _CC_API(int) _cc_set_socket_nodelay(_cc_socket_t fd, int opt);
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_set_socket_nonblock(_cc_socket_t fd, int opt);
+_CC_API_PUBLIC(int) _cc_set_socket_nonblock(_cc_socket_t fd, int opt);
 /**
  * @brief Set socket keepalive
  *
@@ -171,7 +171,7 @@ _CC_API(int) _cc_set_socket_nonblock(_cc_socket_t fd, int opt);
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay);
+_CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay);
 
 /**
  * @brief Set the socket send/recv timeout (SO_SNDTIMEO/SO_RCVTIMEO socket option) to the specified
@@ -182,7 +182,7 @@ _CC_API(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay);
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_set_socket_timeout(_cc_socket_t fd, long ms);
+_CC_API_PUBLIC(int) _cc_set_socket_timeout(_cc_socket_t fd, long ms);
 /**
  * @brief Set ipv6 only bind socket option to make listener work only in ipv6 sockets. 
  *        According to RFC3493 and most Linux distributions, default value for the
@@ -192,7 +192,7 @@ _CC_API(int) _cc_set_socket_timeout(_cc_socket_t fd, long ms);
  *
  * @return 0 if successful or Socket on error
  */
-_CC_API(int) _cc_socket_ipv6only(_cc_socket_t fd);
+_CC_API_PUBLIC(int) _cc_socket_ipv6only(_cc_socket_t fd);
 /**
  * @brief Get Socket accept
  *
@@ -202,7 +202,7 @@ _CC_API(int) _cc_socket_ipv6only(_cc_socket_t fd);
  *
  * @return socket hanel
  */
-_CC_API(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len);
+_CC_API_PUBLIC(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len);
 
 /**
  * @brief Read socket data
@@ -213,7 +213,7 @@ _CC_API(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *sa, _cc
  *
  * @return Length of read byte buffer
 */
-_CC_API(int32_t) _cc_recv(_cc_socket_t fd, byte_t* buf, int32_t len);
+_CC_API_PUBLIC(int32_t) _cc_recv(_cc_socket_t fd, byte_t* buf, int32_t len);
 
 /**
  * @brief Send socket data
@@ -224,7 +224,7 @@ _CC_API(int32_t) _cc_recv(_cc_socket_t fd, byte_t* buf, int32_t len);
  *
  * @return Length of send byte buffer
 */
-_CC_API(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len);
+_CC_API_PUBLIC(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len);
 /**
  * @brief Send socket data
  *
@@ -236,7 +236,7 @@ _CC_API(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len);
  *
  * @return Length of send byte buffer
 */
-_CC_API(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_sockaddr_t *sa, _cc_socklen_t sa_len);
+_CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_sockaddr_t *sa, _cc_socklen_t sa_len);
 
 /**
  * @brief Convert the network host address and store it in the struct in_addr structure
@@ -247,7 +247,7 @@ _CC_API(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, con
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst);
+_CC_API_PUBLIC(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst);
 
 /**
  * @brief 
@@ -259,7 +259,7 @@ _CC_API(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_inet_ntop(int af,  const byte_t *src, tchar_t *dst, int32_t size);
+_CC_API_PUBLIC(bool_t) _cc_inet_ntop(int af,  const byte_t *src, tchar_t *dst, int32_t size);
 
 /**
  * @brief
@@ -270,7 +270,7 @@ _CC_API(bool_t) _cc_inet_ntop(int af,  const byte_t *src, tchar_t *dst, int32_t 
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_inet_ntop4(const byte_t *src, tchar_t *dst, int32_t size);
+_CC_API_PUBLIC(bool_t) _cc_inet_ntop4(const byte_t *src, tchar_t *dst, int32_t size);
 /**
  * @brief
  *
@@ -280,7 +280,7 @@ _CC_API(bool_t) _cc_inet_ntop4(const byte_t *src, tchar_t *dst, int32_t size);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t size);
+_CC_API_PUBLIC(bool_t) _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t size);
 /**
  * @brief
  *
@@ -289,7 +289,7 @@ _CC_API(bool_t) _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t size);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_inet_pton4(const tchar_t *src, byte_t *dst);
+_CC_API_PUBLIC(bool_t) _cc_inet_pton4(const tchar_t *src, byte_t *dst);
 /**
  * @brief
  *
@@ -298,7 +298,7 @@ _CC_API(bool_t) _cc_inet_pton4(const tchar_t *src, byte_t *dst);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst);
+_CC_API_PUBLIC(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst);
 /**
  * @brief 
  *
@@ -306,7 +306,7 @@ _CC_API(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst);
  * @param ip IP address
  * @param port Port
  */
-_CC_API(void) _cc_inet_ipv4_addr(struct sockaddr_in *sa, const tchar_t *ip, int port);
+_CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *sa, const tchar_t *ip, int port);
 /**
  * @brief
  *
@@ -314,7 +314,7 @@ _CC_API(void) _cc_inet_ipv4_addr(struct sockaddr_in *sa, const tchar_t *ip, int 
  * @param ip IP address
  * @param port Port
  */
-_CC_API(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *sa, const tchar_t *ip, int port);
+_CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *sa, const tchar_t *ip, int port);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

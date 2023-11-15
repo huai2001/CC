@@ -1,6 +1,6 @@
 #include <cc/widgets/ftp.h>
 
-static bool_t libftp_cwd(_cc_ftp_t* ftp,
+_CC_API_PRIVATE(bool_t) libftp_cwd(_cc_ftp_t* ftp,
                                     const byte_t* buf,
                                     uint32_t len) {
     if (ftp->resp.flag != _CC_LIBFTP_RESP_CWD) {

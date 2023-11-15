@@ -34,18 +34,20 @@ typedef struct _cc_prd {
     int32_t NMax;
 } _cc_prd_t;
 /**/
-_CC_API(uint32_t) _cc_rand(void);
+_CC_API_PUBLIC(uint32_t) _cc_rand(void);
 /**/
-_CC_API(void) _cc_srand(uint32_t);
+_CC_API_PUBLIC(void) _cc_srand(uint32_t);
+/**/
+_CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes);
 
 /**/
-_CC_API(uint32_t) _cc_random32(uint32_t, uint32_t);
+_CC_API_PUBLIC(uint32_t) _cc_random32(uint32_t, uint32_t);
 /**/
-_CC_API(uint64_t) _cc_random64(uint64_t, uint64_t);
+_CC_API_PUBLIC(uint64_t) _cc_random64(uint64_t, uint64_t);
 /**/
-_CC_API(float32_t) _cc_randomf32(float32_t, float32_t);
+_CC_API_PUBLIC(float32_t) _cc_randomf32(float32_t, float32_t);
 /**/
-_CC_API(float64_t) _cc_randomf64(float64_t, float64_t);
+_CC_API_PUBLIC(float64_t) _cc_randomf64(float64_t, float64_t);
 
 #define _CC_RANDOM_MAX_ 2147483647L
 /**/
@@ -59,9 +61,9 @@ _CC_FORCE_INLINE_ float64_t _cc_randd(void) {
 }
 
 /**/
-_CC_API(void) _cc_calculate_prd(_cc_prd_t* prd, float64_t p);
+_CC_API_PUBLIC(void) _cc_calculate_prd(_cc_prd_t* prd, float64_t p);
 /**/
-_CC_API(int32_t) _cc_get_probability(_cc_prd_t* prd, int T);
+_CC_API_PUBLIC(int32_t) _cc_get_probability(_cc_prd_t* prd, int T);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

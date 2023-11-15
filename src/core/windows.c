@@ -47,7 +47,7 @@ MINIDUMPWRITEDUMP _call_minidump_writedump = NULL;
 static _cc_dumper_callback_t _dumper_callback = NULL;
 
 /**/
-static LONG _exit_proccess(LONG retval) {
+_CC_API_PRIVATE(LONG) _exit_proccess(LONG retval) {
     TerminateProcess(GetCurrentProcess(), 0);
     /*
     // MLM Note: ExitThread will work, and it allows the MiniDumper to kill a crashed thread
@@ -60,7 +60,7 @@ static LONG _exit_proccess(LONG retval) {
 }
 
 /**/
-static LONG WINAPI _mini_dumper_handler(PEXCEPTION_POINTERS info) {
+_CC_API_PRIVATE(LONG WINAPI) _mini_dumper_handler(PEXCEPTION_POINTERS info) {
     SYSTEMTIME st = {0};
     LONG retval = EXCEPTION_CONTINUE_SEARCH;
     tchar_t dbghelp_bugreport_path[_CC_MAX_PATH_] = {0};
@@ -111,7 +111,7 @@ static LONG WINAPI _mini_dumper_handler(PEXCEPTION_POINTERS info) {
 }
 
 /**/
-bool_t _cc_install_dumper(_cc_dumper_callback_t callback) {
+_CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback) {
     int32_t i = 0;
     int32_t rc = 0;
     int32_t len = 0;
@@ -171,7 +171,7 @@ bool_t _cc_install_dumper(_cc_dumper_callback_t callback) {
 }
 
 /**/
-void _cc_uninstall_dumper(void) {
+_CC_API_PUBLIC(void) _cc_uninstall_dumper(void) {
     _dumper_callback = NULL;
     _call_minidump_writedump = NULL;
 
@@ -182,7 +182,7 @@ void _cc_uninstall_dumper(void) {
 
 #endif /*ndef _CC_DISABLED_DUMPER_ */
 
-HMODULE _cc_load_windows_kernel32() {
+_CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32() {
 
     if (hModuleKernel32 == NULL) {
         hModuleKernel32 = GetModuleHandle(_T("KERNEL32.dll"));
@@ -194,7 +194,7 @@ HMODULE _cc_load_windows_kernel32() {
     return hModuleKernel32;
 }
 
-void _cc_print_stack_trace(FILE *fp, int i) {
+_CC_API_PUBLIC(void) _cc_print_stack_trace(FILE *fp, int i) {
     HANDLE process = GetCurrentProcess();
     pvoid_t frames[1024];
     SYMBOL_INFO_PACKAGE sym;

@@ -39,19 +39,19 @@ typedef struct _cc_ring {
 } _cc_ring_t;
 
 /**/
-_CC_API(bool_t) _cc_ring_alloc(_cc_ring_t*, int32_t initsize);
+_CC_API_PUBLIC(bool_t) _cc_ring_alloc(_cc_ring_t*, int32_t initsize);
 /**/
-_CC_API(bool_t) _cc_ring_free(_cc_ring_t*);
+_CC_API_PUBLIC(bool_t) _cc_ring_free(_cc_ring_t*);
 /**/
-_CC_API(_cc_ring_t*) _cc_create_ring(int32_t);
+_CC_API_PUBLIC(_cc_ring_t*) _cc_create_ring(int32_t);
 /**/
-_CC_API(void) _cc_destroy_ring(_cc_ring_t**);
+_CC_API_PUBLIC(void) _cc_destroy_ring(_cc_ring_t**);
 /**/
-_CC_API(bool_t) _cc_ring_push(_cc_ring_t*, pvoid_t data);
+_CC_API_PUBLIC(bool_t) _cc_ring_push(_cc_ring_t*, pvoid_t data);
 /**/
-_CC_API(pvoid_t) _cc_ring_pop(_cc_ring_t*);
+_CC_API_PUBLIC(pvoid_t) _cc_ring_pop(_cc_ring_t*);
 /**/
-_CC_API(void) _cc_ring_cleanup(_cc_ring_t*);
+_CC_API_PUBLIC(void) _cc_ring_cleanup(_cc_ring_t*);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

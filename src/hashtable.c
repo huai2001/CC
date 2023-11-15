@@ -46,7 +46,7 @@ struct _cc_hashtable_element {
 };
 
 /* from kyotocabinet-1.2.76/kchashdb.h */
-//static uint32_t fold_hash(uint64_t hash) {
+//_CC_API_PRIVATE(uint32_t) fold_hash(uint64_t hash) {
 //    return (uint32_t)((((hash & 0xffff000000000000ULL) >> 48) | ((hash &
 //    0x0000ffff00000000ULL) >> 16)) ^
 //        (((hash & 0x000000000000ffffULL) << 16) | ((hash &
@@ -55,7 +55,7 @@ struct _cc_hashtable_element {
 /*
  * Hashing function for a string
  */
-//static uint32_t hashtable_build_hash(uint32_t keyword) {
+//_CC_API_PRIVATE(uint32_t) hashtable_build_hash(uint32_t keyword) {
 //    /* Robert Jenkins' 32 bit Mix Function */
 //    keyword += (keyword << 12);
 //    keyword ^= (keyword >> 22);
@@ -76,7 +76,7 @@ struct _cc_hashtable_element {
  * Return the integer of the location in data
  * to store the point to the item, or MAP_FULL.
  */
-static int _hashtable_hash(_cc_hashtable_t *ctx, const pvoid_t keyword, uint32_t hash_code) {
+_CC_API_PRIVATE(int) _hashtable_hash(_cc_hashtable_t *ctx, const pvoid_t keyword, uint32_t hash_code) {
     uint32_t curr;
     uint32_t i;
     _cc_hashtable_element_t *element;
@@ -106,8 +106,7 @@ static int _hashtable_hash(_cc_hashtable_t *ctx, const pvoid_t keyword, uint32_t
     return MAP_FULL;
 }
 
-static _cc_hashtable_element_t *_hashtable_empty_element(_cc_hashtable_element_t *elements, uint32_t slots,
-                                                                    uint32_t hash_code) {
+_CC_API_PRIVATE(_cc_hashtable_element_t*) _hashtable_empty_element(_cc_hashtable_element_t *elements, uint32_t slots, uint32_t hash_code) {
     uint32_t curr;
     uint32_t i;
     _cc_hashtable_element_t *element;
@@ -129,7 +128,7 @@ static _cc_hashtable_element_t *_hashtable_empty_element(_cc_hashtable_element_t
 /*
  * Doubles the size of the hashtable, and rehashes all the elements
  */
-static int _hashtable_rehash(_cc_hashtable_t *ctx) {
+_CC_API_PRIVATE(int) _hashtable_rehash(_cc_hashtable_t *ctx) {
     _cc_list_iterator_t list;
     _cc_hashtable_element_t *data = ctx->data;
     uint32_t slots = ctx->slots * 2;
@@ -173,7 +172,7 @@ static int _hashtable_rehash(_cc_hashtable_t *ctx) {
 }
 
 /**/
-bool_t _cc_hashtable_alloc(_cc_hashtable_t *ctx, uint32_t initial_size, _cc_hashtable_keyword_equals_func_t equals_func,
+_CC_API_PUBLIC(bool_t) _cc_hashtable_alloc(_cc_hashtable_t *ctx, uint32_t initial_size, _cc_hashtable_keyword_equals_func_t equals_func,
                            _cc_hashtable_keyword_hash_func_t hash_func) {
     _cc_assert(ctx != NULL);
     _cc_assert(equals_func != NULL);
@@ -200,7 +199,7 @@ bool_t _cc_hashtable_alloc(_cc_hashtable_t *ctx, uint32_t initial_size, _cc_hash
 /*
  * Return an empty hashtable, or NULL on failure.
  */
-_cc_hashtable_t *_cc_create_hashtable(uint32_t initial_size, _cc_hashtable_keyword_equals_func_t equals_func,
+_CC_API_PUBLIC(_cc_hashtable_t*) _cc_create_hashtable(uint32_t initial_size, _cc_hashtable_keyword_equals_func_t equals_func,
                                       _cc_hashtable_keyword_hash_func_t hash_func) {
     _cc_hashtable_t *ctx = (_cc_hashtable_t *)_cc_malloc(sizeof(_cc_hashtable_t));
 
@@ -215,7 +214,7 @@ _cc_hashtable_t *_cc_create_hashtable(uint32_t initial_size, _cc_hashtable_keywo
 /*
  * Add a pointer to the hashtable with some keyword
  */
-bool_t _cc_hashtable_insert(_cc_hashtable_t *ctx, const pvoid_t keyword, const pvoid_t data) {
+_CC_API_PUBLIC(bool_t) _cc_hashtable_insert(_cc_hashtable_t *ctx, const pvoid_t keyword, const pvoid_t data) {
     _cc_hashtable_element_t *element;
     uint32_t hash_code = ctx->hash_func(keyword);
     uint32_t index = _hashtable_hash(ctx, keyword, hash_code);
@@ -250,7 +249,7 @@ bool_t _cc_hashtable_insert(_cc_hashtable_t *ctx, const pvoid_t keyword, const p
 /*
  * Get your pointer out of the hashtable with a keyword
  */
-pvoid_t _cc_hashtable_find(_cc_hashtable_t *ctx, const pvoid_t keyword) {
+_CC_API_PUBLIC(pvoid_t) _cc_hashtable_find(_cc_hashtable_t *ctx, const pvoid_t keyword) {
     int32_t i;
     int32_t curr;
     uint32_t hash_code;
@@ -277,7 +276,7 @@ pvoid_t _cc_hashtable_find(_cc_hashtable_t *ctx, const pvoid_t keyword) {
 /*
  * Remove an element with that keyword from the map
  */
-pvoid_t _cc_hashtable_remove(_cc_hashtable_t *ctx, const pvoid_t keyword) {
+_CC_API_PUBLIC(pvoid_t) _cc_hashtable_remove(_cc_hashtable_t *ctx, const pvoid_t keyword) {
     int32_t i;
     int32_t curr;
     uint32_t hash_code;
@@ -310,7 +309,7 @@ pvoid_t _cc_hashtable_remove(_cc_hashtable_t *ctx, const pvoid_t keyword) {
 /**
  *  Removes all items.
  */
-bool_t _cc_hashtable_cleanup(_cc_hashtable_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_hashtable_cleanup(_cc_hashtable_t *ctx) {
     /* Rehash the elements */
     _cc_list_iterator_for_each_next(it, &ctx->list, {
         _cc_hashtable_element_t *n = _cc_upcast(it, _cc_hashtable_element_t, lnk);
@@ -323,7 +322,7 @@ bool_t _cc_hashtable_cleanup(_cc_hashtable_t *ctx) {
 }
 
 /* free the hashtable */
-bool_t _cc_hashtable_free(_cc_hashtable_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_hashtable_free(_cc_hashtable_t *ctx) {
     _cc_assert(ctx != NULL);
 
     _cc_safe_free(ctx->data);
@@ -332,7 +331,7 @@ bool_t _cc_hashtable_free(_cc_hashtable_t *ctx) {
 }
 
 /* Deallocate the hashtable */
-void _cc_destroy_hashtable(_cc_hashtable_t **ctx) {
+_CC_API_PUBLIC(void) _cc_destroy_hashtable(_cc_hashtable_t **ctx) {
     if (_cc_hashtable_free(*ctx)) {
         _cc_free((*ctx));
     }
@@ -341,7 +340,7 @@ void _cc_destroy_hashtable(_cc_hashtable_t **ctx) {
 }
 
 /**/
-pvoid_t _cc_hashtable_value(pvoid_t v) {
+_CC_API_PUBLIC(pvoid_t) _cc_hashtable_value(pvoid_t v) {
     _cc_hashtable_element_t *n = _cc_upcast(v, _cc_hashtable_element_t, lnk);
     _cc_assert(n != NULL);
     if (n && n->flag == T_USED) {

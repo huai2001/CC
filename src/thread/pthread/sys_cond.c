@@ -21,7 +21,7 @@
 #include "sys_thread.c.h"
 
 /* Create a condition variable */
-_cc_condition_t *_cc_create_condition(void) {
+_CC_API_PUBLIC(_cc_condition_t*) _cc_create_condition(void) {
     _cc_condition_t *cond = (_cc_condition_t *)_cc_malloc(sizeof(_cc_condition_t));
     if (pthread_cond_init(&cond->cond_var, NULL) < 0) {
         _cc_logger_error(_T("pthread_cond_init() failed"));
@@ -31,7 +31,7 @@ _cc_condition_t *_cc_create_condition(void) {
 }
 
 /* Destroy a condition variable */
-void _cc_destroy_condition(_cc_condition_t **cond) {
+_CC_API_PUBLIC(void) _cc_destroy_condition(_cc_condition_t **cond) {
     if (_cc_likely(*cond)) {
         /*pthread_cond_broadcast(&(*cond)->cond);*/
         pthread_cond_destroy(&(*cond)->cond_var);
@@ -41,7 +41,7 @@ void _cc_destroy_condition(_cc_condition_t **cond) {
 }
 
 /* Restart one of the threads that are waiting on the condition variable */
-bool_t _cc_condition_signal(_cc_condition_t *cond) {
+_CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
         _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
@@ -55,7 +55,7 @@ bool_t _cc_condition_signal(_cc_condition_t *cond) {
 }
 
 /* Restart all threads that are waiting on the condition variable */
-bool_t _cc_condition_broadcast(_cc_condition_t *cond) {
+_CC_API_PUBLIC(bool_t) _cc_condition_broadcast(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
         _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
@@ -68,7 +68,7 @@ bool_t _cc_condition_broadcast(_cc_condition_t *cond) {
     return true;
 }
 
-int _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_t *mutex, uint32_t ms) {
+_CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_t *mutex, uint32_t ms) {
     int retval = 0;
 #ifndef _CC_HAVE_CLOCK_GETTIME_
     struct timeval delta;
@@ -117,7 +117,7 @@ COND_TRY_AGAIN:
 /* Wait on the condition variable, unlocking the provided mutex.
  The mutex must be locked before entering this function!
  */
-bool_t _cc_condition_wait(_cc_condition_t *cond, _cc_mutex_t *mutex) {
+_CC_API_PUBLIC(bool_t) _cc_condition_wait(_cc_condition_t *cond, _cc_mutex_t *mutex) {
     if (_cc_unlikely(!cond)) {
         _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;

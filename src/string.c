@@ -50,7 +50,7 @@ const char_t _a_upper_xdigits[] = "0123456789ABCDEF";
  * Input  : c -
  * Output : unsigned char
  *-----------------------------------------------------------------------------*/
-static unsigned char nibble(unsigned char c) {
+_CC_API_PRIVATE(unsigned char) nibble(unsigned char c) {
     if ((c >= '0') && (c <= '9')) {
         return c - '0';
     }
@@ -69,7 +69,7 @@ static unsigned char nibble(unsigned char c) {
 }
 #endif
 /* parse hexadecimal number */
-uint64_t _cc_hex16(const tchar_t *input) {
+_CC_API_PUBLIC(uint64_t) _cc_hex16(const tchar_t *input) {
     uint64_t ch = 0;
     int i;
 
@@ -82,7 +82,7 @@ uint64_t _cc_hex16(const tchar_t *input) {
     return ch;
 }
 
-uint32_t _cc_hex8(const tchar_t *input) {
+_CC_API_PUBLIC(uint32_t) _cc_hex8(const tchar_t *input) {
     uint32_t ch = 0;
 
     __CC_TO_BYTE(ch, input[0], =);
@@ -105,7 +105,7 @@ uint32_t _cc_hex8(const tchar_t *input) {
 }
 
 /* parse hexadecimal number */
-uint16_t _cc_hex4(const tchar_t *input) {
+_CC_API_PUBLIC(uint16_t) _cc_hex4(const tchar_t *input) {
     uint16_t ch = 0;
 
     __CC_TO_BYTE(ch, input[0], =);
@@ -120,7 +120,7 @@ uint16_t _cc_hex4(const tchar_t *input) {
 }
 
 /* parse hexadecimal number */
-uint8_t _cc_hex2(const tchar_t *input) {
+_CC_API_PUBLIC(uint8_t) _cc_hex2(const tchar_t *input) {
     uint8_t ch = 0;
 
     __CC_TO_BYTE(ch, input[0], =);
@@ -130,7 +130,7 @@ uint8_t _cc_hex2(const tchar_t *input) {
     return ch;
 }
 
-size_t _cc_bytes2hex(const byte_t *in, size_t in_len, tchar_t *out, size_t out_max_len) {
+_CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *in, size_t in_len, tchar_t *out, size_t out_max_len) {
     size_t k = 0;
     size_t i = 0;
     byte_t ch = 0;
@@ -151,7 +151,7 @@ size_t _cc_bytes2hex(const byte_t *in, size_t in_len, tchar_t *out, size_t out_m
 }
 
 /* ascii to bytes*/
-size_t _cc_hex2bytes(const tchar_t *in, size_t in_len, byte_t *out, size_t out_max_len) {
+_CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *in, size_t in_len, byte_t *out, size_t out_max_len) {
     byte_t ch = 0;
     size_t i = 0, k = 0;
 
@@ -180,7 +180,7 @@ size_t _cc_hex2bytes(const tchar_t *in, size_t in_len, byte_t *out, size_t out_m
 #undef __CC_TO_BYTE
 
 /* Returns a string converted to lower case */
-char_t *_cc_to_lowerA(char_t *s) {
+_CC_API_PUBLIC(char_t*) _cc_to_lowerA(char_t *s) {
     char_t *_t = s;
     _cc_assert(s != NULL);
 
@@ -191,7 +191,7 @@ char_t *_cc_to_lowerA(char_t *s) {
 }
 
 /* Returns a string converted to upper case */
-char_t *_cc_to_upperA(char_t *s) {
+_CC_API_PUBLIC(char_t*) _cc_to_upperA(char_t *s) {
     char_t *_t = s;
     _cc_assert(_t != NULL);
 
@@ -202,7 +202,7 @@ char_t *_cc_to_upperA(char_t *s) {
 }
 
 /* Returns a string converted to lower case */
-wchar_t *_cc_to_lowerW(wchar_t *s) {
+_CC_API_PUBLIC(wchar_t*) _cc_to_lowerW(wchar_t *s) {
     wchar_t *_t = s;
     _cc_assert(s != NULL);
 
@@ -213,7 +213,7 @@ wchar_t *_cc_to_lowerW(wchar_t *s) {
 }
 
 /* Returns a string converted to upper case */
-wchar_t *_cc_to_upperW(wchar_t *s) {
+_CC_API_PUBLIC(wchar_t*) _cc_to_upperW(wchar_t *s) {
     wchar_t *_t = s;
     _cc_assert(_t != NULL);
 
@@ -223,7 +223,7 @@ wchar_t *_cc_to_upperW(wchar_t *s) {
     return s;
 }
 
-int32_t _cc_splitA(_cc_strA_t *dst, int32_t count, char_t *src, int32_t(separator_fn)(char_t *, int32_t)) {
+_CC_API_PUBLIC(int32_t) _cc_splitA(_cc_strA_t *dst, int32_t count, char_t *src, int32_t(separator_fn)(char_t *, int32_t)) {
     int32_t i = 0;
     _cc_strA_t *r;
     char_t *p;
@@ -263,7 +263,7 @@ int32_t _cc_splitA(_cc_strA_t *dst, int32_t count, char_t *src, int32_t(separato
     return i;
 }
 
-int32_t _cc_splitW(_cc_strW_t *dst, int32_t count, wchar_t *src, int32_t(separator_fn)(wchar_t *, int32_t)) {
+_CC_API_PUBLIC(int32_t) _cc_splitW(_cc_strW_t *dst, int32_t count, wchar_t *src, int32_t(separator_fn)(wchar_t *, int32_t)) {
     int32_t i = 0;
     _cc_strW_t *r;
     wchar_t *p;
@@ -303,7 +303,7 @@ int32_t _cc_splitW(_cc_strW_t *dst, int32_t count, wchar_t *src, int32_t(separat
 #undef _is_trim
 
 /**/
-tchar_t *_cc_substr(tchar_t *s1, const tchar_t *s2, uint32_t started, int32_t ended) {
+_CC_API_PUBLIC(tchar_t*) _cc_substr(tchar_t *s1, const tchar_t *s2, uint32_t started, int32_t ended) {
     uint32_t len = 0;
     _cc_assert(s1 != NULL && s2 != NULL);
 
@@ -326,7 +326,7 @@ tchar_t *_cc_substr(tchar_t *s1, const tchar_t *s2, uint32_t started, int32_t en
 }
 
 /* get the decimal point character of the current locale */
-static tchar_t get_decimal_point(void) {
+_CC_API_PRIVATE(tchar_t) get_decimal_point(void) {
 #ifdef _CC_ENABLE_LOCALES
     struct lconv *lconv = localeconv();
     return (tchar_t)lconv->decimal_point[0];
@@ -337,7 +337,7 @@ static tchar_t get_decimal_point(void) {
 
 /* Parse the input text to generate a number, and populate the result into item.
  */
-const tchar_t *_cc_to_number(const tchar_t *s, _cc_number_t *item) {
+_CC_API_PUBLIC(const tchar_t*) _cc_to_number(const tchar_t *s, _cc_number_t *item) {
     float64_t n = 0, sign = 1, scale = 0;
     int32_t subscale = 0, signsubscale = 1;
     tchar_t decimal_point = get_decimal_point();

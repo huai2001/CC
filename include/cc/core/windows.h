@@ -81,9 +81,9 @@ typedef HANDLE pid_t;
 #endif
 
 /**/
-_CC_API(HMODULE) _cc_load_windows_kernel32(void);
+_CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32(void);
 /**/
-_CC_API(void) _cc_unload_windows_kernel32(void);
+_CC_API_PUBLIC(void) _cc_unload_windows_kernel32(void);
 
 #ifndef _CC_DISABLED_DUMPER_
 #define _CC_DUMPER_SUCCESS_                            0
@@ -103,16 +103,16 @@ typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info
  *
  * @return true if successful or false on error.
 */
-_CC_API(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback);
+_CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback);
 
 /**
  * @brief uninstall MS DbgHelp.dll Dumpfile Api
  */
-_CC_API(void) _cc_uninstall_dumper(void);
+_CC_API_PUBLIC(void) _cc_uninstall_dumper(void);
 
 #endif /*ndef _CC_DISABLED_DUMPER_ */
 
-_CC_API(void) _cc_print_stack_trace(FILE *fp, int i);
+_CC_API_PUBLIC(void) _cc_print_stack_trace(FILE *fp, int i);
 /**
  * @brief Multi Byte To Wide Char
  *
@@ -123,7 +123,7 @@ _CC_API(void) _cc_print_stack_trace(FILE *fp, int i);
  *
  * @return Length of wide char
 */
-_CC_API(int32_t) _cc_a2w(const char_t *s1,
+_CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1,
                          int32_t s1_len,
                          wchar_t* s2,
                          int32_t size);
@@ -137,7 +137,7 @@ _CC_API(int32_t) _cc_a2w(const char_t *s1,
  *
  * @return Length of Multi char
  */
-_CC_API(int32_t) _cc_w2a(const wchar_t *s1,
+_CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1,
                          int32_t s1_len,
                          char_t* s2,
                          int32_t size);

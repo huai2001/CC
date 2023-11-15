@@ -23,7 +23,7 @@
 #include <cc/math.h>
 
 #if __WINRT__
-void _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
     WCHAR wbuffer[128] = L"";
     int res = 0;
 
@@ -62,7 +62,7 @@ static pfnGetUserPreferredUILanguages pGetUserPreferredUILanguages = NULL;
 static HMODULE kernel32 = 0;
 
 /* this is the fallback for WinXP...one language, not a list. */
-static void SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t buflen) {
+_CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t buflen) {
     tchar_t lang[16];
     tchar_t country[16];
 
@@ -77,12 +77,12 @@ static void SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t buflen) {
     }
 }
 
-static ULONG _cc_ulong_min(ULONG x, ULONG y) {
+_CC_API_PRIVATE(ULONG) _cc_ulong_min(ULONG x, ULONG y) {
     return _min(x, y);
 }
 
 /* this works on Windows Vista and later. */
-static void SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t buflen) {
+_CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t buflen) {
     ULONG numlangs = 0;
     WCHAR *wbuf = NULL;
     ULONG wbuflen = 0;
@@ -116,7 +116,7 @@ static void SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t buflen) {
 
     _cc_free(wbuf);
 }
-void _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
     pGetUserPreferredUILanguages =
         (pfnGetUserPreferredUILanguages)GetProcAddress(_cc_load_windows_kernel32(), "GetUserPreferredUILanguages");
     if (pGetUserPreferredUILanguages == NULL) {

@@ -26,10 +26,10 @@
 #include <string.h>
 
 #ifdef __CC_IPHONEOS__
-bool_t _cc_is_system_version_at_least(double version);
+_CC_API_PUBLIC(bool_t) _cc_is_system_version_at_least(double version);
 #endif
 
-pvoid_t _cc_load_object(const tchar_t *sofile) {
+_CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
     pvoid_t handle = NULL;
 #ifdef __CC_IPHONEOS__
     if (!_cc_is_system_version_at_least(8.0)) {
@@ -45,7 +45,7 @@ pvoid_t _cc_load_object(const tchar_t *sofile) {
     return (handle);
 }
 
-pvoid_t _cc_load_function(pvoid_t handle, const char_t *name) {
+_CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
     pvoid_t symbol = dlsym(handle, name);
     if (symbol == NULL) {
         tchar_t _func_name[256] = {0};
@@ -62,7 +62,7 @@ pvoid_t _cc_load_function(pvoid_t handle, const char_t *name) {
     return (symbol);
 }
 
-void _cc_unload_object(pvoid_t handle) {
+_CC_API_PUBLIC(void) _cc_unload_object(pvoid_t handle) {
     if (handle != NULL) {
         dlclose(handle);
     }

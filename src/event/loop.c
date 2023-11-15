@@ -31,7 +31,7 @@ static struct {
 } g = {false, 0, NULL, NULL, NULL};
 
 /**/
-static int32_t _running(_cc_thread_t *thread, void *args) {
+_CC_API_PRIVATE(int32_t) _running(_cc_thread_t *thread, void *args) {
     _cc_event_cycle_t *cycle = (_cc_event_cycle_t *)args;
     if (g.callback) {
         g.callback(cycle, true);
@@ -50,7 +50,7 @@ static int32_t _running(_cc_thread_t *thread, void *args) {
 }
 
 /**/
-bool_t _cc_event_loop(int32_t count, void (*func)(_cc_event_cycle_t*,bool_t)) {
+_CC_API_PUBLIC(bool_t) _cc_event_loop(int32_t count, void (*func)(_cc_event_cycle_t*,bool_t)) {
     int32_t i;
     _cc_thread_t** threads;
     _cc_event_cycle_t *cycles;
@@ -97,7 +97,7 @@ bool_t _cc_event_loop(int32_t count, void (*func)(_cc_event_cycle_t*,bool_t)) {
 }
 
 /**/
-bool_t _cc_quit_event_loop(void) {
+_CC_API_PUBLIC(bool_t) _cc_quit_event_loop(void) {
     int32_t i;
 
     if (!g.keep_active) {
@@ -125,11 +125,11 @@ bool_t _cc_quit_event_loop(void) {
 }
 
 /**/
-void _cc_event_loop_abort() {
+_CC_API_PUBLIC(void) _cc_event_loop_abort() {
     g.keep_active = false;
 }
 
 /**/
-bool_t _cc_event_loop_is_running(void) {
+_CC_API_PUBLIC(bool_t) _cc_event_loop_is_running(void) {
     return g.keep_active;
 }

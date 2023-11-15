@@ -36,7 +36,7 @@ static bool_t ticks_started = false;
 static struct timeval start_tv;
 
 /**/
-void _cc_sleep(uint32_t ms) {
+_CC_API_PUBLIC(void) _cc_sleep(uint32_t ms) {
     int was_error;
     struct timespec elapsed, tv;
 
@@ -63,7 +63,7 @@ void _cc_sleep(uint32_t ms) {
 }
 
 /**/
-void _cc_nsleep(uint32_t nsec) {
+_CC_API_PUBLIC(void) _cc_nsleep(uint32_t nsec) {
     int was_error;
     struct timespec elapsed, tv;
 
@@ -88,7 +88,7 @@ void _cc_nsleep(uint32_t nsec) {
     } while (was_error == -1 && (errno == EINTR));
 }
 
-static void _cc_tick_init(void) {
+_CC_API_PRIVATE(void) _cc_tick_init(void) {
     if (ticks_started) {
         return;
     }
@@ -106,7 +106,7 @@ static void _cc_tick_init(void) {
     ticks_started = true;
 }
 
-uint32_t _cc_get_ticks(void) {
+_CC_API_PUBLIC(uint32_t) _cc_get_ticks(void) {
     uint32_t ticks;
     if (!ticks_started) {
         _cc_tick_init();

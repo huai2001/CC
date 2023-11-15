@@ -48,14 +48,14 @@ struct _cc_SSL_CTX {
 } while(0)
 
 /*
-static void _SSL_clear_error() {
+_CC_API_PRIVATE(void) _SSL_clear_error() {
     while (ERR_peek_error()) {
         _cc_logger_error(_T("ignoring stale global SSL error"));
     }
     ERR_clear_error();
 }*/
 
-static bool_t _SSL_only_init() {
+_CC_API_PRIVATE(bool_t) _SSL_only_init() {
     srand((unsigned)time(NULL));
 #if OPENSSL_VERSION_NUMBER >= 0x10100003L
     OPENSSL_init_ssl(OPENSSL_INIT_SSL_DEFAULT, NULL);
@@ -123,7 +123,7 @@ static bool_t _SSL_only_init() {
 }
 
 /**/
-_cc_SSL_CTX_t *_SSL_init(bool_t is_client) {
+_CC_API_PUBLIC(_cc_SSL_CTX_t*) _SSL_init(bool_t is_client) {
     SSL_CTX *ssl_ctx;
     _cc_SSL_CTX_t *ctx;
     /*SSL init*/
@@ -210,7 +210,7 @@ _cc_SSL_CTX_t *_SSL_init(bool_t is_client) {
 }
 
 /**/
-bool_t _SSL_free(_cc_SSL_t *ssl) {
+_CC_API_PUBLIC(bool_t) _SSL_free(_cc_SSL_t *ssl) {
     if (ssl->handle == NULL || ssl->ctx == NULL) {
         return true;
     }
@@ -243,7 +243,7 @@ bool_t _SSL_free(_cc_SSL_t *ssl) {
     return true;
 }
 
-void _SSL_quit(_cc_SSL_CTX_t *ctx) {
+_CC_API_PUBLIC(void) _SSL_quit(_cc_SSL_CTX_t *ctx) {
     if (_cc_atomic32_dec_ref(&_SSL_init_refcount)) {
         ERR_free_strings();
     }
@@ -253,7 +253,7 @@ void _SSL_quit(_cc_SSL_CTX_t *ctx) {
     _cc_free(ctx);
 }
 
-_cc_SSL_t *_SSL_connect(_cc_SSL_CTX_t *ctx, _cc_event_cycle_t*cycle, _cc_event_t *e, const tchar_t *host, uint16_t port) {
+_CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_SSL_CTX_t *ctx, _cc_event_cycle_t*cycle, _cc_event_t *e, const tchar_t *host, uint16_t port) {
     _cc_SSL_t *ssl;
     struct sockaddr_in sa;
 #ifdef _CC_UNICODE_
@@ -302,7 +302,7 @@ _cc_SSL_t *_SSL_connect(_cc_SSL_CTX_t *ctx, _cc_event_cycle_t*cycle, _cc_event_t
     return NULL;
 }
 
-uint16_t _SSL_do_handshake(_cc_SSL_t *ssl) {
+_CC_API_PUBLIC(uint16_t) _SSL_do_handshake(_cc_SSL_t *ssl) {
     int rs = SSL_do_handshake(ssl->handle);
     if (rs == 1) {
         return _CC_SSL_HS_ESTABLISHED_;
@@ -384,7 +384,7 @@ uint16_t _SSL_do_handshake(_cc_SSL_t *ssl) {
 }
 
 /**/
-int32_t _SSL_sendbuf(_cc_SSL_t *ssl, _cc_event_t *e) {
+_CC_API_PUBLIC(int32_t) _SSL_sendbuf(_cc_SSL_t *ssl, _cc_event_t *e) {
     _cc_event_wbuf_t *wbuf;
     int32_t off;
     if (e->buffer == NULL) {
@@ -413,7 +413,7 @@ int32_t _SSL_sendbuf(_cc_SSL_t *ssl, _cc_event_t *e) {
 }
 
 /**/
-int32_t _SSL_send(_cc_SSL_t *ssl, const pvoid_t buf, int32_t len) {
+_CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t *ssl, const pvoid_t buf, int32_t len) {
     int32_t rc = 0;
 
     if (buf == NULL) {
@@ -452,7 +452,7 @@ int32_t _SSL_send(_cc_SSL_t *ssl, const pvoid_t buf, int32_t len) {
     return rc;
 }
 
-int32_t _SSL_read(_cc_SSL_t *ssl, pvoid_t buf, int32_t len) {
+_CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t *ssl, pvoid_t buf, int32_t len) {
     int32_t rc;
     ERR_clear_error();
     rc = (int32_t)SSL_read(ssl->handle, buf, len);
@@ -490,7 +490,7 @@ int32_t _SSL_read(_cc_SSL_t *ssl, pvoid_t buf, int32_t len) {
     return rc;
 }
 /**/
-bool_t _SSL_event_read(_cc_SSL_t *ssl, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _SSL_event_read(_cc_SSL_t *ssl, _cc_event_t *e) {
     int32_t rc;
     _cc_event_buffer_t *rw = e->buffer;
     rc = _SSL_read(ssl, (pvoid_t)(rw->r.buf + rw->r.length), _CC_IO_BUFFER_SIZE_ - rw->r.length);

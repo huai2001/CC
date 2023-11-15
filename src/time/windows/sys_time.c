@@ -38,7 +38,7 @@ static LARGE_INTEGER hires_start_ticks;
 /* The number of ticks per second of the high-resolution performance counter */
 static LARGE_INTEGER hires_ticks_per_second;
 
-void _tick_init() {
+_CC_API_PRIVATE(void) _tick_init() {
     if (ticks_started) {
         return;
     }
@@ -57,7 +57,7 @@ void _tick_init() {
     }
 }
 /**/
-void _cc_sleep(uint32_t ms) {
+_CC_API_PUBLIC(void) _cc_sleep(uint32_t ms) {
     // Sleep(ms);
     /* Sleep() is not publicly available to apps in early versions of WinRT.
      *
@@ -84,7 +84,7 @@ void _cc_sleep(uint32_t ms) {
 }
 
 /**/
-void _cc_nsleep(uint32_t nsec) {
+_CC_API_PUBLIC(void) _cc_nsleep(uint32_t nsec) {
     LARGE_INTEGER freq = {0};
     LARGE_INTEGER tc_start = {0};
     LARGE_INTEGER tc_end = {0};
@@ -110,7 +110,7 @@ void _cc_nsleep(uint32_t nsec) {
  * The elapsed time is stored as a uint32_t value. Therefore, the time will wrap
  * around to zero if the system is run continuously for 49.7 days.
  */
-uint32_t _cc_get_ticks(void) {
+_CC_API_PUBLIC(uint32_t) _cc_get_ticks(void) {
     DWORD now = 0;
     LARGE_INTEGER hires_now;
 
@@ -139,7 +139,7 @@ typedef VOID(WINAPI *MyGetSystemTimeAsFileTime)(LPFILETIME lpSystemTimeAsFileTim
 
 static MyGetSystemTimeAsFileTime _getSystemTimeAsFileTimeFunc = NULL;
 
-static int getfilesystemtime(struct timeval *tv) {
+_CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
     FILETIME ft;
     unsigned __int64 ff = 0;
     ULARGE_INTEGER fft;
@@ -181,7 +181,7 @@ static int getfilesystemtime(struct timeval *tv) {
 }
 
 /**/
-int gettimeofday(struct timeval *tp, struct timezone *tzp) {
+_CC_API_PUBLIC(int) gettimeofday(struct timeval *tp, struct timezone *tzp) {
     /* Get the time, if they want it */
     if (tp != NULL) {
         getfilesystemtime(tp);
@@ -218,7 +218,7 @@ int M2YD[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
 int M2LYD[] = {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
 /**/
-static void SafeGetTimeZoneInformation(TIME_ZONE_INFORMATION *ptzi) {
+_CC_API_PRIVATE(void) SafeGetTimeZoneInformation(TIME_ZONE_INFORMATION *ptzi) {
     ZeroMemory(ptzi, sizeof(TIME_ZONE_INFORMATION));
 
     /* Ask the OS for the standard/daylight rules for the current time zone. */
@@ -237,7 +237,7 @@ static void SafeGetTimeZoneInformation(TIME_ZONE_INFORMATION *ptzi) {
 }
 
 /******************************************************************************/
-static time_t GetTransitionTimeT(TIME_ZONE_INFORMATION *ptzi, int year, bool_t fStartDST) {
+_CC_API_PRIVATE(time_t) GetTransitionTimeT(TIME_ZONE_INFORMATION *ptzi, int year, bool_t fStartDST) {
     SYSTEMTIME *pst;
     long daysToYear, yearDay, monthDOW, seconds;
     /*
@@ -315,7 +315,7 @@ static time_t GetTransitionTimeT(TIME_ZONE_INFORMATION *ptzi, int year, bool_t f
 }
 
 //******************************************************************************
-static bool_t IsDST(TIME_ZONE_INFORMATION *ptzi, time_t localTime) {
+_CC_API_PRIVATE(bool_t) IsDST(TIME_ZONE_INFORMATION *ptzi, time_t localTime) {
     uint64_t dwl;
     FILETIME ft;
     SYSTEMTIME st;
@@ -363,7 +363,7 @@ static bool_t IsDST(TIME_ZONE_INFORMATION *ptzi, time_t localTime) {
 }
 
 /**/
-time_t time(time_t *_tm) {
+_CC_API_PUBLIC(time_t) time(time_t *_tm) {
     union {
         FILETIME ftime;
         time_t itime;
@@ -382,7 +382,7 @@ time_t time(time_t *_tm) {
 }
 
 /**/
-struct tm *localtime(const time_t *_time) {
+_CC_API_PUBLIC(struct tm*) localtime(const time_t *_time) {
     /* Return value for localtime().  Source currently never references */
     /* more than one "tm" at a time, so the single return structure is ok. */
     static struct tm g_tm;

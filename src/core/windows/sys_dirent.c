@@ -31,7 +31,7 @@
 #if defined(__CC_WIN32_CE__)
 
 /*-- Called fileio.c, process.c, intrface.cpp */
-int stat(const tchar_t *path, struct stat *buffer) {
+_CC_API_PUBLIC(int) stat(const tchar_t *path, struct stat *buffer) {
     tchar_t szPath[_MAX_PATH];
     HANDLE hFind;
     WIN32_FIND_DATA w32fd;
@@ -79,7 +79,7 @@ int stat(const tchar_t *path, struct stat *buffer) {
 #endif
 
 /**/
-DIR *opendir(const tchar_t *dir_path) {
+_CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path) {
     HANDLE handle;
     DIR *dp;
 
@@ -140,7 +140,7 @@ DIR *opendir(const tchar_t *dir_path) {
 }
 
 /**/
-struct dirent *readdir(DIR *dp) {
+_CC_API_PUBLIC(struct dirent*) readdir(DIR *dp) {
     int16_t n;
     DWORD attr;
 
@@ -190,7 +190,7 @@ struct dirent *readdir(DIR *dp) {
 }
 
 /**/
-int readdir_r(DIR *dp, struct dirent *entry, struct dirent **result) {
+_CC_API_PUBLIC(int) readdir_r(DIR *dp, struct dirent *entry, struct dirent **result) {
     int16_t n;
     DWORD attr;
 
@@ -246,7 +246,7 @@ int readdir_r(DIR *dp, struct dirent *entry, struct dirent **result) {
 }
 
 /**/
-int closedir(DIR *dp) {
+_CC_API_PUBLIC(int) closedir(DIR *dp) {
     if (!dp) {
         return 0;
     }
@@ -264,7 +264,7 @@ int closedir(DIR *dp) {
 }
 
 /**/
-bool_t _cc_isdir(const tchar_t *dir_path) {
+_CC_API_PUBLIC(bool_t) _cc_isdir(const tchar_t *dir_path) {
     DWORD dw;
     dw = GetFileAttributes(dir_path);
 

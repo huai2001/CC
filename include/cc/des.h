@@ -55,14 +55,14 @@ typedef struct _cc_des3 {
  *
  * @param ctx      DES context to be initialized
  */
-_CC_API(void) _cc_des_init(_cc_des_t *ctx);
+_CC_API_PUBLIC(void) _cc_des_init(_cc_des_t *ctx);
 
 /**
  * @brief          Initialize Triple-DES context
  *
  * @param ctx      DES3 context to be initialized
  */
-_CC_API(void) _cc_des3_init(_cc_des3_t *ctx);
+_CC_API_PUBLIC(void) _cc_des3_init(_cc_des3_t *ctx);
 
 /**
  * @brief          Set key parity on the given key to odd.
@@ -72,7 +72,7 @@ _CC_API(void) _cc_des3_init(_cc_des3_t *ctx);
  *
  * @param key      8-byte secret key
  */
-_CC_API(void) _cc_des_key_set_parity(byte_t key[_CC_DES_KEY_SIZE_]);
+_CC_API_PUBLIC(void) _cc_des_key_set_parity(byte_t key[_CC_DES_KEY_SIZE_]);
 
 /**
  * @brief          Check that key parity on the given key is odd.
@@ -84,7 +84,7 @@ _CC_API(void) _cc_des_key_set_parity(byte_t key[_CC_DES_KEY_SIZE_]);
  *
  * @return         true is parity was ok, false if parity was not correct.
  */
-_CC_API(bool_t)
+_CC_API_PUBLIC(bool_t)
 _cc_des_key_check_key_parity(const byte_t key[_CC_DES_KEY_SIZE_]);
 
 /**
@@ -95,7 +95,7 @@ _cc_des_key_check_key_parity(const byte_t key[_CC_DES_KEY_SIZE_]);
  * @return         false if no weak key was found, true if a weak key was
  * identified.
  */
-_CC_API(bool_t) _cc_des_key_check_weak(const byte_t key[_CC_DES_KEY_SIZE_]);
+_CC_API_PUBLIC(bool_t) _cc_des_key_check_weak(const byte_t key[_CC_DES_KEY_SIZE_]);
 
 /**
  * @brief          DES key schedule (56-bit, encryption)
@@ -104,7 +104,7 @@ _CC_API(bool_t) _cc_des_key_check_weak(const byte_t key[_CC_DES_KEY_SIZE_]);
  * @param key      8-byte secret key
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des_setkey_enc(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]);
 
 /**
@@ -114,7 +114,7 @@ _cc_des_setkey_enc(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]);
  * @param key      8-byte secret key
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des_setkey_dec(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]);
 
 /**
@@ -124,7 +124,7 @@ _cc_des_setkey_dec(_cc_des_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_]);
  * @param key      16-byte secret key
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des3_set2key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]);
 
 /**
@@ -134,7 +134,7 @@ _cc_des3_set2key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]);
  * @param key      16-byte secret key
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des3_set2key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]);
 
 /**
@@ -144,7 +144,7 @@ _cc_des3_set2key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 2]);
  * @param key      24-byte secret key
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des3_set3key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]);
 
 /**
@@ -154,7 +154,7 @@ _cc_des3_set3key_enc(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]);
  * @param key      24-byte secret key
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des3_set3key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]);
 
 /**
@@ -165,7 +165,7 @@ _cc_des3_set3key_dec(_cc_des3_t *ctx, const byte_t key[_CC_DES_KEY_SIZE_ * 3]);
  * @param output   64-bit output block
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des_crypt_ecb(_cc_des_t *ctx, const byte_t input[8], byte_t output[8]);
 
 #if defined(_CC_CIPHER_MODE_CBC_)
@@ -187,7 +187,7 @@ _cc_des_crypt_ecb(_cc_des_t *ctx, const byte_t input[8], byte_t output[8]);
  * @param input    buffer holding the input data
  * @param output   buffer holding the output data
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_des_crypt_cbc(_cc_des_t *ctx, int mode, size_t length, byte_t iv[8], const byte_t *input, byte_t *output);
 #endif /* _CC_CIPHER_MODE_CBC_ */
 
@@ -199,7 +199,7 @@ _cc_des_crypt_cbc(_cc_des_t *ctx, int mode, size_t length, byte_t iv[8], const b
  * @param output   64-bit output block
  *
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des3_crypt_ecb(_cc_des3_t *ctx, const byte_t input[8], byte_t output[8]);
 
 #if defined(_CC_CIPHER_MODE_CBC_)
@@ -223,7 +223,7 @@ _cc_des3_crypt_ecb(_cc_des3_t *ctx, const byte_t input[8], byte_t output[8]);
  *
  * @return         0 if successful, or _CC_ERR_DES_INVALID_INPUT_LENGTH_
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_des3_crypt_cbc(_cc_des3_t *ctx, int mode, size_t length, byte_t iv[8], const byte_t *input, byte_t *output);
 #endif /* _CC_CIPHER_MODE_CBC_ */
 
@@ -235,7 +235,7 @@ _cc_des3_crypt_cbc(_cc_des3_t *ctx, int mode, size_t length, byte_t iv[8], const
  * @param SK       Round keys
  * @param key      Base key
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_des_setkey(uint32_t SK[32], const byte_t key[_CC_DES_KEY_SIZE_]);
 
 /* Ends C function definitions when using C++ */

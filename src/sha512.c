@@ -57,7 +57,7 @@
 /*
  * SHA-512 context setup
  */
-void _cc_sha512_init(_cc_sha512_t *ctx, bool_t is384) {
+_CC_API_PUBLIC(void) _cc_sha512_init(_cc_sha512_t *ctx, bool_t is384) {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
@@ -113,7 +113,7 @@ static const uint64_t K[80] = {
     UL64(0x28DB77F523047D84), UL64(0x32CAAB7B40C72493), UL64(0x3C9EBE0A15C9BEBC), UL64(0x431D67C49C100D4C),
     UL64(0x4CC5D4BECB3E42B6), UL64(0x597F299CFC657E2A), UL64(0x5FCB6FAB3AD6FAEC), UL64(0x6C44198C4A475817)};
 
-void _cc_sha512_process(_cc_sha512_t *ctx, const byte_t data[128]) {
+_CC_API_PUBLIC(void) _cc_sha512_process(_cc_sha512_t *ctx, const byte_t data[128]) {
     int i;
     uint64_t temp1, temp2, W[80];
     uint64_t A, B, C, D, E, F, G, H;
@@ -189,7 +189,7 @@ void _cc_sha512_process(_cc_sha512_t *ctx, const byte_t data[128]) {
 /*
  * SHA-512 process buffer
  */
-void _cc_sha512_update(_cc_sha512_t *ctx, const byte_t *input, size_t ilen) {
+_CC_API_PUBLIC(void) _cc_sha512_update(_cc_sha512_t *ctx, const byte_t *input, size_t ilen) {
     size_t fill;
     unsigned int left;
 
@@ -234,7 +234,7 @@ static const byte_t sha512_padding[128] = {
 /*
  * SHA-512 final digest
  */
-void _cc_sha512_final(_cc_sha512_t *ctx, byte_t *output) {
+_CC_API_PUBLIC(void) _cc_sha512_final(_cc_sha512_t *ctx, byte_t *output) {
     size_t last, padn;
     uint64_t high, low;
     byte_t msglen[16];
@@ -269,7 +269,7 @@ void _cc_sha512_final(_cc_sha512_t *ctx, byte_t *output) {
 /*
  * output = SHA-512( input buffer )
  */
-void _cc_sha512(const byte_t *input, size_t ilen, tchar_t *output, bool_t is384) {
+_CC_API_PUBLIC(void) _cc_sha512(const byte_t *input, size_t ilen, tchar_t *output, bool_t is384) {
     _cc_sha512_t ctx;
     byte_t results[_CC_SHA512_DIGEST_LENGTH_];
     int32_t digest_length = is384 ? _CC_SHA384_DIGEST_LENGTH_ : _CC_SHA512_DIGEST_LENGTH_;
@@ -284,7 +284,7 @@ void _cc_sha512(const byte_t *input, size_t ilen, tchar_t *output, bool_t is384)
 /*
     Digests a file.
  */
-bool_t _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384) {
+_CC_API_PUBLIC(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384) {
     byte_t results[_CC_SHA512_DIGEST_LENGTH_];
     byte_t buf[1024 * 16];
     size_t i;
@@ -316,7 +316,7 @@ bool_t _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384) {
 /*
     Digests a file.
  */
-bool_t _cc_sha512file(const tchar_t *filename, tchar_t *output, bool_t is384) {
+_CC_API_PUBLIC(bool_t) _cc_sha512file(const tchar_t *filename, tchar_t *output, bool_t is384) {
     FILE *fp = _tfopen(filename, _T("rb"));
 
     if (fp) {

@@ -42,11 +42,11 @@ enum {
 typedef struct _cc_hmac _cc_hmac_t;
 _cc_hmac_t* _cc_hmac_alloc(byte_t type);
 
-_CC_API(void) _cc_hmac_init(_cc_hmac_t *ctx, const byte_t *key, size_t length);
-_CC_API(void) _cc_hmac_update(_cc_hmac_t *ctx, const byte_t *input, size_t length);
-_CC_API(int) _cc_hmac_final(_cc_hmac_t *c, byte_t *output, int output_length);
+_CC_API_PUBLIC(void) _cc_hmac_init(_cc_hmac_t *ctx, const byte_t *key, size_t length);
+_CC_API_PUBLIC(void) _cc_hmac_update(_cc_hmac_t *ctx, const byte_t *input, size_t length);
+_CC_API_PUBLIC(int) _cc_hmac_final(_cc_hmac_t *c, byte_t *output, int output_length);
 
-_CC_API(int) _cc_hmac(byte_t type, const byte_t *input, size_t ilen, const byte_t *key, size_t key_length, tchar_t *output);
+_CC_API_PUBLIC(int) _cc_hmac(byte_t type, const byte_t *input, size_t ilen, const byte_t *key, size_t key_length, tchar_t *output);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

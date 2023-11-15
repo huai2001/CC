@@ -103,7 +103,7 @@ static struct _jni_power_info {
  */
 
 /* Set local storage value */
-static int Android_JNI_SetEnv(JNIEnv *env) {
+_CC_API_PRIVATE(int) Android_JNI_SetEnv(JNIEnv *env) {
     int status = pthread_setspecific(_thread_key, env);
     if (status < 0) {
         _cc_logger_error("Failed pthread_setspecific() in Android_JNI_SetEnv() (err=%d)", status);
@@ -112,7 +112,7 @@ static int Android_JNI_SetEnv(JNIEnv *env) {
 }
 
 /* Get local storage value */
-JNIEnv *_cc_jni_get_env(void) {
+_CC_API_PUBLIC(JNIEnv *) _cc_jni_get_env(void) {
     /* Get JNIEnv from the Thread local storage */
     JNIEnv *env = pthread_getspecific(_thread_key);
     if (env == NULL) {
@@ -145,7 +145,7 @@ JNIEnv *_cc_jni_get_env(void) {
 }
 
 /* Set up an external thread for using JNI with _cc_jni_get_env() */
-int _cc_jni_setup_thread(void) {
+_CC_API_PUBLIC(int) _cc_jni_setup_thread(void) {
     JNIEnv *env;
     int status;
 
@@ -173,7 +173,7 @@ int _cc_jni_setup_thread(void) {
 }
 
 /* Destructor called for each thread where _thread_key is not NULL */
-static void Android_JNI_ThreadDestroyed(void *value) {
+_CC_API_PRIVATE(void) Android_JNI_ThreadDestroyed(void *value) {
     /* The thread is being destroyed, detach it from the Java VM and set the
      * _thread_key value to NULL as required */
     JNIEnv *env = (JNIEnv *)value;
@@ -184,14 +184,14 @@ static void Android_JNI_ThreadDestroyed(void *value) {
 }
 
 /* Creation of local storage _thread_key */
-static void Android_JNI_CreateKey(void) {
+_CC_API_PRIVATE(void) Android_JNI_CreateKey(void) {
     int status = pthread_key_create(&_thread_key, Android_JNI_ThreadDestroyed);
     if (status < 0) {
         _cc_logger_error("Error initializing _thread_key with pthread_key_create() (err=%d)", status);
     }
 }
 
-static void Android_JNI_CreateKey_once(void) {
+_CC_API_PRIVATE(void) Android_JNI_CreateKey_once(void) {
     int status = pthread_once(&_thread_key_once, Android_JNI_CreateKey);
     if (status < 0) {
         _cc_logger_error("Error initializing _thread_key with pthread_once() (err=%d)", status);
@@ -208,7 +208,7 @@ static JNINativeMethod _cc_jni_native_methods[] = {{"nativeSetupJNI", "()Z", _CC
     {"setPowerInfo", "(IIIII)V", _CC_JNI_INTERFACE(setPowerInfo)}
 };
 
-static void register_methods(JNIEnv *env, const char *classname, JNINativeMethod *methods, int nb) {
+_CC_API_PRIVATE(void) register_methods(JNIEnv *env, const char *classname, JNINativeMethod *methods, int nb) {
     jclass clazz = (*env)->FindClass(env, classname);
     if (clazz == NULL || (*env)->RegisterNatives(env, clazz, methods, nb) < 0) {
         _cc_logger_error("Failed to register methods of %s", classname);
@@ -216,7 +216,7 @@ static void register_methods(JNIEnv *env, const char *classname, JNINativeMethod
     }
 }
 
-JNIEnv *_cc_jni_onload(JavaVM *vm, void *reserved, jint version) {
+_CC_API_PUBLIC(JNIEnv*) _cc_jni_onload(JavaVM *vm, void *reserved, jint version) {
     JNIEnv *env = NULL;
 
     _cc_logger_debug("JNI_OnLoad init");
@@ -247,7 +247,7 @@ JNIEXPORT void JNICALL _CC_JNI_INTERFACE(setPowerInfo)(JNIEnv *env, jclass cls, 
     _android_power_info.seconds = seconds;
     _android_power_info.percent = percent;
 }
-void printSign();
+
 /* Activity initialization */
 JNIEXPORT jboolean JNICALL _CC_JNI_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cls) {
     _cc_logger_debug("nativeSetupJNI()");
@@ -291,11 +291,10 @@ JNIEXPORT jboolean JNICALL _CC_JNI_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass
         return JNI_FALSE;
     }
 
-    //printSign();
     return JNI_TRUE;
 }
 #if 0
-static jobject getApplication(JNIEnv *env) {
+_CC_API_PRIVATE(jobject) getApplication(JNIEnv *env) {
     jclass localClass = (*env)->FindClass(env, "android/app/ActivityThread");
     if (localClass != NULL) {
         jmethodID mApplication = (*env)->GetStaticMethodID(env, localClass, "currentApplication","()Landroid/app/Application;");
@@ -359,14 +358,14 @@ typedef struct LocalReferenceHolder {
     const char *func;
 } LocalReferenceHolder;
 
-static LocalReferenceHolder LocalReferenceHolder_Setup(const char *func) {
+_CC_API_PRIVATE(LocalReferenceHolder) LocalReferenceHolder_Setup(const char *func) {
     LocalReferenceHolder refholder;
     refholder.env = NULL;
     refholder.func = func;
     return refholder;
 }
 
-static bool_t LocalReferenceHolder_Init(LocalReferenceHolder *refholder, JNIEnv *env) {
+_CC_API_PRIVATE(bool_t) LocalReferenceHolder_Init(LocalReferenceHolder *refholder, JNIEnv *env) {
     const int capacity = 16;
     if ((*env)->PushLocalFrame(env, capacity) < 0) {
         _cc_logger_error("Failed to allocate enough JVM local references");
@@ -379,7 +378,7 @@ static bool_t LocalReferenceHolder_Init(LocalReferenceHolder *refholder, JNIEnv 
     return true;
 }
 
-static void LocalReferenceHolder_Cleanup(LocalReferenceHolder *refholder) {
+_CC_API_PRIVATE(void) LocalReferenceHolder_Cleanup(LocalReferenceHolder *refholder) {
     if (refholder->env) {
         JNIEnv *env = refholder->env;
         (*env)->PopLocalFrame(env, NULL);
@@ -387,7 +386,7 @@ static void LocalReferenceHolder_Cleanup(LocalReferenceHolder *refholder) {
     }
 }
 
-static void AndroidCreateAssetManager() {
+_CC_API_PRIVATE(void) AndroidCreateAssetManager() {
     LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
     JNIEnv *env = _cc_jni_get_env();
     jmethodID mid;
@@ -421,7 +420,7 @@ static void AndroidCreateAssetManager() {
     LocalReferenceHolder_Cleanup(&refs);
 }
 
-static void AndroidDestroyAssetManager() {
+_CC_API_PRIVATE(void) AndroidDestroyAssetManager() {
     JNIEnv *env = _cc_jni_get_env();
 
     if (_asset_manager) {
@@ -430,18 +429,18 @@ static void AndroidDestroyAssetManager() {
     }
 }
 
-AAssetManager *_cc_jni_get_asset_manager(void) {
+_CC_API_PUBLIC(AAssetManager*) _cc_jni_get_asset_manager(void) {
     if (_asset_manager == NULL) {
         AndroidCreateAssetManager();
     }
     return _asset_manager;
 }
 
-void _cc_jni_set_asset_manager(AAssetManager *asset_manager) {
+_CC_API_PUBLIC(void) _cc_jni_set_asset_manager(AAssetManager *asset_manager) {
     _asset_manager = asset_manager;
 }
 
-bool_t _cc_jni_get_locale(char *buf, size_t buflen) {
+_CC_API_PUBLIC(bool_t) _cc_jni_get_locale(char *buf, size_t buflen) {
     AConfiguration *cfg;
 
     _cc_assert(buflen > 6);
@@ -497,7 +496,7 @@ bool_t _cc_jni_get_locale(char *buf, size_t buflen) {
     return true;
 }
 
-int _cc_jni_set_clipboard_text(const tchar_t *text) {
+_CC_API_PUBLIC(int) _cc_jni_set_clipboard_text(const tchar_t *text) {
     JNIEnv *env = _cc_jni_get_env();
     jstring string = (*env)->NewStringUTF(env, text);
 
@@ -507,12 +506,12 @@ int _cc_jni_set_clipboard_text(const tchar_t *text) {
     return 0;
 }
 
-bool_t _cc_jni_is_simulator(void) {
+_CC_API_PUBLIC(bool_t) _cc_jni_is_simulator(void) {
     JNIEnv *env = _cc_jni_get_env();
     return (*env)->CallStaticBooleanMethod(env, _activity_class, mid_is_simulator);
 }
 
-int _cc_jni_get_clipboard_text(tchar_t *str, int32_t len) {
+_CC_API_PUBLIC(int) _cc_jni_get_clipboard_text(tchar_t *str, int32_t len) {
     jstring string;
     JNIEnv *env = _cc_jni_get_env();
 
@@ -533,7 +532,7 @@ int _cc_jni_get_clipboard_text(tchar_t *str, int32_t len) {
     return 0;
 }
 
-int _cc_jni_get_cache_directory(tchar_t *str, int32_t len) {
+_CC_API_PUBLIC(int) _cc_jni_get_cache_directory(tchar_t *str, int32_t len) {
     jstring string;
     JNIEnv *env = _cc_jni_get_env();
 
@@ -554,7 +553,7 @@ int _cc_jni_get_cache_directory(tchar_t *str, int32_t len) {
     return 0;
 }
 
-int _cc_jni_get_files_directory(tchar_t *str, int32_t len) {
+_CC_API_PUBLIC(int) _cc_jni_get_files_directory(tchar_t *str, int32_t len) {
     jstring string;
     JNIEnv *env = _cc_jni_get_env();
 
@@ -574,7 +573,7 @@ int _cc_jni_get_files_directory(tchar_t *str, int32_t len) {
 
     return 0;
 }
-int _cc_jni_get_package_name(tchar_t *str, int32_t len) {
+_CC_API_PUBLIC(int) _cc_jni_get_package_name(tchar_t *str, int32_t len) {
     jstring string;
     JNIEnv *env = _cc_jni_get_env();
 
@@ -595,14 +594,14 @@ int _cc_jni_get_package_name(tchar_t *str, int32_t len) {
     return 0;
 }
 
-bool_t _cc_jni_has_clipboard_text(void) {
+_CC_API_PUBLIC(bool_t) _cc_jni_has_clipboard_text(void) {
     JNIEnv *env = _cc_jni_get_env();
     jboolean has = (*env)->CallStaticBooleanMethod(env, _activity_class, mid_clipboard_has_text);
     return (has == JNI_TRUE);
 }
 
 /*
-int _cc_jni_get_android_sdk_version(void) {
+_CC_API_PUBLIC(int) _cc_jni_get_android_sdk_version(void) {
     static int sdk_version;
     if (!sdk_version) {
         char sdk[PROP_VALUE_MAX] = {0};
@@ -614,7 +613,7 @@ int _cc_jni_get_android_sdk_version(void) {
 }
 */
 
-int _cc_jni_get_power_info(int *plugged, int *charged, int *battery, int *seconds, byte_t *percent) {
+_CC_API_PUBLIC(int) _cc_jni_get_power_info(int *plugged, int *charged, int *battery, int *seconds, byte_t *percent) {
     JNIEnv *env = _cc_jni_get_env();
 
     if (!_android_power_info.registered) {
@@ -645,7 +644,7 @@ int _cc_jni_get_power_info(int *plugged, int *charged, int *battery, int *second
     return 0;
 }
 
-int _cc_jni_open_url(const char *url) {
+_CC_API_PUBLIC(int) _cc_jni_open_url(const char *url) {
     int result = 0;
     JNIEnv *env = _cc_jni_get_env();
     jstring jurl = (*env)->NewStringUTF(env, url);
@@ -655,7 +654,7 @@ int _cc_jni_open_url(const char *url) {
 }
 
 /* Show toast notification */
-int _cc_jni_show_toast(const char *message, int duration, int gravity, int xOffset, int yOffset) {
+_CC_API_PUBLIC(int) _cc_jni_show_toast(const char *message, int duration, int gravity, int xOffset, int yOffset) {
     int result = 0;
     JNIEnv *env = _cc_jni_get_env();
     jstring jmessage = (*env)->NewStringUTF(env, message);

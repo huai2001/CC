@@ -30,7 +30,7 @@
 
 #define _CC_RWLOCK_WLOCK_ ((uint32_t)-1)
 
-void _cc_cpu_pause() {
+_CC_API_PUBLIC(void) _cc_cpu_pause() {
 #if __CC_WINDOWS__
 #if defined(__BORLANDC__) || (__WATCOMC__ < 1230)
 /*
@@ -48,7 +48,7 @@ void _cc_cpu_pause() {
 }
 
 /**/
-void _cc_lock(_cc_atomic32_t *lock, uint32_t value, uint32_t spin) {
+_CC_API_PUBLIC(void) _cc_lock(_cc_atomic32_t *lock, uint32_t value, uint32_t spin) {
     uint32_t i, n;
     for (;;) {
         if (*lock == 0 && _cc_atomic32_cas(lock, 0, value)) {
@@ -74,7 +74,7 @@ void _cc_lock(_cc_atomic32_t *lock, uint32_t value, uint32_t spin) {
 }
 
 /**/
-void _cc_rwlock_init(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_init(_cc_rwlock_t *lock) {
     if (_cc_cpu_number_processors <= 0) {
         _cc_cpu_count();
     }
@@ -82,7 +82,7 @@ void _cc_rwlock_init(_cc_rwlock_t *lock) {
 }
 
 /**/
-void _cc_rwlock_rlock(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_rlock(_cc_rwlock_t *lock) {
     int32_t i, n;
     _cc_atomic32_t readers;
 
@@ -112,12 +112,12 @@ void _cc_rwlock_rlock(_cc_rwlock_t *lock) {
 }
 
 /**/
-void _cc_rwlock_wlock(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_wlock(_cc_rwlock_t *lock) {
     _cc_lock((_cc_atomic32_t *)lock, _CC_RWLOCK_WLOCK_, _CC_LOCK_SPIN_);
 }
 
 /**/
-void _cc_rwlock_unlock(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_unlock(_cc_rwlock_t *lock) {
     _cc_atomic32_t readers;
 
     readers = *lock;
@@ -136,7 +136,7 @@ void _cc_rwlock_unlock(_cc_rwlock_t *lock) {
 }
 
 /**/
-void _cc_rwlock_downgrade(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_downgrade(_cc_rwlock_t *lock) {
     if (*lock == _CC_RWLOCK_WLOCK_) {
         *lock = 1;
     }

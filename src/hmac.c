@@ -40,23 +40,23 @@ struct _cc_hmac {
     uint8_t key[MAX_BLOCKLEN];
 };
 
-static void __sha224_init(_cc_sha256_t *ctx) {
+_CC_API_PRIVATE(void) __sha224_init(_cc_sha256_t *ctx) {
     _cc_sha256_init(ctx, true);
 }
 
-static void __sha256_init(_cc_sha256_t *ctx) {
+_CC_API_PRIVATE(void) __sha256_init(_cc_sha256_t *ctx) {
     _cc_sha256_init(ctx, false);
 }
 
-static void __sha384_init(_cc_sha512_t *ctx) {
+_CC_API_PRIVATE(void) __sha384_init(_cc_sha512_t *ctx) {
     _cc_sha512_init(ctx, true);
 }
 
-static void __sha512_init(_cc_sha512_t *ctx) {
+_CC_API_PRIVATE(void) __sha512_init(_cc_sha512_t *ctx) {
     _cc_sha512_init(ctx, false);
 }
 
-static void _hmac_init_block(_cc_hmac_t *c, byte_t *block, byte_t cp) {
+_CC_API_PRIVATE(void) _hmac_init_block(_cc_hmac_t *c, byte_t *block, byte_t cp) {
     int i;
     for (i = 0; i < c->key_lenght; i++) {
         block[i] = *(c->key + i) ^ cp;
@@ -66,7 +66,7 @@ static void _hmac_init_block(_cc_hmac_t *c, byte_t *block, byte_t cp) {
     }
 }
 
-_cc_hmac_t* _cc_hmac_alloc(byte_t type) {
+_CC_API_PUBLIC(_cc_hmac_t*) _cc_hmac_alloc(byte_t type) {
     _cc_hmac_t *hmac = (_cc_hmac_t*)_cc_malloc(sizeof(_cc_hmac_t));
     hmac->key_lenght = 0;
     switch(type) {
@@ -131,7 +131,7 @@ _cc_hmac_t* _cc_hmac_alloc(byte_t type) {
     return hmac;
 }
 
-void _cc_hmac_free(_cc_hmac_t *ctx) {
+_CC_API_PUBLIC(void) _cc_hmac_free(_cc_hmac_t *ctx) {
     if (ctx) {
         return;
     }
@@ -141,7 +141,7 @@ void _cc_hmac_free(_cc_hmac_t *ctx) {
 }
 
 
-void _cc_hmac_init(_cc_hmac_t *c, const byte_t *key, size_t length) {
+_CC_API_PUBLIC(void) _cc_hmac_init(_cc_hmac_t *c, const byte_t *key, size_t length) {
 
     byte_t block[MAX_BLOCKLEN];
 
@@ -161,11 +161,11 @@ void _cc_hmac_init(_cc_hmac_t *c, const byte_t *key, size_t length) {
     c->update(c->hash, block, c->block_lenght);
 }
 
-void _cc_hmac_update(_cc_hmac_t *c, const byte_t *input, size_t length) {
+_CC_API_PUBLIC(void) _cc_hmac_update(_cc_hmac_t *c, const byte_t *input, size_t length) {
     c->update(c->hash, input, length);
 }
 
-int _cc_hmac_final(_cc_hmac_t *c, byte_t *output, int length) {
+_CC_API_PUBLIC(int) _cc_hmac_final(_cc_hmac_t *c, byte_t *output, int length) {
     byte_t block[MAX_BLOCKLEN];
 
     if (length < c->hash_lenght) {
@@ -185,7 +185,7 @@ int _cc_hmac_final(_cc_hmac_t *c, byte_t *output, int length) {
 /*
  * 
  */
-int _cc_hmac(byte_t type, const byte_t *input, size_t ilen, const byte_t *key, size_t key_length, tchar_t *output) {
+_CC_API_PUBLIC(int) _cc_hmac(byte_t type, const byte_t *input, size_t ilen, const byte_t *key, size_t key_length, tchar_t *output) {
     int r;
     byte_t digest[MAX_BLOCKLEN];
     _cc_hmac_t *hmac = _cc_hmac_alloc(type);

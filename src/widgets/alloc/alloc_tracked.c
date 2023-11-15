@@ -67,7 +67,7 @@ static int32_t fail_realloc = 0;
 /*
  * Add a pointer to the hashmap with some key
  */
-static bool_t _insert(const pvoid_t data, size_t data_size, const tchar_t *file_name, const tchar_t *func_name,
+_CC_API_PRIVATE(bool_t) _insert(const pvoid_t data, size_t data_size, const tchar_t *file_name, const tchar_t *func_name,
                               const int32_t file_line, byte_t mem_type) {
     _ccmem_element_link_t *element_link = (_ccmem_element_link_t*)data;
     _ccmem_element_t *element = (_ccmem_element_t *)malloc(sizeof(_ccmem_element_t));
@@ -167,7 +167,7 @@ void _cc_install_memory_tracked(void) {
     mem_lock = _cc_create_mutex();
 }
 
-static void _print_timestamp(FILE *wfp, uint32_t create_time) {
+_CC_API_PRIVATE(void) _print_timestamp(FILE *wfp, uint32_t create_time) {
     time_t now_time = create_time + _START_TIMESTAMP_;
     struct tm *t = localtime(&now_time);
 

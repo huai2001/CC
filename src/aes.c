@@ -272,7 +272,7 @@ static uint32_t RCON[10];
 
 static int aes_init_done = 0;
 
-static void aes_gen_tables(void) {
+_CC_API_PRIVATE(void) aes_gen_tables(void) {
     int i, x, y, z;
     int pow[256];
     int log[256];
@@ -344,14 +344,14 @@ static void aes_gen_tables(void) {
 
 #endif /* _CC_AES_ROM_TABLES_ */
 
-void _cc_aes_init(_cc_aes_t *ctx) {
+_CC_API_PUBLIC(void) _cc_aes_init(_cc_aes_t *ctx) {
     bzero(ctx, sizeof(_cc_aes_t));
 }
 
 /*
  * AES key schedule (encryption)
  */
-int _cc_aes_setkey_enc(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {
+_CC_API_PUBLIC(int) _cc_aes_setkey_enc(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {
     uint32_t i;
     uint32_t *RK;
 
@@ -434,7 +434,7 @@ int _cc_aes_setkey_enc(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {
 /*
  * AES key schedule (decryption)
  */
-int _cc_aes_setkey_dec(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {
+_CC_API_PUBLIC(int) _cc_aes_setkey_dec(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {
     int i, j, res;
     _cc_aes_t cty;
     uint32_t *RK;
@@ -474,7 +474,7 @@ int _cc_aes_setkey_dec(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {
 /*
  * AES key schedule ( encryption/decryption )
  */
-int _cc_aes_setkey(_cc_aes_t *ctx, int mode, const byte_t *key, uint32_t keybits) {
+_CC_API_PUBLIC(int) _cc_aes_setkey(_cc_aes_t *ctx, int mode, const byte_t *key, uint32_t keybits) {
     if (mode == _CC_AES_ENCRYPT_) {
         return _cc_aes_setkey_enc(ctx, key, keybits);
     } else {
@@ -501,7 +501,7 @@ int _cc_aes_setkey(_cc_aes_t *ctx, int mode, const byte_t *key, uint32_t keybits
 /*
  * AES-ECB block encryption
  */
-void _cc_aes_encrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]) {
+_CC_API_PUBLIC(void) _cc_aes_encrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]) {
     int i;
     uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
@@ -544,7 +544,7 @@ void _cc_aes_encrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]) 
 /*
  * AES-ECB block decryption
  */
-void _cc_aes_decrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]) {
+_CC_API_PUBLIC(void) _cc_aes_decrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]) {
     int i;
     uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
@@ -588,7 +588,7 @@ void _cc_aes_decrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]) 
 /*
  * AES-CBC buffer encryption/decryption
  */
-int _cc_aes_crypt_cbc(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, byte_t iv[16], byte_t *output) {
+_CC_API_PUBLIC(int) _cc_aes_crypt_cbc(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, byte_t iv[16], byte_t *output) {
     int i;
     byte_t temp[16];
 
@@ -633,7 +633,7 @@ int _cc_aes_crypt_cbc(_cc_aes_t *ctx, int mode, const byte_t *input, size_t leng
 /*
  * AES-CFB128 buffer encryption/decryption
  */
-int _cc_aes_crypt_cfb128(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, size_t *iv_off, byte_t iv[16],
+_CC_API_PUBLIC(int) _cc_aes_crypt_cfb128(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, size_t *iv_off, byte_t iv[16],
                          byte_t *output) {
     byte_t c;
     int32_t n = (int32_t)*iv_off;
@@ -672,7 +672,7 @@ int _cc_aes_crypt_cfb128(_cc_aes_t *ctx, int mode, const byte_t *input, size_t l
 /*
  * AES-CFB8 buffer encryption/decryption
  */
-int _cc_aes_crypt_cfb8(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, byte_t iv[16], byte_t *output) {
+_CC_API_PUBLIC(int) _cc_aes_crypt_cfb8(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, byte_t iv[16], byte_t *output) {
     byte_t c;
     byte_t ov[17];
 
@@ -700,7 +700,7 @@ int _cc_aes_crypt_cfb8(_cc_aes_t *ctx, int mode, const byte_t *input, size_t len
 /*
  * AES-CTR buffer encryption/decryption
  */
-int _cc_aes_crypt_ctr(_cc_aes_t *ctx, const byte_t *input, size_t length, size_t *nc_off, byte_t nonce_counter[16],
+_CC_API_PUBLIC(int) _cc_aes_crypt_ctr(_cc_aes_t *ctx, const byte_t *input, size_t length, size_t *nc_off, byte_t nonce_counter[16],
                       byte_t stream_block[16], byte_t *output) {
     int c, i;
     size_t n = *nc_off;

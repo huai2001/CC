@@ -46,7 +46,7 @@
 static int sig_list[] = {SIGHUP, SIGINT, SIGQUIT, SIGPIPE, SIGALRM, SIGTERM, SIGCHLD, SIGWINCH, SIGVTALRM, SIGPROF, 0};
 #endif
 
-static void *RunThread(pvoid_t args) {
+_CC_API_PRIVATE(void *) RunThread(pvoid_t args) {
 #ifdef __CC_ANDROID__
     _cc_jni_setup_thread();
 #endif
@@ -67,7 +67,7 @@ static bool_t checked_setname = false;
 static int (*ppthread_setname_np)(pthread_t, const char *) = NULL;
 #endif
 
-bool_t _cc_create_sys_thread(_cc_thread_t *thrd, pvoid_t args) {
+_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *thrd, pvoid_t args) {
     pthread_attr_t type;
 /* do this here before any threads exist, so there's no race condition. */
 #if defined(__CC_LINUX__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -101,7 +101,7 @@ bool_t _cc_create_sys_thread(_cc_thread_t *thrd, pvoid_t args) {
     return true;
 }
 
-void _cc_setup_sys_thread(const tchar_t *name) {
+_CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t *name) {
     /* NativeClient does not yet support signals.*/
 #if !defined(__CC_NACL__)
     int32_t i;
@@ -137,7 +137,7 @@ void _cc_setup_sys_thread(const tchar_t *name) {
 #endif
 }
 
-bool_t _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
+_CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
 #if __CC_NACL__
     /* FIXME: Setting thread priority does not seem to be supported in NACL */
     return 0;
@@ -189,11 +189,11 @@ bool_t _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
 #endif /* __CC_LINUX__ */
 }
 
-uint32_t _cc_get_current_sys_thread_id(void) {
+_CC_API_PUBLIC(uint32_t) _cc_get_current_sys_thread_id(void) {
     return ((uint32_t)((size_t)pthread_self()));
 }
 
-uint32_t _cc_get_sys_thread_id(_cc_thread_t *thrd) {
+_CC_API_PUBLIC(uint32_t) _cc_get_sys_thread_id(_cc_thread_t *thrd) {
     uint32_t id;
 
     if (thrd) {
@@ -204,11 +204,11 @@ uint32_t _cc_get_sys_thread_id(_cc_thread_t *thrd) {
     return (id);
 }
 
-void _cc_wait_sys_thread(_cc_thread_t *thrd) {
+_CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t *thrd) {
     pthread_join(thrd->handle, 0);
     pthread_detach(thrd->handle);
 }
 
-void _cc_detach_sys_thread(_cc_thread_t *thrd) {
+_CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t *thrd) {
     pthread_detach(thrd->handle);
 }

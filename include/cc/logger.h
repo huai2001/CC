@@ -47,29 +47,29 @@ typedef void (*_cc_loggerA_callback_t)(uint16_t flags, const char_t *log, size_t
 typedef void (*_cc_loggerW_callback_t)(uint16_t flags, const wchar_t *log, size_t len, pvoid_t userdata);
 
 /**/
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_loggerA_set_output_callback(_cc_loggerA_callback_t callback, pvoid_t userdata);
 /**/
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_loggerW_set_output_callback(_cc_loggerW_callback_t callback, pvoid_t userdata);
 /**/
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_logger_set_output_callback(_cc_loggerA_callback_t callbackA, _cc_loggerW_callback_t callbackW, pvoid_t userdata);
 
 /**/
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_loggerA_vformat(uint16_t flags, const char_t* fmt, va_list arg);
 /**/
-_CC_API(void) _cc_loggerA_format(uint16_t flags, const char_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerA_format(uint16_t flags, const char_t* fmt, ...);
 /**/
-_CC_API(void) _cc_loggerA(uint16_t flags, const char_t* str);
+_CC_API_PUBLIC(void) _cc_loggerA(uint16_t flags, const char_t* str);
 /**/
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_loggerW_format_args(uint16_t flags, const wchar_t* fmt, va_list arg);
 /**/
-_CC_API(void) _cc_loggerW_format(uint16_t flags, const wchar_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerW_format(uint16_t flags, const wchar_t* fmt, ...);
 /**/
-_CC_API(void) _cc_loggerW(uint16_t flags, const wchar_t* str);
+_CC_API_PUBLIC(void) _cc_loggerW(uint16_t flags, const wchar_t* str);
 
 #ifdef _CC_MSVC_
 #define _cc_logger_debugW(FMT, ...) \

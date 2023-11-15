@@ -53,22 +53,22 @@ extern "C" {
 #endif
 
 /**/
-_CC_API(pvoid_t) _cc_malloc(size_t);
+_CC_API_PUBLIC(pvoid_t) _cc_malloc(size_t);
 /**/
-_CC_API(pvoid_t) _cc_calloc(size_t, size_t);
+_CC_API_PUBLIC(pvoid_t) _cc_calloc(size_t, size_t);
 /**/
-_CC_API(pvoid_t) _cc_realloc(pvoid_t, size_t);
+_CC_API_PUBLIC(pvoid_t) _cc_realloc(pvoid_t, size_t);
 /**/
-_CC_API(void) _cc_free(pvoid_t);
+_CC_API_PUBLIC(void) _cc_free(pvoid_t);
 /**/
-_CC_API(char_t*) _cc_strdupA(const char_t*);
+_CC_API_PUBLIC(char_t*) _cc_strdupA(const char_t*);
 /**/
-_CC_API(wchar_t*) _cc_strdupW(const wchar_t*);
+_CC_API_PUBLIC(wchar_t*) _cc_strdupW(const wchar_t*);
 
 /**/
-_CC_API(char_t*) _cc_strndupA(const char_t*,size_t);
+_CC_API_PUBLIC(char_t*) _cc_strndupA(const char_t*,size_t);
 /**/
-_CC_API(wchar_t*) _cc_strndupW(const wchar_t*,size_t);
+_CC_API_PUBLIC(wchar_t*) _cc_strndupW(const wchar_t*,size_t);
 
 /**/
 #define _CC_MALLOCX(T,C) ((T*)_cc_malloc(sizeof(T) * (C)))

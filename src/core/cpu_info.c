@@ -48,7 +48,7 @@
 /**/
 int _cc_cpu_number_processors = 0;
 
-static int CPU_haveCPUID(void) {
+_CC_API_PRIVATE(int) CPU_haveCPUID(void) {
     int has_CPUID = 0;
 /* *INDENT-OFF* */
 #if defined(__GNUC__) && defined(i386)
@@ -184,7 +184,7 @@ done:
 #endif
 
 /**/
-int _cc_cpu_count(void) {
+_CC_API_PUBLIC(int) _cc_cpu_count(void) {
 #if defined(_SC_NPROCESSORS_ONLN)
     if (_cc_cpu_number_processors <= 0) {
         _cc_cpu_number_processors = (int)sysconf(_SC_NPROCESSORS_ONLN);
@@ -218,7 +218,7 @@ int _cc_cpu_count(void) {
     return _cc_cpu_number_processors;
 }
 
-const tchar_t* _cc_cpu_sn(void) {
+_CC_API_PUBLIC(const tchar_t*) _cc_cpu_sn(void) {
     static tchar_t _cc_cpu_sn_value[32] = {0};
     int a, b, c, d;
 

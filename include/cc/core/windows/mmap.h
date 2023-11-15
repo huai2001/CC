@@ -62,17 +62,17 @@ extern "C" {
 /**
  * Map a file to a memory region
  */
-void *mmap(void *addr, unsigned int len, int prot, int flags, int fd, unsigned int offset);
+_CC_API_PUBLIC(void*) mmap(void *addr, unsigned int len, int prot, int flags, int fd, unsigned int offset);
 
 /**
  * Unmap a memory region
  */
-int munmap(void *addr, int len);
+_CC_API_PUBLIC(int) munmap(void *addr, int len);
 
 /**
  * Synchronize a mapped region
  */
-int msync(char *addr, int len, int flags);
+_CC_API_PUBLIC(int) msync(char *addr, int len, int flags);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

@@ -22,12 +22,12 @@
 #include <cc/dirent.h>
 
 /**/
-bool_t _cc_mkdir(const tchar_t *path) {
-    return _cc_create_directory(path, false);
+_CC_API_PUBLIC(bool_t) _cc_mkdir(const tchar_t *path) {
+    _CC_API_PUBLIC(return) _cc_create_directory(path, false);
 }
 
 /**/
-bool_t _cc_create_directory(const tchar_t *path, bool_t is_dir) {
+_CC_API_PUBLIC(bool_t) _cc_create_directory(const tchar_t *path, bool_t is_dir) {
     int32_t i = 0;
     const tchar_t *cp = NULL;
     tchar_t cpath[_CC_MAX_PATH_];
@@ -59,7 +59,7 @@ bool_t _cc_create_directory(const tchar_t *path, bool_t is_dir) {
     return true;
 }
 
-uint32_t _cc_nextpow2(uint32_t num) {
+_CC_API_PUBLIC(uint32_t) _cc_nextpow2(uint32_t num) {
     --num;
     num |= num >> 1;
     num |= num >> 2;
@@ -70,7 +70,7 @@ uint32_t _cc_nextpow2(uint32_t num) {
     return ++num;
 }
 
-int32_t _cc_realpath(tchar_t *path) {
+_CC_API_PUBLIC(int32_t) _cc_realpath(tchar_t *path) {
     int32_t i;
     int32_t k;
     int32_t rc = 1;

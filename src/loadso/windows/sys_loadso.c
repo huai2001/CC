@@ -23,7 +23,7 @@
 #include <cc/logger.h>
 
 /**/
-pvoid_t _cc_load_object(const tchar_t *sofile) {
+_CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
     HINSTANCE handle;
     /* Prevent ugly popups from killing our app */
 #ifndef _WIN32_WCE
@@ -56,7 +56,7 @@ pvoid_t _cc_load_object(const tchar_t *sofile) {
 }
 
 /**/
-pvoid_t _cc_load_function(pvoid_t handle, const char_t *name) {
+_CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
     pvoid_t symbol = GetProcAddress((HMODULE)handle, name);
     if (symbol == NULL) {
         int32_t e = _cc_last_errno();
@@ -72,7 +72,7 @@ pvoid_t _cc_load_function(pvoid_t handle, const char_t *name) {
 }
 
 /**/
-void _cc_unload_object(pvoid_t handle) {
+_CC_API_PUBLIC(void) _cc_unload_object(pvoid_t handle) {
     if (handle != NULL) {
         FreeLibrary((HMODULE)handle);
     }

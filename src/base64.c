@@ -82,7 +82,7 @@ static const short base64_reverse_table[256] = {
 /* }}} */
 
 /* {{{ */
-int32_t _cc_base64_encode(const byte_t *input, int32_t length, tchar_t *output, int32_t output_length) {
+_CC_API_PUBLIC(int32_t) _cc_base64_encode(const byte_t *input, int32_t length, tchar_t *output, int32_t output_length) {
     const byte_t *current = input;
     tchar_t *p = output;
 
@@ -122,7 +122,7 @@ int32_t _cc_base64_encode(const byte_t *input, int32_t length, tchar_t *output, 
 }
 
 /* {{{ */
-int32_t _cc_base64_decode(const tchar_t *input, int32_t length, byte_t *output, int32_t output_length) {
+_CC_API_PUBLIC(int32_t) _cc_base64_decode(const tchar_t *input, int32_t length, byte_t *output, int32_t output_length) {
     const tchar_t *current = input;
     int32_t ch, i = 0, j = 0, k;
     /* this sucks for threaded environments */
@@ -132,7 +132,7 @@ int32_t _cc_base64_decode(const tchar_t *input, int32_t length, byte_t *output, 
 
     /* run through the whole string, converting as we go */
     while ((ch = *current++) != 0 && length-- > 0) {
-        if (_cc_unlikely(ch == base64_pad)) {
+        if (ch == base64_pad) {
             /*i % 4 = i & 3*/
             if (*current != base64_pad && ((i & 3) == 1)) {
                 if ((i & 3) != 1) {

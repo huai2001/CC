@@ -13,13 +13,17 @@
 char        lpdest[16];                   //用来存放目的IP地址  
 uint32_t    cStartTickCount;              //用来存放发送包的起始时间  
 
+#pragma pack(1)
+
 typedef struct _ICMPHeader {
     byte_t itype;
     byte_t icode;
-    uint16_t cksum;
+    uint16_t checksum;
     uint16_t id;
     uint16_t seq;
 } _ICMPHeader_t;
+
+#pragma pack()
 
 void fillICMPData(char *data, int size) {
     _ICMPHeader_t* icmpHeader;
@@ -27,24 +31,25 @@ void fillICMPData(char *data, int size) {
     icmpHeader->itype = ICMP_ECHO;
     icmpHeader->icode = 0;
     icmpHeader->id = _cc_getpid();
-    icmpHeader->cksum = 0;
+    icmpHeader->checksum = 0;
     icmpHeader->seq = 0;
 
     memset(data + sizeof(_ICMPHeader_t), 'E', size - sizeof(_ICMPHeader_t));
 }
 
 uint16_t checksum(uint16_t *buffer, int size) {
-    unsigned long cksum = 0;  
+    unsigned long sum = 0;  
     while(size > 1) {  
-        cksum += *buffer++;  
+        sum += *buffer++;  
         size -= sizeof(uint16_t);  
     }  
-    if (size)  
-        cksum += *(uint16_t *)buffer;  
-    cksum = (cksum >> 16) + (cksum & 0xffff);  
-    cksum += (cksum >> 16);  
+    if (size) {
+        sum += *(uint16_t *)buffer;  
+    }
+    sum = (sum >> 16) + (sum & 0xffff);  
+    sum += (sum >> 16);  
 
-    return (uint16_t)(~cksum);
+    return (uint16_t)(~sum);
 }
 
 int DecodeIPHeader(char *buf, int bytes, struct sockaddr_in *from) {
@@ -81,18 +86,17 @@ int DecodeIPHeader(char *buf, int bytes, struct sockaddr_in *from) {
 }
 
 int main (int argc, char * const argv[]) {
-    _cc_socket_t sockRaw;  
-    struct sockaddr_in dest, from;  
+    _cc_socket_t sockRaw;
+    struct sockaddr_in dest, from;
     int i,bread;
     _cc_socklen_t fromlen = sizeof(from);
-    int timeout = 1000,ret;     
-    struct hostent *hp=NULL;  
-    char icmp_data[MAX_PACKET],recvbuf[MAX_PACKET];  
+    int timeout = 1000,ret;
+    char icmp_data[MAX_PACKET],recvbuf[MAX_PACKET];
     uint16_t seq_no = 0;
 
     _cc_install_socket();
 
-    strcpy(lpdest,"220.181.38.148");
+    strcpy(lpdest,"baidu.com");
     sockRaw = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if ( sockRaw < 0 ) {
         printf("socket fail: %s\n", _cc_last_error(_cc_last_errno()));
@@ -102,28 +106,15 @@ int main (int argc, char * const argv[]) {
     //创建套接字   
     //对锁定套接字设置超时  
     _cc_set_socket_timeout(sockRaw, timeout);
-    //解析目标地址，将主机名转化为IP地址  
-    memset(&dest,0,sizeof(dest));  
-    dest.sin_family=AF_INET;  
-    if((dest.sin_addr.s_addr=inet_addr(lpdest))==INADDR_NONE)  
-    {  
-        if((hp=gethostbyname(lpdest))!=NULL)  
-        {  
-            memcpy(&(dest.sin_addr.s_addr),hp->h_addr_list[0],hp->h_length);  
-            dest.sin_family=hp->h_addrtype;  
-            printf("dest.sin_addr=%s\n",inet_ntoa(dest.sin_addr));  
-        }  
-        else  
-        {  
-            printf("gethostbyname() failed:\n");  
-            return -1;  
-        }  
-    }  
+    //解析目标地址，将主机名转化为IP地址 
+    _cc_inet_ipv4_addr(&dest, lpdest, 0);
 
-    memset(icmp_data,0,MAX_PACKET);  
+    memset(icmp_data,0,MAX_PACKET);
+
     //_ICMPHeader_t
     fillICMPData((char*)icmp_data,DEICMP_PACKSIZE);  
     printf("Hop\t\tIP Address\t\tTime elapsed\n");  
+
     //开始发送/接收ICMP报文  
     for (i = 1; i <= 255; i++) {  
         int bwrote;  
@@ -132,12 +123,11 @@ int main (int argc, char * const argv[]) {
         if (ret == _CC_SOCKET_ERROR_)  {  
             printf("setsockopt(IP_TTL)\n");  
         }
-
-        ((_ICMPHeader_t *)icmp_data)->cksum = 0;         
+        ((_ICMPHeader_t *)icmp_data)->checksum = 0;
         ((_ICMPHeader_t *)icmp_data)->seq = seq_no++;     //Sequence number of ICMP packets  
-        ((_ICMPHeader_t *)icmp_data)->cksum = checksum((uint16_t *)icmp_data,DEICMP_PACKSIZE);  
+        ((_ICMPHeader_t *)icmp_data)->checksum = checksum((uint16_t *)icmp_data,DEICMP_PACKSIZE);  
         //发送ICMP包请求查询  
-        cStartTickCount=_cc_get_ticks();  
+        cStartTickCount = _cc_get_ticks();  
         bwrote = sendto(sockRaw,icmp_data,DEICMP_PACKSIZE,0,(struct sockaddr *)&dest,sizeof(dest));
         if (bwrote <= 0) {
             continue;
@@ -149,7 +139,7 @@ int main (int argc, char * const argv[]) {
             if (DecodeIPHeader(recvbuf,bread,&from))  
                 break;  
         }
-        _cc_sleep(10);
+        //_cc_sleep(10);
     }  
   
     if(sockRaw!=_CC_INVALID_SOCKET_)  

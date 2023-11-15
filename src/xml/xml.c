@@ -20,7 +20,7 @@
 */
 #include "xml.c.h"
 
-static _cc_xml_attr_t *_XML_attr_alloc(_cc_xml_attr_t *ctx, tchar_t *name, tchar_t *value) {
+_CC_API_PRIVATE(_cc_xml_attr_t*) _XML_attr_alloc(_cc_xml_attr_t *ctx, tchar_t *name, tchar_t *value) {
     if (ctx == NULL) {
         ctx = (_cc_xml_attr_t *)_cc_malloc(sizeof(_cc_xml_attr_t));
         ctx->name = NULL;
@@ -100,7 +100,7 @@ bool_t _XML_attr_push(_cc_rbtree_t *ctx, tchar_t *name, tchar_t *value) {
 }
 
 /**/
-_cc_xml_t *_cc_new_xml_element(byte_t type) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_new_xml_element(byte_t type) {
     _cc_xml_t *xml = (_cc_xml_t *)_cc_malloc(sizeof(_cc_xml_t));
     _XML_NODE_INIT(xml, type);
 
@@ -108,7 +108,7 @@ _cc_xml_t *_cc_new_xml_element(byte_t type) {
 }
 
 /**/
-bool_t _cc_xml_element_append(_cc_xml_t *ctx, _cc_xml_t *child) {
+_CC_API_PUBLIC(bool_t) _cc_xml_element_append(_cc_xml_t *ctx, _cc_xml_t *child) {
     if (ctx->type == _CC_XML_NULL_) {
         ctx->type = _CC_XML_CHILD_;
     } else if (ctx->type != _CC_XML_CHILD_) {
@@ -119,7 +119,7 @@ bool_t _cc_xml_element_append(_cc_xml_t *ctx, _cc_xml_t *child) {
     return true;
 }
 /**/
-const tchar_t *_cc_xml_element_text(_cc_xml_t *ctx) {
+_CC_API_PUBLIC(const tchar_t*) _cc_xml_element_text(_cc_xml_t *ctx) {
     if (ctx && !_cc_list_iterator_empty(&ctx->element.uni_child)) {
         _cc_xml_t *item = _cc_upcast(ctx->element.uni_child.next, _cc_xml_t, lnk);
         if (item->type == _CC_XML_CONTEXT_) {
@@ -130,13 +130,13 @@ const tchar_t *_cc_xml_element_text(_cc_xml_t *ctx) {
 }
 
 /**/
-static int32_t _XML_attr_find(_cc_rbtree_iterator_t *iter, pvoid_t args) {
+_CC_API_PRIVATE(int32_t) _XML_attr_find(_cc_rbtree_iterator_t *iter, pvoid_t args) {
     _cc_xml_attr_t *item = _cc_upcast(iter, _cc_xml_attr_t, node);
     return _tcscmp((const tchar_t *)args, item->name);
 }
 
 /**/
-const tchar_t *_cc_xml_element_attr_find(_cc_xml_t *ctx, const tchar_t *keyword) {
+_CC_API_PUBLIC(const tchar_t*) _cc_xml_element_attr_find(_cc_xml_t *ctx, const tchar_t *keyword) {
     if (ctx && ctx->attr.rb_node != NULL) {
         _cc_rbtree_iterator_t *item = _cc_rbtree_get(&ctx->attr, (pvoid_t)keyword, _XML_attr_find);
         if (item) {
@@ -147,7 +147,7 @@ const tchar_t *_cc_xml_element_attr_find(_cc_xml_t *ctx, const tchar_t *keyword)
     return NULL;
 }
 
-bool_t _cc_xml_element_set_attr(_cc_xml_t *ctx, const tchar_t *keyword, const tchar_t *fmt, ...) {
+_CC_API_PUBLIC(bool_t) _cc_xml_element_set_attr(_cc_xml_t *ctx, const tchar_t *keyword, const tchar_t *fmt, ...) {
     tchar_t buf[1024];
     _cc_assert(fmt != NULL);
 
@@ -164,7 +164,7 @@ bool_t _cc_xml_element_set_attr(_cc_xml_t *ctx, const tchar_t *keyword, const tc
 }
 
 /**/
-_cc_xml_t *_cc_xml_element_first_child(_cc_xml_t *ctx) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_first_child(_cc_xml_t *ctx) {
     if (ctx->type != _CC_XML_CHILD_ || _cc_list_iterator_empty(&ctx->element.uni_child)) {
         return NULL;
     }
@@ -173,7 +173,7 @@ _cc_xml_t *_cc_xml_element_first_child(_cc_xml_t *ctx) {
 }
 
 /**/
-_cc_xml_t *_cc_xml_element_next_child(_cc_xml_t *ctx) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_next_child(_cc_xml_t *ctx) {
     if (ctx->lnk.next == NULL) {
         return NULL;
     }
@@ -181,7 +181,7 @@ _cc_xml_t *_cc_xml_element_next_child(_cc_xml_t *ctx) {
     return _cc_upcast(ctx->lnk.next, _cc_xml_t, lnk);
 }
 
-static _cc_xml_t *XML_find(_cc_xml_t *ctx, tchar_t *name, size_t len) {
+_CC_API_PRIVATE(_cc_xml_t*) XML_find(_cc_xml_t *ctx, tchar_t *name, size_t len) {
     _cc_list_iterator_t *v;
     _cc_list_iterator_for(v, &ctx->element.uni_child) {
         _cc_xml_t *item = _cc_upcast(v, _cc_xml_t, lnk);
@@ -197,7 +197,7 @@ static _cc_xml_t *XML_find(_cc_xml_t *ctx, tchar_t *name, size_t len) {
 }
 
 /**/
-_cc_xml_t *_cc_xml_element_find(_cc_xml_t *ctx, tchar_t *item) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_find(_cc_xml_t *ctx, tchar_t *item) {
     tchar_t *p;
     tchar_t *pp = item;
 
@@ -221,7 +221,7 @@ _cc_xml_t *_cc_xml_element_find(_cc_xml_t *ctx, tchar_t *item) {
 }
 
 /**/
-static void _xml_free_attr_rb_node(_cc_rbtree_iterator_t *node) {
+_CC_API_PRIVATE(void) _xml_free_attr_rb_node(_cc_rbtree_iterator_t *node) {
     _cc_xml_attr_t *p = _cc_upcast(node, _cc_xml_attr_t, node);
     if (p->name) {
         _cc_free(p->name);
@@ -234,7 +234,7 @@ static void _xml_free_attr_rb_node(_cc_rbtree_iterator_t *node) {
 }
 
 /**/
-static void _xml_free(_cc_xml_t *ctx) {
+_CC_API_PRIVATE(void) _xml_free(_cc_xml_t *ctx) {
     if (ctx->name) {
         _cc_free(ctx->name);
     }
@@ -267,7 +267,7 @@ static void _xml_free(_cc_xml_t *ctx) {
 }
 
 /**/
-bool_t _cc_destroy_xml(_cc_xml_t **ctx) {
+_CC_API_PUBLIC(bool_t) _cc_destroy_xml(_cc_xml_t **ctx) {
     _xml_free(*ctx);
     *ctx = NULL;
 
@@ -275,7 +275,7 @@ bool_t _cc_destroy_xml(_cc_xml_t **ctx) {
 }
 
 /**/
-static void _print_XML_buffer(_cc_xml_t *XML, int32_t depth, _cc_buf_t *buf) {
+_CC_API_PRIVATE(void) _print_XML_buffer(_cc_xml_t *XML, int32_t depth, _cc_buf_t *buf) {
     tchar_t depth_buf[1024] = {0};
     int32_t i = 0;
     _cc_list_iterator_t *v = NULL;
@@ -326,7 +326,7 @@ static void _print_XML_buffer(_cc_xml_t *XML, int32_t depth, _cc_buf_t *buf) {
 }
 
 /**/
-_cc_buf_t *_cc_print_xml(_cc_xml_t *XML) {
+_CC_API_PUBLIC(_cc_buf_t*) _cc_print_xml(_cc_xml_t *XML) {
     _cc_list_iterator_t *v;
     _cc_buf_t *buf = _cc_create_buf(16*1024);
     if (_cc_likely(buf)) {

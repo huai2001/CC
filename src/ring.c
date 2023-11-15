@@ -26,7 +26,7 @@
 #define _CC_RING_EXPAND_ 1
 
 /**/
-bool_t _cc_ring_alloc(_cc_ring_t *ctx, int32_t slot_size) {
+_CC_API_PUBLIC(bool_t) _cc_ring_alloc(_cc_ring_t *ctx, int32_t slot_size) {
     _cc_assert(ctx != NULL);
 
     ctx->size = _max(slot_size, 10);
@@ -42,7 +42,7 @@ bool_t _cc_ring_alloc(_cc_ring_t *ctx, int32_t slot_size) {
 }
 
 /**/
-_cc_ring_t *_cc_create_ring(int32_t slot_size) {
+_CC_API_PUBLIC(_cc_ring_t*) _cc_create_ring(int32_t slot_size) {
     _cc_ring_t *ctx = (_cc_ring_t *)_cc_malloc(sizeof(_cc_ring_t));
     if (_cc_likely(_cc_ring_alloc(ctx, slot_size))) {
         return ctx;
@@ -53,14 +53,14 @@ _cc_ring_t *_cc_create_ring(int32_t slot_size) {
 }
 
 /**/
-bool_t _cc_ring_free(_cc_ring_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_ring_free(_cc_ring_t *ctx) {
     _cc_assert(ctx != NULL);
     _cc_safe_free(ctx->data);
     return true;
 }
 
 /**/
-void _cc_destroy_ring(_cc_ring_t **ctx) {
+_CC_API_PUBLIC(void) _cc_destroy_ring(_cc_ring_t **ctx) {
     _cc_assert(ctx != NULL);
 
     if (_cc_ring_free(*ctx)) {
@@ -71,19 +71,19 @@ void _cc_destroy_ring(_cc_ring_t **ctx) {
 }
 
 /**/
-void _cc_ring_cleanup(_cc_ring_t *ctx) {
+_CC_API_PUBLIC(void) _cc_ring_cleanup(_cc_ring_t *ctx) {
     _cc_assert(ctx != NULL);
     ctx->r = 0;
     ctx->w = 0;
 }
 
 /**/
-bool_t _cc_ring_empty(_cc_ring_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_ring_empty(_cc_ring_t *ctx) {
     return ctx->r == ctx->w;
 }
 
 /**/
-bool_t _cc_ring_push(_cc_ring_t *ctx, pvoid_t data) {
+_CC_API_PUBLIC(bool_t) _cc_ring_push(_cc_ring_t *ctx, pvoid_t data) {
     uint32_t w;
     _cc_assert(ctx != NULL);
 
@@ -103,7 +103,7 @@ bool_t _cc_ring_push(_cc_ring_t *ctx, pvoid_t data) {
 }
 
 /**/
-pvoid_t _cc_ring_pop(_cc_ring_t *ctx) {
+_CC_API_PUBLIC(pvoid_t) _cc_ring_pop(_cc_ring_t *ctx) {
     uint32_t r;
     pvoid_t data;
     _cc_assert(ctx != NULL);

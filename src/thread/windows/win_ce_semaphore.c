@@ -20,7 +20,7 @@
 */
 #include <cc/thread/windows/win_ce_semaphore.h>
 
-static SYNCHHANDLE CleanUp(SYNCHHANDLE hSynch, DWORD Flags);
+_CC_API_PRIVATE(SYNCHHANDLE) CleanUp(SYNCHHANDLE hSynch, DWORD Flags);
 
 SYNCHHANDLE CreateSemaphoreCE(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, /* pointer to security attributes */
                               LONG lInitialCount,                          /* initial count */
@@ -189,18 +189,17 @@ BOOL CloseSynchHandle(SYNCHHANDLE hSynch) {
     If there was any failure, free any allocated resources.
     "Flags" indicates which Win32 objects are required in the
     synchronization handle. */
-static SYNCHHANDLE CleanUp(SYNCHHANDLE hSynch, DWORD Flags) {
+_CC_API_PRIVATE(SYNCHHANDLE) CleanUp(SYNCHHANDLE hSynch, DWORD Flags) {
     if (hSynch == NULL) {
         return NULL;
     }
 
-    if ( ((Flags & 4) == 1 && (hSynch->hEvent == NULL) || 
+    if ( ((Flags & 4) == 1 && (hSynch->hEvent == NULL)) || 
          ((Flags & 2) == 1 && (hSynch->hMutex == NULL)) ||
          ((Flags & 1) == 1 && (hSynch->hEvent == NULL))) {
         CloseSynchHandle(hSynch);
         return NULL;
-    }
-    
+    }  
     /* Everything worked */
     return hSynch;
 }

@@ -20,7 +20,7 @@
 */
 #include "./http.header.c"
 /**/
-static bool_t _alloc_response_header(_cc_http_response_header_t **url_response, tchar_t *line, int length) {
+_CC_API_PRIVATE(bool_t) _alloc_response_header(_cc_http_response_header_t **url_response, tchar_t *line, int length) {
     int first = 0, last = 0;
     _cc_http_response_header_t *response = *url_response;
     //_tprintf(_T("%.*s\n"), length, line);
@@ -78,7 +78,7 @@ static bool_t _alloc_response_header(_cc_http_response_header_t **url_response, 
     return __http_header_line(&response->headers, line, length);
 }
 
-static void _free_response_header(_cc_http_response_header_t **response_header) {
+_CC_API_PRIVATE(void) _free_response_header(_cc_http_response_header_t **response_header) {
     _cc_http_response_header_t *res = *response_header;
     _cc_assert(response_header != NULL && res != NULL);
     if (response_header == NULL || res == NULL) {

@@ -56,7 +56,7 @@
 
 #define ROL32(a, offset) (((a) << (offset)) | ((a) >> ((32 - (offset)) & 31)))
 
-static uint64_t ROL64(uint64_t val, int offset) {
+_CC_API_PRIVATE(uint64_t) ROL64(uint64_t val, int offset) {
     if (offset == 0) {
         return val;
     } else if (!BIT_INTERLEAVE) {
@@ -121,7 +121,7 @@ static const uint64_t iotas[] = {BIT_INTERLEAVE ? 0x0000000000000001ULL : 0x0000
  * Implementation unrolls inner x-loops so that modulo 5 operations are
  * explicitly pre-computed.
  */
-static void __theta(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) __theta(uint64_t A[5][5]) {
     uint64_t C[5], D[5];
     size_t y;
 
@@ -154,7 +154,7 @@ static void __theta(uint64_t A[5][5]) {
     }
 }
 
-static void __rho(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) __rho(uint64_t A[5][5]) {
     size_t y;
 
     for (y = 0; y < 5; y++) {
@@ -166,7 +166,7 @@ static void __rho(uint64_t A[5][5]) {
     }
 }
 
-static void __pi(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) __pi(uint64_t A[5][5]) {
     uint64_t T[5][5];
 
     /*
@@ -206,7 +206,7 @@ static void __pi(uint64_t A[5][5]) {
     A[4][4] = T[4][1];
 }
 
-static void __chi(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) __chi(uint64_t A[5][5]) {
     uint64_t C[5];
     size_t y;
 
@@ -225,12 +225,12 @@ static void __chi(uint64_t A[5][5]) {
     }
 }
 
-static void _iota(uint64_t A[5][5], size_t i) {
+_CC_API_PRIVATE(void) _iota(uint64_t A[5][5], size_t i) {
     _cc_assert(i < (sizeof(iotas) / sizeof(iotas[0])));
     A[0][0] ^= iotas[i];
 }
 
-static void _keccak_f1600(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) _keccak_f1600(uint64_t A[5][5]) {
     size_t i;
 
     for (i = 0; i < 24; i++) {
@@ -253,7 +253,7 @@ static void _keccak_f1600(uint64_t A[5][5]) {
  * equivalent of "plane-per-plane processing" approach discussed in
  * section 2.4 of "Keccak implementation overview".
  */
-static void __round(uint64_t A[5][5], size_t i) {
+_CC_API_PRIVATE(void) __round(uint64_t A[5][5], size_t i) {
     uint64_t C[5], E[2];    /* registers */
     uint64_t D[5], T[2][5]; /* memory    */
 
@@ -363,7 +363,7 @@ static void __round(uint64_t A[5][5], size_t i) {
     A[4][4] = C[4] ^ (~C[0] & C[1]);
 }
 
-static void _keccak_f1600(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) _keccak_f1600(uint64_t A[5][5]) {
     size_t i;
 
     for (i = 0; i < 24; i++) {
@@ -379,7 +379,7 @@ static void _keccak_f1600(uint64_t A[5][5]) {
  * register bound.
  */
 
-static void __round(uint64_t A[5][5], size_t i) {
+_CC_API_PRIVATE(void) __round(uint64_t A[5][5], size_t i) {
     uint64_t C[5], D[5];
 
     _cc_assert(i < (sizeof(iotas) / sizeof(iotas[0])));
@@ -504,7 +504,7 @@ static void __round(uint64_t A[5][5], size_t i) {
     A[0][0] ^= iotas[i];
 }
 
-static void _keccak_f1600(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) _keccak_f1600(uint64_t A[5][5]) {
     size_t i;
 
     for (i = 0; i < 24; i++) {
@@ -522,7 +522,7 @@ static void _keccak_f1600(uint64_t A[5][5]) {
  * play best with compilers [as well as provide best instruction per
  * processed byte ratio at minimal round unroll factor]...
  */
-static void __round(uint64_t R[5][5], uint64_t A[5][5], size_t i) {
+_CC_API_PRIVATE(void) __round(uint64_t R[5][5], uint64_t A[5][5], size_t i) {
     uint64_t C[5], D[5];
 
     _cc_assert(i < (sizeof(iotas) / sizeof(iotas[0])));
@@ -640,7 +640,7 @@ static void __round(uint64_t R[5][5], uint64_t A[5][5], size_t i) {
 #endif
 }
 
-static void _keccak_f1600(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) _keccak_f1600(uint64_t A[5][5]) {
     uint64_t T[5][5];
     size_t i;
 
@@ -678,7 +678,7 @@ static void _keccak_f1600(uint64_t A[5][5]) {
  * bank can as well use KECCAK_1X_ALT, it would be as fast but much
  * more compact...
  */
-static void __four_rounds(uint64_t A[5][5], size_t i) {
+_CC_API_PRIVATE(void) __four_rounds(uint64_t A[5][5], size_t i) {
     uint64_t B[5], C[5], D[5];
 
     _cc_assert(i <= (sizeof(iotas) / sizeof(iotas[0]) - 4));
@@ -958,7 +958,7 @@ static void __four_rounds(uint64_t A[5][5], size_t i) {
     /* C[4] ^= */ A[4][4] = B[4] ^ (~B[0] & B[1]);
 }
 
-static void _keccak_f1600(uint64_t A[5][5]) {
+_CC_API_PRIVATE(void) _keccak_f1600(uint64_t A[5][5]) {
     size_t i;
 
     for (i = 0; i < 24; i += 4) {
@@ -968,7 +968,7 @@ static void _keccak_f1600(uint64_t A[5][5]) {
 
 #endif
 
-static uint64_t _bit_interleave(uint64_t Ai) {
+_CC_API_PRIVATE(uint64_t) _bit_interleave(uint64_t Ai) {
     if (BIT_INTERLEAVE) {
         uint32_t hi = (uint32_t)(Ai >> 32), lo = (uint32_t)Ai;
         uint32_t t0, t1;
@@ -1019,7 +1019,7 @@ static uint64_t _bit_interleave(uint64_t Ai) {
     return Ai;
 }
 
-static uint64_t _bit_deinterleave(uint64_t Ai) {
+_CC_API_PRIVATE(uint64_t) _bit_deinterleave(uint64_t Ai) {
     if (BIT_INTERLEAVE) {
         uint32_t hi = (uint32_t)(Ai >> 32), lo = (uint32_t)Ai;
         uint32_t t0, t1;
@@ -1080,7 +1080,7 @@ static uint64_t _bit_deinterleave(uint64_t Ai) {
  * padding and intermediate sub-block buffering, byte- or bitwise, is
  * caller's responsibility.
  */
-static size_t SHA3_absorb(uint64_t A[5][5], const byte_t *inp, size_t len, size_t r) {
+_CC_API_PRIVATE(size_t) SHA3_absorb(uint64_t A[5][5], const byte_t *inp, size_t len, size_t r) {
     uint64_t *A_flat = (uint64_t *)A;
     size_t i, w = r / 8;
 
@@ -1106,7 +1106,7 @@ static size_t SHA3_absorb(uint64_t A[5][5], const byte_t *inp, size_t len, size_
  * sha3_squeeze is called once at the end to generate |out| hash value
  * of |len| bytes.
  */
-static void SHA3_squeeze(uint64_t A[5][5], byte_t *out, size_t len, size_t r) {
+_CC_API_PRIVATE(void) SHA3_squeeze(uint64_t A[5][5], byte_t *out, size_t len, size_t r) {
     uint64_t *A_flat = (uint64_t *)A;
     size_t i, w = r / 8;
 
@@ -1142,7 +1142,7 @@ static void SHA3_squeeze(uint64_t A[5][5], byte_t *out, size_t len, size_t r) {
     }
 }
 
-void _cc_sha3_init(_cc_sha3_t *ctx, byte_t pad, size_t bitlen) {
+_CC_API_PUBLIC(void) _cc_sha3_init(_cc_sha3_t *ctx, byte_t pad, size_t bitlen) {
     size_t bsz = _CC_SHA3_BLOCKSIZE(bitlen);
 
     if (bsz <= sizeof(ctx->buf)) {
@@ -1155,7 +1155,7 @@ void _cc_sha3_init(_cc_sha3_t *ctx, byte_t pad, size_t bitlen) {
     }
 }
 
-void _cc_sha3_update(_cc_sha3_t *ctx, const byte_t *input, size_t len) {
+_CC_API_PUBLIC(void) _cc_sha3_update(_cc_sha3_t *ctx, const byte_t *input, size_t len) {
     const byte_t *inp = input;
     size_t bsz = ctx->block_size;
     size_t num, rem;
@@ -1196,7 +1196,7 @@ void _cc_sha3_update(_cc_sha3_t *ctx, const byte_t *input, size_t len) {
     }
 }
 
-void _cc_sha3_final(_cc_sha3_t *ctx, byte_t *output) {
+_CC_API_PUBLIC(void) _cc_sha3_final(_cc_sha3_t *ctx, byte_t *output) {
     size_t bsz = ctx->block_size;
     size_t num = ctx->bufsz;
 

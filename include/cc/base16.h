@@ -49,7 +49,7 @@ extern "C" {
  *
  * @return    Encode a buffer into base16 format.
  */
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_base16_encode(const byte_t *input, int32_t length, tchar_t *output, int32_t output_length);
 /**
  * @brief     Decode a base16-formatted buffer
@@ -61,7 +61,7 @@ _cc_base16_encode(const byte_t *input, int32_t length, tchar_t *output, int32_t 
  *
  * @return    Decode a base16-formatted buffer.
  */
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_base16_decode(const tchar_t *input, int32_t length, byte_t *output, int32_t output_length);
 
 /* Ends C function definitions when using C++ */
@@ -69,4 +69,4 @@ _cc_base16_decode(const tchar_t *input, int32_t length, byte_t *output, int32_t 
 }
 #endif
 
-#endif /* _C_CC_BASE64_H_INCLUDED_ */
+#endif /* _C_CC_BASE16_H_INCLUDED_ */

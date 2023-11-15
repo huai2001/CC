@@ -34,15 +34,15 @@ static const char *proc_acpi_battery_path = "/proc/acpi/battery";
 static const char *proc_acpi_ac_adapter_path = "/proc/acpi/ac_adapter";
 static const char *sys_class_power_supply_path = "/sys/class/power_supply";
 
-static void check_proc_acpi_ac_adapter(const char *node, bool_t *have_ac);
+_CC_API_PRIVATE(void) check_proc_acpi_ac_adapter(const char *node, bool_t *have_ac);
 
-static int open_power_file(const char *base, const char *node, const char *key) {
+_CC_API_PRIVATE(int) open_power_file(const char *base, const char *node, const char *key) {
     char path[_CC_MAX_PATH_];
     snprintf(path, _cc_countof(path), "%s/%s/%s", base, node, key);
     return open(path, O_RDONLY);
 }
 
-static bool_t read_power_file(const char *base, const char *node, const char *key, char *buf,
+_CC_API_PRIVATE(bool_t) read_power_file(const char *base, const char *node, const char *key, char *buf,
                                          size_t buflen) {
     ssize_t br;
     const int fd = open_power_file(base, node, key);
@@ -61,7 +61,7 @@ static bool_t read_power_file(const char *base, const char *node, const char *ke
     return true;
 }
 
-static bool_t make_proc_acpi_key_val(char **_ptr, char **_key, char **_val) {
+_CC_API_PRIVATE(bool_t) make_proc_acpi_key_val(char **_ptr, char **_key, char **_val) {
     char *ptr = *_ptr;
 
     while (*ptr == ' ') {
@@ -106,7 +106,7 @@ static bool_t make_proc_acpi_key_val(char **_ptr, char **_key, char **_val) {
     return true;
 }
 
-static void check_proc_acpi_battery(const char *node, bool_t *have_battery, bool_t *charging,
+_CC_API_PRIVATE(void) check_proc_acpi_battery(const char *node, bool_t *have_battery, bool_t *charging,
                                                int32_t *seconds, byte_t *percent) {
     const char *base = proc_acpi_battery_path;
     char info[1024];
@@ -193,7 +193,7 @@ static void check_proc_acpi_battery(const char *node, bool_t *have_battery, bool
     }
 }
 
-static void check_proc_acpi_ac_adapter(const char *node, bool_t *have_ac) {
+_CC_API_PRIVATE(void) check_proc_acpi_ac_adapter(const char *node, bool_t *have_ac) {
     const char *base = proc_acpi_ac_adapter_path;
     char state[256];
     char *ptr = NULL;
@@ -214,7 +214,7 @@ static void check_proc_acpi_ac_adapter(const char *node, bool_t *have_ac) {
     }
 }
 
-bool_t _sys_get_power_info_acpi(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
+_CC_API_PRIVATE(bool_t) _sys_get_power_info_acpi(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     struct dirent *dent = NULL;
     DIR *dirp = NULL;
     bool_t have_battery = false;
@@ -260,7 +260,7 @@ bool_t _sys_get_power_info_acpi(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, 
     return true; /* definitive answer. */
 }
 
-static bool_t next_string(char **_ptr, char **_str) {
+_CC_API_PRIVATE(bool_t) next_string(char **_ptr, char **_str) {
     char *ptr = *_ptr;
     char *str = *_str;
 
@@ -287,14 +287,14 @@ static bool_t next_string(char **_ptr, char **_str) {
     return true;
 }
 
-static bool_t int_string(char *str, int *val) {
+_CC_API_PRIVATE(bool_t) int_string(char *str, int *val) {
     char *endptr = NULL;
     *val = (int)strtol(str, &endptr, 0);
     return ((*str != '\0') && (*endptr == '\0'));
 }
 
 /* http://lxr.linux.no/linux+v2.6.29/drivers/char/apm-emulation.c */
-bool_t _sys_get_power_info_apm(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
+_CC_API_PRIVATE(bool_t) _sys_get_power_info_apm(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     bool_t need_details = false;
     int ac_status = 0;
     int battery_status = 0;
@@ -396,7 +396,7 @@ bool_t _sys_get_power_info_apm(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, b
     return true;
 }
 
-bool_t _sys_get_sys_class_power_supply(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
+_CC_API_PRIVATE(bool_t) _sys_get_sys_class_power_supply(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     const char *base = sys_class_power_supply_path;
     struct dirent *dent;
     DIR *dirp;
@@ -504,7 +504,7 @@ bool_t _sys_get_sys_class_power_supply(_CC_POWER_STATE_ENUM_ *state, int32_t *se
     return true;
 }
 
-bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
+_CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     if (_sys_get_sys_class_power_supply(state, seconds, percent)) {
         return true;
     }

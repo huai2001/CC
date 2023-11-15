@@ -40,7 +40,7 @@ static const struct _XML_entity XML_entities[_XML_NUM_ENTITIES_] = {{_T("quot"),
 
 static _cc_XML_error_t _cc_global_XML_error = {NULL, 0};
 
-static bool_t _XML_is_name_start_char(int ch) {
+_CC_API_PRIVATE(bool_t) _XML_is_name_start_char(int ch) {
     if (ch >= 128) {
         // This is a heuristic guess in attempt to not implement Unicode-aware
         // isalpha()
@@ -54,11 +54,11 @@ static bool_t _XML_is_name_start_char(int ch) {
     return ch == ':' || ch == '_';
 }
 
-static bool_t _XML_is_name_char(int ch) {
+_CC_API_PRIVATE(bool_t) _XML_is_name_char(int ch) {
     return _XML_is_name_start_char(ch) || _CC_ISDIGIT(ch) || ch == '.' || ch == '-';
 }
 
-static tchar_t *_XML_parser_name(_cc_sbuf_tchar_t *const buffer) {
+_CC_API_PRIVATE(tchar_t*) _XML_parser_name(_cc_sbuf_tchar_t *const buffer) {
     tchar_t *output = NULL;
     const tchar_t *start = _cc_sbuf_offset(buffer), *ended = NULL;
     const tchar_t *p = start;
@@ -92,7 +92,7 @@ static tchar_t *_XML_parser_name(_cc_sbuf_tchar_t *const buffer) {
     return output;
 }
 
-static bool_t _XML_parser_doctype(_cc_sbuf_tchar_t *const buffer, tchar_t **output) {
+_CC_API_PRIVATE(bool_t) _XML_parser_doctype(_cc_sbuf_tchar_t *const buffer, tchar_t **output) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = p;
 
@@ -118,7 +118,7 @@ static bool_t _XML_parser_doctype(_cc_sbuf_tchar_t *const buffer, tchar_t **outp
     return false;
 }
 
-static bool_t _XML_convert_text(tchar_t *cps, size_t alloc_length, const tchar_t *src, const tchar_t *p) {
+_CC_API_PRIVATE(bool_t) _XML_convert_text(tchar_t *cps, size_t alloc_length, const tchar_t *src, const tchar_t *p) {
     size_t i = 0;
     int32_t convert_bytes = 0;
     while (src < p) {
@@ -188,7 +188,7 @@ static bool_t _XML_convert_text(tchar_t *cps, size_t alloc_length, const tchar_t
     return true;
 }
 
-static bool_t _XML_parser_comments(_cc_sbuf_tchar_t *const buffer, tchar_t **output) {
+_CC_API_PRIVATE(bool_t) _XML_parser_comments(_cc_sbuf_tchar_t *const buffer, tchar_t **output) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = p;
     size_t alloc_length = 0;
@@ -238,7 +238,7 @@ XML_FAIL:
 }
 
 /**/
-static bool_t _XML_parser_text(_cc_sbuf_tchar_t *const buffer, _cc_xml_context_t *context) {
+_CC_API_PRIVATE(bool_t) _XML_parser_text(_cc_sbuf_tchar_t *const buffer, _cc_xml_context_t *context) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     _cc_buf_t buf;
 
@@ -290,7 +290,7 @@ static bool_t _XML_parser_text(_cc_sbuf_tchar_t *const buffer, _cc_xml_context_t
     return true;
 }
 
-static int32_t _XML_is_attr_value_end_tag(const tchar_t *p, const tchar_t isquoted) {
+_CC_API_PRIVATE(int32_t) _XML_is_attr_value_end_tag(const tchar_t *p, const tchar_t isquoted) {
     if (*p == _XML_ELEMENT_END_) {
         return 1;
     }
@@ -306,7 +306,7 @@ static int32_t _XML_is_attr_value_end_tag(const tchar_t *p, const tchar_t isquot
     return isquoted == *p ? 1 : 0;
 }
 
-static tchar_t *_XML_parser_attr_value(_cc_sbuf_tchar_t *const buffer) {
+_CC_API_PRIVATE(tchar_t*) _XML_parser_attr_value(_cc_sbuf_tchar_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = NULL;
     size_t alloc_length = 0;
@@ -352,7 +352,7 @@ XML_FAIL:
     return NULL;
 }
 
-static int _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_tchar_t *const buffer) {
+_CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_tchar_t *const buffer) {
     const tchar_t *tmp;
 
     do {
@@ -425,7 +425,7 @@ static int _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_tchar_t *const buffer) {
     return 0;
 }
 
-static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer, int32_t depth) {
+_CC_API_PRIVATE(bool_t) _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer, int32_t depth) {
     _cc_xml_t *item;
     do {
         int tailed = 0;
@@ -541,7 +541,7 @@ static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer, in
     return true;
 }
 
-static bool_t _XML_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer) {
+_CC_API_PRIVATE(bool_t) _XML_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer) {
     if (*_cc_sbuf_offset(buffer) == _XML_ELEMENT_START_ && *_cc_sbuf_offset_at(buffer, 1) == '?') {
         /* skip <? */
         buffer->offset += 2;
@@ -561,7 +561,7 @@ static bool_t _XML_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer) {
     return true;
 }
 
-_cc_xml_t *_cc_xml_parser(_cc_sbuf_tchar_t *const buffer) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_tchar_t *const buffer) {
     _cc_xml_t *item = NULL;
     _cc_XML_error_t local_error;
 
@@ -589,11 +589,11 @@ _cc_xml_t *_cc_xml_parser(_cc_sbuf_tchar_t *const buffer) {
     return NULL;
 }
 
-const tchar_t *_cc_xml_error(void) {
+_CC_API_PUBLIC(const tchar_t*) _cc_xml_error(void) {
     return (_cc_global_XML_error.content + _cc_global_XML_error.position);
 }
 
-_cc_xml_t *_cc_open_xml_file(const tchar_t *file_name) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_open_xml_file(const tchar_t *file_name) {
     _cc_sbuf_tchar_t buffer;
     _cc_xml_t *item = NULL;
 
@@ -640,7 +640,7 @@ _cc_xml_t *_cc_open_xml_file(const tchar_t *file_name) {
     return item;
 }
 
-_cc_xml_t *_cc_parse_xml(const tchar_t *src) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_parse_xml(const tchar_t *src) {
     _cc_sbuf_tchar_t buffer;
     buffer.content = src;
     buffer.length = _tcslen(src);

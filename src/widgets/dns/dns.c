@@ -24,7 +24,7 @@
 static struct in_addr dns_servers[DNS_SERVERS_MCOUNT];
 static int dns_server_count = 0;
 
-static void dns_ipv4_addr(struct sockaddr_in *);
+_CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *);
 
 static uint8_t *dns_read_rdata(uint8_t *, uint8_t *, _cc_dns_record_t *);
 /*
@@ -83,7 +83,7 @@ int _build_question(uint8_t *buf, const char_t *host, int type) {
     return offset + sizeof(struct QUESTION);
 }
 
-static void _print_type(const byte_t *rdata, const uint16_t type) {
+_CC_API_PRIVATE(void) _print_type(const byte_t *rdata, const uint16_t type) {
     tchar_t addr_buf[128];
     switch (type) {
     case _CC_DNS_T_A_: {
@@ -104,7 +104,7 @@ static void _print_type(const byte_t *rdata, const uint16_t type) {
     }
 }
 
-static void _print(const _cc_dns_t *dns) {
+_CC_API_PRIVATE(void) _print(const _cc_dns_t *dns) {
     // print answers
     _tprintf(_T("Answer Records : %d \n"), dns->header.answer);
 
@@ -164,7 +164,7 @@ void _cc_dns_free(_cc_dns_t *dns) {
     _cc_list_iterator_cleanup(&dns->additional);
 }
 
-static bool_t _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t events) {
+_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t events) {
     if (events & _CC_EVENT_READABLE_) {
         uint16_t i;
         uint8_t *reader;
@@ -384,7 +384,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
 /*
  *
  * */
-static void dns_ipv4_addr(struct sockaddr_in *addr) {
+_CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *addr) {
     _cc_assert(addr != NULL);
 
     bzero(addr, sizeof(struct sockaddr_in));

@@ -20,7 +20,7 @@
 */
 #include <cc/widgets/dict.h>
 
-static _cc_dict_node_t *_alloc_dict_node(_cc_dict_node_t *ctx, tchar_t *name, tchar_t *value) {
+_CC_API_PRIVATE(_cc_dict_node_t*) _alloc_dict_node(_cc_dict_node_t *ctx, tchar_t *name, tchar_t *value) {
     if (ctx == NULL) {
         ctx = (_cc_dict_node_t *)_cc_malloc(sizeof(_cc_dict_node_t));
         ctx->name = NULL;
@@ -45,7 +45,7 @@ static _cc_dict_node_t *_alloc_dict_node(_cc_dict_node_t *ctx, tchar_t *name, tc
     return ctx;
 }
 
-static tchar_t *_dict_read(_cc_sbuf_tchar_t *const buffer, const tchar_t delimiter) {
+_CC_API_PRIVATE(tchar_t*) _dict_read(_cc_sbuf_tchar_t *const buffer, const tchar_t delimiter) {
     const tchar_t *start = NULL;
     const tchar_t *ended = NULL;
     const tchar_t *p = NULL;
@@ -154,7 +154,7 @@ READ_VALUE_FAIL:
     return NULL;
 }
 
-static bool_t _dict_decoding(_cc_dict_t *ctx, _cc_sbuf_tchar_t *const buffer, const tchar_t delimiter) {
+_CC_API_PRIVATE(bool_t) _dict_decoding(_cc_dict_t *ctx, _cc_sbuf_tchar_t *const buffer, const tchar_t delimiter) {
     tchar_t *name = NULL;
     tchar_t *value = NULL;
 
@@ -174,7 +174,7 @@ static bool_t _dict_decoding(_cc_dict_t *ctx, _cc_sbuf_tchar_t *const buffer, co
     return true;
 }
 
-bool_t _cc_dict_split(_cc_dict_t *ctx, const tchar_t *src, const tchar_t delimiter) {
+_CC_API_PUBLIC(bool_t) _cc_dict_split(_cc_dict_t *ctx, const tchar_t *src, const tchar_t delimiter) {
     _cc_sbuf_tchar_t buffer;
 
     buffer.content = src;
@@ -185,7 +185,7 @@ bool_t _cc_dict_split(_cc_dict_t *ctx, const tchar_t *src, const tchar_t delimit
     return _dict_decoding(ctx, &buffer, delimiter);
 }
 
-static void _traverse_dict_join(_cc_rbtree_iterator_t *node, pvoid_t args, const tchar_t delimiter) {
+_CC_API_PRIVATE(void) _traverse_dict_join(_cc_rbtree_iterator_t *node, pvoid_t args, const tchar_t delimiter) {
     _cc_buf_t *buf;
     _cc_dict_node_t *item;
 
@@ -203,7 +203,7 @@ static void _traverse_dict_join(_cc_rbtree_iterator_t *node, pvoid_t args, const
     _cc_buf_puttsf(buf, _T("%s=%s%c"), item->name, item->value, delimiter);
 }
 
-_cc_buf_t *_cc_dict_join(_cc_dict_t *ctx, const tchar_t delimiter) {
+_CC_API_PUBLIC(_cc_buf_t*) _cc_dict_join(_cc_dict_t *ctx, const tchar_t delimiter) {
     tchar_t *s;
     size_t len;
     _cc_buf_t *buf;
@@ -227,7 +227,7 @@ _cc_buf_t *_cc_dict_join(_cc_dict_t *ctx, const tchar_t delimiter) {
     return buf;
 }
 
-bool_t _cc_dict_insert(_cc_dict_t *ctx, tchar_t *name, tchar_t *value) {
+_CC_API_PUBLIC(bool_t) _cc_dict_insert(_cc_dict_t *ctx, tchar_t *name, tchar_t *value) {
     int32_t result = 0;
     _cc_dict_node_t *item = NULL;
     _cc_rbtree_iterator_t **node = &(ctx->rb_node), *parent = NULL;
@@ -260,7 +260,7 @@ bool_t _cc_dict_insert(_cc_dict_t *ctx, tchar_t *name, tchar_t *value) {
     return true;
 }
 
-const tchar_t *_cc_dict_find(_cc_dict_t *ctx, const tchar_t *name) {
+_CC_API_PUBLIC(const tchar_t*) _cc_dict_find(_cc_dict_t *ctx, const tchar_t *name) {
     int32_t result = 0;
     _cc_dict_node_t *item = NULL;
     _cc_rbtree_iterator_t *node = ctx->rb_node;
@@ -279,14 +279,14 @@ const tchar_t *_cc_dict_find(_cc_dict_t *ctx, const tchar_t *name) {
     return NULL;
 }
 
-static void _dict_free(_cc_rbtree_iterator_t *node) {
+_CC_API_PRIVATE(void) _dict_free(_cc_rbtree_iterator_t *node) {
     _cc_dict_node_t *item = _cc_upcast(node, _cc_dict_node_t, node);
     _cc_free((pvoid_t)item->name);
     _cc_free((pvoid_t)item->value);
     _cc_free(item);
 }
 
-bool_t _cc_dict_free(_cc_dict_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_dict_free(_cc_dict_t *ctx) {
     if (ctx == NULL) {
         return false;
     }

@@ -21,7 +21,7 @@
 #include "json.c.h"
 #include <cc/math.h>
 
-static const tchar_t *char2escape[256] = {
+static const tchar_t* char2escape[256] = {
     _T("\\u0000"), _T("\\u0001"), _T("\\u0002"), _T("\\u0003"), _T("\\u0004"), _T("\\u0005"),
     _T("\\u0006"), _T("\\u0007"), _T("\\b"),     _T("\\t"),     _T("\\n"),     _T("\\u000b"),
     _T("\\f"),     _T("\\r"),     _T("\\u000e"), _T("\\u000f"), _T("\\u0010"), _T("\\u0011"),
@@ -67,8 +67,8 @@ static const tchar_t *char2escape[256] = {
     NULL,          NULL,          NULL,          NULL,
 };
 
-static void _json_free_object_rb_node(_cc_rbtree_iterator_t *node);
-static void _json_free_node(_cc_json_t *item);
+_CC_API_PRIVATE(void) _json_free_object_rb_node(_cc_rbtree_iterator_t *node);
+_CC_API_PRIVATE(void) _json_free_node(_cc_json_t *item);
 
 int32_t _json_push_object(_cc_rbtree_iterator_t *left, _cc_rbtree_iterator_t *right) {
     _cc_json_t *_left = _cc_upcast(left, _cc_json_t, node);
@@ -83,7 +83,7 @@ int32_t _json_get_object(_cc_rbtree_iterator_t *left, pvoid_t args) {
     return _tcscmp((const tchar_t *)args, _left->name);
 }
 
-_cc_json_t *_cc_json_array_find(const _cc_json_t *ctx, uint32_t index) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_array_find(const _cc_json_t *ctx, uint32_t index) {
     _cc_assert(ctx != NULL);
 
     if (ctx->type == _CC_JSON_ARRAY_) {
@@ -93,7 +93,7 @@ _cc_json_t *_cc_json_array_find(const _cc_json_t *ctx, uint32_t index) {
     return NULL;
 }
 
-_cc_json_t *_cc_json_object_find(const _cc_json_t *ctx, const tchar_t *keyword) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_object_find(const _cc_json_t *ctx, const tchar_t *keyword) {
     _cc_rbtree_iterator_t *node;
     _cc_assert(ctx != NULL);
 
@@ -107,7 +107,7 @@ _cc_json_t *_cc_json_object_find(const _cc_json_t *ctx, const tchar_t *keyword) 
     return NULL;
 }
 
-static void _json_free_node(_cc_json_t *item) {
+_CC_API_PRIVATE(void) _json_free_node(_cc_json_t *item) {
     switch (item->type) {
     case _CC_JSON_OBJECT_:
         _cc_rbtree_destroy(&item->object.uni_object, _json_free_object_rb_node);
@@ -123,7 +123,7 @@ static void _json_free_node(_cc_json_t *item) {
     _cc_free(item);
 }
 
-static void _json_free_object_rb_node(_cc_rbtree_iterator_t *node) {
+_CC_API_PRIVATE(void) _json_free_object_rb_node(_cc_rbtree_iterator_t *node) {
     _cc_json_t *item = _cc_upcast(node, _cc_json_t, node);
     _cc_safe_free(item->name);
     _json_free_node(item);
@@ -148,7 +148,7 @@ void _destroy_json_object(_cc_json_t *root) {
     _cc_rbtree_destroy(&root->object.uni_object, _json_free_object_rb_node);
 }
 
-bool_t _cc_destroy_json(_cc_json_t **item) {
+_CC_API_PUBLIC(bool_t) _cc_destroy_json(_cc_json_t **item) {
     if (_cc_unlikely(item == NULL || *item == NULL)) {
         return false;
     }
@@ -170,7 +170,7 @@ bool_t _cc_destroy_json(_cc_json_t **item) {
     return true;
 }
 
-_cc_json_t *_cc_json_alloc_object(byte_t type, const tchar_t *keyword) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *keyword) {
     _cc_json_t *item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
     bzero(item, sizeof(_cc_json_t));
     item->type = type;
@@ -185,7 +185,7 @@ _cc_json_t *_cc_json_alloc_object(byte_t type, const tchar_t *keyword) {
 }
 
 /**/
-_cc_json_t *_cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t value, bool_t replacement) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t value, bool_t replacement) {
     _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_BOOLEAN_, keyword);
     if (_cc_unlikely(item == NULL)) {
         return NULL;
@@ -203,7 +203,7 @@ _cc_json_t *_cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t
 }
 
 /**/
-_cc_json_t *_cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t value, bool_t replacement) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t value, bool_t replacement) {
     _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_INT_, keyword);
     if (_cc_unlikely(item == NULL)) {
         return NULL;
@@ -221,7 +221,7 @@ _cc_json_t *_cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t
 }
 
 /**/
-_cc_json_t *_cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_t value, bool_t replacement) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_t value, bool_t replacement) {
     _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_FLOAT_, keyword);
     if (_cc_unlikely(item == NULL)) {
         return NULL;
@@ -239,7 +239,7 @@ _cc_json_t *_cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_
 }
 
 /**/
-_cc_json_t *_cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const tchar_t *value, bool_t replacement) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const tchar_t *value, bool_t replacement) {
     _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_STRING_, keyword);
     if (_cc_unlikely(item == NULL)) {
         return NULL;
@@ -257,7 +257,7 @@ _cc_json_t *_cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const t
     return item;
 }
 /**/
-bool_t _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *keyword) {
+_CC_API_PUBLIC(bool_t) _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *keyword) {
     _cc_rbtree_iterator_t *node;
     if (ctx->type != _CC_JSON_OBJECT_) {
         return false;
@@ -274,7 +274,7 @@ bool_t _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *keyword) {
 }
 
 /**/
-bool_t _cc_json_array_remove(_cc_json_t *ctx, const uint32_t index) {
+_CC_API_PUBLIC(bool_t) _cc_json_array_remove(_cc_json_t *ctx, const uint32_t index) {
     _cc_json_t *item;
     if (ctx->type != _CC_JSON_ARRAY_) {
         return false;
@@ -290,7 +290,7 @@ bool_t _cc_json_array_remove(_cc_json_t *ctx, const uint32_t index) {
 }
 
 /**/
-bool_t _cc_json_object_append(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
+_CC_API_PUBLIC(bool_t) _cc_json_object_append(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
     _cc_rbtree_t *root;
     int32_t result;
     _cc_rbtree_iterator_t **node;
@@ -338,15 +338,15 @@ bool_t _cc_json_object_append(_cc_json_t *ctx, _cc_json_t *item, bool_t replacem
     return true;
 }
 /**/
-static bool_t _buf_char_put(_cc_buf_t *ctx, const tchar_t data) {
+_CC_API_PRIVATE(bool_t) _buf_char_put(_cc_buf_t *ctx, const tchar_t data) {
     return _cc_buf_write(ctx, (pvoid_t)&data, sizeof(tchar_t));
 }
 /**/
-static void _cc_print_json_array(_cc_json_t *item, _cc_buf_t *buf, int32_t depth);
+_CC_API_PRIVATE(void) _cc_print_json_array(_cc_json_t *item, _cc_buf_t *buf, int32_t depth);
 /**/
-static void _cc_print_json_object(_cc_json_t *item, _cc_buf_t *buf, int32_t depth);
+_CC_API_PRIVATE(void) _cc_print_json_object(_cc_json_t *item, _cc_buf_t *buf, int32_t depth);
 
-static void _cc_print_json_string(const tchar_t *output, _cc_buf_t *buf) {
+_CC_API_PRIVATE(void) _cc_print_json_string(const tchar_t *output, _cc_buf_t *buf) {
     const tchar_t *p = output;
     size_t len;
     /* numbers of additional characters needed for escaping */
@@ -384,7 +384,7 @@ static void _cc_print_json_string(const tchar_t *output, _cc_buf_t *buf) {
 }
 
 /**/
-static void _cc_print_json_value(_cc_json_t *item, _cc_buf_t *buf, int32_t depth) {
+_CC_API_PRIVATE(void) _cc_print_json_value(_cc_json_t *item, _cc_buf_t *buf, int32_t depth) {
     switch (item->type) {
     case _CC_JSON_NULL_: {
         _cc_buf_write(buf, (const pvoid_t) _T("null"), 4);
@@ -443,7 +443,7 @@ static void _cc_print_json_value(_cc_json_t *item, _cc_buf_t *buf, int32_t depth
 }
 
 /**/
-static void _cc_print_json_array(_cc_json_t *root, _cc_buf_t *buf, int32_t depth) {
+_CC_API_PRIVATE(void) _cc_print_json_array(_cc_json_t *root, _cc_buf_t *buf, int32_t depth) {
     uint32_t i, length;
 
     _buf_char_put(buf, _JSON_ARRAY_START_);
@@ -462,7 +462,7 @@ static void _cc_print_json_array(_cc_json_t *root, _cc_buf_t *buf, int32_t depth
 }
 
 /**/
-static void _cc_print_json_object(_cc_json_t *root, _cc_buf_t *buf, int32_t depth) {
+_CC_API_PRIVATE(void) _cc_print_json_object(_cc_json_t *root, _cc_buf_t *buf, int32_t depth) {
     _cc_json_t *item = NULL;
     _cc_rbtree_iterator_t *next, *head;
     tchar_t depth_buf[1024];
@@ -510,7 +510,7 @@ static void _cc_print_json_object(_cc_json_t *root, _cc_buf_t *buf, int32_t dept
     _cc_buf_write(buf, depth_buf, sizeof(tchar_t) * depth);
 }
 
-_cc_buf_t *_cc_print_json(_cc_json_t *item) {
+_CC_API_PUBLIC(_cc_buf_t*) _cc_print_json(_cc_json_t *item) {
     _cc_buf_t *buf;
 
     if (item == NULL) {

@@ -10,9 +10,9 @@
 #define SETSOCKOPT_OPTVAL_TYPE (void*)
 #endif
 
-static bool_t ftp_event_callback(_cc_ftp_t* ftp, uint16_t events);
+_CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t events);
 
-static bool_t network_event_close(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_close(_cc_event_cycle_t* cycle,
                                              _cc_event_t* e) {
     if (e->args)
         _cc_ftp_disconnected((_cc_ftp_t*)e->args);
@@ -20,7 +20,7 @@ static bool_t network_event_close(_cc_event_cycle_t* cycle,
     return true;
 }
 
-static bool_t network_event_pasv_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_pasv_callback(_cc_event_cycle_t* cycle,
                                                      _cc_event_t* e,
                                                      const uint16_t events) {
     /*成功连接服务器*/
@@ -79,7 +79,7 @@ static bool_t network_event_pasv_callback(_cc_event_cycle_t* cycle,
     return true;
 }
 
-static bool_t network_event_port_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
                                                      _cc_event_t* e,
                                                      const uint16_t events) {
     /*成功连接服务器*/
@@ -176,7 +176,7 @@ static bool_t network_event_port_callback(_cc_event_cycle_t* cycle,
     return true;
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
                                                 _cc_event_t* e,
                                                 const uint16_t events) {
     /*成功连接服务器*/
@@ -290,7 +290,7 @@ bool_t _cc_ftp_tcp_listen(_cc_ftp_t* ftp) {
     return false;
 }
 
-static bool_t ftp_event_callback(_cc_ftp_t* ftp, uint16_t events) {
+_CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t events) {
     switch (events) {
         case _CC_LIBFTP_CONNECTED:
             printf("CC_LIBFTP_CONNECTED OK\n");

@@ -3,7 +3,7 @@
 #include <locale.h>
 #include <stdio.h>
 
-static bool_t network_event_close(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_close(_cc_event_cycle_t* cycle,
                                              _cc_event_t* e) {
     if (e->args)
         _cc_smtp_disconnected((_cc_smtp_t*)e->args);
@@ -11,7 +11,7 @@ static bool_t network_event_close(_cc_event_cycle_t* cycle,
     return true;
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
                                                 _cc_event_t* e,
                                                 const uint16_t events) {
     _cc_smtp_t* smtp = (_cc_smtp_t*)e->args;
@@ -74,7 +74,7 @@ static bool_t network_event_callback(_cc_event_cycle_t* cycle,
     return true;
 }
 
-static bool_t smtp_event_callback(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) smtp_event_callback(_cc_smtp_t* smtp,
                                              uint16_t events) {
     switch (events) {
         case _CC_LIBSMTP_CONNECTED:

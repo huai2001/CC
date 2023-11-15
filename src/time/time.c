@@ -25,7 +25,7 @@
 #include <sys/time.h>
 #endif
 
-time_t _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_t hour, int32_t min, int32_t sec, int32_t utc) {
+_CC_API_PUBLIC(time_t) _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_t hour, int32_t min, int32_t sec, int32_t utc) {
     /** 1..12 -> 11,12,1..10 */
     if (0 >= (int32_t)(mon -= 2)) {
         /** Puts Feb last since it has leap day */
@@ -41,7 +41,7 @@ time_t _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_t hour, int32_t 
            sec; /** finally seconds */
 }
 
-uint64_t _cc_timestamp(void) {
+_CC_API_PUBLIC(uint64_t) _cc_timestamp(void) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return ((uint64_t)tv.tv_sec * 1000) + ((uint64_t)tv.tv_usec / 1000);

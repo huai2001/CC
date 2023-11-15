@@ -1,7 +1,7 @@
 #include <cc/widgets/ftp.h>
 #include <cc/alloc.h>
 
-static bool_t libftp_quit_user(_cc_ftp_t* ftp,
+_CC_API_PRIVATE(bool_t) libftp_quit_user(_cc_ftp_t* ftp,
                                           const byte_t* buf,
                                           uint32_t len) {
     if (ftp->resp.flag != _CC_LIBFTP_RESP_LOGOUT)
@@ -19,7 +19,7 @@ static bool_t libftp_quit_user(_cc_ftp_t* ftp,
     return false;
 }
 
-static bool_t libftp_login_password(_cc_ftp_t* ftp,
+_CC_API_PRIVATE(bool_t) libftp_login_password(_cc_ftp_t* ftp,
                                                const byte_t* buf,
                                                uint32_t len) {
     if (ftp->resp.flag != _CC_LIBFTP_RESP_LOGIN_PASSWORD) {
@@ -39,7 +39,7 @@ static bool_t libftp_login_password(_cc_ftp_t* ftp,
     return false;
 }
 
-static bool_t libftp_login_user(_cc_ftp_t* ftp,
+_CC_API_PRIVATE(bool_t) libftp_login_user(_cc_ftp_t* ftp,
                                            const byte_t* buf,
                                            uint32_t len) {
     char_t cmd[256];

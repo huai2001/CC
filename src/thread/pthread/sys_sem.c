@@ -28,7 +28,7 @@
 #include <semaphore.h>
 
 /* Create a semaphore */
-_cc_semaphore_t *_cc_create_semaphore(int32_t initial_value) {
+_CC_API_PUBLIC(_cc_semaphore_t*) _cc_create_semaphore(int32_t initial_value) {
     /* Allocate sem memory */
     _cc_semaphore_t *sem = (_cc_semaphore_t *)_cc_malloc(sizeof(_cc_semaphore_t));
 
@@ -42,7 +42,7 @@ _cc_semaphore_t *_cc_create_semaphore(int32_t initial_value) {
 }
 
 /* Free the semaphore */
-void _cc_destroy_semaphore(_cc_semaphore_t **sem) {
+_CC_API_PUBLIC(void) _cc_destroy_semaphore(_cc_semaphore_t **sem) {
     _cc_assert(sem);
     if (_cc_likely(*sem)) {
         sem_destroy(&(*sem)->sem);
@@ -51,7 +51,7 @@ void _cc_destroy_semaphore(_cc_semaphore_t **sem) {
     }
 }
 
-int _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t timeout) {
+_CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t timeout) {
     int res = -1;
 #ifndef _CC_HAVE_CLOCK_GETTIME_
     struct timeval now;
@@ -113,7 +113,7 @@ int _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t timeout) {
     return res;
 }
 
-int _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(int) _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
     int res;
     _cc_assert(sem);
 
@@ -130,7 +130,7 @@ int _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
     return res;
 }
 
-int _cc_semaphore_wait(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(int) _cc_semaphore_wait(_cc_semaphore_t *sem) {
     int res;
     _cc_assert(sem);
 
@@ -148,7 +148,7 @@ int _cc_semaphore_wait(_cc_semaphore_t *sem) {
 }
 
 /* Returns the current count of the semaphore */
-uint32_t _cc_semaphore_value(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(uint32_t) _cc_semaphore_value(_cc_semaphore_t *sem) {
     int res = 0;
     _cc_assert(sem);
 
@@ -160,7 +160,7 @@ uint32_t _cc_semaphore_value(_cc_semaphore_t *sem) {
     return (uint32_t)res;
 }
 
-bool_t _cc_semaphore_post(_cc_semaphore_t *sem) {
+_CC_API_PUBLIC(bool_t) _cc_semaphore_post(_cc_semaphore_t *sem) {
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {

@@ -226,11 +226,12 @@ struct _cc_sql {
 };
 
 struct _cc_sql_result {
+    bool_t step;
     int step_status;
     sqlite3_stmt *stmt;
 };
 /*
-static const tchar_t* code_as_string(const int32_t err_code) {
+_CC_API_PRIVATE(const tchar_t*) code_as_string(const int32_t err_code) {
     switch (err_code) {
     case SQLITE_OK          : return _T("SQLITE_OK");
     case SQLITE_ERROR       : return _T("SQLITE_ERROR");
@@ -265,7 +266,7 @@ static const tchar_t* code_as_string(const int32_t err_code) {
 }
 */
 
-static _cc_sql_t *_sqlite_connect(const tchar_t *sql_connection_string) {
+_CC_API_PRIVATE(_cc_sql_t*) _sqlite_connect(const tchar_t *sql_connection_string) {
     sqlite3 *sql = NULL;
     _cc_sql_t *ctx = NULL;
     _cc_url_t params;
@@ -298,7 +299,7 @@ static _cc_sql_t *_sqlite_connect(const tchar_t *sql_connection_string) {
     return ctx;
 }
 
-static bool_t _sqlite_disconnect(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlite_disconnect(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
 
     if (ctx->sql) {
@@ -312,7 +313,7 @@ static bool_t _sqlite_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _sqlite_prepare(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlite_prepare(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
     int res = SQLITE_OK;
     sqlite3_stmt *stmt = NULL;
     const tchar_t *tail;
@@ -335,39 +336,42 @@ static bool_t _sqlite_prepare(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql
             continue;
         }
 
+        _sqlite3_reset(stmt);
         break;
     }
-
     if (result) {
         *result = (_cc_sql_result_t*)_cc_malloc(sizeof(_cc_sql_result_t));
         (*result)->stmt = stmt;
-        (*result)->step_status = SQLITE_OK;
+        (*result)->step_status = SQLITE_DONE;
+        (*result)->step = false;
+
         return true;
     }
     return false;
 }
 
-static bool_t _sqlite_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlite_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     int res = _sqlite3_reset(result->stmt);
     if (SQLITE_OK != res) {
         _cc_logger_error(_T("_sqlite3_reset: %s"), _sqlite3_errmsg(ctx->sql));
         return false;
     }
-    result->step_status = res;
     return true;
 }
 
-static bool_t _sqlite_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     int res = _sqlite3_step(result->stmt);
+    result->step = true;
+    result->step_status = res;
+
     if ((res != SQLITE_OK) && (res != SQLITE_DONE) && (res != SQLITE_ROW)) {
         _cc_logger_error(_T("_sqlite3_step: %s"), _sqlite3_errmsg(ctx->sql));
         return false;
     }
-    result->step_status = res;
     return true;
 }
 
-static bool_t _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
     int res = SQLITE_OK;
     sqlite3_stmt *stmt = NULL;
     const tchar_t *tail;
@@ -396,7 +400,8 @@ static bool_t _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql
     if (result) {
         *result = (_cc_sql_result_t*)_cc_malloc(sizeof(_cc_sql_result_t));
         (*result)->stmt = stmt;
-        (*result)->step_status = SQLITE_OK;
+        (*result)->step_status = SQLITE_DONE;
+        (*result)->step = false;
         return true;
     }
 
@@ -410,7 +415,7 @@ static bool_t _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql
     return (res != SQLITE_ERROR);
 }
 
-static bool_t _sqlite_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
+_CC_API_PRIVATE(bool_t) _sqlite_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
     _cc_assert(ctx != NULL);
 
     if (is_auto_commit) {
@@ -434,7 +439,7 @@ static bool_t _sqlite_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
     return true;
 }
 
-static bool_t _sqlite_begin_transaction(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlite_begin_transaction(_cc_sql_t *ctx) {
     int res = 0;
     char_t *errmsg = NULL;
     _cc_assert(ctx != NULL);
@@ -453,7 +458,7 @@ static bool_t _sqlite_begin_transaction(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _sqlite_commit(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlite_commit(_cc_sql_t *ctx) {
     int res = 0;
     char_t *errmsg = NULL;
 
@@ -472,7 +477,7 @@ static bool_t _sqlite_commit(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _sqlite_rollback(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlite_rollback(_cc_sql_t *ctx) {
     int res;
     char_t *errmsg = NULL;
     _cc_assert(ctx != NULL);
@@ -491,35 +496,39 @@ static bool_t _sqlite_rollback(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _sqlite_fetch(_cc_sql_result_t *result) {
-    int res = SQLITE_ERROR;
+_CC_API_PRIVATE(bool_t) _sqlite_fetch(_cc_sql_result_t *result) {
+    int res = result->step_status;
     _cc_assert(result != NULL && result->stmt != NULL);
 
-    if (result->step_status != SQLITE_DONE && result->step_status != SQLITE_ROW) {
+    if (result->step) {
+        if (res != SQLITE_ROW) {
+            return false;
+        }
+    } else {
         res = _sqlite3_step(result->stmt);
         if ((res != SQLITE_OK) && (res != SQLITE_DONE) && (res != SQLITE_ROW)) {
             return false;
         }
     }
-    
-    result->step_status = SQLITE_OK;
+    result->step = false;
+    result->step_status = res;
     return (SQLITE_ROW == res);
 }
 
-static uint64_t _sqlite_get_num_rows(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(uint64_t) _sqlite_get_num_rows(_cc_sql_result_t *result) {
     _cc_assert(result != NULL && result->stmt != NULL);
     _cc_logger_debug(_T("SQLite3 get_num_rows: Not implemented yet"));
     return 0;
 }
 
-static int32_t _sqlite_get_num_fields(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(int32_t) _sqlite_get_num_fields(_cc_sql_result_t *result) {
     if (result == NULL || result->stmt == NULL) {
         return 0;
     }
     return _sqlite3_column_count(result->stmt);
 }
 
-static bool_t _sqlite_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlite_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     int res = SQLITE_ERROR;
     _cc_assert(ctx != NULL && result != NULL && result->stmt != NULL);
 
@@ -533,7 +542,7 @@ static bool_t _sqlite_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return (SQLITE_ROW == res);
 }
 
-static bool_t _sqlite_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlite_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     int res = 0;
     _cc_assert(ctx != NULL && result != NULL);
 
@@ -547,7 +556,7 @@ static bool_t _sqlite_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
 }
 
 /**/
-static bool_t _sqlite_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
+_CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
     int res;
     _cc_assert(result != NULL);
 
@@ -614,31 +623,31 @@ static bool_t _sqlite_bind(_cc_sql_result_t *result, int32_t index, const void *
 }
 
 /**/
-static uint64_t _sqlite_get_last_id(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(uint64_t) _sqlite_get_last_id(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     _cc_assert(ctx != NULL && ctx->sql != NULL);
     return (uint64_t)sqlite3_last_insert_rowid(ctx->sql);
 }
 
-static pvoid_t _sqlite_get_stmt(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(pvoid_t) _sqlite_get_stmt(_cc_sql_result_t *result) {
     return result->stmt;
 }
 
-static int32_t _sqlite_get_int(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(int32_t) _sqlite_get_int(_cc_sql_result_t *result, int32_t index) {
     _cc_assert(result->stmt != NULL);
     return _sqlite3_column_int(result->stmt, index);
 }
 
-static int64_t _sqlite_get_int64(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(int64_t) _sqlite_get_int64(_cc_sql_result_t *result, int32_t index) {
     _cc_assert(result->stmt != NULL);
     return _sqlite3_column_int64(result->stmt, index);
 }
 
-static float64_t _sqlite_get_float(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(float64_t) _sqlite_get_float(_cc_sql_result_t *result, int32_t index) {
     _cc_assert(result->stmt != NULL);
     return _sqlite3_column_double(result->stmt, index);
 }
 
-static size_t _sqlite_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
+_CC_API_PRIVATE(size_t) _sqlite_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
     size_t bytes_length;
     const tchar_t *v = (const tchar_t *)_sqlite3_column_text(result->stmt, index);
     *buffer = 0;
@@ -660,7 +669,7 @@ static size_t _sqlite_get_string(_cc_sql_result_t *result, int32_t index, tchar_
     return bytes_length;
 }
 
-static size_t _sqlite_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **value) {
+_CC_API_PRIVATE(size_t) _sqlite_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **value) {
     _cc_assert(result->stmt != NULL);
     if (value) {
         *value = (byte_t*)_sqlite3_column_blob(result->stmt, index);
@@ -668,7 +677,7 @@ static size_t _sqlite_get_blob(_cc_sql_result_t *result, int32_t index, byte_t *
     return _sqlite3_column_bytes(result->stmt, index);
 }
 
-static bool_t _sqlite_get_datetime(_cc_sql_result_t *result, int32_t index,struct tm* timeinfo) {
+_CC_API_PRIVATE(bool_t) _sqlite_get_datetime(_cc_sql_result_t *result, int32_t index,struct tm* timeinfo) {
     const tchar_t *v;
     _cc_assert(result->stmt != NULL);
 
@@ -681,7 +690,7 @@ static bool_t _sqlite_get_datetime(_cc_sql_result_t *result, int32_t index,struc
 }
 
 /**/
-bool_t _cc_init_sqlite(_cc_sql_driver_t *driver) {
+_CC_API_PUBLIC(bool_t) _cc_init_sqlite(_cc_sql_driver_t *driver) {
 #define SET(x) driver->x = _sqlite_##x
 
     if (_cc_unlikely(driver == NULL)) {

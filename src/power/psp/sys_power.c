@@ -20,7 +20,7 @@
 */
 #include <cc/power.h>
 
-bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
+_CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     int battery = scePowerIsBatteryExist();
     int plugged = scePowerIsPowerOnline();
     int charging = scePowerIsBatteryCharging();

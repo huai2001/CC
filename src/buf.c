@@ -23,7 +23,7 @@
 #include <cc/string.h>
 
 /* Skips spaces and comments as many as possible.*/
-bool_t _cc_buf_jump_comments(_cc_sbuf_tchar_t *const buffer) {
+_CC_API_PUBLIC(bool_t) _cc_buf_jump_comments(_cc_sbuf_tchar_t *const buffer) {
     register const tchar_t *p = NULL;
     /*if ((buffer == NULL) || (buffer->content == NULL)) {
         return false;
@@ -76,7 +76,7 @@ bool_t _cc_buf_jump_comments(_cc_sbuf_tchar_t *const buffer) {
     return _cc_sbuf_access(buffer);
 }
 
-bool_t _cc_buf_alloc(_cc_buf_t *ctx, size_t initsize) {
+_CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t *ctx, size_t initsize) {
     _cc_assert(ctx != NULL);
 
     memset(ctx, 0, sizeof(_cc_buf_t));
@@ -88,14 +88,14 @@ bool_t _cc_buf_alloc(_cc_buf_t *ctx, size_t initsize) {
 }
 
 /**/
-_cc_buf_t *_cc_create_buf(size_t initsize) {
+_CC_API_PUBLIC(_cc_buf_t *) _cc_create_buf(size_t initsize) {
     _cc_buf_t *ctx = _CC_MALLOC(_cc_buf_t);
     _cc_buf_alloc(ctx, initsize);
     return ctx;
 }
 
 /**/
-bool_t _cc_buf_free(_cc_buf_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_buf_free(_cc_buf_t *ctx) {
     _cc_assert(ctx != NULL);
 
     if (_cc_likely(ctx->bytes)) {
@@ -109,7 +109,7 @@ bool_t _cc_buf_free(_cc_buf_t *ctx) {
 }
 
 /**/
-void _cc_destroy_buf(_cc_buf_t **ctx) {
+_CC_API_PUBLIC(void) _cc_destroy_buf(_cc_buf_t **ctx) {
     _cc_assert(ctx != NULL);
 
     if (_cc_buf_free(*ctx)) {
@@ -120,7 +120,7 @@ void _cc_destroy_buf(_cc_buf_t **ctx) {
 }
 
 /**/
-static bool_t _buf_expand(_cc_buf_t *ctx, size_t size) {
+_CC_API_PRIVATE(bool_t) _buf_expand(_cc_buf_t *ctx, size_t size) {
     size_t new_size = (ctx->length + size);
     byte_t *new_data = (byte_t *)_cc_realloc(ctx->bytes, new_size);
 
@@ -134,7 +134,7 @@ static bool_t _buf_expand(_cc_buf_t *ctx, size_t size) {
 }
 
 /**/
-bool_t _cc_buf_expand(_cc_buf_t *ctx, size_t size) {
+_CC_API_PUBLIC(bool_t) _cc_buf_expand(_cc_buf_t *ctx, size_t size) {
     _cc_assert(ctx != NULL && size > 0);
     if (ctx->limit >= (ctx->length + size)) {
         return true;
@@ -144,7 +144,7 @@ bool_t _cc_buf_expand(_cc_buf_t *ctx, size_t size) {
 }
 
 /**/
-bool_t _cc_buf_write(_cc_buf_t *ctx, const void *data, size_t length) {
+_CC_API_PUBLIC(bool_t) _cc_buf_write(_cc_buf_t *ctx, const void *data, size_t length) {
     size_t len = 0;
     _cc_assert(ctx != NULL && data != NULL);
 
@@ -166,13 +166,13 @@ bool_t _cc_buf_write(_cc_buf_t *ctx, const void *data, size_t length) {
 }
 
 /**/
-bool_t _cc_bufA_puts(_cc_buf_t *ctx, const char_t *s) {
+_CC_API_PUBLIC(bool_t) _cc_bufA_puts(_cc_buf_t *ctx, const char_t *s) {
     _cc_assert(ctx != NULL && s != NULL);
     return _cc_buf_write(ctx, (const pvoid_t)s, strlen(s) * sizeof(char_t));
 }
 
 /**/
-bool_t _cc_bufA_putsvf(_cc_buf_t *ctx, const char_t *fmt, va_list arg) {
+_CC_API_PUBLIC(bool_t) _cc_bufA_putsvf(_cc_buf_t *ctx, const char_t *fmt, va_list arg) {
     int32_t fmt_length, empty_len;
 
     /* If the first attempt to append fails, resize the buffer appropriately
@@ -209,7 +209,7 @@ bool_t _cc_bufA_putsvf(_cc_buf_t *ctx, const char_t *fmt, va_list arg) {
 
 /* _cc_bufA_putsf() can be used when the there is no known
  * upper bound for the output string. */
-bool_t _cc_bufA_putsf(_cc_buf_t *ctx, const char_t *fmt, ...) {
+_CC_API_PUBLIC(bool_t) _cc_bufA_putsf(_cc_buf_t *ctx, const char_t *fmt, ...) {
     bool_t result;
     va_list arg;
 
@@ -227,13 +227,13 @@ bool_t _cc_bufA_putsf(_cc_buf_t *ctx, const char_t *fmt, ...) {
 }
 
 /**/
-bool_t _cc_bufW_puts(_cc_buf_t *ctx, const wchar_t *s) {
+_CC_API_PUBLIC(bool_t) _cc_bufW_puts(_cc_buf_t *ctx, const wchar_t *s) {
     _cc_assert(ctx != NULL && s != NULL);
     return _cc_buf_write(ctx, (const pvoid_t)s, wcslen(s) * sizeof(wchar_t));
 }
 
 /**/
-bool_t _cc_bufW_putsvf(_cc_buf_t *ctx, const wchar_t *fmt, va_list arg) {
+_CC_API_PUBLIC(bool_t) _cc_bufW_putsvf(_cc_buf_t *ctx, const wchar_t *fmt, va_list arg) {
     size_t fmt_length, empty_len;
 
     /* If the first attempt to append fails, resize the buffer appropriately
@@ -270,7 +270,7 @@ bool_t _cc_bufW_putsvf(_cc_buf_t *ctx, const wchar_t *fmt, va_list arg) {
 }
 /* _cc_bufA_putsf() can be used when the there is no known
  * upper bound for the output string. */
-bool_t _cc_bufW_putsf(_cc_buf_t *ctx, const wchar_t *fmt, ...) {
+_CC_API_PUBLIC(bool_t) _cc_bufW_putsf(_cc_buf_t *ctx, const wchar_t *fmt, ...) {
     bool_t result;
     va_list arg;
 
@@ -287,7 +287,7 @@ bool_t _cc_bufW_putsf(_cc_buf_t *ctx, const wchar_t *fmt, ...) {
     return result;
 }
 
-_cc_buf_t *_cc_load_buf(const tchar_t *file_name) {
+_CC_API_PUBLIC(_cc_buf_t*) _cc_load_buf(const tchar_t *file_name) {
     _cc_buf_t *buf = NULL;
     _cc_file_t *f;
     int64_t fsize;
@@ -316,7 +316,7 @@ _cc_buf_t *_cc_load_buf(const tchar_t *file_name) {
     return buf;
 }
 
-bool_t _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, uint32_t offset) {
+_CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, uint32_t offset) {
     _cc_buf_t b;
     int32_t len;
 
@@ -344,7 +344,7 @@ bool_t _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, uint32_t offset) {
     return false;
 }
 
-bool_t _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, uint32_t offset) {
+_CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, uint32_t offset) {
     _cc_buf_t b;
     int32_t len;
 

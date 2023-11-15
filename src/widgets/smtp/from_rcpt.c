@@ -2,7 +2,7 @@
 #include <cc/alloc.h>
 #include <cc/widgets/smtp.h>
 
-static bool_t libsmtp_data(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_data(_cc_smtp_t* smtp,
                                       const byte_t* buf,
                                       uint32_t len) {
     if (smtp->resp.flag != _CC_LIBSMTP_RESP_DATA)
@@ -20,7 +20,7 @@ static bool_t libsmtp_data(_cc_smtp_t* smtp,
     return false;
 }
 
-static bool_t libsmtp_rcpt_to(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_rcpt_to(_cc_smtp_t* smtp,
                                          const byte_t* buf,
                                          uint32_t len) {
     if (smtp->resp.flag != _CC_LIBSMTP_RESP_RCPT_TO)
@@ -39,7 +39,7 @@ static bool_t libsmtp_rcpt_to(_cc_smtp_t* smtp,
     return false;
 }
 
-static bool_t libsmtp_mail_from(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_mail_from(_cc_smtp_t* smtp,
                                            const byte_t* buf,
                                            uint32_t len) {
     char_t cmd[256];

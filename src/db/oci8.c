@@ -63,11 +63,11 @@ struct oci_params {
     OCIParam *param;
 };
 
-static int32_t _oci8_get_num_fields(_cc_sql_result_t *result);
+_CC_API_PRIVATE(int32_t) _oci8_get_num_fields(_cc_sql_result_t *result);
 
 #define sql_error(status, err) oci8_error(_CC_FILE_, _CC_LINE_, _CC_FUNC_, status, err)
 
-static void oci8_error(const wchar_t *file, const int32_t line, const wchar_t *func, sword status,
+_CC_API_PRIVATE(void) oci8_error(const wchar_t *file, const int32_t line, const wchar_t *func, sword status,
                                   OCIError *errhp) {
     switch (status) {
     case OCI_SUCCESS:
@@ -100,7 +100,7 @@ static void oci8_error(const wchar_t *file, const int32_t line, const wchar_t *f
     }
 }
 
-static bool_t error_handle_alloc(OCIError **errhp) {
+_CC_API_PRIVATE(bool_t) error_handle_alloc(OCIError **errhp) {
     /* allocate an error handle */
     sword res = OCIHandleAlloc((dvoid *) sql_envhp, (dvoid **)errhp), 
         (ub4) OCI_HTYPE_ERROR, (size_t) 0, (dvoid **) 0);
@@ -112,7 +112,7 @@ static bool_t error_handle_alloc(OCIError **errhp) {
     return true;
 }
 
-static bool_t _init_oci8(void) {
+_CC_API_PRIVATE(bool_t) _init_oci8(void) {
     sword s = 0;
     if (sql_envhp) {
         return true;
@@ -131,7 +131,7 @@ static bool_t _init_oci8(void) {
     return error_handle_alloc(sql_errhp);
 }
 
-static bool_t _quit_oci8(void) {
+_CC_API_PRIVATE(bool_t) _quit_oci8(void) {
     if (sql_envhp) {
         OCIHandleFree((dvoid *)sql_envhp, OCI_HTYPE_ENV);
     }
@@ -142,7 +142,7 @@ static bool_t _quit_oci8(void) {
     return true;
 }
 
-static _cc_sql_t *_oci8_connect(const tchar_t *sql_connection_string) {
+_CC_API_PRIVATE(_cc_sql_t*) _oci8_connect(const tchar_t *sql_connection_string) {
     sword res;
     _cc_url_t params;
     _cc_sql_t *ctx = NULL;
@@ -183,7 +183,7 @@ static _cc_sql_t *_oci8_connect(const tchar_t *sql_connection_string) {
     return ctx;
 }
 
-static bool_t _oci8_disconnect(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _oci8_disconnect(_cc_sql_t *ctx) {
     _cc_assert(ctx == NULL);
     if (ctx->svchp) {
         if (ctx->logged) {
@@ -206,11 +206,11 @@ static bool_t _oci8_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t reconnect(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) reconnect(_cc_sql_t *ctx) {
     return (bool_t)(OCIPing(ctx->svchp, ctx->errhp, OCI_DEFAULT) == OCI_SUCCESS);
 }
 
-static bool_t _oci8_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _oci8_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
     int t = 0;
     sword res;
     int32_t sql_string_len = 0;
@@ -278,7 +278,7 @@ static bool_t _oci8_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_r
     return true;
 }
 
-static bool_t _oci8_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
+_CC_API_PRIVATE(bool_t) _oci8_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
     sword res;
     _cc_assert(ctx == NULL);
 
@@ -305,7 +305,7 @@ static bool_t _oci8_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
     return true;
 }
 
-static bool_t _oci8_begin_transaction(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _oci8_begin_transaction(_cc_sql_t *ctx) {
     _cc_assert(ctx == NULL);
     if (!ctx->auto_commit) {
         return true;
@@ -326,7 +326,7 @@ static bool_t _oci8_begin_transaction(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _oci8_commit(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _oci8_commit(_cc_sql_t *ctx) {
     sword res;
     _cc_assert(ctx == NULL);
 
@@ -338,7 +338,7 @@ static bool_t _oci8_commit(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _oci8_rollback(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _oci8_rollback(_cc_sql_t *ctx) {
     sword res;
     _cc_assert(ctx == NULL);
 
@@ -351,7 +351,7 @@ static bool_t _oci8_rollback(_cc_sql_t *ctx) {
 }
 
 /**/
-static bool_t _oci8_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _oci8_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     _cc_assert(ctx != NULL && result != NULL);
 
     if (result->res) {
@@ -369,7 +369,7 @@ static bool_t _oci8_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return false;
 }
 
-static bool_t _oci8_fetch_row(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _oci8_fetch_row(_cc_sql_result_t *result) {
     sword res;
     _cc_assert(result != NULL && result->stmt != NULL);
 
@@ -384,7 +384,7 @@ static bool_t _oci8_fetch_row(_cc_sql_result_t *result) {
     return true;
 }
 
-static bool_t _oci8_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _oci8_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     _cc_assert(result != NULL);
 
     if (result->stmt) {
@@ -401,7 +401,7 @@ static bool_t _oci8_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return true;
 }
 
-static int32_t _oci8_get_num_fields(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(int32_t) _oci8_get_num_fields(_cc_sql_result_t *result) {
     sword res;
     _cc_assert(result != NULL && result->stmt != NULL);
 
@@ -421,7 +421,7 @@ static int32_t _oci8_get_num_fields(_cc_sql_result_t *result) {
     return result->num_fields;
 }
 
-static int32_t _oci8_get_num_rows(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(int32_t) _oci8_get_num_rows(_cc_sql_result_t *result) {
     sword res;
     int32_t rows;
     _cc_assert(result != NULL && result->stmt != NULL);
@@ -442,17 +442,17 @@ static int32_t _oci8_get_num_rows(_cc_sql_result_t *result) {
 }
 
 /**/
-static uint64_t _oci8_get_last_id(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(uint64_t) _oci8_get_last_id(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL && ctx->sql != NULL);
     _cc_logger_debug("Oracle get_last_id: Not implemented yet");
     return -1;
 }
 
-static pvoid_t _oci8_get_stmt(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(pvoid_t) _oci8_get_stmt(_cc_sql_result_t *result) {
     return result->stmt;
 }
 /*
-static bool_t _oci_column_type(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(bool_t) _oci_column_type(_cc_sql_result_t *result, int32_t index) {
     sword res;
     int type;
 
@@ -477,7 +477,7 @@ static bool_t _oci_column_type(_cc_sql_result_t *result, int32_t index) {
 }
 */
 /**/
-static int32_t _oci8_get_int(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(int32_t) _oci8_get_int(_cc_sql_result_t *result, int32_t index) {
     sword res;
     OCIDefine *oci_define; /* define handle */
     sb2 oci_null;          /* is null? */
@@ -497,7 +497,7 @@ static int32_t _oci8_get_int(_cc_sql_result_t *result, int32_t index) {
     return v;
 }
 /**/
-static int64_t _oci8_get_int64(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(int64_t) _oci8_get_int64(_cc_sql_result_t *result, int32_t index) {
     sword res;
     OCIDefine *oci_define; /* define handle */
     sb2 oci_null;          /* is null? */
@@ -517,7 +517,7 @@ static int64_t _oci8_get_int64(_cc_sql_result_t *result, int32_t index) {
     return v;
 }
 /**/
-static float64_t _oci8_get_float(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(float64_t) _oci8_get_float(_cc_sql_result_t *result, int32_t index) {
     sword res;
     OCIDefine *oci_define; /* define handle */
     sb2 oci_null;          /* is null? */
@@ -538,7 +538,7 @@ static float64_t _oci8_get_float(_cc_sql_result_t *result, int32_t index) {
 }
 
 /**/
-static const size_t _oci8_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
+_CC_API_PRIVATE(const size_t) _oci8_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
     sword res;
     OCIDefine *oci_define; /* define handle */
     sb2 oci_null;          /* is null? */
@@ -559,19 +559,19 @@ static const size_t _oci8_get_string(_cc_sql_result_t *result, int32_t index, tc
 }
 
 /**/
-static size_t _oci8_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **buffer) {
+_CC_API_PRIVATE(size_t) _oci8_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **buffer) {
     _cc_assert(result->stmt != NULL);
     return 0;
 }
 
 /**/
-static bool_t _oci8_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm *tp) {
+_CC_API_PRIVATE(bool_t) _oci8_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm *tp) {
     _cc_assert(result->stmt != NULL);
     return false;
 }
 
 /**/
-bool_t _cc_init_oci8(_cc_sql_driver_t *driver) {
+_CC_API_PUBLIC(bool_t) _cc_init_oci8(_cc_sql_driver_t *driver) {
 #define SET(x) driver->x = _oci8_##x
 
     if (_cc_unlikely(driver == NULL)) {

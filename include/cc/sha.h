@@ -92,7 +92,7 @@ typedef struct _cc_sha3 {
  *
  * @param ctx      SHA-1 context to be initialized
  */
-_CC_API(void) _cc_sha1_init(_cc_sha1_t* ctx);
+_CC_API_PUBLIC(void) _cc_sha1_init(_cc_sha1_t* ctx);
 /**
  * @brief          SHA-1 process buffer
  *
@@ -100,7 +100,7 @@ _CC_API(void) _cc_sha1_init(_cc_sha1_t* ctx);
  * @param input    buffer holding the  data
  * @param ilen     length of the input data
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_sha1_update(_cc_sha1_t* ctx, const byte_t* input, size_t ilen);
 
 /**
@@ -109,7 +109,7 @@ _cc_sha1_update(_cc_sha1_t* ctx, const byte_t* input, size_t ilen);
  * @param ctx      SHA-1 context
  * @param output   SHA-1 checksum result
  */
-_CC_API(void) _cc_sha1_final(_cc_sha1_t* ctx, byte_t* output);
+_CC_API_PUBLIC(void) _cc_sha1_final(_cc_sha1_t* ctx, byte_t* output);
 
 /**
  * @brief          Output = SHA-1( input buffer )
@@ -118,18 +118,18 @@ _CC_API(void) _cc_sha1_final(_cc_sha1_t* ctx, byte_t* output);
  * @param ilen     length of the input data
  * @param output   SHA-1
  */
-_CC_API(void) _cc_sha1(const byte_t* input, size_t ilen, tchar_t* output);
+_CC_API_PUBLIC(void) _cc_sha1(const byte_t* input, size_t ilen, tchar_t* output);
 /**
  * @brief         Digests a file.
  *
  * @param fp       FILE handle
  * @param output   SHA1 checksum result
  */
-_CC_API(bool_t) _cc_sha1_fp(FILE* fp, tchar_t* output);
+_CC_API_PUBLIC(bool_t) _cc_sha1_fp(FILE* fp, tchar_t* output);
 /*
     Digests a file.
  */
-_CC_API(bool_t) _cc_sha1file(const tchar_t* filename, tchar_t* output);
+_CC_API_PUBLIC(bool_t) _cc_sha1file(const tchar_t* filename, tchar_t* output);
 
 /**
  * @brief          Initialize SHA-256 context
@@ -137,7 +137,7 @@ _CC_API(bool_t) _cc_sha1file(const tchar_t* filename, tchar_t* output);
  * @param ctx      SHA-256 context to be initialized
  * @param is224    0 = use SHA256, 1 = use SHA224
  */
-_CC_API(void) _cc_sha256_init(_cc_sha256_t* ctx, bool_t is224);
+_CC_API_PUBLIC(void) _cc_sha256_init(_cc_sha256_t* ctx, bool_t is224);
 /**
  * @brief          SHA-256 process buffer
  *
@@ -145,7 +145,7 @@ _CC_API(void) _cc_sha256_init(_cc_sha256_t* ctx, bool_t is224);
  * @param input    buffer holding the  data
  * @param ilen     length of the input data
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_sha256_update(_cc_sha256_t* ctx, const byte_t* input, size_t ilen);
 
 /**
@@ -154,7 +154,7 @@ _cc_sha256_update(_cc_sha256_t* ctx, const byte_t* input, size_t ilen);
  * @param ctx      SHA-256 context
  * @param output   SHA-256 checksum result
  */
-_CC_API(void) _cc_sha256_final(_cc_sha256_t* ctx, byte_t* output);
+_CC_API_PUBLIC(void) _cc_sha256_final(_cc_sha256_t* ctx, byte_t* output);
 
 /**
  * @brief          Output = SHA-256( input buffer )
@@ -164,7 +164,7 @@ _CC_API(void) _cc_sha256_final(_cc_sha256_t* ctx, byte_t* output);
  * @param output   SHA-256
  * @param is224    0 = use SHA256, 1 = use SHA224
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_sha256(const byte_t* input, size_t ilen, tchar_t* output, bool_t is224);
 /**
  * @brief         Digests a file.
@@ -172,7 +172,7 @@ _cc_sha256(const byte_t* input, size_t ilen, tchar_t* output, bool_t is224);
  * @param fp       FILE handle
  * @param output   SHA256 checksum result
  */
-_CC_API(bool_t) _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224);
+_CC_API_PUBLIC(bool_t) _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224);
 /**
  * @brief          Output = SHA-256( input file path )
  *
@@ -180,7 +180,7 @@ _CC_API(bool_t) _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224);
  * @param output   SHA-256
  * @param is384    0 = use SHA256, 1 = use SHA224
  */
-_CC_API(bool_t)
+_CC_API_PUBLIC(bool_t)
 _cc_sha256file(const tchar_t* filename, tchar_t* output, bool_t is224);
 
 /**
@@ -189,7 +189,7 @@ _cc_sha256file(const tchar_t* filename, tchar_t* output, bool_t is224);
  * @param ctx      SHA-512 context to be initialized
  * @param is384    0 = use SHA512, 1 = use SHA384
  */
-_CC_API(void) _cc_sha512_init(_cc_sha512_t* ctx, bool_t is384);
+_CC_API_PUBLIC(void) _cc_sha512_init(_cc_sha512_t* ctx, bool_t is384);
 /**
  * @brief          SHA-512 process buffer
  *
@@ -197,7 +197,7 @@ _CC_API(void) _cc_sha512_init(_cc_sha512_t* ctx, bool_t is384);
  * @param input    buffer holding the  data
  * @param ilen     length of the input data
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_sha512_update(_cc_sha512_t* ctx, const byte_t* input, size_t ilen);
 
 /**
@@ -206,7 +206,7 @@ _cc_sha512_update(_cc_sha512_t* ctx, const byte_t* input, size_t ilen);
  * @param ctx      SHA-512 context
  * @param output   SHA-512 checksum result
  */
-_CC_API(void) _cc_sha512_final(_cc_sha512_t* ctx, byte_t* output);
+_CC_API_PUBLIC(void) _cc_sha512_final(_cc_sha512_t* ctx, byte_t* output);
 
 /**
  * @brief       Output = SHA-512( input buffer )
@@ -216,7 +216,7 @@ _CC_API(void) _cc_sha512_final(_cc_sha512_t* ctx, byte_t* output);
  * @param output    SHA-512
  * @param is384    0 = use SHA512, 1 = use SHA384
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_sha512(const byte_t* input, size_t ilen, tchar_t* output, bool_t is384);
 /**
  * @brief         Digests a file.
@@ -224,7 +224,7 @@ _cc_sha512(const byte_t* input, size_t ilen, tchar_t* output, bool_t is384);
  * @param fp       FILE handle
  * @param output   SHA-512 checksum result
  */
-_CC_API(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384);
+_CC_API_PUBLIC(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384);
 /**
  * @brief       Output = SHA-512(  input file path )
 
@@ -232,7 +232,7 @@ _CC_API(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384);
  * @param output    SHA-512
  * @param is384    0 = use SHA512, 1 = use SHA384
  */
-_CC_API(bool_t)
+_CC_API_PUBLIC(bool_t)
 _cc_sha512file(const tchar_t* filename, tchar_t* output, bool_t is384);
 
 /**
@@ -242,7 +242,7 @@ _cc_sha512file(const tchar_t* filename, tchar_t* output, bool_t is384);
  * @param pad      pad
  * @param bitlen   bitlen
  */
-_CC_API(void) _cc_sha3_init(_cc_sha3_t* ctx, byte_t pad, size_t bitlen);
+_CC_API_PUBLIC(void) _cc_sha3_init(_cc_sha3_t* ctx, byte_t pad, size_t bitlen);
 /**
  * @brief          SHA-3 process buffer
  *
@@ -250,7 +250,7 @@ _CC_API(void) _cc_sha3_init(_cc_sha3_t* ctx, byte_t pad, size_t bitlen);
  * @param input    buffer holding the  data
  * @param ilen     length of the input data
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_sha3_update(_cc_sha3_t* ctx, const byte_t* input, size_t ilen);
 
 /**
@@ -259,7 +259,7 @@ _cc_sha3_update(_cc_sha3_t* ctx, const byte_t* input, size_t ilen);
  * @param ctx      SHA-3 context
  * @param output   SHA-3 checksum result
  */
-_CC_API(void) _cc_sha3_final(_cc_sha3_t* ctx, byte_t* output);
+_CC_API_PUBLIC(void) _cc_sha3_final(_cc_sha3_t* ctx, byte_t* output);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

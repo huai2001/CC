@@ -39,7 +39,7 @@ static const short base16_reverse_table[256] = {
 /* }}} */
 
 /* {{{ */
-int32_t _cc_base16_encode(const byte_t *input, int32_t length, tchar_t *output, int32_t output_length) {
+_CC_API_PUBLIC(int32_t) _cc_base16_encode(const byte_t *input, int32_t length, tchar_t *output, int32_t output_length) {
     const byte_t *current = input;
     tchar_t *p = output;
 
@@ -66,7 +66,7 @@ int32_t _cc_base16_encode(const byte_t *input, int32_t length, tchar_t *output, 
 }
 
 /* {{{ */
-int32_t _cc_base16_decode(const tchar_t *input, int32_t length, byte_t *output, int32_t output_length) {
+_CC_API_PUBLIC(int32_t) _cc_base16_decode(const tchar_t *input, int32_t length, byte_t *output, int32_t output_length) {
     int32_t i = 0;
     byte_t *p = output;
     /* this sucks for threaded environments */

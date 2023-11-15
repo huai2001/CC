@@ -83,7 +83,7 @@ extern "C" {
         time_t st_ctime;
     };
     /**/
-    _CC_API(int) stat(const tchar_t *, struct stat *);
+    _CC_API_PUBLIC(int) stat(const tchar_t *, struct stat *);
 #endif /* __CC_WIN32_CE__ */
     
 #ifdef __CC_CYGWIN__
@@ -145,7 +145,7 @@ typedef struct _dir {
  * 
  * @return struct dirent context
  */
-_CC_API(struct dirent *) readdir(DIR *dp);
+_CC_API_PUBLIC(struct dirent *) readdir(DIR *dp);
 
 /**
  * @brief read reverse dir
@@ -156,7 +156,7 @@ _CC_API(struct dirent *) readdir(DIR *dp);
  * 
  * @return 0 if successful or system on error.
  */
-_CC_API(int) readdir_r(DIR *dp, struct dirent *entry, struct dirent **result);
+_CC_API_PUBLIC(int) readdir_r(DIR *dp, struct dirent *entry, struct dirent **result);
 /**
  * @brief open dir
  *
@@ -164,7 +164,7 @@ _CC_API(int) readdir_r(DIR *dp, struct dirent *entry, struct dirent **result);
  * 
  * @return DIR context
  */
-_CC_API(DIR*) opendir(const tchar_t *dir_path);
+_CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path);
 /**
  * @brief close dir
  *
@@ -172,7 +172,7 @@ _CC_API(DIR*) opendir(const tchar_t *dir_path);
  * 
  * @return 0 if successful or system on error.
  */
-_CC_API(int) closedir(DIR *);
+_CC_API_PUBLIC(int) closedir(DIR *);
 
 #endif /* __CC_WINDOWS__ */
 
@@ -187,7 +187,7 @@ _CC_API(int) closedir(DIR *);
  * 
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_isdir(const tchar_t* dir_path);
+_CC_API_PUBLIC(bool_t) _cc_isdir(const tchar_t* dir_path);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

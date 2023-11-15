@@ -53,7 +53,7 @@ struct _cc_sql_result {
 **   handle: handle used in operation
 */
 /*
-static void failODBC(const SQLSMALLINT type,
+_CC_API_PRIVATE(void) failODBC(const SQLSMALLINT type,
                                 const SQLHANDLE handle) {
     SQLTCHAR State[6];
     SQLINTEGER NativeError;
@@ -70,11 +70,11 @@ static void failODBC(const SQLSMALLINT type,
     } while (res != SQL_NO_DATA);
 }*/
 
-static int sql_error(SQLRETURN a) {
+_CC_API_PRIVATE(int) sql_error(SQLRETURN a) {
     return (a != SQL_SUCCESS) && (a != SQL_SUCCESS_WITH_INFO) && (a != SQL_NO_DATA);
 }
 
-static bool_t checkErrorCode(SQLRETURN rc, SQLHDBC hDBC, SQLHSTMT hSTMT, tchar_t *msg) {
+_CC_API_PRIVATE(bool_t) checkErrorCode(SQLRETURN rc, SQLHDBC hDBC, SQLHSTMT hSTMT, tchar_t *msg) {
 #define MSG_LNG 512
     SQLTCHAR szSqlState[MSG_LNG]; /* SQL state string */
     SQLINTEGER pfNativeError;     /* Native error code */
@@ -126,7 +126,7 @@ static bool_t checkErrorCode(SQLRETURN rc, SQLHDBC hDBC, SQLHSTMT hSTMT, tchar_t
     return true;
 }
 
-static bool_t _init_sqlsvr(void) {
+_CC_API_PRIVATE(bool_t) _init_sqlsvr(void) {
     int request = 0;
 
     if (_cc_unlikely(hEnv != SQL_NULL_HENV)) {
@@ -151,7 +151,7 @@ static bool_t _init_sqlsvr(void) {
     return true;
 }
 
-static bool_t _quit_sqlsvr(void) {
+_CC_API_PRIVATE(bool_t) _quit_sqlsvr(void) {
     if (_cc_likely(hEnv != SQL_NULL_HENV)) {
         SQLFreeEnv(hEnv);
         hEnv = SQL_NULL_HENV;
@@ -160,7 +160,7 @@ static bool_t _quit_sqlsvr(void) {
     return true;
 }
 
-static _cc_sql_t *_sqlsvr_connect(const tchar_t *sql_connection_string) {
+_CC_API_PRIVATE(_cc_sql_t*) _sqlsvr_connect(const tchar_t *sql_connection_string) {
     SQLTCHAR OutConnStr[1024] = {0};
     SQLSMALLINT OutConnStrLen;
     _cc_sql_t *ctx = NULL;
@@ -198,7 +198,7 @@ static _cc_sql_t *_sqlsvr_connect(const tchar_t *sql_connection_string) {
     return ctx;
 }
 
-static bool_t _sqlsvr_disconnect(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_disconnect(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
 
     if (ctx->hDBC != SQL_NULL_HDBC) {
@@ -221,7 +221,7 @@ static bool_t _sqlsvr_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _sqlsvr_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
     SQLHSTMT hSTMT = SQL_NULL_HSTMT;
     int request = SQL_SUCCESS;
     _cc_assert(ctx != NULL && ctx->hDBC != SQL_NULL_HSTMT);
@@ -272,7 +272,7 @@ static bool_t _sqlsvr_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql
     return true;
 }
 
-static bool_t _sqlsvr_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
     SQLRETURN rc = 0;
     _cc_assert(ctx != NULL);
 
@@ -288,7 +288,7 @@ static bool_t _sqlsvr_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
     return true;
 }
 
-static bool_t _sqlsvr_begin_transaction(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_begin_transaction(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
 
     if (!ctx->auto_commit) {
@@ -298,7 +298,7 @@ static bool_t _sqlsvr_begin_transaction(_cc_sql_t *ctx) {
     return _sqlsvr_auto_commit(ctx, false);
 }
 
-static bool_t _sqlsvr_commit(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_commit(_cc_sql_t *ctx) {
     SQLRETURN rc = 0;
     _cc_assert(ctx != NULL);
 
@@ -311,7 +311,7 @@ static bool_t _sqlsvr_commit(_cc_sql_t *ctx) {
     return true;
 }
 
-static bool_t _sqlsvr_rollback(_cc_sql_t *ctx) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_rollback(_cc_sql_t *ctx) {
     SQLRETURN rc = 0;
     _cc_assert(ctx != NULL);
 
@@ -324,7 +324,7 @@ static bool_t _sqlsvr_rollback(_cc_sql_t *ctx) {
     return true;
 }
 
-static uint64_t _sqlsvr_get_num_rows(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(uint64_t) _sqlsvr_get_num_rows(_cc_sql_result_t *result) {
     SQLLEN numrows;
     SQLRETURN rc = 0;
     _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
@@ -339,12 +339,12 @@ static uint64_t _sqlsvr_get_num_rows(_cc_sql_result_t *result) {
     return (uint64_t)numrows;
 }
 
-static bool_t _sqlsvr_fetch(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_fetch(_cc_sql_result_t *result) {
     _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     return SQLFetch(result->hSTMT) != SQL_NO_DATA;
 }
 
-static int32_t _sqlsvr_get_num_fields(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(int32_t) _sqlsvr_get_num_fields(_cc_sql_result_t *result) {
     SQLSMALLINT numcols;
     SQLRETURN rc = 0;
     _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
@@ -363,7 +363,7 @@ static int32_t _sqlsvr_get_num_fields(_cc_sql_result_t *result) {
 /*
 ** Returns the name  for a SQL type.
 */
-static const char *_sqlsvr_types (const SQLSMALLINT type) {
+_CC_API_PRIVATE(const char *) _sqlsvr_types (const SQLSMALLINT type) {
     switch (type) {
         case SQL_UNKNOWN_TYPE:
         case SQL_CHAR:
@@ -401,7 +401,7 @@ static const char *_sqlsvr_types (const SQLSMALLINT type) {
             return NULL;
     }
 }
-static bool_t _sqlsvr_get_field_names(_cc_sql_t *ctx, _cc_sql_result_t *res) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_get_field_names(_cc_sql_t *ctx, _cc_sql_result_t *res) {
     SQLCHAR names[256];
     SQLSMALLINT namelen, datatype, i;
     SQLRETURN res;
@@ -419,7 +419,7 @@ static bool_t _sqlsvr_get_field_names(_cc_sql_t *ctx, _cc_sql_result_t *res) {
 }
 #endif
 
-static bool_t _sqlsvr_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     SQLRETURN res = SQL_SUCCESS;
     _cc_assert(ctx != NULL && result != NULL);
 
@@ -431,7 +431,7 @@ static bool_t _sqlsvr_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return true;
 }
 
-static bool_t _sqlsvr_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     _cc_assert(ctx != NULL && result != NULL);
 
     if (result->hSTMT != SQL_NULL_HSTMT) {
@@ -446,24 +446,24 @@ static bool_t _sqlsvr_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return true;
 }
 
-static bool_t _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
     _cc_logger_debug(_T("SQLServer _sqlsvr_bind: Not implemented yet"));
     return true;
 }
 
 /**/
-static uint64_t _sqlsvr_get_last_id(_cc_sql_t *ctx,_cc_sql_result_t *result) {
+_CC_API_PRIVATE(uint64_t) _sqlsvr_get_last_id(_cc_sql_t *ctx,_cc_sql_result_t *result) {
     _cc_assert(ctx != NULL && ctx->hDBC != NULL);
     _cc_logger_debug(_T("SQLServer get_last_id: Not implemented yet"));
     return -1;
 }
 
-static pvoid_t _sqlsvr_get_stmt(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(pvoid_t) _sqlsvr_get_stmt(_cc_sql_result_t *result) {
     _cc_assert(result != NULL && result->hSTMT != NULL);
     return result->hSTMT;
 }
 
-static int32_t _sqlsvr_get_int(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(int32_t) _sqlsvr_get_int(_cc_sql_result_t *result, int32_t index) {
     SQLLEN got = 0;
     SQLRETURN rc = 0;
     SQLINTEGER v;
@@ -474,7 +474,7 @@ static int32_t _sqlsvr_get_int(_cc_sql_result_t *result, int32_t index) {
     return v;
 }
 
-static int64_t _sqlsvr_get_int64(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(int64_t) _sqlsvr_get_int64(_cc_sql_result_t *result, int32_t index) {
     SQLLEN got = 0;
     SQLRETURN rc = 0;
     SQLLEN v;
@@ -485,7 +485,7 @@ static int64_t _sqlsvr_get_int64(_cc_sql_result_t *result, int32_t index) {
     return v;
 }
 
-static float64_t _sqlsvr_get_float(_cc_sql_result_t *result, int32_t index) {
+_CC_API_PRIVATE(float64_t) _sqlsvr_get_float(_cc_sql_result_t *result, int32_t index) {
     SQLLEN got = 0;
     float64_t v;
     SQLRETURN rc = SQLGetData(result->hSTMT, index + 1, SQL_DOUBLE, (SQLPOINTER)&v, sizeof(float64_t), &got);
@@ -495,7 +495,7 @@ static float64_t _sqlsvr_get_float(_cc_sql_result_t *result, int32_t index) {
     return v;
 }
 
-static size_t _sqlsvr_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
+_CC_API_PRIVATE(size_t) _sqlsvr_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
     SQLLEN got = 0;
     SQLRETURN rc = SQLGetData(result->hSTMT, index + 1, SQL_CHAR, (SQLPOINTER)buffer, length, &got);
     if (sql_error(rc) || got == SQL_NULL_DATA) {
@@ -505,19 +505,19 @@ static size_t _sqlsvr_get_string(_cc_sql_result_t *result, int32_t index, tchar_
     return got;
 }
 
-static size_t _sqlsvr_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **value) {
+_CC_API_PRIVATE(size_t) _sqlsvr_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **value) {
     _cc_assert(result->hSTMT != NULL);
     _cc_logger_debug(_T("SQLServer _sqlsvr_get_blob: Not implemented yet"));
     return 0;
 }
 
-static bool_t _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm* timeinfo) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm* timeinfo) {
     /*
      SQLLEN got = 0;
     SQLRETURN rc = 0;
     _cc_assert(result != NULL && result->hSTMT != NULL);
 
-    rc = SQLGetData(result->hSTMT, index + 1, SQL_C_TCHAR, (SQLPOINTER)dateString, _cc_countof(dateString), &got);
+    rc = SQLGetData(result->hSTMT, index + 1, SQL_C_TYPE_TIMESTAMP, (SQLPOINTER)dateString, _cc_countof(dateString), &got);
 
     if (sql_error(rc) || got == SQL_NULL_DATA) {
         return false;
@@ -529,7 +529,7 @@ static bool_t _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t index, stru
 }
 
 /**/
-bool_t _cc_init_sqlsvr(_cc_sql_driver_t *driver) {
+_CC_API_PUBLIC(bool_t) _cc_init_sqlsvr(_cc_sql_driver_t *driver) {
 #define SET(x) driver->x = _sqlsvr_##x
     if (_cc_unlikely(driver == NULL)) {
         return false;

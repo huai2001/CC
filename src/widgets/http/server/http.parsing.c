@@ -42,7 +42,7 @@ const _cc_http_method_t supported_http_methods[] = {
 };
 #undef METHOD_XX
 
-static const _cc_http_method_t* _http_get_method(tchar_t* method) {
+_CC_API_PRIVATE(const _cc_http_method_t*) _http_get_method(tchar_t* method) {
     int32_t i;
     const _cc_http_method_t* p;
 
@@ -59,7 +59,7 @@ static const _cc_http_method_t* _http_get_method(tchar_t* method) {
     return NULL;
 }
 
-static void _http_parsing_header_range(_cc_http_t* res, const tchar_t* range) {
+_CC_API_PRIVATE(void) _http_parsing_header_range(_cc_http_t* res, const tchar_t* range) {
     int x1 = 0, x2 = 0;
     int n = _tscanf(range, _T("bytes=%d-%d"), &x1, &x2);
     if (n == 2 && x1 >= 0 && x2 >= x1) {

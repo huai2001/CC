@@ -32,7 +32,7 @@ struct _cc_event_cycle_priv {
 };
 
 /**/
-static bool_t _poll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _poll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_event_cycle_priv_t *fset;
     _cc_assert(cycle != NULL);
     fset = cycle->priv;
@@ -47,20 +47,20 @@ static bool_t _poll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _poll_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
+_CC_API_PRIVATE(bool_t) _poll_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
     if (__cc_stdlib_socket_connect(e->fd, sa, sa_len)) {
         return _poll_event_attach(cycle, e);
     }
     return false;
 }
 /**/
-static _cc_socket_t _poll_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
+_CC_API_PRIVATE(_cc_socket_t) _poll_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
                                                   _cc_socklen_t *sa_len) {
     return _cc_socket_accept(e->fd, sa, sa_len);
 }
 
 /**/
-static void _poll_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _poll_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_event_cycle_priv_t *fset = cycle->priv;
     int32_t i;
 
@@ -73,7 +73,7 @@ static void _poll_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     }
 }
 /**/
-static bool_t _init_fd_event(_cc_event_t *e, struct pollfd *p) {
+_CC_API_PRIVATE(bool_t) _init_fd_event(_cc_event_t *e, struct pollfd *p) {
     if (_CC_ISSET_BIT(_CC_EVENT_PENDING_, e->flags)) {
         return false;
     }
@@ -101,7 +101,7 @@ static bool_t _init_fd_event(_cc_event_t *e, struct pollfd *p) {
 }
 
 /**/
-static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_event_cycle_priv_t *priv = cycle->priv;
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         /*delete*/
@@ -122,7 +122,7 @@ static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
     int32_t i;
     int32_t nfds;
     int revents, ready;
@@ -195,7 +195,7 @@ static bool_t _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
 }
 
 /**/
-static bool_t _poll_event_quit(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _poll_event_quit(_cc_event_cycle_t *cycle) {
     _cc_assert(cycle != NULL);
 
     _cc_safe_free(cycle->priv);
@@ -204,7 +204,7 @@ static bool_t _poll_event_quit(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-static bool_t _poll_event_init(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _poll_event_init(_cc_event_cycle_t *cycle) {
     _cc_event_cycle_priv_t *priv;
     if (!_cc_event_cycle_init(cycle)) {
         return false;
@@ -217,7 +217,7 @@ static bool_t _poll_event_init(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-bool_t _cc_init_event_poll(_cc_event_cycle_t *cycle) {
+_CC_API_PUBLIC(bool_t) _cc_init_event_poll(_cc_event_cycle_t *cycle) {
 #define ASET(x) cycle->driver.x = _poll_event_##x
 #define XSET(x) cycle->driver.x = _cc_event_##x
 

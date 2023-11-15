@@ -33,19 +33,19 @@ extern "C" {
  *  to the object handle (or NULL if there was an error).
  *  The 'sofile' parameter is a system dependent name of the object file.
  */
-_CC_API(pvoid_t) _cc_load_object(const tchar_t* sofile);
+_CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t* sofile);
 
 /**
  *  Given an object handle, this function looks up the address of the
  *  named function in the shared object and returns it.  This address
  *  is no longer valid after calling _cc_unload_object().
  */
-_CC_API(pvoid_t) _cc_load_function(pvoid_t handle, const char_t* name);
+_CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t* name);
 
 /**
  *  Unload a shared object from memory.
  */
-_CC_API(void) _cc_unload_object(pvoid_t handle);
+_CC_API_PUBLIC(void) _cc_unload_object(pvoid_t handle);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

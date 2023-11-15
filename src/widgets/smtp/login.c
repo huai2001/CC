@@ -2,7 +2,7 @@
 #include <cc/alloc.h>
 #include <cc/widgets/smtp.h>
 
-static bool_t libsmtp_quit_user(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_quit_user(_cc_smtp_t* smtp,
                                            const byte_t* buf,
                                            uint32_t len) {
     if (smtp->resp.flag != _CC_LIBSMTP_RESP_LOGOUT)
@@ -20,7 +20,7 @@ static bool_t libsmtp_quit_user(_cc_smtp_t* smtp,
     return false;
 }
 
-static bool_t libsmtp_login_password(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_login_password(_cc_smtp_t* smtp,
                                                 const byte_t* buf,
                                                 uint32_t len) {
     if (smtp->resp.flag != _CC_LIBSMTP_RESP_LOGIN_PASSWORD) {
@@ -40,7 +40,7 @@ static bool_t libsmtp_login_password(_cc_smtp_t* smtp,
     return false;
 }
 
-static bool_t libsmtp_login_user(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_login_user(_cc_smtp_t* smtp,
                                             const byte_t* buf,
                                             uint32_t len) {
     char_t cmd[256];
@@ -64,7 +64,7 @@ static bool_t libsmtp_login_user(_cc_smtp_t* smtp,
     return false;
 }
 
-static bool_t libsmtp_auth_login(_cc_smtp_t* smtp,
+_CC_API_PRIVATE(bool_t) libsmtp_auth_login(_cc_smtp_t* smtp,
                                             const byte_t* buf,
                                             uint32_t len) {
     char_t cmd[256];

@@ -45,7 +45,7 @@
 /*
  * MD4 context setup
  */
-void _cc_md4_init(_cc_md4_t *ctx) {
+_CC_API_PUBLIC(void) _cc_md4_init(_cc_md4_t *ctx) {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
@@ -56,7 +56,7 @@ void _cc_md4_init(_cc_md4_t *ctx) {
 }
 
 #if !defined(_CC_MD4_PROCESS_ALT)
-void _cc_md4_process(_cc_md4_t *ctx, const byte_t data[64]) {
+_CC_API_PUBLIC(void) _cc_md4_process(_cc_md4_t *ctx, const byte_t data[64]) {
     uint32_t X[16], A, B, C, D;
 
     GET_UINT32_LE(X[0], data, 0);
@@ -174,7 +174,7 @@ void _cc_md4_process(_cc_md4_t *ctx, const byte_t data[64]) {
 /*
  * MD4 process buffer
  */
-void _cc_md4_update(_cc_md4_t *ctx, const byte_t *input, size_t ilen) {
+_CC_API_PUBLIC(void) _cc_md4_update(_cc_md4_t *ctx, const byte_t *input, size_t ilen) {
     size_t fill;
     uint32_t left;
 
@@ -218,7 +218,7 @@ static const byte_t md4_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 /*
  * MD4 final digest
  */
-void _cc_md4_final(_cc_md4_t *ctx, byte_t *output) {
+_CC_API_PUBLIC(void) _cc_md4_final(_cc_md4_t *ctx, byte_t *output) {
     uint32_t last, padn;
     uint32_t high, low;
     byte_t msglen[8];
@@ -244,7 +244,7 @@ void _cc_md4_final(_cc_md4_t *ctx, byte_t *output) {
 /*
     Digests a file.
  */
-bool_t _cc_md4_fp(FILE *fp, tchar_t *output) {
+_CC_API_PUBLIC(bool_t) _cc_md4_fp(FILE *fp, tchar_t *output) {
     byte_t md[_CC_MD4_DIGEST_LENGTH_];
     byte_t buf[1024 * 16];
     size_t i;
@@ -276,7 +276,7 @@ bool_t _cc_md4_fp(FILE *fp, tchar_t *output) {
 /*
     Digests a file.
  */
-bool_t _cc_md4file(const tchar_t *filename, tchar_t *output) {
+_CC_API_PUBLIC(bool_t) _cc_md4file(const tchar_t *filename, tchar_t *output) {
     FILE *fp = _tfopen(filename, _T("rb"));
 
     if (fp) {
@@ -290,7 +290,7 @@ bool_t _cc_md4file(const tchar_t *filename, tchar_t *output) {
 /*
  * output = MD4( input buffer )
  */
-void _cc_md4(const byte_t *input, uint32_t length, tchar_t *output) {
+_CC_API_PUBLIC(void) _cc_md4(const byte_t *input, uint32_t length, tchar_t *output) {
     _cc_md4_t c;
     byte_t md[_CC_MD4_DIGEST_LENGTH_];
 

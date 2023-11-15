@@ -31,7 +31,7 @@
  level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
  version of the library linked do not match, or Z_ERRNO if there is
  an error reading or writing the files. */
-static _cc_buf_t* _http_gzip_def(const tchar_t* source_file,
+_CC_API_PRIVATE(_cc_buf_t*) _http_gzip_def(const tchar_t* source_file,
                                  int level,
                                  size_t file_size) {
     int res, flush;

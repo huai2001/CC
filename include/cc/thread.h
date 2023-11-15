@@ -78,7 +78,7 @@ typedef int32_t (*_cc_thread_callback_t)(_cc_thread_t *, pvoid_t);
  *
  * @return thread handle
  */
-_CC_API(_cc_thread_t *)
+_CC_API_PUBLIC(_cc_thread_t *)
 _cc_create_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args);
 /**
  * @brief Create a thread
@@ -90,7 +90,7 @@ _cc_create_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t a
  *
  * @return thread handle
  */
-_CC_API(_cc_thread_t *)
+_CC_API_PUBLIC(_cc_thread_t *)
 _cc_create_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stack_size, pvoid_t args);
 /**
  * @brief Create a thread
@@ -101,18 +101,18 @@ _cc_create_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t)
+_CC_API_PUBLIC(bool_t)
 _cc_thread_start(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args);
 /**
  *  Set the priority for the current thread
  */
-_CC_API(bool_t) _cc_thread_priority(_CC_THREAD_PRIORITY_EMUM_);
+_CC_API_PUBLIC(bool_t) _cc_thread_priority(_CC_THREAD_PRIORITY_EMUM_);
 /**/
-_CC_API(void) _cc_wait_thread(_cc_thread_t *, int32_t *);
+_CC_API_PUBLIC(void) _cc_wait_thread(_cc_thread_t *, int32_t *);
 /**/
-_CC_API(void) _cc_detach_thread(_cc_thread_t *);
+_CC_API_PUBLIC(void) _cc_detach_thread(_cc_thread_t *);
 /**/
-_CC_API(int32_t) _cc_get_thread_id(_cc_thread_t *);
+_CC_API_PUBLIC(int32_t) _cc_get_thread_id(_cc_thread_t *);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

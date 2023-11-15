@@ -6,7 +6,7 @@
 
 #define _DELTA_ 0x9e3779b9
 
-static uint32_t *xxtea_to_uint_array(const uint8_t *data, size_t len, int input_length,
+_CC_API_PRIVATE(uint32_t*) xxtea_to_uint_array(const uint8_t *data, size_t len, int input_length,
                                                 size_t *output_length) {
     uint32_t *out;
     size_t n;
@@ -37,7 +37,7 @@ static uint32_t *xxtea_to_uint_array(const uint8_t *data, size_t len, int input_
     return out;
 }
 
-static uint8_t *xxtea_to_bytes_array(const uint32_t *data, size_t len, int input_length,
+_CC_API_PRIVATE(uint8_t*) xxtea_to_bytes_array(const uint32_t *data, size_t len, int input_length,
                                                 size_t *output_length) {
     uint8_t *out;
 #if !(defined(_CC_BYTEORDER_) && (_CC_BYTEORDER_ == _CC_LIL_ENDIAN_))
@@ -70,7 +70,7 @@ static uint8_t *xxtea_to_bytes_array(const uint32_t *data, size_t len, int input
     return out;
 }
 
-static uint32_t *xxtea_uint_encrypt(uint32_t *data, size_t len, uint32_t *key) {
+_CC_API_PRIVATE(uint32_t*) xxtea_uint_encrypt(uint32_t *data, size_t len, uint32_t *key) {
     size_t n = len - 1;
     uint32_t z = data[n], y, p, sum, e;
     size_t q;
@@ -97,7 +97,7 @@ static uint32_t *xxtea_uint_encrypt(uint32_t *data, size_t len, uint32_t *key) {
     return data;
 }
 
-static uint32_t *xxtea_uint_decrypt(uint32_t *data, size_t len, uint32_t *key) {
+_CC_API_PRIVATE(uint32_t*) xxtea_uint_decrypt(uint32_t *data, size_t len, uint32_t *key) {
     size_t n = len - 1;
     uint32_t z, y = data[0], sum, e;
     size_t q, p;
@@ -123,7 +123,7 @@ static uint32_t *xxtea_uint_decrypt(uint32_t *data, size_t len, uint32_t *key) {
     return data;
 }
 
-static uint8_t *xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8_t *key,
+_CC_API_PRIVATE(uint8_t*) xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8_t *key,
                                                size_t *output_length) {
     uint8_t *out;
     uint32_t *data_array, *key_array;
@@ -152,7 +152,7 @@ static uint8_t *xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8
     return out;
 }
 
-static uint8_t *xxtea_bytes_decrypt(const uint8_t *data, size_t len, const uint8_t *key,
+_CC_API_PRIVATE(uint8_t*) xxtea_bytes_decrypt(const uint8_t *data, size_t len, const uint8_t *key,
                                                size_t *output_length) {
     uint8_t *out;
     uint32_t *data_array, *key_array;
@@ -181,7 +181,7 @@ static uint8_t *xxtea_bytes_decrypt(const uint8_t *data, size_t len, const uint8
     return out;
 }
 
-byte_t *_cc_xxtea_encrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length) {
+_CC_API_PUBLIC(byte_t*) _cc_xxtea_encrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length) {
     int32_t i;
     uint8_t fixed[16];
     for (i = 0; i < 16 && (*(key + i) != 0); ++i) {
@@ -194,7 +194,7 @@ byte_t *_cc_xxtea_encrypt(const byte_t *data, size_t len, const byte_t *key, siz
     return xxtea_bytes_encrypt((const uint8_t *)data, len, fixed, output_length);
 }
 
-byte_t *_cc_xxtea_decrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length) {
+_CC_API_PUBLIC(byte_t*) _cc_xxtea_decrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length) {
     int32_t i;
     uint8_t fixed[16];
     for (i = 0; i < 16 && (*(key + i) != 0); ++i) {

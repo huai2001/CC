@@ -21,7 +21,7 @@
 #include <cc/alloc.h>
 #include <cc/logger.h>
 
-static void normalize_locale_str(tchar_t *dst, tchar_t *str, size_t buflen) {
+_CC_API_PRIVATE(void) normalize_locale_str(tchar_t *dst, tchar_t *str, size_t buflen) {
     tchar_t *ptr;
 
     /* chop off encoding if specified. */
@@ -49,7 +49,7 @@ static void normalize_locale_str(tchar_t *dst, tchar_t *str, size_t buflen) {
     }
 }
 
-static void normalize_locales(tchar_t *dst, tchar_t *src, size_t buflen) {
+_CC_API_PRIVATE(void) normalize_locales(tchar_t *dst, tchar_t *src, size_t buflen) {
     tchar_t *ptr;
 
     /* entries are separated by colons */
@@ -61,7 +61,7 @@ static void normalize_locales(tchar_t *dst, tchar_t *src, size_t buflen) {
     normalize_locale_str(dst, src, buflen);
 }
 
-void _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
     /* !!! FIXME: should we be using setlocale()? Or some D-Bus thing? */
     const tchar_t *envr;
     tchar_t *tmp = (tchar_t *)_cc_malloc(sizeof(tchar_t) * buflen);

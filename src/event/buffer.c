@@ -23,7 +23,7 @@
 #include <cc/math.h>
 
 /**/
-_cc_event_buffer_t *_cc_create_event_buffer(void) {
+_CC_API_PUBLIC(_cc_event_buffer_t*) _cc_create_event_buffer(void) {
     _cc_event_buffer_t *rw = (_cc_event_buffer_t *)_cc_malloc(sizeof(_cc_event_buffer_t));
     bzero(rw, sizeof(_cc_event_buffer_t));
     rw->r.length = 0;
@@ -38,7 +38,7 @@ _cc_event_buffer_t *_cc_create_event_buffer(void) {
     return rw;
 }
 
-void _cc_alloc_event_wbuf(_cc_event_wbuf_t *wbuf, uint16_t length) {
+_CC_API_PUBLIC(void) _cc_alloc_event_wbuf(_cc_event_wbuf_t *wbuf, uint16_t length) {
     if (wbuf->w == wbuf->r) {
         if (wbuf->length < length) {
             wbuf->buf = (byte_t *)_cc_realloc(wbuf->buf, length);
@@ -74,7 +74,7 @@ void _cc_alloc_event_wbuf(_cc_event_wbuf_t *wbuf, uint16_t length) {
 }
 
 /**/
-bool_t _cc_copy_event_wbuf(_cc_event_wbuf_t *wbuf, const byte_t *data, uint16_t length) {
+_CC_API_PUBLIC(bool_t) _cc_copy_event_wbuf(_cc_event_wbuf_t *wbuf, const byte_t *data, uint16_t length) {
     if (_cc_unlikely(length <= 0 || wbuf->buf == NULL)) {
         return false;
     }
@@ -91,7 +91,7 @@ bool_t _cc_copy_event_wbuf(_cc_event_wbuf_t *wbuf, const byte_t *data, uint16_t 
 }
 
 /**/
-bool_t _cc_bind_event_buffer(_cc_event_cycle_t *cycle, _cc_event_buffer_t **rw) {
+_CC_API_PUBLIC(bool_t) _cc_bind_event_buffer(_cc_event_cycle_t *cycle, _cc_event_buffer_t **rw) {
     *rw = _cc_create_event_buffer();
     if (_cc_unlikely(*rw == NULL)) {
         return false;
@@ -101,7 +101,7 @@ bool_t _cc_bind_event_buffer(_cc_event_cycle_t *cycle, _cc_event_buffer_t **rw) 
 }
 
 /**/
-bool_t _cc_unbind_event_buffer(_cc_event_cycle_t *cycle, _cc_event_buffer_t **rw) {
+_CC_API_PUBLIC(bool_t) _cc_unbind_event_buffer(_cc_event_cycle_t *cycle, _cc_event_buffer_t **rw) {
     /**/
     _cc_free((*rw)->w.buf);
     (*rw)->w.buf = NULL;
@@ -113,7 +113,7 @@ bool_t _cc_unbind_event_buffer(_cc_event_cycle_t *cycle, _cc_event_buffer_t **rw
 }
 
 /**/
-int32_t _cc_event_send(_cc_event_t *e, const byte_t *data, uint16_t length) {
+_CC_API_PUBLIC(int32_t) _cc_event_send(_cc_event_t *e, const byte_t *data, uint16_t length) {
     int32_t off = 0;
     if (_cc_unlikely(e->buffer == NULL)) {
         _cc_logger_error(_T("No write cache was created. e->buffer == NULL"));
@@ -144,7 +144,7 @@ int32_t _cc_event_send(_cc_event_t *e, const byte_t *data, uint16_t length) {
 }
 
 /**/
-int32_t _cc_event_sendbuf(_cc_event_t *e) {
+_CC_API_PUBLIC(int32_t) _cc_event_sendbuf(_cc_event_t *e) {
     _cc_event_wbuf_t *wbuf;
 
     int32_t off;
@@ -176,7 +176,7 @@ int32_t _cc_event_sendbuf(_cc_event_t *e) {
 }
 
 /**/
-bool_t _cc_event_recv(_cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_event_recv(_cc_event_t *e) {
     int32_t left = 0;
     _cc_event_buffer_t *rw;
 

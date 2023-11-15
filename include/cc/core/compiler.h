@@ -54,15 +54,6 @@
     #endif
 #endif
 
-#if defined(_CC_EXPORT_SHARED_LIBRARY_)
-    #define _CC_API(t) _CC_API_EXPORT_ t 
-#elif defined(_CC_IMPORT_SHARED_LIBRARY_)
-    #define _CC_API(t) _CC_API_IMPORT_ t
-#else
-    #define _CC_API(t) t
-#endif
-
-
 #ifdef __cplusplus
     #if defined(__INTEL_COMPILER) && defined(_MSVC_LANG) && _MSVC_LANG < 201403L
         #if defined(__INTEL_CXX11_MODE__)
@@ -282,13 +273,29 @@
 
     /* close windows.h min/max */
     #define NOMINMAX
-/*
+
 #elif defined(__INTEL_COMPILER) || defined(__ICC)
 //Intel
-*/
+    #define _CC_COMPILER_NAME_ "intel c/c++"
 #else
     #error unknown compiler
 #endif
+
 /* end Define compiler */
+
+
+#if defined(_CC_EXPORT_SHARED_LIBRARY_)
+    #define _CC_API_PUBLIC(t) _CC_API_EXPORT_ t 
+#elif defined(_CC_IMPORT_SHARED_LIBRARY_)
+    #define _CC_API_PUBLIC(t) _CC_API_IMPORT_ t
+#else
+    #define _CC_API_PUBLIC(t) t
+#endif
+
+#ifdef __CC_WINDOWS__
+    #define _CC_API_PRIVATE(t) static t
+#else
+    #define _CC_API_PRIVATE(t) _CC_FORCE_INLINE_ t
+#endif
 
 #endif  /* _C_CC_CONFIG_COMPILER_H_INCLUDED_*/

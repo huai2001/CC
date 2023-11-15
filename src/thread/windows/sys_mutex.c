@@ -40,7 +40,7 @@ static pfnTryAcquireSRWLockExclusive pTryAcquireSRWLockExclusive = NULL;
 #endif
 
 /** Create a mutex, initialized unlocked */
-static _cc_mutex_t *_cc_create_mutex_cs(void) {
+_CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_cs(void) {
     /* Allocate mutex memory */
     struct _cc_mutex_cs *mutex = _CC_MALLOC(struct _cc_mutex_cs);
     bzero(mutex, sizeof(struct _cc_mutex_cs));
@@ -55,7 +55,7 @@ static _cc_mutex_t *_cc_create_mutex_cs(void) {
 }
 
 /** Create a mutex, initialized unlocked */
-static _cc_mutex_t *_cc_create_mutex_srw(void) {
+_CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_srw(void) {
     /* Allocate mutex memory */
     struct _cc_mutex_srw *mutex = _CC_MALLOC(struct _cc_mutex_srw);
     bzero(mutex, sizeof(struct _cc_mutex_srw));
@@ -63,26 +63,26 @@ static _cc_mutex_t *_cc_create_mutex_srw(void) {
 }
 
 /* Free the mutex */
-static void _cc_destroy_mutex_cs(_cc_mutex_t *mutex_cs) {
+_CC_API_PRIVATE(void) _cc_destroy_mutex_cs(_cc_mutex_t *mutex_cs) {
     struct _cc_mutex_cs *mutex = (struct _cc_mutex_cs *)mutex_cs;
     DeleteCriticalSection(&mutex->cs);
     _cc_free(mutex_cs);
 }
 
 /* Free the mutex */
-static void _cc_destroy_mutex_srw(_cc_mutex_t *mutex_srw) {
+_CC_API_PRIVATE(void) _cc_destroy_mutex_srw(_cc_mutex_t *mutex_srw) {
     _cc_free(mutex_srw);
 }
 
 /* Lock the mutex */
-static bool_t _cc_mutex_lock_cs(_cc_mutex_t *mutex_cs) {
+_CC_API_PRIVATE(bool_t) _cc_mutex_lock_cs(_cc_mutex_t *mutex_cs) {
     struct _cc_mutex_cs *mutex = (struct _cc_mutex_cs *)mutex_cs;
     EnterCriticalSection(&mutex->cs);
     return true;
 }
 
 /* Lock the mutex */
-static bool_t _cc_mutex_lock_srw(_cc_mutex_t *mutex_srw) {
+_CC_API_PRIVATE(bool_t) _cc_mutex_lock_srw(_cc_mutex_t *mutex_srw) {
     struct _cc_mutex_srw *mutex = (struct _cc_mutex_srw *)mutex_srw;
     DWORD self = GetCurrentThreadId();
     if (mutex->owner == self) {
@@ -101,7 +101,7 @@ static bool_t _cc_mutex_lock_srw(_cc_mutex_t *mutex_srw) {
 }
 
 /* try lock the mutex */
-static int _cc_mutex_try_lock_cs(_cc_mutex_t *mutex_cs) {
+_CC_API_PRIVATE(int) _cc_mutex_try_lock_cs(_cc_mutex_t *mutex_cs) {
     struct _cc_mutex_cs *mutex = (struct _cc_mutex_cs *)mutex_cs;
     if (TryEnterCriticalSection(&mutex->cs) == 0) {
         return _CC_MUTEX_TIMEDOUT_;
@@ -110,7 +110,7 @@ static int _cc_mutex_try_lock_cs(_cc_mutex_t *mutex_cs) {
 }
 
 /* try lock the mutex */
-static int _cc_mutex_try_lock_srw(_cc_mutex_t *mutex_srw) {
+_CC_API_PRIVATE(int) _cc_mutex_try_lock_srw(_cc_mutex_t *mutex_srw) {
     struct _cc_mutex_srw *mutex = (struct _cc_mutex_srw *)mutex_srw;
     DWORD self;
 
@@ -135,14 +135,14 @@ static int _cc_mutex_try_lock_srw(_cc_mutex_t *mutex_srw) {
 }
 
 /**/
-static bool_t _cc_mutex_unlock_cs(_cc_mutex_t *mutex_cs) {
+_CC_API_PRIVATE(bool_t) _cc_mutex_unlock_cs(_cc_mutex_t *mutex_cs) {
     struct _cc_mutex_cs *mutex = (struct _cc_mutex_cs *)mutex_cs;
     LeaveCriticalSection(&mutex->cs);
     return true;
 }
 
 /**/
-static bool_t _cc_mutex_unlock_srw(_cc_mutex_t *mutex_srw) {
+_CC_API_PRIVATE(bool_t) _cc_mutex_unlock_srw(_cc_mutex_t *mutex_srw) {
     struct _cc_mutex_srw *mutex = (struct _cc_mutex_srw *)mutex_srw;
     if (mutex->owner == GetCurrentThreadId()) {
         if (--mutex->count == 0) {
@@ -161,7 +161,7 @@ _cc_mutex_impl_t _cc_mutex_impl_active = {_cc_create_mutex_cs,   _cc_destroy_mut
                                           _cc_mutex_try_lock_cs, _cc_mutex_unlock_cs,  _CC_MUTEX_CS_};
 
 /** Create a mutex, initialized unlocked */
-_cc_mutex_t *_cc_create_mutex(void) {
+_CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
 #if _CC_WINDOWS_FORCE_MUTEX_CRITICAL_SECTIONS_
 #elif __WINRT__
     _cc_mutex_impl_active.Create = _cc_create_mutex_srw;
@@ -195,7 +195,7 @@ _cc_mutex_t *_cc_create_mutex(void) {
     return _cc_mutex_impl_active.Create();
 }
 /* Lock the mutex */
-bool_t _cc_mutex_lock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
         _cc_logger_error(_T("Passed a NULL mutex"));
         return false;
@@ -204,7 +204,7 @@ bool_t _cc_mutex_lock(_cc_mutex_t *mutex) {
 }
 
 /* try lock the mutex */
-int _cc_mutex_try_lock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
         _cc_logger_error(_T("Passed a NULL mutex"));
         return false;
@@ -213,7 +213,7 @@ int _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 }
 
 /**/
-bool_t _cc_mutex_unlock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
         _cc_logger_error(_T("Passed a NULL mutex"));
         return false;
@@ -221,7 +221,7 @@ bool_t _cc_mutex_unlock(_cc_mutex_t *mutex) {
     return _cc_mutex_impl_active.Unlock(mutex);
 }
 
-void _cc_destroy_mutex(_cc_mutex_t **mutex) {
+_CC_API_PUBLIC(void) _cc_destroy_mutex(_cc_mutex_t **mutex) {
     if (mutex == NULL || *mutex == NULL) {
         _cc_logger_error(_T("Passed a NULL mutex"));
         return;

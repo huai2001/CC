@@ -28,7 +28,7 @@
 static const int BATTERY_MONITORING_TIMEOUT = 3000;
 static uint32_t UIKitLastPowerInfoQuery = 0;
 
-void UIKit_UpdateBatteryMonitoring(void) {
+_CC_API_PRIVATE(void) UIKit_UpdateBatteryMonitoring(void) {
     if (UIKitLastPowerInfoQuery) {
         if (_CC_TICKS_PASSED((uint32_t)_cc_get_ticks(), UIKitLastPowerInfoQuery + BATTERY_MONITORING_TIMEOUT)) {
             UIDevice *uidev = [UIDevice currentDevice];
@@ -40,9 +40,7 @@ void UIKit_UpdateBatteryMonitoring(void) {
 }
 #endif /* !__CC_APPLE_TVOS__ */
 
-bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state,
-                              int32_t *seconds,
-                              byte_t *percent) {
+_CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
 #if __CC_APPLE_TVOS__
     *state = _CC_POWERSTATE_NO_BATTERY_;
     *seconds = -1;

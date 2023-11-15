@@ -21,7 +21,7 @@
 #include <cc/core.h>
 #include <cc/math.h>
 #include <cc/rand.h>
-#include <time.h>
+#include <cc/time.h>
 
 #define MT_RAND_MT19937 0
 
@@ -47,7 +47,7 @@ static struct {
 } mt_rand;
 
 /* */
-static void _mt_initialize(uint32_t seed, uint32_t *state) {
+_CC_API_PRIVATE(void) _mt_initialize(uint32_t seed, uint32_t *state) {
     /* Initialize generator state with seed
        See Knuth TAOCP Vol 2, 3rd Ed, p.106 for multiplier.
        In previous versions, most significant bits (MSBs) of the seed affect
@@ -64,7 +64,7 @@ static void _mt_initialize(uint32_t seed, uint32_t *state) {
     }
 }
 
-static void _mt_reload(void) {
+_CC_API_PRIVATE(void) _mt_reload(void) {
     /* Generate N new values in state
     Made clearer and faster by Matthew Bellew (matthew.bellew@home.com) */
 
@@ -99,7 +99,7 @@ static void _mt_reload(void) {
 }
 /* }}} */
 
-void _cc_srand(uint32_t seed) {
+_CC_API_PUBLIC(void) _cc_srand(uint32_t seed) {
     /* Seed the generator with a simple uint32 */
     _mt_initialize(seed, mt_rand.state);
     _mt_reload();
@@ -108,7 +108,7 @@ void _cc_srand(uint32_t seed) {
     mt_rand.is_seeded = 1;
 }
 
-uint32_t _cc_rand(void) {
+_CC_API_PUBLIC(uint32_t) _cc_rand(void) {
     /* Pull a 32-bit integer from the generator state
      Every other access function simply transforms the numbers extracted here */
     register uint32_t s1;
@@ -131,27 +131,56 @@ uint32_t _cc_rand(void) {
     return (s1 ^ (s1 >> 18));
 }
 
+_CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
+    size_t i;
+    byte_t *cp = buf;
+    struct timeval tv;
+    unsigned short uuid_rand_seed[3];
+
+    gettimeofday(&tv, 0);
+    srand((uint32_t)((_cc_getpid() << 16) ^ getuid() ^ tv.tv_sec ^ tv.tv_usec));
+
+    uuid_rand_seed[0] = getpid() ^ (tv.tv_sec & 0xFFFF);
+    uuid_rand_seed[1] = getppid() ^ (tv.tv_usec & 0xFFFF);
+    uuid_rand_seed[2] = (tv.tv_sec ^ tv.tv_usec) >> 16;
+
+    /* Crank the random number generator a few times */
+    gettimeofday(&tv, 0);
+    for (i = (tv.tv_sec ^ tv.tv_usec) & 0x1F; i > 0; i--) {
+        rand();
+    }
+
+    for (i = 0; i < nbytes; i++) {
+        *cp++ ^= (rand() >> 7) & 0xFF;
+    }
+
+    for (cp = buf, i = 0; i < nbytes; i++) {
+        *cp++ ^= (jrand48(uuid_rand_seed) >> 7) & 0xFF;
+    }
+}
+
+
 /**/
-float32_t _cc_randomf32(float32_t from, float32_t to) {
+_CC_API_PUBLIC(float32_t) _cc_randomf32(float32_t from, float32_t to) {
     return _cc_randf() * (to - from) + from;
 }
 
 /**/
-float64_t _cc_randomf64(float64_t from, float64_t to) {
+_CC_API_PUBLIC(float64_t) _cc_randomf64(float64_t from, float64_t to) {
     return _cc_randf() * (to - from) + from;
 }
 
 /**/
-uint32_t _cc_random32(uint32_t from, uint32_t to) {
+_CC_API_PUBLIC(uint32_t) _cc_random32(uint32_t from, uint32_t to) {
     return _cc_rand() * (to - from) + from;
 }
 
 /**/
-uint64_t _cc_random64(uint64_t from, uint64_t to) {
+_CC_API_PUBLIC(uint64_t) _cc_random64(uint64_t from, uint64_t to) {
     return _cc_rand() * (to - from) + from;
 }
 
-static float64_t C2P(_cc_prd_t *prd) {
+_CC_API_PRIVATE(float64_t) C2P(_cc_prd_t *prd) {
     int32_t i;
     float64_t dCurP = 0.0;
     float64_t dPreSuccessP = 0.0;
@@ -165,7 +194,7 @@ static float64_t C2P(_cc_prd_t *prd) {
 }
 
 /**/
-void _cc_calculate_prd(_cc_prd_t *prd, float64_t p) {
+_CC_API_PUBLIC(void) _cc_calculate_prd(_cc_prd_t *prd, float64_t p) {
     float64_t P = p * 1.0 / 100.0;
     float64_t dUp = P;
     float64_t dLow = 0.0;
@@ -191,7 +220,7 @@ void _cc_calculate_prd(_cc_prd_t *prd, float64_t p) {
     }
 }
 /*
-static void PRD_Table() {
+_CC_API_PRIVATE(void) PRD_Table() {
     PRD *prd;
     int32_t i;
     // 1% - 100%
@@ -202,14 +231,14 @@ static void PRD_Table() {
     }
 }
 
-static void randCurrentCard(byte_t cardData[], byte_t dataCount,
+_CC_API_PRIVATE(void) randCurrentCard(byte_t cardData[], byte_t dataCount,
 byte_t cardBuffer[]) { byte_t randCount = 0, position = 0, r = 0; do { r =
 dataCount - randCount; position = rand() % r; cardBuffer[randCount++] =
 cardData[position]; cardData[position] = cardData[r]; } while (randCount <
 dataCount);
 }
 */
-int32_t _cc_get_probability(_cc_prd_t *prd, int T) {
+_CC_API_PUBLIC(int32_t) _cc_get_probability(_cc_prd_t *prd, int T) {
     float64_t P, R;
 
     P = prd->C * T;

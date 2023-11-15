@@ -20,7 +20,7 @@
 */
 #include "ini.c.h"
 
-static _cc_ini_key_t* _INI_alloc(_cc_ini_key_t* ctx,
+_CC_API_PRIVATE(_cc_ini_key_t*) _INI_alloc(_cc_ini_key_t* ctx,
                                             tchar_t* name,
                                             tchar_t* value) {
     if (ctx == NULL) {
@@ -45,13 +45,13 @@ static _cc_ini_key_t* _INI_alloc(_cc_ini_key_t* ctx,
     return ctx;
 }
 
-static int32_t _INI_get_section(_cc_rbtree_iterator_t* v,
+_CC_API_PRIVATE(int32_t) _INI_get_section(_cc_rbtree_iterator_t* v,
                                            pvoid_t args) {
     _cc_ini_section_t* section = _cc_upcast(v, _cc_ini_section_t, node);
     return _tcscmp((const tchar_t*)args, section->name);
 }
 
-static int32_t _INI_get_section_key(_cc_rbtree_iterator_t* v,
+_CC_API_PRIVATE(int32_t) _INI_get_section_key(_cc_rbtree_iterator_t* v,
                                                pvoid_t args) {
     _cc_ini_key_t* key = _cc_upcast(v, _cc_ini_key_t, node);
     return _tcscmp((const tchar_t*)args, key->name);
@@ -114,7 +114,7 @@ _cc_ini_section_t* _INI_setion_push(_cc_rbtree_t* ctx, tchar_t* name) {
     return item;
 }
 
-static void _ini_free_rb_node(_cc_rbtree_iterator_t* node) {
+_CC_API_PRIVATE(void) _ini_free_rb_node(_cc_rbtree_iterator_t* node) {
     _cc_ini_key_t* p = _cc_upcast(node, _cc_ini_key_t, node);
     if (p->name) {
         _cc_free(p->name);
@@ -126,7 +126,7 @@ static void _ini_free_rb_node(_cc_rbtree_iterator_t* node) {
     _cc_free(p);
 }
 
-static void _ini_free_section_rb_node(_cc_rbtree_iterator_t* node) {
+_CC_API_PRIVATE(void) _ini_free_section_rb_node(_cc_rbtree_iterator_t* node) {
     _cc_ini_section_t* ctx = _cc_upcast(node, _cc_ini_section_t, node);
     if (ctx->name) {
         _cc_free(ctx->name);
@@ -138,7 +138,7 @@ static void _ini_free_section_rb_node(_cc_rbtree_iterator_t* node) {
 }
 
 /**/
-bool_t _cc_destroy_ini(_cc_ini_t** ctx) {
+_CC_API_PUBLIC(bool_t) _cc_destroy_ini(_cc_ini_t** ctx) {
     _cc_rbtree_destroy(&(*ctx)->root, _ini_free_section_rb_node);
     *ctx = NULL;
     return true;
@@ -151,7 +151,7 @@ void _INI_print_key(_cc_buf_t* buf, _cc_rbtree_t* rb) {
     });
 }
 
-_cc_buf_t* _cc_print_ini(_cc_ini_t* item) {
+_CC_API_PUBLIC(_cc_buf_t*) _cc_print_ini(_cc_ini_t* item) {
     _cc_buf_t* buf = _cc_create_buf(10240);
 
     _cc_rbtree_for_each(v, &item->root, {
@@ -164,7 +164,7 @@ _cc_buf_t* _cc_print_ini(_cc_ini_t* item) {
     return buf;
 }
 
-_cc_ini_section_t* _cc_ini_find_section(_cc_ini_t* item,
+_CC_API_PUBLIC(_cc_ini_section_t*) _cc_ini_find_section(_cc_ini_t* item,
                                         const tchar_t* section_name) {
     _cc_rbtree_iterator_t* node;
 
@@ -175,7 +175,7 @@ _cc_ini_section_t* _cc_ini_find_section(_cc_ini_t* item,
     return _cc_upcast(node, _cc_ini_section_t, node);
 }
 
-const tchar_t* _cc_ini_find_string(_cc_ini_section_t* section,
+_CC_API_PUBLIC(const tchar_t*) _cc_ini_find_string(_cc_ini_section_t* section,
                                    const tchar_t* key_name) {
     _cc_rbtree_iterator_t* node;
     _cc_ini_key_t* key;
@@ -189,7 +189,7 @@ const tchar_t* _cc_ini_find_string(_cc_ini_section_t* section,
     return key->value;
 }
 
-const tchar_t* _cc_ini_find(_cc_ini_t* item,
+_CC_API_PUBLIC(const tchar_t*) _cc_ini_find(_cc_ini_t* item,
                             const tchar_t* section_name,
                             const tchar_t* key_name) {
     _cc_rbtree_iterator_t* node;

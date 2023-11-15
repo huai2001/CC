@@ -91,7 +91,7 @@ bool_t _INI_buf_jump_comments(_cc_sbuf_tchar_t* const buffer) {
     return _cc_sbuf_access(buffer);
 }
 
-static tchar_t* _INI_read_name(_cc_sbuf_tchar_t* const buffer) {
+_CC_API_PRIVATE(tchar_t*) _INI_read_name(_cc_sbuf_tchar_t* const buffer) {
     tchar_t* output = NULL;
     const tchar_t *start = _cc_sbuf_offset(buffer), *ended = NULL;
     const tchar_t* p = start;
@@ -118,7 +118,7 @@ static tchar_t* _INI_read_name(_cc_sbuf_tchar_t* const buffer) {
     return output;
 }
 
-static int _INI_value_endflag(const tchar_t* p,
+_CC_API_PRIVATE(int) _INI_value_endflag(const tchar_t* p,
                                          const tchar_t isquoted) {
     if (isquoted != 0) {
         if (isquoted == *p) {
@@ -140,7 +140,7 @@ static int _INI_value_endflag(const tchar_t* p,
     return 0;
 }
 
-static tchar_t* _INI_read_string(_cc_sbuf_tchar_t* const buffer) {
+_CC_API_PRIVATE(tchar_t*) _INI_read_string(_cc_sbuf_tchar_t* const buffer) {
     const tchar_t* p = _cc_sbuf_offset(buffer);
     const tchar_t* start;
     const tchar_t* ended;
@@ -261,7 +261,7 @@ INI_FAIL:
     return NULL;
 }
 
-static bool_t _INI_read(_cc_ini_t* item,
+_CC_API_PRIVATE(bool_t) _INI_read(_cc_ini_t* item,
                                    _cc_sbuf_tchar_t* const buffer) {
     /* check if we skipped to the end of the buffer */
     if (!_INI_buf_jump_comments(buffer)) {
@@ -348,7 +348,7 @@ INI_FAIL:
     return false;
 }
 
-_cc_ini_t* _cc_ini_parser(_cc_sbuf_tchar_t* const buffer) {
+_CC_API_PUBLIC(_cc_ini_t*) _cc_ini_parser(_cc_sbuf_tchar_t* const buffer) {
     _cc_ini_t* item = NULL;
     _cc_INI_error_t local_error;
 
@@ -378,11 +378,11 @@ _cc_ini_t* _cc_ini_parser(_cc_sbuf_tchar_t* const buffer) {
     return NULL;
 }
 
-const tchar_t* _cc_ini_error(void) {
+_CC_API_PUBLIC(const tchar_t*) _cc_ini_error(void) {
     return (_cc_global_INI_error.content + _cc_global_INI_error.position);
 }
 
-_cc_ini_t* _cc_open_ini_file(const tchar_t* file_name) {
+_CC_API_PUBLIC(_cc_ini_t*) _cc_open_ini_file(const tchar_t* file_name) {
     _cc_sbuf_tchar_t buffer;
     _cc_ini_t* item = NULL;
 
@@ -436,7 +436,7 @@ _cc_ini_t* _cc_open_ini_file(const tchar_t* file_name) {
     return item;
 }
 
-_cc_ini_t* _cc_parse_ini(const tchar_t* src) {
+_CC_API_PUBLIC(_cc_ini_t*) _cc_parse_ini(const tchar_t* src) {
     _cc_sbuf_tchar_t buffer;
     buffer.content = src;
     buffer.length = _tcslen(src);

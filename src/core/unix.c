@@ -24,7 +24,7 @@
 #include <cc/dirent.h>
 #include <sys/errno.h>
 
-bool_t _cc_isdir(const tchar_t *dir_path) {
+_CC_API_PUBLIC(bool_t) _cc_isdir(const tchar_t *dir_path) {
     struct stat st;
     int res = stat(dir_path, &st);
 
@@ -39,7 +39,7 @@ bool_t _cc_isdir(const tchar_t *dir_path) {
     return false;
 }
 
-void _cc_print_stack_trace(FILE *fp, int i) {
+_CC_API_PUBLIC(void) _cc_print_stack_trace(FILE *fp, int i) {
     int nptrs;
     pvoid_t buffer[64];
     char **strings;

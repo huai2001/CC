@@ -224,27 +224,27 @@ _CC_FORCE_INLINE_ bool_t _cc_isspace(int ch) {
 /**/
 #ifdef __CC_WIN32_CE__
     /*-- Called from fileio.c */
-    _CC_API(int) unlink(const tchar_t *);
+    _CC_API_PUBLIC(int) unlink(const tchar_t *);
     #if __CC_WIN32_CE__ < 211
-    _CC_API(int) fflush(FILE *);
+    _CC_API_PUBLIC(int) fflush(FILE *);
     #endif
 #endif
 
 /**
  *
  */
-_CC_API(uint32_t) _cc_nextpow2(uint32_t);
+_CC_API_PUBLIC(uint32_t) _cc_nextpow2(uint32_t);
 /**
  *
  */
-_CC_API(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen);
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen);
 /**
  *
  * @param path path
  * 
  * @return Formatted path length
  */
-_CC_API(int32_t) _cc_realpath(tchar_t *path);
+_CC_API_PUBLIC(int32_t) _cc_realpath(tchar_t *path);
 /**
  * @brief Get computer name
  *
@@ -253,7 +253,7 @@ _CC_API(int32_t) _cc_realpath(tchar_t *path);
  *
  * @return length of the input data
  */
-_CC_API(int32_t) _cc_get_computer_name(tchar_t *name, int32_t maxlen);
+_CC_API_PUBLIC(int32_t) _cc_get_computer_name(tchar_t *name, int32_t maxlen);
 /**
  * @brief Get current directory
  *
@@ -262,7 +262,7 @@ _CC_API(int32_t) _cc_get_computer_name(tchar_t *name, int32_t maxlen);
  *
  * @return length of the output data
  */
-_CC_API(int32_t) _cc_get_current_directory(tchar_t *cwd, int32_t maxlen);
+_CC_API_PUBLIC(int32_t) _cc_get_current_directory(tchar_t *cwd, int32_t maxlen);
 /**
  * @brief Get current process the file
  *
@@ -271,7 +271,7 @@ _CC_API(int32_t) _cc_get_current_directory(tchar_t *cwd, int32_t maxlen);
  *
  * @return length of the output data
  */
-_CC_API(int32_t) _cc_get_current_file(tchar_t *cwd,
+_CC_API_PUBLIC(int32_t) _cc_get_current_file(tchar_t *cwd,
                                       int32_t maxlen);
 /**
  * @brief Set current directory
@@ -280,7 +280,7 @@ _CC_API(int32_t) _cc_get_current_file(tchar_t *cwd,
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_set_current_directory(tchar_t *cwd);
+_CC_API_PUBLIC(bool_t) _cc_set_current_directory(tchar_t *cwd);
 /**
  * @brief Get file name
  *
@@ -289,7 +289,7 @@ _CC_API(bool_t) _cc_set_current_directory(tchar_t *cwd);
  *
  * @return length of the output data
  */
-_CC_API(int32_t) _cc_get_module_file_name(tchar_t *cwd, int32_t maxlen);
+_CC_API_PUBLIC(int32_t) _cc_get_module_file_name(tchar_t *cwd, int32_t maxlen);
 /**
  * @brief Get document directory
  *
@@ -298,7 +298,7 @@ _CC_API(int32_t) _cc_get_module_file_name(tchar_t *cwd, int32_t maxlen);
  *
  * @return length of the output data
  */
-_CC_API(int32_t) _cc_get_module_document_directory(tchar_t *cwd, int32_t maxlen);
+_CC_API_PUBLIC(int32_t) _cc_get_module_document_directory(tchar_t *cwd, int32_t maxlen);
 /**
  * @brief Get cache directory
  *
@@ -307,7 +307,7 @@ _CC_API(int32_t) _cc_get_module_document_directory(tchar_t *cwd, int32_t maxlen)
  *
  * @return length of the output data
  */
-_CC_API(int32_t) _cc_get_module_cache_directory(tchar_t *cwd, int32_t maxlen);
+_CC_API_PUBLIC(int32_t) _cc_get_module_cache_directory(tchar_t *cwd, int32_t maxlen);
 /**
  * @brief Get directory
  *
@@ -317,7 +317,7 @@ _CC_API(int32_t) _cc_get_module_cache_directory(tchar_t *cwd, int32_t maxlen);
  *
  * @return length of the output data
  */
-_CC_API(int32_t) _cc_get_module_directory(const tchar_t *module, tchar_t *cwd, int32_t maxlen);
+_CC_API_PUBLIC(int32_t) _cc_get_module_directory(const tchar_t *module, tchar_t *cwd, int32_t maxlen);
 /**
  * @brief Get executable
  *
@@ -327,7 +327,7 @@ _CC_API(int32_t) _cc_get_module_directory(const tchar_t *module, tchar_t *cwd, i
  *
  * @return length of the output data
  */
-_CC_API(int32_t) _cc_get_executable_directory(tchar_t *cwd, int32_t maxlen);
+_CC_API_PUBLIC(int32_t) _cc_get_executable_directory(tchar_t *cwd, int32_t maxlen);
 
 /**
  * @brief mkdir
@@ -336,7 +336,7 @@ _CC_API(int32_t) _cc_get_executable_directory(tchar_t *cwd, int32_t maxlen);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_mkdir(const tchar_t *path);
+_CC_API_PUBLIC(bool_t) _cc_mkdir(const tchar_t *path);
 /**
  * @brief mkdir
  *
@@ -345,20 +345,20 @@ _CC_API(bool_t) _cc_mkdir(const tchar_t *path);
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_create_directory(const tchar_t *path, bool_t is_dir);
+_CC_API_PUBLIC(bool_t) _cc_create_directory(const tchar_t *path, bool_t is_dir);
 
 /**
  * @brief Get system errno
  *
  * @return 0 if successful or system on error.
  */
-_CC_API(int32_t) _cc_last_errno(void);
+_CC_API_PUBLIC(int32_t) _cc_last_errno(void);
 /**
  * @brief Set system errno
  *
  * @param _errno
  */
-_CC_API(void) _cc_set_last_errno(int32_t _errno);
+_CC_API_PUBLIC(void) _cc_set_last_errno(int32_t _errno);
 /**
  * @brief Get system error message
  *
@@ -366,7 +366,7 @@ _CC_API(void) _cc_set_last_errno(int32_t _errno);
  *
  * @return System error message
  */
-_CC_API(tchar_t*) _cc_last_error(int32_t _errno);
+_CC_API_PUBLIC(tchar_t*) _cc_last_error(int32_t _errno);
 
 /**
  * @brief Set clipboard text
@@ -375,7 +375,7 @@ _CC_API(tchar_t*) _cc_last_error(int32_t _errno);
  *
  * @return 0
  */
-_CC_API(int32_t) _cc_set_clipboard_text(const tchar_t *text);
+_CC_API_PUBLIC(int32_t) _cc_set_clipboard_text(const tchar_t *text);
 /**
  * @brief Get clipboard Text
  *
@@ -384,13 +384,13 @@ _CC_API(int32_t) _cc_set_clipboard_text(const tchar_t *text);
  *
  * @return Length of string
  */
-_CC_API(int32_t) _cc_get_clipboard_text(tchar_t *str, int32_t len);
+_CC_API_PUBLIC(int32_t) _cc_get_clipboard_text(tchar_t *str, int32_t len);
 /**
  * @brief Check the clipboard for strings
  *
  * @return true if successful or false on error.
  */
-_CC_API(bool_t) _cc_has_clipboard_text(void);
+_CC_API_PUBLIC(bool_t) _cc_has_clipboard_text(void);
 
 /**
  * @brief delete file
@@ -400,7 +400,7 @@ _CC_API(bool_t) _cc_has_clipboard_text(void);
  * @return 0 if successful or system on error.
 */
 #ifdef __CC_IPHONEOS__
-    _CC_API(int) _cc_ios_unlink(const tchar_t *file); 
+    _CC_API_PUBLIC(int) _cc_ios_unlink(const tchar_t *file); 
     #define _cc_unlink(x) _cc_ios_unlink(x)
 #else 
     #define _cc_unlink(x) _tunlink(x)

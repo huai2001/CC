@@ -24,7 +24,7 @@
 
 static HWND _clipboard_handle = NULL;
 
-int32_t _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, int32_t size) {
+_CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, int32_t size) {
     int32_t acp_len = MultiByteToWideChar(CP_ACP, 0, s1, s1_len, NULL, 0);
     int32_t request_len = 0;
     if (size > acp_len) {
@@ -35,7 +35,7 @@ int32_t _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, int32_t size) {
     return request_len;
 }
 
-int32_t _cc_w2a(const wchar_t *s1, int32_t s1_len, char_t *s2, int32_t size) {
+_CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1, int32_t s1_len, char_t *s2, int32_t size) {
     int32_t unicode_len = WideCharToMultiByte(CP_ACP, 0, s1, s1_len, NULL, 0, NULL, NULL);
     int32_t request_len = 0;
     if (size > unicode_len) {
@@ -48,7 +48,7 @@ int32_t _cc_w2a(const wchar_t *s1, int32_t s1_len, char_t *s2, int32_t size) {
 
 #ifdef __CC_WIN32_CE__
 /*-- Called from fileio.c */
-int unlink(const tchar_t *filename) {
+_CC_API_PUBLIC(int) unlink(const tchar_t *filename) {
     /* Called to delete files before an extract overwrite. */
     return (DeleteFile(filename) ? 0 : -1);
 }
@@ -61,14 +61,14 @@ int unlink(const tchar_t *filename) {
 // is supported.
 //-- Called from fileio.c
 */
-int fflush(FILE *stream) {
+_CC_API_PUBLIC(int) fflush(FILE *stream) {
     return (FlushFileBuffers((HANDLE)stream) ? 0 : EOF);
 }
 #endif
 #endif
 
 /**/
-int32_t _cc_set_clipboard_text(const tchar_t *str) {
+_CC_API_PUBLIC(int32_t) _cc_set_clipboard_text(const tchar_t *str) {
     if (OpenClipboard(_clipboard_handle)) {
         tchar_t *buf = NULL;
         int32_t len = (int32_t)_tcslen(str);
@@ -103,7 +103,7 @@ int32_t _cc_set_clipboard_text(const tchar_t *str) {
 }
 
 /**/
-int32_t _cc_get_clipboard_text(tchar_t *str, int32_t len) {
+_CC_API_PUBLIC(int32_t) _cc_get_clipboard_text(tchar_t *str, int32_t len) {
 #ifdef _CC_UNICODE_
     if (!IsClipboardFormatAvailable(CF_UNICODETEXT)) {
         return 4;
@@ -137,7 +137,7 @@ int32_t _cc_get_clipboard_text(tchar_t *str, int32_t len) {
 }
 
 /**/
-bool_t _cc_has_clipboard_text(void) {
+_CC_API_PUBLIC(bool_t) _cc_has_clipboard_text(void) {
 #ifdef _CC_UNICODE_
     if (!IsClipboardFormatAvailable(CF_UNICODETEXT)) {
         return false;
@@ -151,17 +151,17 @@ bool_t _cc_has_clipboard_text(void) {
 }
 
 /**/
-void _cc_set_last_errno(int32_t _errno) {
+_CC_API_PUBLIC(void) _cc_set_last_errno(int32_t _errno) {
     WSASetLastError(_errno);
 }
 
 /**/
-int32_t _cc_last_errno(void) {
+_CC_API_PUBLIC(int32_t) _cc_last_errno(void) {
     return WSAGetLastError();
 }
 
 /**/
-tchar_t *_cc_last_error(int32_t _errno) {
+_CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
     static tchar_t sys_error_info[4096];
 
     FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK, NULL,
@@ -170,7 +170,7 @@ tchar_t *_cc_last_error(int32_t _errno) {
 }
 
 /**/
-int32_t _cc_get_computer_name(tchar_t *name, int32_t maxlen) {
+_CC_API_PUBLIC(int32_t) _cc_get_computer_name(tchar_t *name, int32_t maxlen) {
     if (GetComputerName(name, &maxlen)) {
         return 0;
     }
@@ -178,12 +178,12 @@ int32_t _cc_get_computer_name(tchar_t *name, int32_t maxlen) {
 }
 
 /**/
-int32_t _cc_get_current_directory(tchar_t *cwd, int32_t maxlen) {
+_CC_API_PUBLIC(int32_t) _cc_get_current_directory(tchar_t *cwd, int32_t maxlen) {
     return GetCurrentDirectory(maxlen, (LPTSTR)cwd);
 }
 
 /**/
-int32_t _cc_get_current_file(tchar_t *cwd, int32_t maxlen) {
+_CC_API_PUBLIC(int32_t) _cc_get_current_file(tchar_t *cwd, int32_t maxlen) {
     int32_t rc = (int32_t)GetModuleFileName(NULL, cwd, maxlen);
     if (rc <= 0) {
         return 0;
@@ -192,7 +192,7 @@ int32_t _cc_get_current_file(tchar_t *cwd, int32_t maxlen) {
 }
 
 /**/
-int32_t _cc_get_module_file_name(tchar_t *cwd, int32_t maxlen) {
+_CC_API_PUBLIC(int32_t) _cc_get_module_file_name(tchar_t *cwd, int32_t maxlen) {
     int32_t i = 0;
     int32_t len = 0;
     int32_t rc = 0;
@@ -225,7 +225,7 @@ int32_t _cc_get_module_file_name(tchar_t *cwd, int32_t maxlen) {
 }
 
 /**/
-int32_t _cc_get_module_document_directory(tchar_t *cwd, int32_t maxlen) {
+_CC_API_PUBLIC(int32_t) _cc_get_module_document_directory(tchar_t *cwd, int32_t maxlen) {
     /*
     if (!SHGetSpecialFolderPath(NULL, cwd, CSIDL_PERSONAL, false)) {
         _cc_logger_error(_T("SHGetSpecialFolderPath CSIDL_PERSONAL fail (%ld)"),
@@ -235,7 +235,7 @@ int32_t _cc_get_module_document_directory(tchar_t *cwd, int32_t maxlen) {
 }
 
 /**/
-int32_t _cc_get_module_cache_directory(tchar_t *cwd, int32_t maxlen) {
+_CC_API_PUBLIC(int32_t) _cc_get_module_cache_directory(tchar_t *cwd, int32_t maxlen) {
     /*
     if (!SHGetSpecialFolderPath(NULL, cwd, CSIDL_LOCAL_APPDATA, false)) {
         _cc_logger_error(_T("SHGetSpecialFolderPath CSIDL_LOCAL_APPDATA fail
@@ -250,7 +250,7 @@ int32_t _get_executable_directory(tchar_t *cwd, int32_t maxlen) {
 }
 
 /**/
-int32_t _cc_get_module_directory(const tchar_t *module, tchar_t *cwd, int32_t maxlen) {
+_CC_API_PUBLIC(int32_t) _cc_get_module_directory(const tchar_t *module, tchar_t *cwd, int32_t maxlen) {
     int32_t i = 0;
     int32_t rc = (int32_t)GetModuleFileName(NULL, cwd, maxlen);
 
@@ -277,7 +277,7 @@ int32_t _cc_get_module_directory(const tchar_t *module, tchar_t *cwd, int32_t ma
 }
 
 /**/
-bool_t _cc_set_current_directory(tchar_t *cwd) {
+_CC_API_PUBLIC(bool_t) _cc_set_current_directory(tchar_t *cwd) {
     if (cwd == NULL) {
         return false;
     }

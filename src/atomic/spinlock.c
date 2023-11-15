@@ -31,7 +31,7 @@
 #include <atomic.h>
 #endif
 
-void _cc_spin_lock_init(_cc_spinlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_spin_lock_init(_cc_spinlock_t *lock) {
     if (_cc_cpu_number_processors <= 0) {
         _cc_cpu_count();
     }
@@ -39,11 +39,11 @@ void _cc_spin_lock_init(_cc_spinlock_t *lock) {
 }
 
 /**/
-void _cc_spin_lock(_cc_spinlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_spin_lock(_cc_spinlock_t *lock) {
     _cc_lock((_cc_atomic32_t *)lock, 1, _CC_LOCK_SPIN_);
 }
 
 /**/
-void _cc_spin_unlock(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_spin_unlock(_cc_rwlock_t *lock) {
     *lock = 0;
 }

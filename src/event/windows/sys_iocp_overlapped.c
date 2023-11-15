@@ -21,14 +21,14 @@
 #include <cc/alloc.h>
 #include "sys_socket_c.h"
 
-void _cc_iocp_overlapped_init(_cc_event_cycle_priv_t *ed) {
+_CC_API_PUBLIC(void) _cc_iocp_overlapped_init(_cc_event_cycle_priv_t *ed) {
     _cc_list_iterator_cleanup(&ed->overlapped_active);
     _cc_list_iterator_cleanup(&ed->overlapped_idle);
     _cc_spin_lock_init(&ed->lock);
     ed->idle_count = 0;
 }
 
-void _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *ed) {
+_CC_API_PUBLIC(void) _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *ed) {
     _cc_spin_lock(&ed->lock);
     _cc_list_iterator_for_each(val, &ed->overlapped_active, {
         _iocp_overlapped_t *o = _cc_upcast(val, _iocp_overlapped_t, lnk);
@@ -43,7 +43,7 @@ void _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *ed) {
     _cc_spin_unlock(&ed->lock);
 }
 
-bool_t _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *ed, _iocp_overlapped_t **iocp_overlapped) {
+_CC_API_PUBLIC(bool_t) _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *ed, _iocp_overlapped_t **iocp_overlapped) {
     _cc_list_iterator_t *lnk;
 
     _cc_spin_lock(&ed->lock);
@@ -66,7 +66,7 @@ bool_t _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *ed, _iocp_overlapped_t 
     return true;
 }
 
-bool_t _cc_iocp_overlapped_free(_cc_event_cycle_priv_t *ed, _iocp_overlapped_t *iocp_overlapped) {
+_CC_API_PUBLIC(bool_t) _cc_iocp_overlapped_free(_cc_event_cycle_priv_t *ed, _iocp_overlapped_t *iocp_overlapped) {
     if (ed->idle_count >= 64) {
         _cc_spin_lock(&ed->lock);
         _cc_list_iterator_remove(&iocp_overlapped->lnk);

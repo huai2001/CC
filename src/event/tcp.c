@@ -24,7 +24,7 @@
 /**< The backlog that listen() should use. */
 #define _NET_LISTEN_BACKLOG_ SOMAXCONN
 /**/
-bool_t _cc_tcp_listen(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
+_CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
     /*Open then socket*/
     e->fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (e->fd == -1) {
@@ -58,7 +58,7 @@ bool_t _cc_tcp_listen(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *
     return cycle->driver.attach(cycle, e);
 }
 
-bool_t _cc_tcp_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
+_CC_API_PUBLIC(bool_t) _cc_tcp_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
     /*Open then socket*/
     e->fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (e->fd == -1) {

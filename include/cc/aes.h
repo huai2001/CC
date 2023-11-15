@@ -60,7 +60,7 @@ typedef struct _cc_aes {
  *
  * @param ctx      AES context to be initialized
  */
-_CC_API(void) _cc_aes_init(_cc_aes_t *ctx);
+_CC_API_PUBLIC(void) _cc_aes_init(_cc_aes_t *ctx);
 
 /**
  * @brief          AES key schedule (encryption)
@@ -71,7 +71,7 @@ _CC_API(void) _cc_aes_init(_cc_aes_t *ctx);
  *
  * @return         0 if successful, or _CC_ERR_AES_INVALID_KEY_LENGTH_
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_aes_setkey_enc(_cc_aes_t *ctx, const byte_t *key, unsigned int keybits);
 
 /**
@@ -83,7 +83,7 @@ _cc_aes_setkey_enc(_cc_aes_t *ctx, const byte_t *key, unsigned int keybits);
  *
  * @return         0 if successful, or _CC_ERR_AES_INVALID_KEY_LENGTH_
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_aes_setkey_dec(_cc_aes_t *ctx, const byte_t *key, unsigned int keybits);
 
 /**
@@ -94,7 +94,7 @@ _cc_aes_setkey_dec(_cc_aes_t *ctx, const byte_t *key, unsigned int keybits);
  * @param key      encryption/decryption key
  * @param keybits  must be 128, 192 or 256
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_aes_setkey(_cc_aes_t *ctx, int mode, const byte_t *key, uint32_t keybits);
 
 #if defined(_CC_CIPHER_MODE_CBC_)
@@ -120,7 +120,7 @@ _cc_aes_setkey(_cc_aes_t *ctx, int mode, const byte_t *key, uint32_t keybits);
  *
  * @return         0 if successful, or _CC_ERR_AES_INVALID_INPUT_LENGTH_
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_aes_crypt_cbc(_cc_aes_t *ctx, int mode, size_t length, byte_t iv[16], const byte_t *input, byte_t *output);
 #endif /* _CC_CIPHER_MODE_CBC_ */
 
@@ -150,7 +150,7 @@ _cc_aes_crypt_cbc(_cc_aes_t *ctx, int mode, size_t length, byte_t iv[16], const 
  *
  * @return         0 if successful
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_aes_crypt_cfb128(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, size_t *iv_off, byte_t iv[16],
                      byte_t *output);
 
@@ -178,7 +178,7 @@ _cc_aes_crypt_cfb128(_cc_aes_t *ctx, int mode, const byte_t *input, size_t lengt
  *
  * @return         0 if successful
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_aes_crypt_cfb8(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length, byte_t iv[16], byte_t *output);
 #endif /*_CC_CIPHER_MODE_CFB_ */
 
@@ -205,7 +205,7 @@ _cc_aes_crypt_cfb8(_cc_aes_t *ctx, int mode, const byte_t *input, size_t length,
  *
  * @return         0 if successful
  */
-_CC_API(int)
+_CC_API_PUBLIC(int)
 _cc_aes_crypt_ctr(_cc_aes_t *ctx, const byte_t *input, size_t length, size_t *nc_off, byte_t nonce_counter[16],
                   byte_t stream_block[16], byte_t *output);
 #endif /* _CC_CIPHER_MODE_CTR_ */
@@ -218,7 +218,7 @@ _cc_aes_crypt_ctr(_cc_aes_t *ctx, const byte_t *input, size_t length, size_t *nc
  * @param input     Plaintext block
  * @param output    Output (ciphertext) block
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_aes_encrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]);
 
 /**
@@ -229,7 +229,7 @@ _cc_aes_encrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]);
  * @param input     Ciphertext block
  * @param output    Output (plaintext) block
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_aes_decrypt(_cc_aes_t *ctx, const byte_t input[16], byte_t output[16]);
 
 /* Ends C function definitions when using C++ */

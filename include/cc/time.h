@@ -35,13 +35,13 @@
 extern "C" {
 #endif
 
-_CC_API(void) _cc_sleep(uint32_t);
-_CC_API(void) _cc_nsleep(uint32_t);
-_CC_API(uint32_t) _cc_get_ticks(void);
+_CC_API_PUBLIC(void) _cc_sleep(uint32_t);
+_CC_API_PUBLIC(void) _cc_nsleep(uint32_t);
+_CC_API_PUBLIC(uint32_t) _cc_get_ticks(void);
 
 #ifdef __CC_WIN32_CE__
-_CC_API(time_t) time(time_t*);
-_CC_API(struct tm*) localtime(const time_t*);
+_CC_API_PUBLIC(time_t) time(time_t*);
+_CC_API_PUBLIC(struct tm*) localtime(const time_t*);
 #endif
 
 #ifdef __CC_WINDOWS__
@@ -57,18 +57,18 @@ struct timespec {
 };
 #endif
 
-_CC_API(int)
+_CC_API_PUBLIC(int)
 gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info);
 
 #endif
 
-_CC_API(const tchar_t *)
+_CC_API_PUBLIC(const tchar_t *)
 _cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *tm);
 
-_CC_API(time_t)
+_CC_API_PUBLIC(time_t)
 _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_t hour, int32_t min, int32_t sec, int32_t utc);
 
-_CC_API(uint64_t) _cc_timestamp(void);
+_CC_API_PUBLIC(uint64_t) _cc_timestamp(void);
 /**
  * @brief Compare ticks values, and return true if A has passed B
  *

@@ -48,7 +48,7 @@ static const byte_t PI_SUBST[256] = {
 /*
  * MD2 context setup
  */
-void _cc_md2_init(_cc_md2_t *ctx) {
+_CC_API_PUBLIC(void) _cc_md2_init(_cc_md2_t *ctx) {
     memset(ctx->cksum, 0, 16);
     memset(ctx->state, 0, 46);
     memset(ctx->buffer, 0, 16);
@@ -56,7 +56,7 @@ void _cc_md2_init(_cc_md2_t *ctx) {
 }
 
 #if !defined(_CC_MD2_PROCESS_ALT)
-void _cc_md2_process(_cc_md2_t *ctx) {
+_CC_API_PUBLIC(void) _cc_md2_process(_cc_md2_t *ctx) {
     int i, j;
     byte_t t = 0;
 
@@ -85,7 +85,7 @@ void _cc_md2_process(_cc_md2_t *ctx) {
 /*
  * MD2 process buffer
  */
-void _cc_md2_update(_cc_md2_t *ctx, const byte_t *input, size_t ilen) {
+_CC_API_PUBLIC(void) _cc_md2_update(_cc_md2_t *ctx, const byte_t *input, size_t ilen) {
     size_t fill;
 
     while (ilen > 0) {
@@ -111,7 +111,7 @@ void _cc_md2_update(_cc_md2_t *ctx, const byte_t *input, size_t ilen) {
 /*
  * MD2 final digest
  */
-void _cc_md2_final(_cc_md2_t *ctx, byte_t *output) {
+_CC_API_PUBLIC(void) _cc_md2_final(_cc_md2_t *ctx, byte_t *output) {
     size_t i;
     byte_t x;
 
@@ -132,7 +132,7 @@ void _cc_md2_final(_cc_md2_t *ctx, byte_t *output) {
 /*
     Digests a file.
  */
-bool_t _cc_md2_fp(FILE *fp, tchar_t *output) {
+_CC_API_PUBLIC(bool_t) _cc_md2_fp(FILE *fp, tchar_t *output) {
     byte_t md[_CC_MD2_DIGEST_LENGTH_];
     byte_t buf[1024 * 16];
     size_t i;
@@ -164,7 +164,7 @@ bool_t _cc_md2_fp(FILE *fp, tchar_t *output) {
 /*
     Digests a file.
  */
-bool_t _cc_md2file(const tchar_t *filename, tchar_t *output) {
+_CC_API_PUBLIC(bool_t) _cc_md2file(const tchar_t *filename, tchar_t *output) {
     FILE *fp = _tfopen(filename, _T("rb"));
 
     if (fp) {
@@ -178,7 +178,7 @@ bool_t _cc_md2file(const tchar_t *filename, tchar_t *output) {
 /*
  * output = MD2( input buffer )
  */
-void _cc_md2(const byte_t *input, uint32_t length, tchar_t *output) {
+_CC_API_PUBLIC(void) _cc_md2(const byte_t *input, uint32_t length, tchar_t *output) {
     _cc_md2_t c;
     byte_t md[_CC_MD2_DIGEST_LENGTH_];
 

@@ -23,13 +23,13 @@
 #include <cc/logger.h>
 
 /**/
-bool_t _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode);
+_CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode);
 
 #ifndef __CC_WINDOWS__
 
 #define _GET_HANDLE(x) (FILE *)(x->fp)
 
-static int64_t _cc_stdio_file_size(_cc_file_t *context) {
+_CC_API_PRIVATE(int64_t) _cc_stdio_file_size(_cc_file_t *context) {
     _cc_fseek_off_t pos = 0, size = 1;
     _cc_assert(context && _GET_HANDLE(context));
     /*
@@ -54,7 +54,7 @@ static int64_t _cc_stdio_file_size(_cc_file_t *context) {
     return (int64_t)size;
 }
 
-static bool_t _cc_stdio_file_seek(_cc_file_t *context, int64_t offset, int whence) {
+_CC_API_PRIVATE(bool_t) _cc_stdio_file_seek(_cc_file_t *context, int64_t offset, int whence) {
     _cc_assert(context && _GET_HANDLE(context));
     /*
     if (!context || _GET_HANDLE(context) == NULL) {
@@ -68,7 +68,7 @@ static bool_t _cc_stdio_file_seek(_cc_file_t *context, int64_t offset, int whenc
     return false;
 }
 
-static size_t _cc_stdio_file_read(_cc_file_t *context, pvoid_t ptr, size_t size, size_t maxnum) {
+_CC_API_PRIVATE(size_t) _cc_stdio_file_read(_cc_file_t *context, pvoid_t ptr, size_t size, size_t maxnum) {
     _cc_assert(context && _GET_HANDLE(context));
     /*
     if (!context || _GET_HANDLE(context) == NULL) {
@@ -78,7 +78,7 @@ static size_t _cc_stdio_file_read(_cc_file_t *context, pvoid_t ptr, size_t size,
     return fread(ptr, size, maxnum, _GET_HANDLE(context));
 }
 
-static size_t _cc_stdio_file_write(_cc_file_t *context, const pvoid_t ptr, size_t size, size_t num) {
+_CC_API_PRIVATE(size_t) _cc_stdio_file_write(_cc_file_t *context, const pvoid_t ptr, size_t size, size_t num) {
     _cc_assert(context && _GET_HANDLE(context));
     /*
     if (!context || _GET_HANDLE(context) == NULL) {
@@ -88,7 +88,7 @@ static size_t _cc_stdio_file_write(_cc_file_t *context, const pvoid_t ptr, size_
     return fwrite(ptr, size, num, _GET_HANDLE(context));
 }
 
-static bool_t _cc_stdio_file_close(_cc_file_t *context) {
+_CC_API_PRIVATE(bool_t) _cc_stdio_file_close(_cc_file_t *context) {
     bool_t status = true;
 
     _cc_assert(context && _GET_HANDLE(context));
@@ -109,7 +109,7 @@ static bool_t _cc_stdio_file_close(_cc_file_t *context) {
 
 #ifndef __CC_MACOSX__
 /**/
-bool_t _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
+_CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
     f->fp = _tfopen(filename, mode);
     return (f->fp != NULL);
 }
@@ -118,7 +118,7 @@ bool_t _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *
 #endif /*!__CC_WINDOWS__*/
 
 /**/
-_cc_file_t *_cc_open_file(const tchar_t *filename, const tchar_t *mode) {
+_CC_API_PUBLIC(_cc_file_t*) _cc_open_file(const tchar_t *filename, const tchar_t *mode) {
     _cc_file_t *f;
 
     f = (_cc_file_t *)_cc_malloc(sizeof(_cc_file_t));

@@ -121,37 +121,37 @@ extern const char_t _a_upper_xdigits[];
 } while(0)
 
 /* bin to hex*/
-_CC_API(tchar_t *) _cc_bin2hex(uchar_t, tchar_t *);
+_CC_API_PUBLIC(tchar_t *) _cc_bin2hex(uchar_t, tchar_t *);
 /* parse hexadecimal number */
-_CC_API(uint8_t) _cc_hex2(const tchar_t *);
+_CC_API_PUBLIC(uint8_t) _cc_hex2(const tchar_t *);
 /* parse hexadecimal number */
-_CC_API(uint16_t) _cc_hex4(const tchar_t *);
+_CC_API_PUBLIC(uint16_t) _cc_hex4(const tchar_t *);
 /* parse hexadecimal number */
-_CC_API(uint32_t) _cc_hex8(const tchar_t *);
+_CC_API_PUBLIC(uint32_t) _cc_hex8(const tchar_t *);
 /* parse hexadecimal number */
-_CC_API(uint64_t) _cc_hex16(const tchar_t *);
+_CC_API_PUBLIC(uint64_t) _cc_hex16(const tchar_t *);
 /* byte to hex string*/
-_CC_API(size_t) _cc_bytes2hex(const byte_t *, size_t, tchar_t *, size_t);
+_CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *, size_t, tchar_t *, size_t);
 /* hex string to byte*/
-_CC_API(size_t) _cc_hex2bytes(const tchar_t *, size_t, byte_t *, size_t);
+_CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *, size_t, byte_t *, size_t);
 
 /* Returns a string converted to upper case */
-_CC_API(char_t *) _cc_to_upperA(char_t *);
+_CC_API_PUBLIC(char_t *) _cc_to_upperA(char_t *);
 /* Returns a string converted to lower case */
-_CC_API(char_t *) _cc_to_lowerA(char_t *);
+_CC_API_PUBLIC(char_t *) _cc_to_lowerA(char_t *);
 
 /* Returns a string converted to upper case */
-_CC_API(wchar_t *) _cc_to_upperW(wchar_t *);
+_CC_API_PUBLIC(wchar_t *) _cc_to_upperW(wchar_t *);
 /* Returns a string converted to lower case */
-_CC_API(wchar_t *) _cc_to_lowerW(wchar_t *);
+_CC_API_PUBLIC(wchar_t *) _cc_to_lowerW(wchar_t *);
 /**/
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_splitA(_cc_strA_t *dst, int32_t count, char_t *src, int32_t(separator)(char_t *, int32_t));
 /**/
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_splitW(_cc_strW_t *dst, int32_t count, wchar_t *src, int32_t(separator)(wchar_t *, int32_t));
 /**/
-_CC_API(tchar_t *) _cc_substr(tchar_t *, const tchar_t *, uint32_t, int32_t);
+_CC_API_PUBLIC(tchar_t *) _cc_substr(tchar_t *, const tchar_t *, uint32_t, int32_t);
 
 typedef enum _CC_NUMBER_TYPES_ {
     _CC_NUMBER_INT_ = 1,
@@ -168,7 +168,7 @@ typedef struct _cc_number {
 
 /* Parse the input text to generate a number, and populate the result into item.
  */
-_CC_API(const tchar_t *) _cc_to_number(const tchar_t *s, _cc_number_t *item);
+_CC_API_PUBLIC(const tchar_t *) _cc_to_number(const tchar_t *s, _cc_number_t *item);
 
 /* buf points to the END of the buffer
 _CC_FORCE_INLINE_ char_t *_cc_long2buf(char_t *buf, long num) {

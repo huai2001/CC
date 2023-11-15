@@ -22,7 +22,7 @@
 #include <cc/alloc.h>
 #include <cc/event/timeout.h>
 
-static void _timeout_add(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _timeout_add(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     uint32_t elapsed;
     uint32_t expire;
     uint32_t mask;
@@ -48,13 +48,13 @@ static void _timeout_add(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_list_iterator_swap(&cycle->level[i][mask], &e->lnk);
 }
 
-static void _timeout_move_list(_cc_event_cycle_t *cycle, int level, int ident) {
+_CC_API_PRIVATE(void) _timeout_move_list(_cc_event_cycle_t *cycle, int level, int ident) {
     _cc_list_iterator_t *head = &cycle->level[level][ident];
     _cc_list_iterator_for_each(it, head, { _timeout_add(cycle, _cc_upcast(it, _cc_event_t, lnk)); });
     _cc_list_iterator_cleanup(&cycle->level[level][ident]);
 }
 
-static void _timeout_shift(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(void) _timeout_shift(_cc_event_cycle_t *cycle) {
     int m;
     int i;
     uint32_t v;
@@ -79,7 +79,7 @@ static void _timeout_shift(_cc_event_cycle_t *cycle) {
     }
 }
 
-static void _timeout_execute(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(void) _timeout_execute(_cc_event_cycle_t *cycle) {
     int i;
     i = cycle->timers & _CC_TIMEOUT_NEAR_MASK_;
 
@@ -97,7 +97,7 @@ static void _timeout_execute(_cc_event_cycle_t *cycle) {
     }
 }
 
-void _cc_update_event_timeout(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PUBLIC(void) _cc_update_event_timeout(_cc_event_cycle_t *cycle, uint32_t timeout) {
     uint32_t tick = _cc_get_ticks();
     if (_cc_unlikely(tick < cycle->tick)) {
         //_cc_logger_error(_T("time diff error: change from %ld to %ld"), tick, cycle->tick);
@@ -124,7 +124,7 @@ void _cc_update_event_timeout(_cc_event_cycle_t *cycle, uint32_t timeout) {
     return;
 }
 
-void _cc_reset_event_timeout(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PUBLIC(void) _cc_reset_event_timeout(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, e->flags)) {
         e->timers = cycle->timers;
         _timeout_add(cycle, e);
@@ -134,7 +134,7 @@ void _cc_reset_event_timeout(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags)) {
         /*delete*/
         _cc_cleanup_event(cycle, e);
@@ -144,7 +144,7 @@ static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _driver_timeout_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PRIVATE(bool_t) _driver_timeout_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
     /**/
     _cc_reset_pending_event(cycle, _reset_event);
 
@@ -155,7 +155,7 @@ static bool_t _driver_timeout_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
 }
 
 /**/
-static bool_t _driver_timeout_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _driver_timeout_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_assert(cycle != NULL);
 
     if (_cc_event_wait_reset(cycle, e)) {
@@ -167,12 +167,12 @@ static bool_t _driver_timeout_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _driver_timeout_quit(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _driver_timeout_quit(_cc_event_cycle_t *cycle) {
     _cc_assert(cycle != NULL);
     return _cc_event_cycle_quit(cycle);
 }
 
-bool_t _cc_init_event_timeout(_cc_event_cycle_t *cycle) {
+_CC_API_PUBLIC(bool_t) _cc_init_event_timeout(_cc_event_cycle_t *cycle) {
     _cc_assert(cycle != NULL);
     if (!_cc_event_cycle_init(cycle)) {
         return false;
@@ -190,7 +190,7 @@ bool_t _cc_init_event_timeout(_cc_event_cycle_t *cycle) {
     return true;
 }
 
-_cc_event_t *_cc_add_event_timeout(_cc_event_cycle_t *cycle, uint32_t timeout, _cc_event_callback_t callback, pvoid_t args) {
+_CC_API_PUBLIC(_cc_event_t*) _cc_add_event_timeout(_cc_event_cycle_t *cycle, uint32_t timeout, _cc_event_callback_t callback, pvoid_t args) {
     _cc_event_t *e = _cc_alloc_event(cycle, _CC_EVENT_TIMEOUT_);
     if (e == NULL) {
         return NULL;
@@ -207,7 +207,7 @@ _cc_event_t *_cc_add_event_timeout(_cc_event_cycle_t *cycle, uint32_t timeout, _
 }
 
 /**/
-bool_t _cc_kill_event_timeout(_cc_event_cycle_t *cycle, _cc_event_t *timer) {
+_CC_API_PUBLIC(bool_t) _cc_kill_event_timeout(_cc_event_cycle_t *cycle, _cc_event_t *timer) {
     _cc_assert(cycle != NULL && timer != NULL);
     timer->flags = _CC_EVENT_DISCONNECT_;
 

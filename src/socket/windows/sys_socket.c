@@ -45,16 +45,16 @@ static LPFN_GETQUEUEDCOMPLETIONSTATUSEX _get_queued_completion_status_func_ptr =
 static LPFN_TRANSMITFILE _transmit_file_func_ptr = NULL;
 #endif
 
-_cc_sockaddr_t *_cc_win_get_ipv4_any_addr(void) {
+_CC_API_PUBLIC(_cc_sockaddr_t*) _cc_win_get_ipv4_any_addr(void) {
     return (_cc_sockaddr_t *)&_win_addr_ipv4_any;
 }
 
-_cc_sockaddr_t *_cc_win_get_ipv6_any_addr(void) {
+_CC_API_PUBLIC(_cc_sockaddr_t*) _cc_win_get_ipv6_any_addr(void) {
     return (_cc_sockaddr_t *)&_win_addr_ipv6_any;
 }
 
 /**/
-bool_t _cc_install_socket(void) {
+_CC_API_PUBLIC(bool_t) _cc_install_socket(void) {
     /* Start up the windows networking */
     if (_cc_atomic32_inc_ref(&_socket_started)) {
         SOCKET fd;
@@ -84,7 +84,7 @@ bool_t _cc_install_socket(void) {
 }
 
 /**/
-bool_t _cc_uninstall_socket(void) {
+_CC_API_PUBLIC(bool_t) _cc_uninstall_socket(void) {
     if (_cc_unlikely(_socket_started == 0)) {
         return true;
     }
@@ -105,7 +105,7 @@ bool_t _cc_uninstall_socket(void) {
 }
 
 /**/
-int _cc_close_socket(_cc_socket_t fd) {
+_CC_API_PUBLIC(int) _cc_close_socket(_cc_socket_t fd) {
     int request = closesocket(fd);
 
 #ifdef _CC_DEBUG_
@@ -118,7 +118,7 @@ int _cc_close_socket(_cc_socket_t fd) {
     return request;
 }
 
-int _cc_set_socket_nodelay(_cc_socket_t fd, int opt) {
+_CC_API_PUBLIC(int) _cc_set_socket_nodelay(_cc_socket_t fd, int opt) {
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&opt, sizeof(opt)) == -1) {
         return WSAGetLastError();
     }
@@ -128,7 +128,7 @@ int _cc_set_socket_nodelay(_cc_socket_t fd, int opt) {
 /**
  * Set the socket to nonblocking mode
  */
-int _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
+_CC_API_PUBLIC(int) _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
     int flags = ioctlsocket(fd, FIONBIO, (unsigned long *)&nonblocking);
     if (_cc_unlikely(flags == SOCKET_ERROR)) {
         flags = _cc_last_errno();
@@ -138,7 +138,7 @@ int _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
 }
 
 /**/
-int _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay) {
+_CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay) {
     tcp_keepalive_t klive;
     if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (const char *)&opt, sizeof opt) == -1) {
         return WSAGetLastError();

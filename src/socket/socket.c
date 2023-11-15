@@ -75,7 +75,7 @@ int __cc_set_fcntl(_cc_socket_t fd, int flags) {
  * This function should be invoked for fd's on specific places
  * where fork + execve system calls are called. */
 
-bool_t _cc_set_socket_closeonexec(_cc_socket_t fd) {
+_CC_API_PUBLIC(bool_t) _cc_set_socket_closeonexec(_cc_socket_t fd) {
 #if defined(FD_CLOEXEC)
     int flags = __cc_get_fcntl(fd);
     if (flags == -1 || (flags & FD_CLOEXEC)) {
@@ -89,7 +89,7 @@ bool_t _cc_set_socket_closeonexec(_cc_socket_t fd) {
     return true;
 }
 #endif
-_cc_socket_t _cc_socket(uint32_t domain, uint32_t type, uint32_t protocol) {
+_CC_API_PUBLIC(_cc_socket_t) _cc_socket(uint32_t domain, uint32_t type, uint32_t protocol) {
     _cc_socket_t fd;
 #if defined(SOCK_NONBLOCK) && defined(SOCK_CLOEXEC)
     fd = socket(domain, type, protocol);
@@ -123,7 +123,7 @@ _cc_socket_t _cc_socket(uint32_t domain, uint32_t type, uint32_t protocol) {
     return fd;
 }
 
-int _cc_set_socket_reuseport(_cc_socket_t fd, int optval) {
+_CC_API_PUBLIC(int) _cc_set_socket_reuseport(_cc_socket_t fd, int optval) {
     int res = 0;
 #ifdef SO_REUSEPORT
     res = setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, SETSOCKOPT_OPTVAL_TYPE & optval, (socklen_t)(sizeof(int)));
@@ -134,7 +134,7 @@ int _cc_set_socket_reuseport(_cc_socket_t fd, int optval) {
     return res;
 }
 
-int _cc_set_socket_reuseaddr(_cc_socket_t fd) {
+_CC_API_PUBLIC(int) _cc_set_socket_reuseaddr(_cc_socket_t fd) {
     int yes = 1;
     /* Make sure connection-intensive things like the redis benchmark
      * will be able to close/open sockets a zillion of times */
@@ -146,7 +146,7 @@ int _cc_set_socket_reuseaddr(_cc_socket_t fd) {
     return 0;
 }
 
-int _cc_socket_ipv6only(_cc_socket_t fd) {
+_CC_API_PUBLIC(int) _cc_socket_ipv6only(_cc_socket_t fd) {
 #if defined(IPV6_V6ONLY)
     int one = 1;
     return setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&one, (_cc_socklen_t)sizeof(one));
@@ -154,7 +154,7 @@ int _cc_socket_ipv6only(_cc_socket_t fd) {
     return 0;
 }
 
-_cc_socket_t _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
+_CC_API_PUBLIC(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
     _cc_socket_t accept_fd;
     int err = 0;
 
@@ -177,7 +177,7 @@ _cc_socket_t _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *sa, _cc_socklen_
 /* Set the socket send/recv timeout (SO_SNDTIMEO/SO_RCVTIMEO socket option) to
  * the specified number of milliseconds, or disable it if the 'ms' argument is
  * zero. */
-int _cc_set_socket_timeout(_cc_socket_t fd, long ms) {
+_CC_API_PUBLIC(int) _cc_set_socket_timeout(_cc_socket_t fd, long ms) {
     int err = 0;
     struct timeval tv;
 
@@ -198,7 +198,7 @@ int _cc_set_socket_timeout(_cc_socket_t fd, long ms) {
     return 0;
 }
 /**/
-int32_t _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len) {
+_CC_API_PUBLIC(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len) {
     int32_t sent;
 #ifdef __CC_WINDOWS__
     sent = send(fd, (char *)buf, len, 0);
@@ -219,7 +219,7 @@ int32_t _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len) {
     return sent;
 }
 /**/
-int32_t _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_sockaddr_t *sa, _cc_socklen_t sa_len) {
+_CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_sockaddr_t *sa, _cc_socklen_t sa_len) {
     int32_t sent = 0;
     int32_t left = 0;
     unsigned int flags = 0;
@@ -249,7 +249,7 @@ int32_t _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_so
 }
 
 /**/
-int32_t _cc_recv(_cc_socket_t fd, byte_t* buf, int32_t len) {
+_CC_API_PUBLIC(int32_t) _cc_recv(_cc_socket_t fd, byte_t* buf, int32_t len) {
     int32_t left = 0;
 
 GOTO_SRECV_CONTINUE:

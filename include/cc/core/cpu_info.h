@@ -75,9 +75,9 @@ extern int _cc_cpu_number_processors;
 /**
  *  @brief This function returns the number of CPU cores available.
  */
-_CC_API(int) _cc_cpu_count(void);
+_CC_API_PUBLIC(int) _cc_cpu_count(void);
 
-_CC_API(const tchar_t*) _cc_cpu_sn(void);
+_CC_API_PUBLIC(const tchar_t*) _cc_cpu_sn(void);
 
 
 /* Ends C function definitions when using C++ */

@@ -21,7 +21,7 @@
 #include "sys_thread.c.h"
 
 /** Create a mutex, initialized unlocked */
-_cc_mutex_t *_cc_create_mutex(void) {
+_CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
     _cc_mutex_t *mutex;
     pthread_mutexattr_t attr;
 
@@ -46,7 +46,7 @@ _cc_mutex_t *_cc_create_mutex(void) {
 }
 
 /* Free the mutex */
-void _cc_destroy_mutex(_cc_mutex_t **mutex) {
+_CC_API_PUBLIC(void) _cc_destroy_mutex(_cc_mutex_t **mutex) {
     if (_cc_likely(*mutex)) {
         pthread_mutex_destroy(&(*mutex)->ident);
         _cc_free(*mutex);
@@ -55,7 +55,7 @@ void _cc_destroy_mutex(_cc_mutex_t **mutex) {
 }
 
 /* Lock the mutex */
-bool_t _cc_mutex_lock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
 #if _CC_FAKE_RECURSIVE_MUTEX_
     pthread_t self;
 #endif
@@ -91,7 +91,7 @@ bool_t _cc_mutex_lock(_cc_mutex_t *mutex) {
 }
 
 /* Try Lock the mutex */
-int _cc_mutex_try_lock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 #if _CC_FAKE_RECURSIVE_MUTEX_
     pthread_t self;
 #endif
@@ -132,7 +132,7 @@ int _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 }
 
 /* Unlock the mutex */
-bool_t _cc_mutex_unlock(_cc_mutex_t *mutex) {
+_CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     if (_cc_unlikely(!mutex)) {
         _cc_logger_error(_T("Passed a NULL mutex"));
         return false;

@@ -28,7 +28,7 @@ typedef struct _socks5 {
     _cc_event_t *e;
 }_cc_socks5_t
 
-static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
+_CC_API_PRIVATE(bool_t) _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
     if (events & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_event_t *event;

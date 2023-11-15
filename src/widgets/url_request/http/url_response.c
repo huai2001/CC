@@ -26,7 +26,7 @@
 
 bool_t _gzip_inf(_cc_url_request_t *request, byte_t *source, size_t length);
 /**/
-bool_t _cc_url_read_response_body(_cc_url_request_t *request, byte_t *source, size_t length) {
+_CC_API_PUBLIC(bool_t) _cc_url_read_response_body(_cc_url_request_t *request, byte_t *source, size_t length) {
     _cc_http_response_header_t *response = request->response;
     if (response->content_encoding == _CC_URL_CONTENT_ENCODING_GZIP_) {
         return _gzip_inf(request, source, length);
@@ -40,7 +40,7 @@ bool_t _cc_url_read_response_body(_cc_url_request_t *request, byte_t *source, si
 }
 
 /**/
-static size_t _url_chunked_hex_length(const char_t *p, size_t *length_of_data, size_t length) {
+_CC_API_PRIVATE(size_t) _url_chunked_hex_length(const char_t *p, size_t *length_of_data, size_t length) {
     size_t offset = 0;
 
     *length_of_data = 0;
@@ -69,7 +69,7 @@ static size_t _url_chunked_hex_length(const char_t *p, size_t *length_of_data, s
 }
 
 /**/
-bool_t _cc_url_read_response_chunked(_cc_url_request_t *request, _cc_event_rbuf_t *rbuf) {
+_CC_API_PUBLIC(bool_t) _cc_url_read_response_chunked(_cc_url_request_t *request, _cc_event_rbuf_t *rbuf) {
     /**/
     size_t offset_of_data = 0;
     size_t length_of_data;

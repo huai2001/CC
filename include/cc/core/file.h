@@ -133,7 +133,7 @@ struct _cc_file {
  *
  * @return _cc_file structure
 */
-_CC_API(_cc_file_t*) _cc_open_file(const tchar_t *filename, const tchar_t *mode);
+_CC_API_PUBLIC(_cc_file_t*) _cc_open_file(const tchar_t *filename, const tchar_t *mode);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

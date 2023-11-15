@@ -34,8 +34,8 @@
 
 #define _CC_LOGGER_BUFFER_SIZE_ 1024
 
-static void _print_loggerW_callback(uint16_t flags, const wchar_t *logstr, size_t len, pvoid_t userdata);
-static void _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t len, pvoid_t userdata);
+_CC_API_PRIVATE(void) _print_loggerW_callback(uint16_t flags, const wchar_t *logstr, size_t len, pvoid_t userdata);
+_CC_API_PRIVATE(void) _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t len, pvoid_t userdata);
 
 static struct {
     _cc_loggerA_callback_t callbackA;
@@ -45,7 +45,7 @@ static struct {
 } _logger = {_print_loggerA_callback, _print_loggerW_callback, NULL, 0};
 
 #ifdef __CC_ANDROID__
-static void _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t len, pvoid_t userdata) {
+_CC_API_PRIVATE(void) _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t len, pvoid_t userdata) {
     // ANDROID_LOG_FATAL
     if (flags & _CC_LOGGER_FLAGS_NORMAL_) {
         __android_log_print(ANDROID_LOG_INFO, _CC_ANDROID_TAG_, "%s", logstr);
@@ -59,10 +59,10 @@ static void _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t
         __android_log_print(ANDROID_LOG_INFO, _CC_ANDROID_TAG_, "%s", logstr);
     }
 }
-static void _print_loggerW_callback(uint16_t flags, const wchar_t *logstr, size_t len, pvoid_t userdata) {
+_CC_API_PRIVATE(void) _print_loggerW_callback(uint16_t flags, const wchar_t *logstr, size_t len, pvoid_t userdata) {
 }
 #else
-static void _logger_print_header(uint16_t flags) {
+_CC_API_PRIVATE(void) _logger_print_header(uint16_t flags) {
     time_t now_time = time(NULL);
     struct tm *t = localtime(&now_time);
 
@@ -82,7 +82,7 @@ static void _logger_print_header(uint16_t flags) {
     }
 }
 
-static void _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t len, pvoid_t userdata) {
+_CC_API_PRIVATE(void) _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t len, pvoid_t userdata) {
     _logger_print_header(flags);
 
     fputs(logstr, stderr);
@@ -100,7 +100,7 @@ static void _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t
 #endif
 }
 
-static void _print_loggerW_callback(uint16_t flags, const wchar_t *logstr, size_t len, pvoid_t userdata) {
+_CC_API_PRIVATE(void) _print_loggerW_callback(uint16_t flags, const wchar_t *logstr, size_t len, pvoid_t userdata) {
     _logger_print_header(flags);
 
     fputws(logstr, stderr);
@@ -120,36 +120,36 @@ static void _print_loggerW_callback(uint16_t flags, const wchar_t *logstr, size_
 #endif
 
 /**/
-void _cc_logger_lock(void) {
+_CC_API_PUBLIC(void) _cc_logger_lock(void) {
     _cc_spin_lock(&_logger.lock);
 }
 
 /**/
-void _cc_logger_unlock() {
+_CC_API_PUBLIC(void) _cc_logger_unlock() {
     _cc_spin_unlock(&_logger.lock);
 }
 
 /**/
-void _cc_loggerA_set_output_callback(_cc_loggerA_callback_t callback, pvoid_t userdata) {
+_CC_API_PUBLIC(void) _cc_loggerA_set_output_callback(_cc_loggerA_callback_t callback, pvoid_t userdata) {
     _logger.callbackA = callback;
     _logger.userdata = userdata;
 }
 
 /**/
-void _cc_loggerW_set_output_callback(_cc_loggerW_callback_t callback, pvoid_t userdata) {
+_CC_API_PUBLIC(void) _cc_loggerW_set_output_callback(_cc_loggerW_callback_t callback, pvoid_t userdata) {
     _logger.callbackW = callback;
     _logger.userdata = userdata;
 }
 
 /**/
-void _cc_logger_set_output_callback(_cc_loggerA_callback_t callbackA, _cc_loggerW_callback_t callbackW,
+_CC_API_PUBLIC(void) _cc_logger_set_output_callback(_cc_loggerA_callback_t callbackA, _cc_loggerW_callback_t callbackW,
                                     pvoid_t userdata) {
     _logger.callbackA = callbackA;
     _logger.callbackW = callbackW;
     _logger.userdata = userdata;
 }
 
-void _cc_loggerA(uint16_t flags, const char_t *str) {
+_CC_API_PUBLIC(void) _cc_loggerA(uint16_t flags, const char_t *str) {
     if (_cc_likely(_logger.callbackA)) {
         _cc_logger_lock();
 #ifdef __CC_WINDOWS__
@@ -162,7 +162,7 @@ void _cc_loggerA(uint16_t flags, const char_t *str) {
     }
 }
 
-void _cc_loggerW(uint16_t flags, const wchar_t *str) {
+_CC_API_PUBLIC(void) _cc_loggerW(uint16_t flags, const wchar_t *str) {
     if (_cc_likely(_logger.callbackW)) {
         _cc_logger_lock();
         _logger.callbackW(flags | _CC_LOGGER_FLAGS_UTF16_, str, wcslen(str), _logger.userdata);
@@ -170,7 +170,7 @@ void _cc_loggerW(uint16_t flags, const wchar_t *str) {
     }
 }
 
-void _cc_loggerA_vformat(uint16_t flags, const char_t *fmt, va_list arg) {
+_CC_API_PUBLIC(void) _cc_loggerA_vformat(uint16_t flags, const char_t *fmt, va_list arg) {
     static char_t buf[_CC_LOGGER_BUFFER_SIZE_];
     size_t fmt_length, empty_len;
     char_t *ptr = buf;
@@ -224,7 +224,7 @@ void _cc_loggerA_vformat(uint16_t flags, const char_t *fmt, va_list arg) {
     }
 }
 
-void _cc_loggerW_vformat(uint16_t flags, const wchar_t *fmt, va_list arg) {
+_CC_API_PUBLIC(void) _cc_loggerW_vformat(uint16_t flags, const wchar_t *fmt, va_list arg) {
     static wchar_t buf[_CC_LOGGER_BUFFER_SIZE_];
     size_t fmt_length, empty_len;
 
@@ -273,7 +273,7 @@ void _cc_loggerW_vformat(uint16_t flags, const wchar_t *fmt, va_list arg) {
     }
 }
 
-void _cc_loggerA_format(uint16_t flags, const char_t *fmt, ...) {
+_CC_API_PUBLIC(void) _cc_loggerA_format(uint16_t flags, const char_t *fmt, ...) {
     va_list arg;
 
     va_start(arg, fmt);
@@ -281,7 +281,7 @@ void _cc_loggerA_format(uint16_t flags, const char_t *fmt, ...) {
     va_end(arg);
 }
 
-void _cc_loggerW_format(uint16_t flags, const wchar_t *fmt, ...) {
+_CC_API_PUBLIC(void) _cc_loggerW_format(uint16_t flags, const wchar_t *fmt, ...) {
     va_list arg;
 
     va_start(arg, fmt);

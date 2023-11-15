@@ -123,25 +123,25 @@ typedef struct _cc_url {
 } _cc_url_t;
 
 /**/
-_CC_API(bool_t) _cc_parse_url(_cc_url_t *, const tchar_t *);
+_CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *, const tchar_t *);
 /**/
-_CC_API(bool_t) _cc_free_url(_cc_url_t *);
+_CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *);
 /*create url*/
-_CC_API(_cc_url_t *) _cc_create_url(const tchar_t *);
+_CC_API_PUBLIC(_cc_url_t *) _cc_create_url(const tchar_t *);
 /**/
-_CC_API(bool_t) _cc_destroy_url(_cc_url_t **);
+_CC_API_PUBLIC(bool_t) _cc_destroy_url(_cc_url_t **);
 
 /**/
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 /**/
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 /**/
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_raw_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 /**/
-_CC_API(int32_t)
+_CC_API_PUBLIC(int32_t)
 _cc_raw_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 
 /* examples 1:

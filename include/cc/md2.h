@@ -44,7 +44,7 @@ typedef struct _cc_md2 {
  *
  * @param ctx      context to be initialized
  */
-_CC_API(void) _cc_md2_init(_cc_md2_t* ctx);
+_CC_API_PUBLIC(void) _cc_md2_init(_cc_md2_t* ctx);
 /**
  * @brief          MD2 process buffer
  *
@@ -52,14 +52,14 @@ _CC_API(void) _cc_md2_init(_cc_md2_t* ctx);
  * @param input    buffer holding the  data
  * @param ilen     length of the input data
  */
-_CC_API(void) _cc_md2_update(_cc_md2_t* ctx, const byte_t* input, size_t ilen);
+_CC_API_PUBLIC(void) _cc_md2_update(_cc_md2_t* ctx, const byte_t* input, size_t ilen);
 /**
  * @brief          MD2 final digest
  *
  * @param ctx      MD2 context
  * @param output   MD2 checksum result
  */
-_CC_API(void) _cc_md2_final(_cc_md2_t* ctx, byte_t* output);
+_CC_API_PUBLIC(void) _cc_md2_final(_cc_md2_t* ctx, byte_t* output);
 
 /**
  * @brief          Digests a file.
@@ -67,14 +67,14 @@ _CC_API(void) _cc_md2_final(_cc_md2_t* ctx, byte_t* output);
  * @param fp       FILE handle
  * @param output   MD2 checksum result
  */
-_CC_API(bool_t) _cc_md2_fp(FILE* fp, tchar_t* output);
+_CC_API_PUBLIC(bool_t) _cc_md2_fp(FILE* fp, tchar_t* output);
 /**
  * @brief         Digests a file.
  *
  * @param filename       FILE handle
  * @param output   MD2 checksum result
  */
-_CC_API(bool_t) _cc_md2file(const tchar_t* filename, tchar_t* output);
+_CC_API_PUBLIC(bool_t) _cc_md2file(const tchar_t* filename, tchar_t* output);
 /**
  * @brief          Output = MD2( input buffer )
  *
@@ -82,7 +82,7 @@ _CC_API(bool_t) _cc_md2file(const tchar_t* filename, tchar_t* output);
  * @param ilen     length of the input data
  * @param output   MD2 checksum result
  */
-_CC_API(void) _cc_md2(const byte_t* input, uint32_t ilen, tchar_t* output);
+_CC_API_PUBLIC(void) _cc_md2(const byte_t* input, uint32_t ilen, tchar_t* output);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

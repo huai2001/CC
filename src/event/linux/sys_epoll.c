@@ -31,7 +31,7 @@ struct _cc_event_cycle_priv {
 };
 
 /**/
-static bool_t _epoll_event_update(int efd, _cc_event_t *e, bool_t rm) {
+_CC_API_PRIVATE(bool_t) _epoll_event_update(int efd, _cc_event_t *e, bool_t rm) {
     uint16_t marks = 0;
     int op = EPOLL_CTL_DEL;
     struct epoll_event ev;
@@ -102,14 +102,14 @@ static bool_t _epoll_event_update(int efd, _cc_event_t *e, bool_t rm) {
 }
 
 /**/
-bool_t _epoll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(bool_t) _epoll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_assert(cycle != NULL && e != NULL);
     e->descriptor |= _CC_EVENT_DESC_POLL_EPOLL_;
     return _cc_event_wait_reset(cycle, e);
 }
 
 /**/
-bool_t _epoll_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa,
+_CC_API_PRIVATE(bool_t) _epoll_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa,
                             const _cc_socklen_t sa_len) {
     if (__cc_stdlib_socket_connect(e->fd, sa, sa_len)) {
         return _epoll_event_attach(cycle, e);
@@ -118,13 +118,13 @@ bool_t _epoll_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_
 }
 
 /**/
-static _cc_socket_t _epoll_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
+_CC_API_PRIVATE(_cc_socket_t) _epoll_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa,
                                         _cc_socklen_t *sa_len) {
     return _cc_socket_accept(e->fd, sa, sa_len);
 }
 
 /**/
-static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         if (_CC_EVENT_IS_SOCKET(e->marks)) {
             _epoll_event_update(cycle->priv->fd, e, true);
@@ -152,7 +152,7 @@ static void _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 }
 
 /**/
-static bool_t _epoll_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
     int32_t rc, i;
 
     struct epoll_event actives[_CC_EPOLL_EVENTS_];
@@ -207,7 +207,7 @@ EPOLL_END:
 }
 
 /**/
-static bool_t _epoll_event_quit(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _epoll_event_quit(_cc_event_cycle_t *cycle) {
     _cc_assert(cycle != NULL);
     if (cycle == NULL) {
         return false;
@@ -226,7 +226,7 @@ static bool_t _epoll_event_quit(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-static bool_t _epoll_event_init(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _epoll_event_init(_cc_event_cycle_t *cycle) {
     _cc_socket_t fd = -1;
     if (!_cc_event_cycle_init(cycle)) {
         return false;
@@ -254,7 +254,7 @@ static bool_t _epoll_event_init(_cc_event_cycle_t *cycle) {
 }
 
 /**/
-bool_t _cc_init_event_epoll(_cc_event_cycle_t *cycle) {
+_CC_API_PUBLIC(bool_t) _cc_init_event_epoll(_cc_event_cycle_t *cycle) {
 #define ASET(x) cycle->driver.x = _epoll_event_##x
 #define XSET(x) cycle->driver.x = _cc_event_##x
 

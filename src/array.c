@@ -23,7 +23,7 @@
 
 #define _CC_MAX_ARRAY_EXPAND_ 64
 
-static uint32_t _static_array_expand_size(uint32_t number) {
+_CC_API_PRIVATE(uint32_t) _static_array_expand_size(uint32_t number) {
     if (number & (_CC_MAX_ARRAY_EXPAND_ - 1)) {
         number = (uint32_t)(number / _CC_MAX_ARRAY_EXPAND_) + 1;
     } else {
@@ -33,7 +33,7 @@ static uint32_t _static_array_expand_size(uint32_t number) {
 }
 
 /**/
-bool_t _cc_array_alloc(_cc_array_t *ctx, uint32_t initsize) {
+_CC_API_PUBLIC(bool_t) _cc_array_alloc(_cc_array_t *ctx, uint32_t initsize) {
     _cc_assert(ctx != NULL);
 
     if (_cc_unlikely(initsize == 0)) {
@@ -48,7 +48,7 @@ bool_t _cc_array_alloc(_cc_array_t *ctx, uint32_t initsize) {
 }
 
 /**/
-_cc_array_t *_cc_create_array(uint32_t initsize) {
+_CC_API_PUBLIC(_cc_array_t*) _cc_create_array(uint32_t initsize) {
     _cc_array_t *ctx = _CC_MALLOC(_cc_array_t);
     if (_cc_array_alloc(ctx, initsize)) {
         return ctx;
@@ -59,7 +59,7 @@ _cc_array_t *_cc_create_array(uint32_t initsize) {
 }
 
 /**/
-bool_t _cc_array_expand(_cc_array_t *ctx, uint32_t slot_size) {
+_CC_API_PUBLIC(bool_t) _cc_array_expand(_cc_array_t *ctx, uint32_t slot_size) {
     pvoid_t *data;
 
     _cc_assert(ctx != NULL);
@@ -76,7 +76,7 @@ bool_t _cc_array_expand(_cc_array_t *ctx, uint32_t slot_size) {
     return true;
 }
 
-pvoid_t _cc_array_find(const _cc_array_t *ctx, const uint32_t index) {
+_CC_API_PUBLIC(pvoid_t) _cc_array_find(const _cc_array_t *ctx, const uint32_t index) {
     _cc_assert(ctx != NULL);
 
     if (_cc_unlikely(ctx->size <= index)) {
@@ -87,7 +87,7 @@ pvoid_t _cc_array_find(const _cc_array_t *ctx, const uint32_t index) {
     return ctx->data[index];
 }
 
-uint32_t _cc_array_push(_cc_array_t *ctx, void *data) {
+_CC_API_PUBLIC(uint32_t) _cc_array_push(_cc_array_t *ctx, void *data) {
     uint32_t index = 0;
     _cc_assert(ctx != NULL);
 
@@ -100,12 +100,12 @@ uint32_t _cc_array_push(_cc_array_t *ctx, void *data) {
     return -1;
 }
 
-void *_cc_array_pop(_cc_array_t *ctx) {
+_CC_API_PUBLIC(void *) _cc_array_pop(_cc_array_t *ctx) {
     _cc_assert(ctx != NULL);
     return _cc_array_remove(ctx, ctx->length - 1);
 }
 
-bool_t _cc_array_append(_cc_array_t *ctx, const _cc_array_t *append) {
+_CC_API_PUBLIC(bool_t) _cc_array_append(_cc_array_t *ctx, const _cc_array_t *append) {
     uint32_t size = 0;
     _cc_assert(ctx != NULL && append != NULL);
 
@@ -122,7 +122,7 @@ bool_t _cc_array_append(_cc_array_t *ctx, const _cc_array_t *append) {
     return true;
 }
 
-bool_t _cc_array_insert(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
+_CC_API_PUBLIC(bool_t) _cc_array_insert(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
     _cc_assert(ctx != NULL && data != NULL);
 
     if (_cc_unlikely(data == NULL)) {
@@ -148,7 +148,7 @@ bool_t _cc_array_insert(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
     return true;
 }
 
-bool_t _cc_array_set(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
+_CC_API_PUBLIC(bool_t) _cc_array_set(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
     _cc_assert(ctx != NULL);
 
     if (_cc_unlikely(index >= ctx->size)) {
@@ -164,7 +164,7 @@ bool_t _cc_array_set(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
     return true;
 }
 
-pvoid_t _cc_array_remove(_cc_array_t *ctx, const uint32_t index) {
+_CC_API_PUBLIC(pvoid_t) _cc_array_remove(_cc_array_t *ctx, const uint32_t index) {
     uint32_t i = 0;
     uint32_t length = 0;
     pvoid_t data = NULL;
@@ -186,7 +186,7 @@ pvoid_t _cc_array_remove(_cc_array_t *ctx, const uint32_t index) {
     return data;
 }
 
-bool_t _cc_array_free(_cc_array_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_array_free(_cc_array_t *ctx) {
     _cc_assert(ctx != NULL);
 
     _cc_safe_free(ctx->data);
@@ -196,7 +196,7 @@ bool_t _cc_array_free(_cc_array_t *ctx) {
     return true;
 }
 
-void _cc_destroy_array(_cc_array_t **ctx) {
+_CC_API_PUBLIC(void) _cc_destroy_array(_cc_array_t **ctx) {
     if (_cc_array_free(*ctx)) {
         _cc_free(*ctx);
     }
@@ -204,7 +204,7 @@ void _cc_destroy_array(_cc_array_t **ctx) {
     *ctx = NULL;
 }
 
-bool_t _cc_array_cleanup(_cc_array_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_array_cleanup(_cc_array_t *ctx) {
     _cc_assert(ctx != NULL);
     bzero(ctx->data, sizeof(pvoid_t) * ctx->size);
     ctx->length = 0;
@@ -212,19 +212,19 @@ bool_t _cc_array_cleanup(_cc_array_t *ctx) {
     return true;
 }
 
-uint32_t _cc_array_length(const _cc_array_t *ctx) {
+_CC_API_PUBLIC(uint32_t) _cc_array_length(const _cc_array_t *ctx) {
     _cc_assert(ctx != NULL);
 
     return ctx->length;
 }
 
-pvoid_t _cc_array_begin(const _cc_array_t *ctx) {
+_CC_API_PUBLIC(pvoid_t) _cc_array_begin(const _cc_array_t *ctx) {
     _cc_assert(ctx != NULL);
 
     return ctx->data[0];
 }
 
-pvoid_t _cc_array_end(const _cc_array_t *ctx) {
+_CC_API_PUBLIC(pvoid_t) _cc_array_end(const _cc_array_t *ctx) {
     _cc_assert(ctx != NULL);
 
     return ctx->data[ctx->size - 1];

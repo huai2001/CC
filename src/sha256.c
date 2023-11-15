@@ -47,7 +47,7 @@
 /*
  * SHA-256 context setup
  */
-void _cc_sha256_init(_cc_sha256_t *ctx, bool_t is224) {
+_CC_API_PUBLIC(void) _cc_sha256_init(_cc_sha256_t *ctx, bool_t is224) {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
@@ -110,7 +110,7 @@ static const uint32_t K[] = {
         h = temp1 + temp2;                                                                                             \
     }
 
-void _cc_sha256_process(_cc_sha256_t *ctx, const byte_t *data) {
+_CC_API_PUBLIC(void) _cc_sha256_process(_cc_sha256_t *ctx, const byte_t *data) {
     uint32_t temp1, temp2, W[64];
     uint32_t A[8];
     unsigned int i;
@@ -176,7 +176,7 @@ void _cc_sha256_process(_cc_sha256_t *ctx, const byte_t *data) {
 /*
  * SHA-256 process buffer
  */
-void _cc_sha256_update(_cc_sha256_t *ctx, const byte_t *input, size_t ilen) {
+_CC_API_PUBLIC(void) _cc_sha256_update(_cc_sha256_t *ctx, const byte_t *input, size_t ilen) {
     size_t fill;
     uint32_t left;
 
@@ -220,7 +220,7 @@ static const byte_t sha256_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 /*
  * SHA-256 final digest
  */
-void _cc_sha256_final(_cc_sha256_t *ctx, byte_t *output) {
+_CC_API_PUBLIC(void) _cc_sha256_final(_cc_sha256_t *ctx, byte_t *output) {
     uint32_t last, padn;
     uint32_t high, low;
     byte_t msglen[8];
@@ -255,7 +255,7 @@ void _cc_sha256_final(_cc_sha256_t *ctx, byte_t *output) {
 /*
  * output = SHA-256( input buffer )
  */
-void _cc_sha256(const byte_t *input, size_t ilen, tchar_t *output, bool_t is224) {
+_CC_API_PUBLIC(void) _cc_sha256(const byte_t *input, size_t ilen, tchar_t *output, bool_t is224) {
     _cc_sha256_t ctx;
     byte_t results[_CC_SHA256_DIGEST_LENGTH_];
     size_t digest_length = is224 ? _CC_SHA224_DIGEST_LENGTH_ : _CC_SHA256_DIGEST_LENGTH_;
@@ -270,7 +270,7 @@ void _cc_sha256(const byte_t *input, size_t ilen, tchar_t *output, bool_t is224)
 /*
     Digests a file.
  */
-bool_t _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224) {
+_CC_API_PUBLIC(bool_t) _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224) {
     byte_t results[_CC_SHA256_DIGEST_LENGTH_];
     byte_t buf[1024 * 16];
     size_t i;
@@ -302,7 +302,7 @@ bool_t _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224) {
 /*
     Digests a file.
  */
-bool_t _cc_sha256file(const tchar_t *filename, tchar_t *output, bool_t is224) {
+_CC_API_PUBLIC(bool_t) _cc_sha256file(const tchar_t *filename, tchar_t *output, bool_t is224) {
     FILE *fp = _tfopen(filename, _T("rb"));
 
     if (fp) {

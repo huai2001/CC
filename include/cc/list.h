@@ -186,7 +186,7 @@ _CC_FORCE_INLINE_ void _cc_list_iterator_swap(_cc_list_iterator_t *head, _cc_lis
  * @param head the place to add it in the first list.
  * @param add the new list to add.
  */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_list_iterator_append(_cc_list_iterator_t *head, _cc_list_iterator_t *add);
 
 /* Return the element at the specified zero-based index
@@ -194,11 +194,11 @@ _cc_list_iterator_append(_cc_list_iterator_t *head, _cc_list_iterator_t *add);
  * and so on. Negative integers are used in order to count
  * from the tail, -1 is the last element, -2 the penultimate
  * and so on. If the index is out of range NULL is returned. */
-_CC_API(_cc_list_iterator_t *)
+_CC_API_PUBLIC(_cc_list_iterator_t *)
 _cc_list_iterator_index(_cc_list_iterator_t *lnk, long index);
 
 /* the stable insertion sort */
-_CC_API(void)
+_CC_API_PUBLIC(void)
 _cc_list_iterator_sort(_cc_list_iterator_t *lnk,
                        int32_t (*_cmp)(const _cc_list_iterator_t *, const _cc_list_iterator_t *));
 

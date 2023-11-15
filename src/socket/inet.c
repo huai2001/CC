@@ -25,7 +25,7 @@
 #define _CC_INET6_ADDRSTRLEN_ 46
 
 #if 0
-static bool_t _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *addr, _cc_socklen_t socklen) {
+_CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *addr, _cc_socklen_t socklen) {
     int i;
     struct hostent *remoteHost;
     if ((remoteHost = gethostbyname(host)) == NULL) {
@@ -42,7 +42,7 @@ static bool_t _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *
     return false;
 }
 #else
-static bool_t _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *addr, _cc_socklen_t socklen) {
+_CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *addr, _cc_socklen_t socklen) {
     int rc;
     bool_t result = false;
     _cc_addrinfo_t hints, *addr_list, *cur;
@@ -75,7 +75,7 @@ static bool_t _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *
 }
 #endif
 /**/
-void _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t *ip, int port) {
+_CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t *ip, int port) {
     _cc_assert(addr != NULL);
 
     bzero(addr, sizeof(struct sockaddr_in));
@@ -98,7 +98,7 @@ void _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t *ip, int port) {
 }
 
 /**/
-void _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t *ip, int port) {
+_CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t *ip, int port) {
     _cc_assert(addr != NULL);
 
     bzero(addr, sizeof(struct sockaddr_in6));
@@ -121,7 +121,7 @@ void _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t *ip, int port) 
 }
 
 /**/
-bool_t _cc_inet_ntop(int af, const byte_t *src, tchar_t *dst, int32_t size) {
+_CC_API_PUBLIC(bool_t) _cc_inet_ntop(int af, const byte_t *src, tchar_t *dst, int32_t size) {
     switch (af) {
     case AF_INET:
         return (_cc_inet_ntop4(src, dst, size));
@@ -132,7 +132,7 @@ bool_t _cc_inet_ntop(int af, const byte_t *src, tchar_t *dst, int32_t size) {
 }
 
 /**/
-bool_t _cc_inet_ntop4(const byte_t *src, tchar_t *dst, int32_t size) {
+_CC_API_PUBLIC(bool_t) _cc_inet_ntop4(const byte_t *src, tchar_t *dst, int32_t size) {
     int32_t l = (int32_t)_sntprintf(dst, size, _T("%u.%u.%u.%u"), src[0], src[1], src[2], src[3]);
     if (l <= 0 || l >= size) {
         return false;
@@ -142,7 +142,7 @@ bool_t _cc_inet_ntop4(const byte_t *src, tchar_t *dst, int32_t size) {
 }
 
 /**/
-bool_t _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t size) {
+_CC_API_PUBLIC(bool_t) _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t size) {
     /*
      * Note that int32_t and int16_t need only be "at least" large enough
      * to contain a value of the specified size.  On some systems, like
@@ -248,7 +248,7 @@ bool_t _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t size) {
 }
 
 /**/
-bool_t _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) {
+_CC_API_PUBLIC(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) {
     if (src == NULL || dst == NULL) {
         return false;
     }
@@ -280,7 +280,7 @@ bool_t _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) {
 }
 
 /**/
-bool_t _cc_inet_pton4(const tchar_t *src, byte_t *dst) {
+_CC_API_PUBLIC(bool_t) _cc_inet_pton4(const tchar_t *src, byte_t *dst) {
     static const tchar_t digits[] = _T("0123456789");
     int saw_digit, octets, ch;
     byte_t tmp[sizeof(struct in_addr)], *tp;
@@ -332,7 +332,7 @@ IPV4_SUCCESS:
 }
 
 /**/
-bool_t _cc_inet_pton6(const tchar_t *src, byte_t *dst) {
+_CC_API_PUBLIC(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst) {
     byte_t tmp[sizeof(struct in6_addr)], *tp, *endp, *colonp;
     const tchar_t *xdigits, *curtok;
     int ch, seen_xdigits = 0;

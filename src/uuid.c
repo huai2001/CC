@@ -31,12 +31,12 @@ static const tchar_t *fmt_upper = _T("%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%0
 #ifdef __CC_WINDOWS__
 #include <objbase.h>
 /**/
-void _cc_uuid(_cc_uuid_t *uuid) {
+_CC_API_PUBLIC(void) _cc_uuid(_cc_uuid_t *uuid) {
     CoCreateGuid((GUID *)uuid);
 }
 
 /**/
-int32_t _cc_uuid_lower(_cc_uuid_t *uuid, tchar_t *buf, int32_t length) {
+_CC_API_PUBLIC(int32_t) _cc_uuid_lower(_cc_uuid_t *uuid, tchar_t *buf, int32_t length) {
     GUID *guid;
     guid = (GUID *)uuid;
 
@@ -45,7 +45,7 @@ int32_t _cc_uuid_lower(_cc_uuid_t *uuid, tchar_t *buf, int32_t length) {
 }
 
 /**/
-int32_t _cc_uuid_upper(_cc_uuid_t *uuid, tchar_t *buf, int32_t length) {
+_CC_API_PUBLIC(int32_t) _cc_uuid_upper(_cc_uuid_t *uuid, tchar_t *buf, int32_t length) {
     GUID *guid;
     guid = (GUID *)uuid;
 
@@ -71,35 +71,7 @@ struct uuid {
 #define TIME_OFFSET_HIGH 0x01B21DD2
 #define TIME_OFFSET_LOW 0x13814000
 
-static void random_get_bytes(void *buf, size_t nbytes) {
-    size_t i;
-    byte_t *cp = (byte_t *)buf;
-    struct timeval tv;
-    unsigned short uuid_rand_seed[3];
-
-    gettimeofday(&tv, 0);
-    srand((uint32_t)((_cc_getpid() << 16) ^ getuid() ^ tv.tv_sec ^ tv.tv_usec));
-
-    uuid_rand_seed[0] = getpid() ^ (tv.tv_sec & 0xFFFF);
-    uuid_rand_seed[1] = getppid() ^ (tv.tv_usec & 0xFFFF);
-    uuid_rand_seed[2] = (tv.tv_sec ^ tv.tv_usec) >> 16;
-
-    /* Crank the random number generator a few times */
-    gettimeofday(&tv, 0);
-    for (i = (tv.tv_sec ^ tv.tv_usec) & 0x1F; i > 0; i--) {
-        rand();
-    }
-
-    for (i = 0; i < nbytes; i++) {
-        *cp++ ^= (rand() >> 7) & 0xFF;
-    }
-
-    for (cp = buf, i = 0; i < nbytes; i++) {
-        *cp++ ^= (jrand48(uuid_rand_seed) >> 7) & 0xFF;
-    }
-}
-
-static int32_t _uuid_hex(const struct uuid *u, tchar_t *out, int32_t length, const tchar_t *fmt) {
+_CC_API_PRIVATE(int32_t) _uuid_hex(const struct uuid *u, tchar_t *out, int32_t length, const tchar_t *fmt) {
     uint32_t time_low = _CC_SWAPBE32(u->time_low);
     uint16_t clock_seq = _CC_SWAPBE16(u->clock_seq);
     uint16_t time_mid = _CC_SWAPBE16(u->time_mid);
@@ -109,7 +81,7 @@ static int32_t _uuid_hex(const struct uuid *u, tchar_t *out, int32_t length, con
                                u->node[3], u->node[4], u->node[5]);
 }
 /**/
-void _cc_uuid(_cc_uuid_t *u) {
+_CC_API_PUBLIC(void) _cc_uuid(_cc_uuid_t *u) {
     static struct timeval last = {0, 0};
     static uint16_t clock_seq = 0;
     static int32_t adjustment = 0;
@@ -146,16 +118,16 @@ try_again:
     uu->time_mid = (uint16_t)clock_mid;
     uu->time_hi_and_version = ((clock_mid >> 16) & 0x0FFF) | 0x1000;
 
-    random_get_bytes(uu->node, sizeof(uu->node));
+    _cc_random_bytes(uu->node, sizeof(uu->node));
 }
 
 /**/
-int32_t _cc_uuid_lower(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
+_CC_API_PUBLIC(int32_t) _cc_uuid_lower(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
     return _uuid_hex((struct uuid*)u, buf, length, fmt_lower);
 }
 
 /**/
-int32_t _cc_uuid_upper(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
+_CC_API_PUBLIC(int32_t) _cc_uuid_upper(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
     return _uuid_hex((struct uuid*)u, buf, length, fmt_upper);
 }
 #endif
@@ -169,7 +141,7 @@ int32_t _cc_uuid_upper(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
         }                                                                                                              \
     } while (0)
 
-void _cc_uuid_to_bytes(_cc_uuid_t *u, const tchar_t *buf) {
+_CC_API_PUBLIC(void) _cc_uuid_to_bytes(_cc_uuid_t *u, const tchar_t *buf) {
     byte_t ch = 0;
     byte_t *uu = (byte_t*)u;
     size_t i = 0, k = 0;

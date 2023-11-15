@@ -46,7 +46,7 @@ static struct timeval start_tv = {0};
 #endif /* _CC_HAVE_CLOCK_GETTIME_ */
 
 /**/
-void _tick_init(void) {
+_CC_API_PRIVATE(void) _tick_init(void) {
     if (ticks_started) {
         return;
     }
@@ -60,12 +60,12 @@ void _tick_init(void) {
 }
 
 /**/
-void _tick_quit(void) {
+_CC_API_PRIVATE(void) _tick_quit(void) {
     ticks_started = false;
 }
 
 /**/
-void _cc_sleep(uint32_t ms) {
+_CC_API_PUBLIC(void) _cc_sleep(uint32_t ms) {
     struct timespec req;
 
     if (_cc_unlikely(ms == 0)) {
@@ -80,7 +80,7 @@ void _cc_sleep(uint32_t ms) {
 }
 
 /**/
-void _cc_nsleep(uint32_t nsec) {
+_CC_API_PUBLIC(void) _cc_nsleep(uint32_t nsec) {
     struct timespec req;
 
     if (_cc_unlikely(nsec == 0)) {
@@ -95,7 +95,7 @@ void _cc_nsleep(uint32_t nsec) {
 }
 
 /**/
-uint32_t _cc_get_ticks(void) {
+_CC_API_PUBLIC(uint32_t) _cc_get_ticks(void) {
     uint32_t ticks = 0;
     if (_cc_unlikely(ticks_started == false)) {
         _tick_init();

@@ -75,7 +75,7 @@ void _SSL_quit(_cc_SSL_t* req) {
 }
 
 /**/
-static SSL_CTX* _SSL_init(int flag) {
+_CC_API_PRIVATE(SSL_CTX*) _SSL_init(int flag) {
     SSL_CTX* ssl_ctx;
     const SSL_METHOD* ssl_method;
     /*SSL init*/
@@ -147,7 +147,7 @@ static SSL_CTX* _SSL_init(int flag) {
     return ssl_ctx;
 }
 /*
-static int32_t _X509_NAME_oneline(X509_NAME *name, char *buf, int32_t
+_CC_API_PRIVATE(int32_t) _X509_NAME_oneline(X509_NAME *name, char *buf, int32_t
 sz) { BIO *bio = BIO_new(BIO_s_mem()); if (bio) { int32_t len =
 X509_NAME_print_ex(bio, name, 0, XN_FLAG_ONELINE); BIO_gets(bio, buf, sz);
         BIO_free(bio);
@@ -158,7 +158,7 @@ X509_NAME_print_ex(bio, name, 0, XN_FLAG_ONELINE); BIO_gets(bio, buf, sz);
     return 0;
 }
 
-static bool_t _verifyX509(SSL* ssl) {
+_CC_API_PRIVATE(bool_t) _verifyX509(SSL* ssl) {
     char X509_name[256];
     X509 *client_cert = SSL_get_peer_certificate(ssl);
     if (client_cert == NULL){
@@ -182,7 +182,7 @@ static bool_t _verifyX509(SSL* ssl) {
     return true;
 }
 */
-static bool_t __server_init(_cc_SSL_CTX_t* cssl,
+_CC_API_PRIVATE(bool_t) __server_init(_cc_SSL_CTX_t* cssl,
                                        const char_t* cert_key_file,
                                        const char_t* cert_chain_file) {
     SSL_CTX* ssl_ctx;
@@ -231,13 +231,13 @@ static bool_t __server_init(_cc_SSL_CTX_t* cssl,
     return true;
 }
 
-static int32_t _getSSL_CTX(_cc_rbtree_iterator_t* node,
+_CC_API_PRIVATE(int32_t) _getSSL_CTX(_cc_rbtree_iterator_t* node,
                                       pvoid_t args) {
     _cc_SSL_CTX_t* r = _cc_upcast(node, _cc_SSL_CTX_t, node);
     return stricmp(r->domain, (const char_t*)args);
 }
 
-static int32_t _pushSSL_CTX(_cc_rbtree_iterator_t* left,
+_CC_API_PRIVATE(int32_t) _pushSSL_CTX(_cc_rbtree_iterator_t* left,
                                        _cc_rbtree_iterator_t* right) {
     _cc_SSL_CTX_t* l = _cc_upcast(left, _cc_SSL_CTX_t, node);
     _cc_SSL_CTX_t* r = _cc_upcast(right, _cc_SSL_CTX_t, node);
@@ -245,7 +245,7 @@ static int32_t _pushSSL_CTX(_cc_rbtree_iterator_t* left,
     return stricmp(l->domain, r->domain);
 }
 
-bool_t _SSL_init_server(const char_t* domain,
+_CC_API_PUBLIC(bool_t) _SSL_init_server(const char_t* domain,
                         const char_t* cert_key_file,
                         const char_t* cert_chain_file) {
     _cc_SSL_CTX_t* ssl_ctx;
@@ -331,7 +331,7 @@ bool_t _SSL_init_server(const char_t* domain,
 }
 
 /**/
-bool_t _SSL_free(_cc_SSL_t* req) {
+_CC_API_PUBLIC(bool_t) _SSL_free(_cc_SSL_t* req) {
     if (req->ssl == NULL) {
         return true;
     }
@@ -359,7 +359,7 @@ bool_t _SSL_free(_cc_SSL_t* req) {
     return true;
 }
 
-_cc_SSL_t* _SSL_accept(const tchar_t* domain, _cc_socket_t fd) {
+_CC_API_PUBLIC(_cc_SSL_t*) _SSL_accept(const tchar_t* domain, _cc_socket_t fd) {
     _cc_SSL_t* req;
     _cc_SSL_CTX_t* ssl_ctx;
     _cc_rbtree_iterator_t* node;

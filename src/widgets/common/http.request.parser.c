@@ -21,7 +21,7 @@
 #include "./http.header.c"
 
 /**/
-static bool_t _alloc_request_header(_cc_http_request_header_t **http_header, tchar_t *line, int length) {
+_CC_API_PRIVATE(bool_t) _alloc_request_header(_cc_http_request_header_t **http_header, tchar_t *line, int length) {
     int first = 0, last = 0;
     _cc_http_request_header_t *request = *http_header;
 
@@ -82,7 +82,7 @@ static bool_t _alloc_request_header(_cc_http_request_header_t **http_header, tch
     return __http_header_line(&request->headers, line, length);
 }
 
-static void _free_request_header(_cc_http_request_header_t **http_header) {
+_CC_API_PRIVATE(void) _free_request_header(_cc_http_request_header_t **http_header) {
     _cc_http_request_header_t *res = *http_header;
     _cc_assert(http_header != NULL && res != NULL);
     if (http_header == NULL || res == NULL) {

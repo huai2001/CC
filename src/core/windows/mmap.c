@@ -20,7 +20,7 @@
  * @param offset offset into mapped object
  * @return pointer to the memory region, or NULL in case of error
  */
-void *mmap(void *addr, unsigned int len, int prot, int flags, int fd, unsigned int offset) {
+_CC_API_PUBLIC(void*) mmap(void *addr, unsigned int len, int prot, int flags, int fd, unsigned int offset) {
 	DWORD wprot;
 	DWORD waccess;
 	HANDLE h;
@@ -121,7 +121,7 @@ void *mmap(void *addr, unsigned int len, int prot, int flags, int fd, unsigned i
  * @param len length of the region
  * @return 0 for success, -1 for error
  */
-int munmap(void *addr, int len) {
+_CC_API_PUBLIC(int) munmap(void *addr, int len) {
 	if (UnmapViewOfFile(addr)) {
 		return 0;
 	} else {
@@ -141,7 +141,7 @@ int munmap(void *addr, int len) {
  * @param flags sync options -- currently ignored
  * @return 0 for success, -1 for error
  */
-int msync(char *addr, int len, int flags)  {
+_CC_API_PUBLIC(int) msync(char *addr, int len, int flags)  {
 	if (FlushViewOfFile(addr, len) == 0) {
 		DWORD error = GetLastError();
 		

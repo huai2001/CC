@@ -57,7 +57,7 @@ typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info
  */
 #define _cc_uninstall_dumper() ((void)0)
 
-_CC_API(void) _cc_print_stack_trace(FILE *fp, int i);
+_CC_API_PUBLIC(void) _cc_print_stack_trace(FILE *fp, int i);
 
 #ifndef _access
 #define _access access
