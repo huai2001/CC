@@ -37,7 +37,7 @@ static const char *sys_class_power_supply_path = "/sys/class/power_supply";
 _CC_API_PRIVATE(void) check_proc_acpi_ac_adapter(const char *node, bool_t *have_ac);
 
 _CC_API_PRIVATE(int) open_power_file(const char *base, const char *node, const char *key) {
-    char path[_CC_MAX_PATH_];
+    char path[_CC_MAX_PATH_ * 4];
     snprintf(path, _cc_countof(path), "%s/%s/%s", base, node, key);
     return open(path, O_RDONLY);
 }

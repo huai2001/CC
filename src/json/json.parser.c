@@ -189,7 +189,7 @@ _CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_tchar_t *const buffe
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _json_parser_object(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
+static bool_t _json_parser_object(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
     _cc_json_t *curr_item = NULL;
     _CC_RB_INIT_ROOT(&item->object.uni_object);
 
@@ -254,7 +254,7 @@ JSON_FAIL:
     return false;
 }
 
-_CC_API_PRIVATE(bool_t) _json_parser_array(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
+static bool_t _json_parser_array(_cc_sbuf_tchar_t *const buffer, _cc_json_t *item) {
     _cc_json_t *curr_item = NULL;
     _CC_RB_INIT_ROOT(&item->object.uni_object);
 

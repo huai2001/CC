@@ -234,7 +234,7 @@ _CC_API_PRIVATE(void) _xml_free_attr_rb_node(_cc_rbtree_iterator_t *node) {
 }
 
 /**/
-_CC_API_PRIVATE(void) _xml_free(_cc_xml_t *ctx) {
+static void _xml_free(_cc_xml_t *ctx) {
     if (ctx->name) {
         _cc_free(ctx->name);
     }
@@ -275,7 +275,7 @@ _CC_API_PUBLIC(bool_t) _cc_destroy_xml(_cc_xml_t **ctx) {
 }
 
 /**/
-_CC_API_PRIVATE(void) _print_XML_buffer(_cc_xml_t *XML, int32_t depth, _cc_buf_t *buf) {
+static void _print_XML_buffer(_cc_xml_t *XML, int32_t depth, _cc_buf_t *buf) {
     tchar_t depth_buf[1024] = {0};
     int32_t i = 0;
     _cc_list_iterator_t *v = NULL;

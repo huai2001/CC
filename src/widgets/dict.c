@@ -185,7 +185,7 @@ _CC_API_PUBLIC(bool_t) _cc_dict_split(_cc_dict_t *ctx, const tchar_t *src, const
     return _dict_decoding(ctx, &buffer, delimiter);
 }
 
-_CC_API_PRIVATE(void) _traverse_dict_join(_cc_rbtree_iterator_t *node, pvoid_t args, const tchar_t delimiter) {
+static void _traverse_dict_join(_cc_rbtree_iterator_t *node, pvoid_t args, const tchar_t delimiter) {
     _cc_buf_t *buf;
     _cc_dict_node_t *item;
 

@@ -659,7 +659,7 @@ _CC_API_PUBLIC(void) _cc_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*_fu
     _func(node, args);
 }
 
-_CC_API_PRIVATE(void) _free_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*_func)(_cc_rbtree_iterator_t *)) {
+static void _free_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*_func)(_cc_rbtree_iterator_t *)) {
     if (node->left) {
         _free_rbtree_traverse(node->left, _func);
     }

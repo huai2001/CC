@@ -425,7 +425,7 @@ _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_tchar_t *const b
     return 0;
 }
 
-_CC_API_PRIVATE(bool_t) _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer, int32_t depth) {
+static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_tchar_t *const buffer, int32_t depth) {
     _cc_xml_t *item;
     do {
         int tailed = 0;

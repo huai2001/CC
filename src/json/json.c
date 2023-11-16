@@ -384,7 +384,7 @@ _CC_API_PRIVATE(void) _cc_print_json_string(const tchar_t *output, _cc_buf_t *bu
 }
 
 /**/
-_CC_API_PRIVATE(void) _cc_print_json_value(_cc_json_t *item, _cc_buf_t *buf, int32_t depth) {
+static void _cc_print_json_value(_cc_json_t *item, _cc_buf_t *buf, int32_t depth) {
     switch (item->type) {
     case _CC_JSON_NULL_: {
         _cc_buf_write(buf, (const pvoid_t) _T("null"), 4);
