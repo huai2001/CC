@@ -67,8 +67,8 @@ _CC_API_PRIVATE(int32_t) _oci8_get_num_fields(_cc_sql_result_t *result);
 
 #define sql_error(status, err) oci8_error(_CC_FILE_, _CC_LINE_, _CC_FUNC_, status, err)
 
-_CC_API_PRIVATE(void) oci8_error(const wchar_t *file, const int32_t line, const wchar_t *func, sword status,
-                                  OCIError *errhp) {
+_CC_API_PRIVATE(void)
+oci8_error(const wchar_t *file, const int32_t line, const wchar_t *func, sword status, OCIError *errhp) {
     switch (status) {
     case OCI_SUCCESS:
         break;
@@ -142,7 +142,7 @@ _CC_API_PRIVATE(bool_t) _quit_oci8(void) {
     return true;
 }
 
-_CC_API_PRIVATE(_cc_sql_t*) _oci8_connect(const tchar_t *sql_connection_string) {
+_CC_API_PRIVATE(_cc_sql_t *) _oci8_connect(const tchar_t *sql_connection_string) {
     sword res;
     _cc_url_t params;
     _cc_sql_t *ctx = NULL;
@@ -468,10 +468,8 @@ _CC_API_PRIVATE(bool_t) _oci_column_type(_cc_sql_result_t *result, int32_t index
         return false;
     }
 
-    res = OCIAttrGet(result->param, OCI_DTYPE_PARAM, (dvoid *)&(result->type), (ub4 *)0, OCI_ATTR_DATA_TYPE, result->errhp);
-    if (res != OCI_SUCCESS) {
-        sql_error(res, result->errhp);
-        return false;
+    res = OCIAttrGet(result->param, OCI_DTYPE_PARAM, (dvoid *)&(result->type), (ub4 *)0, OCI_ATTR_DATA_TYPE,
+result->errhp); if (res != OCI_SUCCESS) { sql_error(res, result->errhp); return false;
     }
     return true;
 }
@@ -489,7 +487,7 @@ _CC_API_PRIVATE(int32_t) _oci8_get_int(_cc_sql_result_t *result, int32_t index) 
     }
 
     res = OCIDefineByPos(result->stmt, &(oci_define), result->errhp, (ub4)index, &v, sizeof(int32_t), SQLT_INT,
-                 (dvoid *)&(oci_null), (ub2 *)0, (ub2 *)0, (ub4)OCI_DEFAULT);
+                         (dvoid *)&(oci_null), (ub2 *)0, (ub2 *)0, (ub4)OCI_DEFAULT);
     if (res != OCI_SUCCESS) {
         sql_error(res, result->errhp);
         return 0;
@@ -529,7 +527,7 @@ _CC_API_PRIVATE(float64_t) _oci8_get_float(_cc_sql_result_t *result, int32_t ind
     }
 
     res = OCIDefineByPos(result->stmt, &(oci_define), result->errhp, (ub4)index, &v, sizeof(double), SQLT_FLR,
-                        (dvoid *)&(oci_null), (ub2 *)0, (ub2 *)0, (ub4)OCI_DEFAULT);
+                         (dvoid *)&(oci_null), (ub2 *)0, (ub2 *)0, (ub4)OCI_DEFAULT);
     if (res != OCI_SUCCESS) {
         sql_error(res, result->errhp);
         return 0;
@@ -538,7 +536,8 @@ _CC_API_PRIVATE(float64_t) _oci8_get_float(_cc_sql_result_t *result, int32_t ind
 }
 
 /**/
-_CC_API_PRIVATE(const size_t) _oci8_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
+_CC_API_PRIVATE(const size_t)
+_oci8_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
     sword res;
     OCIDefine *oci_define; /* define handle */
     sb2 oci_null;          /* is null? */
@@ -550,7 +549,7 @@ _CC_API_PRIVATE(const size_t) _oci8_get_string(_cc_sql_result_t *result, int32_t
     }
 
     res = OCIDefineByPos(result->stmt, &(oci_define), result->errhp, (ub4)index, buffer, length, SQLT_STR,
-                        (dvoid *)&(oci_null), &rlen, (ub2 *)0, (ub4)OCI_DEFAULT);
+                         (dvoid *)&(oci_null), &rlen, (ub2 *)0, (ub4)OCI_DEFAULT);
     if (res != OCI_SUCCESS) {
         sql_error(res, result->errhp);
         return 0;

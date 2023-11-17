@@ -18,16 +18,16 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
+#include <cc/alloc.h>
 #include <cc/hmac.h>
 #include <cc/string.h>
-#include <cc/alloc.h>
 
 #define MAX_HASHLEN 64
 #define MAX_BLOCKLEN 128
 
 typedef void (*_hmac_init)(pvoid_t);
-typedef void (*_hmac_update)(pvoid_t, const byte_t*, size_t);
-typedef void (*_hmac_final)(pvoid_t, byte_t*);
+typedef void (*_hmac_update)(pvoid_t, const byte_t *, size_t);
+typedef void (*_hmac_final)(pvoid_t, byte_t *);
 
 struct _cc_hmac {
     int block_lenght;
@@ -36,7 +36,7 @@ struct _cc_hmac {
     pvoid_t hash;
     _hmac_init init;
     _hmac_update update;
-    _hmac_final  final;
+    _hmac_final final;
     uint8_t key[MAX_BLOCKLEN];
 };
 
@@ -66,12 +66,12 @@ _CC_API_PRIVATE(void) _hmac_init_block(_cc_hmac_t *c, byte_t *block, byte_t cp) 
     }
 }
 
-_CC_API_PUBLIC(_cc_hmac_t*) _cc_hmac_alloc(byte_t type) {
-    _cc_hmac_t *hmac = (_cc_hmac_t*)_cc_malloc(sizeof(_cc_hmac_t));
+_CC_API_PUBLIC(_cc_hmac_t *) _cc_hmac_alloc(byte_t type) {
+    _cc_hmac_t *hmac = (_cc_hmac_t *)_cc_malloc(sizeof(_cc_hmac_t));
     hmac->key_lenght = 0;
-    switch(type) {
+    switch (type) {
     case _CC_HMAC_MD5_:
-        hmac->hash_lenght  = _CC_MD5_DIGEST_LENGTH_;
+        hmac->hash_lenght = _CC_MD5_DIGEST_LENGTH_;
         hmac->block_lenght = 64;
         hmac->hash = _cc_malloc(sizeof(_cc_md5_t));
         hmac->init = (_hmac_init)_cc_md5_init;
@@ -79,7 +79,7 @@ _CC_API_PUBLIC(_cc_hmac_t*) _cc_hmac_alloc(byte_t type) {
         hmac->final = (_hmac_final)_cc_md5_final;
         break;
     case _CC_HMAC_SHA1_:
-        hmac->hash_lenght  = _CC_SHA1_DIGEST_LENGTH_;
+        hmac->hash_lenght = _CC_SHA1_DIGEST_LENGTH_;
         hmac->block_lenght = 64;
         hmac->hash = _cc_malloc(sizeof(_cc_sha1_t));
         hmac->init = (_hmac_init)_cc_sha1_init;
@@ -87,7 +87,7 @@ _CC_API_PUBLIC(_cc_hmac_t*) _cc_hmac_alloc(byte_t type) {
         hmac->final = (_hmac_final)_cc_sha1_final;
         break;
     case _CC_HMAC_SHA224_:
-        hmac->hash_lenght  = _CC_SHA224_DIGEST_LENGTH_;
+        hmac->hash_lenght = _CC_SHA224_DIGEST_LENGTH_;
         hmac->block_lenght = 64;
         hmac->hash = _cc_malloc(sizeof(_cc_sha256_t));
         hmac->init = (_hmac_init)__sha224_init;
@@ -95,7 +95,7 @@ _CC_API_PUBLIC(_cc_hmac_t*) _cc_hmac_alloc(byte_t type) {
         hmac->final = (_hmac_final)_cc_sha256_final;
         break;
     case _CC_HMAC_SHA256_:
-        hmac->hash_lenght  = _CC_SHA256_DIGEST_LENGTH_;
+        hmac->hash_lenght = _CC_SHA256_DIGEST_LENGTH_;
         hmac->block_lenght = 64;
         hmac->hash = _cc_malloc(sizeof(_cc_sha256_t));
         hmac->init = (_hmac_init)__sha256_init;
@@ -103,7 +103,7 @@ _CC_API_PUBLIC(_cc_hmac_t*) _cc_hmac_alloc(byte_t type) {
         hmac->final = (_hmac_final)_cc_sha256_final;
         break;
     case _CC_HMAC_SHA384_:
-        hmac->hash_lenght  = _CC_SHA384_DIGEST_LENGTH_;
+        hmac->hash_lenght = _CC_SHA384_DIGEST_LENGTH_;
         hmac->block_lenght = 128;
         hmac->hash = _cc_malloc(sizeof(_cc_sha512_t));
         hmac->init = (_hmac_init)__sha384_init;
@@ -111,7 +111,7 @@ _CC_API_PUBLIC(_cc_hmac_t*) _cc_hmac_alloc(byte_t type) {
         hmac->final = (_hmac_final)_cc_sha512_final;
         break;
     case _CC_HMAC_SHA512_:
-        hmac->hash_lenght  = _CC_SHA512_DIGEST_LENGTH_;
+        hmac->hash_lenght = _CC_SHA512_DIGEST_LENGTH_;
         hmac->block_lenght = 128;
         hmac->hash = _cc_malloc(sizeof(_cc_sha512_t));
         hmac->init = (_hmac_init)__sha512_init;
@@ -139,7 +139,6 @@ _CC_API_PUBLIC(void) _cc_hmac_free(_cc_hmac_t *ctx) {
     _cc_free(ctx->hash);
     _cc_free(ctx);
 }
-
 
 _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hmac_t *c, const byte_t *key, size_t length) {
 
@@ -183,9 +182,10 @@ _CC_API_PUBLIC(int) _cc_hmac_final(_cc_hmac_t *c, byte_t *output, int length) {
 }
 
 /*
- * 
+ *
  */
-_CC_API_PUBLIC(int) _cc_hmac(byte_t type, const byte_t *input, size_t ilen, const byte_t *key, size_t key_length, tchar_t *output) {
+_CC_API_PUBLIC(int)
+_cc_hmac(byte_t type, const byte_t *input, size_t ilen, const byte_t *key, size_t key_length, tchar_t *output) {
     int r;
     byte_t digest[MAX_BLOCKLEN];
     _cc_hmac_t *hmac = _cc_hmac_alloc(type);

@@ -94,7 +94,7 @@ _CC_API_PRIVATE(bool_t) _url_exists_user_password(const tchar_t *s) {
 }
 
 /**/
-_CC_API_PRIVATE(tchar_t*) _url_user_password_copy(const tchar_t *s, size_t len) {
+_CC_API_PRIVATE(tchar_t *) _url_user_password_copy(const tchar_t *s, size_t len) {
     tchar_t *d = (tchar_t *)_cc_malloc(sizeof(tchar_t) * (len + 1));
     _cc_raw_url_decode(s, (int32_t)len, d, (int32_t)len);
     return d;
@@ -151,7 +151,7 @@ _CC_API_PRIVATE(bool_t) is_valid_host(const tchar_t *_host) {
 #endif
 
 /*create url*/
-_CC_API_PRIVATE(_cc_url_t*) _create_url(_cc_url_t *u, const tchar_t *url) {
+_CC_API_PRIVATE(_cc_url_t *) _create_url(_cc_url_t *u, const tchar_t *url) {
     const tchar_t *curstr, *tmpstr;
     const tchar_t *user_name = NULL, *user_password = NULL;
 
@@ -329,7 +329,7 @@ _CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
 }
 
 /*create url*/
-_CC_API_PUBLIC(_cc_url_t*) _cc_create_url(const tchar_t *url) {
+_CC_API_PUBLIC(_cc_url_t *) _cc_create_url(const tchar_t *url) {
     _cc_url_t *u = _CC_MALLOC(_cc_url_t);
     if (_create_url(u, url) == NULL) {
         _cc_free(u);
@@ -433,7 +433,7 @@ _CC_API_PUBLIC(int32_t) _cc_url_decode(const tchar_t *src, int32_t src_len, tcha
                 }
                 i += convert_bytes;
                 continue;
-            } 
+            }
 
             if (_istxdigit((int32_t) * (s + 1)) && _istxdigit((int)*(s + 2))) {
                 *(dst + i++) = (tchar_t)_cc_hex2((s + 1));
@@ -500,7 +500,7 @@ _CC_API_PUBLIC(int32_t) _cc_raw_url_decode(const tchar_t *src, int32_t src_len, 
                 }
                 i += convert_bytes;
                 continue;
-            } 
+            }
 
             if (_istxdigit((int32_t) * (s + 1)) && _istxdigit((int)*(s + 2))) {
                 *(dst + i++) = (tchar_t)_cc_hex2((s + 1));

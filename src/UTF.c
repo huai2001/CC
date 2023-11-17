@@ -21,7 +21,9 @@
 #include <cc/alloc.h>
 
 /*convert u0041 u0042 u0043 u4e2d u6587 to utf8 */
-_CC_API_PUBLIC(int32_t) _cc_convert_utf16_literal_to_utf8(const tchar_t **input, const tchar_t *input_end, tchar_t *output, size_t output_length) {
+_CC_API_PUBLIC(int32_t)
+_cc_convert_utf16_literal_to_utf8(const tchar_t **input, const tchar_t *input_end, tchar_t *output,
+                                  size_t output_length) {
     uint32_t first_code;
     uint32_t second_code;
     uint32_t codepoint = 0;
@@ -93,7 +95,7 @@ _CC_API_PUBLIC(int32_t) _cc_unicode_to_utf8(uint32_t unic, uint8_t *utf8, size_t
 
     if (unic <= 0x0000007F && size > 0) {
         /* U-00000000 - U-0000007F:  0xxxxxxx */
-        *utf8 = (unic)&0x7F;
+        *utf8 = (unic) & 0x7F;
         return 1;
     } else if (unic >= 0x00000080 && unic <= 0x000007FF && size > 1) {
         /* U-00000080 - U-000007FF:  110xxxxx 10xxxxxx */
@@ -175,8 +177,9 @@ _CC_API_PUBLIC(int32_t) _cc_utf8_to_unicode(uint8_t *utf8, size_t len, uint32_t 
 }
 
 /* --------------------------------------------------------------------- */
-_CC_API_PUBLIC(int32_t) _cc_utf32_to_utf16(const uint32_t *source_start, const uint32_t *source_end, uint16_t *target_start,
-                           uint16_t *target_end, bool_t flags) {
+_CC_API_PUBLIC(int32_t)
+_cc_utf32_to_utf16(const uint32_t *source_start, const uint32_t *source_end, uint16_t *target_start,
+                   uint16_t *target_end, bool_t flags) {
     int32_t len = 0;
     uint32_t *utf32 = (uint32_t *)source_start;
     uint16_t *utf16 = (uint16_t *)target_start;
@@ -193,14 +196,16 @@ _CC_API_PUBLIC(int32_t) _cc_utf32_to_utf16(const uint32_t *source_start, const u
 }
 
 /* --------------------------------------------------------------------- */
-_CC_API_PUBLIC(int32_t) _cc_utf16_to_utf32(const uint16_t *source_start, const uint16_t *source_end, uint32_t *target_start,
-                           uint32_t *target_end, bool_t flags) {
+_CC_API_PUBLIC(int32_t)
+_cc_utf16_to_utf32(const uint16_t *source_start, const uint16_t *source_end, uint32_t *target_start,
+                   uint32_t *target_end, bool_t flags) {
     return 0;
 }
 
 /* --------------------------------------------------------------------- */
-_CC_API_PUBLIC(int32_t) _cc_utf16_to_utf8(const uint16_t *source_start, const uint16_t *source_end, uint8_t *target_start,
-                          uint8_t *target_end, bool_t flags) {
+_CC_API_PUBLIC(int32_t)
+_cc_utf16_to_utf8(const uint16_t *source_start, const uint16_t *source_end, uint8_t *target_start, uint8_t *target_end,
+                  bool_t flags) {
     int32_t len = 0;
     uint16_t *utf16 = (uint16_t *)source_start;
     uint8_t *utf8 = (uint8_t *)target_start;
@@ -217,8 +222,9 @@ _CC_API_PUBLIC(int32_t) _cc_utf16_to_utf8(const uint16_t *source_start, const ui
 }
 
 /* --------------------------------------------------------------------- */
-_CC_API_PUBLIC(int32_t) _cc_utf32_to_utf8(const uint32_t *source_start, const uint32_t *source_end, uint8_t *target_start,
-                          uint8_t *target_end, bool_t flags) {
+_CC_API_PUBLIC(int32_t)
+_cc_utf32_to_utf8(const uint32_t *source_start, const uint32_t *source_end, uint8_t *target_start, uint8_t *target_end,
+                  bool_t flags) {
     int32_t len = 0;
     uint32_t *utf32 = (uint32_t *)source_start;
     uint8_t *utf8 = (uint8_t *)target_start;
@@ -235,8 +241,9 @@ _CC_API_PUBLIC(int32_t) _cc_utf32_to_utf8(const uint32_t *source_start, const ui
 }
 
 /* --------------------------------------------------------------------- */
-_CC_API_PUBLIC(int32_t) _cc_utf8_to_utf32(const uint8_t *source_start, const uint8_t *source_end, uint32_t *target_start,
-                          uint32_t *target_end, bool_t flags) {
+_CC_API_PUBLIC(int32_t)
+_cc_utf8_to_utf32(const uint8_t *source_start, const uint8_t *source_end, uint32_t *target_start, uint32_t *target_end,
+                  bool_t flags) {
     int32_t len = 0;
     uint32_t *utf32 = target_start;
     uint8_t *utf8 = (uint8_t *)source_start;
@@ -253,8 +260,9 @@ _CC_API_PUBLIC(int32_t) _cc_utf8_to_utf32(const uint8_t *source_start, const uin
 }
 
 /* --------------------------------------------------------------------- */
-_CC_API_PUBLIC(int32_t) _cc_utf8_to_utf16(const uint8_t *source_start, const uint8_t *source_end, uint16_t *target_start,
-                          uint16_t *target_end, bool_t flags) {
+_CC_API_PUBLIC(int32_t)
+_cc_utf8_to_utf16(const uint8_t *source_start, const uint8_t *source_end, uint16_t *target_start, uint16_t *target_end,
+                  bool_t flags) {
     int32_t len = 0;
     uint16_t *utf16 = (uint16_t *)target_start;
     uint8_t *utf8 = (uint8_t *)source_start;

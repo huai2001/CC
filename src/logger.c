@@ -19,9 +19,9 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <cc/alloc.h>
+#include <cc/atomic.h>
 #include <cc/logger.h>
 #include <cc/string.h>
-#include <cc/atomic.h>
 #include <time.h>
 
 #ifdef __CC_ANDROID__
@@ -142,8 +142,8 @@ _CC_API_PUBLIC(void) _cc_loggerW_set_output_callback(_cc_loggerW_callback_t call
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_logger_set_output_callback(_cc_loggerA_callback_t callbackA, _cc_loggerW_callback_t callbackW,
-                                    pvoid_t userdata) {
+_CC_API_PUBLIC(void)
+_cc_logger_set_output_callback(_cc_loggerA_callback_t callbackA, _cc_loggerW_callback_t callbackW, pvoid_t userdata) {
     _logger.callbackA = callbackA;
     _logger.callbackW = callbackW;
     _logger.userdata = userdata;
@@ -203,7 +203,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(uint16_t flags, const char_t *fmt, va_l
             fmt_length = _vsnprintf(nullptr, 0, fmt, arg);
         }
 #endif
-        if (_cc_unlikely(fmt_length <= 0)) { 
+        if (_cc_unlikely(fmt_length <= 0)) {
             break;
         }
 
@@ -252,7 +252,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(uint16_t flags, const wchar_t *fmt, va_
             fmt_length = _vsnwprintf(nullptr, 0, fmt, arg);
         }
 #endif
-        if (_cc_unlikely(fmt_length <= 0)) { 
+        if (_cc_unlikely(fmt_length <= 0)) {
             break;
         }
 

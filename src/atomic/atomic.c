@@ -37,7 +37,7 @@ _CC_API_PRIVATE(int64_t) _xxx_atomic64_set(_cc_atomic64_t* a, int64_t v) {
 }
 #endif
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_get(_cc_atomic32_t* a) {
+_CC_API_PUBLIC(int32_t) _cc_atomic32_get(_cc_atomic32_t *a) {
     _cc_atomic32_t value;
     do {
         value = (int32_t)*a;
@@ -46,7 +46,7 @@ _CC_API_PUBLIC(int32_t) _cc_atomic32_get(_cc_atomic32_t* a) {
     return value;
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_get(_cc_atomic64_t* a) {
+_CC_API_PUBLIC(int64_t) _cc_atomic64_get(_cc_atomic64_t *a) {
     int64_t value;
     do {
         value = (int64_t)*a;
@@ -55,12 +55,12 @@ _CC_API_PUBLIC(int64_t) _cc_atomic64_get(_cc_atomic64_t* a) {
     return value;
 }
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_add(_cc_atomic32_t* a, int32_t v) {
+_CC_API_PUBLIC(int32_t) _cc_atomic32_add(_cc_atomic32_t *a, int32_t v) {
 #if defined(__CC_WINDOWS__)
 #if (defined(_M_IA64) || defined(_M_AMD64))
     return (int32_t)InterlockedExchangeAdd(a, v);
 #else
-    return (int32_t)InterlockedExchangeAdd((long*)a, v);
+    return (int32_t)InterlockedExchangeAdd((long *)a, v);
 #endif
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
     // return OSAtomicAdd32Barrier(v, a);
@@ -75,12 +75,12 @@ _CC_API_PUBLIC(int32_t) _cc_atomic32_add(_cc_atomic32_t* a, int32_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_sub(_cc_atomic32_t* a, int32_t v) {
+_CC_API_PUBLIC(int32_t) _cc_atomic32_sub(_cc_atomic32_t *a, int32_t v) {
 #if defined(__CC_WINDOWS__)
 #if (defined(_M_IA64) || defined(_M_AMD64))
     return (int32_t)InterlockedExchangeAdd(a, -v);
 #else
-    return (int32_t)InterlockedExchangeAdd((long*)a, -v);
+    return (int32_t)InterlockedExchangeAdd((long *)a, -v);
 #endif
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
     // return OSAtomicAdd32Barrier(-v, a);
@@ -88,19 +88,19 @@ _CC_API_PUBLIC(int32_t) _cc_atomic32_sub(_cc_atomic32_t* a, int32_t v) {
 #elif defined(__CC_SOLARIS__)
     int32_t pv = (int32_t)*a;
     membar_consumer();
-    atomic_add_32((volatile uint32_t*)a, -v);
+    atomic_add_32((volatile uint32_t *)a, -v);
     return pv;
 #else
     return __sync_fetch_and_sub(a, v);
 #endif
 }
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_set(_cc_atomic32_t* a, int32_t v) {
+_CC_API_PUBLIC(int32_t) _cc_atomic32_set(_cc_atomic32_t *a, int32_t v) {
 #if defined(__CC_WINDOWS__)
 #if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
     return (int32_t)InterlockedExchange(a, v);
 #else
-    return (int32_t)InterlockedExchange((long*)a, v);
+    return (int32_t)InterlockedExchange((long *)a, v);
 #endif
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
     // return _xxx_atomic32_set(a, v);
@@ -112,7 +112,7 @@ _CC_API_PUBLIC(int32_t) _cc_atomic32_set(_cc_atomic32_t* a, int32_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_and(_cc_atomic32_t* a, int32_t v) {
+_CC_API_PUBLIC(int32_t) _cc_atomic32_and(_cc_atomic32_t *a, int32_t v) {
 #if defined(__CC_WINDOWS__)
     return (int32_t)_InterlockedAnd(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -126,7 +126,7 @@ _CC_API_PUBLIC(int32_t) _cc_atomic32_and(_cc_atomic32_t* a, int32_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_or(_cc_atomic32_t* a, int32_t v) {
+_CC_API_PUBLIC(int32_t) _cc_atomic32_or(_cc_atomic32_t *a, int32_t v) {
 #if defined(__CC_WINDOWS__)
     return (int32_t)_InterlockedOr(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -140,7 +140,7 @@ _CC_API_PUBLIC(int32_t) _cc_atomic32_or(_cc_atomic32_t* a, int32_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_xor(_cc_atomic32_t* a, int32_t v) {
+_CC_API_PUBLIC(int32_t) _cc_atomic32_xor(_cc_atomic32_t *a, int32_t v) {
 #if defined(__CC_WINDOWS__)
     return (int32_t)_InterlockedXor(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -154,12 +154,12 @@ _CC_API_PUBLIC(int32_t) _cc_atomic32_xor(_cc_atomic32_t* a, int32_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(bool_t) _cc_atomic32_cas(_cc_atomic32_t* a, int32_t v1, int32_t v2) {
+_CC_API_PUBLIC(bool_t) _cc_atomic32_cas(_cc_atomic32_t *a, int32_t v1, int32_t v2) {
 #if defined(__CC_WINDOWS__)
 #if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
     return (bool_t)(InterlockedCompareExchange(a, v2, v1) == v1);
 #else
-    return (bool_t)(InterlockedCompareExchange((long*)a, v2, v1) == v1);
+    return (bool_t)(InterlockedCompareExchange((long *)a, v2, v1) == v1);
 #endif
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
     // return (bool_t)OSAtomicCompareAndSwap32Barrier(v1, v2, a);
@@ -171,7 +171,7 @@ _CC_API_PUBLIC(bool_t) _cc_atomic32_cas(_cc_atomic32_t* a, int32_t v1, int32_t v
 #endif
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_add(_cc_atomic64_t* a, int64_t v) {
+_CC_API_PUBLIC(int64_t) _cc_atomic64_add(_cc_atomic64_t *a, int64_t v) {
 #if defined(__CC_WINDOWS__)
     return (int64_t)InterlockedExchangeAdd64(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -187,7 +187,7 @@ _CC_API_PUBLIC(int64_t) _cc_atomic64_add(_cc_atomic64_t* a, int64_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_sub(_cc_atomic64_t* a, int64_t v) {
+_CC_API_PUBLIC(int64_t) _cc_atomic64_sub(_cc_atomic64_t *a, int64_t v) {
 #if defined(__CC_WINDOWS__)
     return (int64_t)InterlockedExchangeAdd64(a, -v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -196,14 +196,14 @@ _CC_API_PUBLIC(int64_t) _cc_atomic64_sub(_cc_atomic64_t* a, int64_t v) {
 #elif defined(__CC_SOLARIS__)
     int64_t pv = (int64_t)*a;
     membar_consumer();
-    atomic_add_64((volatile uint64_t*)a, -v);
+    atomic_add_64((volatile uint64_t *)a, -v);
     return pv;
 #else
     return __sync_fetch_and_sub(a, v);
 #endif
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_set(_cc_atomic64_t* a, int64_t v) {
+_CC_API_PUBLIC(int64_t) _cc_atomic64_set(_cc_atomic64_t *a, int64_t v) {
 #if defined(__CC_WINDOWS__)
     return (int64_t)InterlockedExchange64(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -216,7 +216,7 @@ _CC_API_PUBLIC(int64_t) _cc_atomic64_set(_cc_atomic64_t* a, int64_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_and(_cc_atomic64_t* a, int64_t v) {
+_CC_API_PUBLIC(int64_t) _cc_atomic64_and(_cc_atomic64_t *a, int64_t v) {
 #if defined(__CC_WINDOWS__)
     return (int64_t)InterlockedAnd64(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -230,7 +230,7 @@ _CC_API_PUBLIC(int64_t) _cc_atomic64_and(_cc_atomic64_t* a, int64_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_or(_cc_atomic64_t* a, int64_t v) {
+_CC_API_PUBLIC(int64_t) _cc_atomic64_or(_cc_atomic64_t *a, int64_t v) {
 #if defined(__CC_WINDOWS__)
     return (int64_t)InterlockedOr64(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -244,7 +244,7 @@ _CC_API_PUBLIC(int64_t) _cc_atomic64_or(_cc_atomic64_t* a, int64_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_xor(_cc_atomic64_t* a, int64_t v) {
+_CC_API_PUBLIC(int64_t) _cc_atomic64_xor(_cc_atomic64_t *a, int64_t v) {
 #if defined(__CC_WINDOWS__)
     return (int64_t)InterlockedXor64(a, v);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -258,7 +258,7 @@ _CC_API_PUBLIC(int64_t) _cc_atomic64_xor(_cc_atomic64_t* a, int64_t v) {
 #endif
 }
 
-_CC_API_PUBLIC(bool_t) _cc_atomic64_cas(_cc_atomic64_t* a, int64_t v1, int64_t v2) {
+_CC_API_PUBLIC(bool_t) _cc_atomic64_cas(_cc_atomic64_t *a, int64_t v1, int64_t v2) {
 #if defined(__CC_WINDOWS__)
     return (bool_t)(InterlockedCompareExchange64(a, v2, v1) == v1);
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)

@@ -20,10 +20,10 @@
 */
 #include <cc/alloc.h>
 #include <cc/db/sql.h>
+#include <cc/math.h>
 #include <cc/socket/socket.h>
 #include <cc/string.h>
 #include <cc/time.h>
-#include <cc/math.h>
 
 #if defined(__CC_WINDOWS__) || defined(__CC_APPLE__)
 #include <mysql/include/errmsg.h>
@@ -74,9 +74,10 @@ _CC_API_PRIVATE(bool_t) _get_url_query(const _cc_str_t *keyword, const tchar_t *
 
 #ifdef _CC_UNICODE_
     r += keyword->length;
-    for (i = 0; *r && *r != _T('&'); i++){}
+    for (i = 0; *r && *r != _T('&'); i++) {
+    }
     if (i >= 0) {
-        _cc_utf16_to_utf8((uint16_t *)r, (uint16_t *)(r + i),(uint8_t *)buf, (uint8_t *)(buf + length), false);
+        _cc_utf16_to_utf8((uint16_t *)r, (uint16_t *)(r + i), (uint8_t *)buf, (uint8_t *)(buf + length), false);
     } else {
         buf[0] = 0;
     }
@@ -135,7 +136,7 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
         _cc_logger_error(_T("Could not initialize Mysql connection to database `%s`"), ctx->host);
         return false;
     }
-    
+
     if (ctx->use_SSL) {
 #if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
         int opt_use_ssl = SSL_MODE_REQUIRED;
@@ -156,7 +157,9 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
 #if (MYSQL_VERSION_ID > 41000)
     {
         char_t buf[512];
-        size_t len = snprintf(buf, _cc_countof(buf), "SET character_set_connection=%s, character_set_results=%s, character_set_client=binary", charset, charset);
+        size_t len = snprintf(buf, _cc_countof(buf),
+                              "SET character_set_connection=%s, character_set_results=%s, character_set_client=binary",
+                              charset, charset);
         mysql_real_query(ctx->sql, buf, (unsigned long)len);
     }
 #else
@@ -166,14 +169,14 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
 #endif
 
 #ifdef _CC_UNICODE_
-    _cc_buf_alloc(&ctx->buffer,1024);
+    _cc_buf_alloc(&ctx->buffer, 1024);
 #endif
     ctx->auto_commit = true;
 
     return true;
 }
 
-_CC_API_PRIVATE(_cc_sql_t*) _mysql_connect(const tchar_t *sql_connection_string) {
+_CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string) {
     _cc_sql_t *ctx = NULL;
     _cc_url_t params;
     static _cc_str_t charset_attr = _cc_string(_T("charset="));
@@ -232,12 +235,13 @@ _CC_API_PRIVATE(bool_t) _mysql_disconnect(_cc_sql_t *ctx) {
     _cc_buf_free(&ctx->buffer);
 #endif
     mysql_close(ctx->sql);
-    
+
     _cc_free(ctx);
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _cc_mysql_prepare(_cc_sql_t *ctx, MYSQL_STMT *stmt, const char_t *sql_string, unsigned long sql_string_len) {
+_CC_API_PRIVATE(bool_t)
+_cc_mysql_prepare(_cc_sql_t *ctx, MYSQL_STMT *stmt, const char_t *sql_string, unsigned long sql_string_len) {
     if (mysql_stmt_prepare(stmt, sql_string, sql_string_len)) {
         if (_mysql_error(ctx)) {
             if (mysql_stmt_prepare(stmt, sql_string, sql_string_len)) {
@@ -297,10 +301,10 @@ _CC_API_PRIVATE(bool_t) _mysql_rollback(_cc_sql_t *ctx) {
 
 /**/
 _CC_API_PRIVATE(bool_t) __bind_result(_cc_sql_result_t *result) {
-    MYSQL_RES* res;
+    MYSQL_RES *res;
     int32_t num_fields;
     int32_t i;
-    
+
     res = mysql_stmt_result_metadata(result->stmt);
     if (res == NULL) {
         return false;
@@ -308,7 +312,7 @@ _CC_API_PRIVATE(bool_t) __bind_result(_cc_sql_result_t *result) {
     num_fields = (int32_t)mysql_stmt_field_count(result->stmt);
     if (num_fields > 0) {
         MYSQL_FIELD *fields = mysql_fetch_fields(res);
-        MYSQL_BIND *binds = (MYSQL_BIND*)_cc_calloc(num_fields + 1, sizeof(MYSQL_BIND));
+        MYSQL_BIND *binds = (MYSQL_BIND *)_cc_calloc(num_fields + 1, sizeof(MYSQL_BIND));
         for (i = 0; i < num_fields; i++) {
             MYSQL_FIELD *field = &fields[i];
             MYSQL_BIND *b = &binds[i];
@@ -318,15 +322,15 @@ _CC_API_PRIVATE(bool_t) __bind_result(_cc_sql_result_t *result) {
              * malloc: Incorrect checksum for freed object 0x7fe46762aa60: probably modified after being freed.
              */
             switch (field->type) {
-                case MYSQL_TYPE_DATETIME:
-                case MYSQL_TYPE_TIMESTAMP:
-                case MYSQL_TYPE_DATE:
-                case MYSQL_TYPE_TIME:
-                    b->buffer_length = sizeof(MYSQL_TIME);
-                    break;
-                default:
-                    b->buffer_length = field->length;
-                    break;
+            case MYSQL_TYPE_DATETIME:
+            case MYSQL_TYPE_TIMESTAMP:
+            case MYSQL_TYPE_DATE:
+            case MYSQL_TYPE_TIME:
+                b->buffer_length = sizeof(MYSQL_TIME);
+                break;
+            default:
+                b->buffer_length = field->length;
+                break;
             }
             b->buffer = _cc_malloc(b->buffer_length);
         }
@@ -336,7 +340,7 @@ _CC_API_PRIVATE(bool_t) __bind_result(_cc_sql_result_t *result) {
     } else {
         result->bind_result = NULL;
     }
-    
+
     result->meta = res;
     result->num_fields = num_fields;
     mysql_stmt_store_result(result->stmt);
@@ -356,7 +360,7 @@ _CC_API_PRIVATE(void) __free_bind_result(_cc_sql_result_t *result) {
         mysql_free_result(result->meta);
         result->meta = NULL;
     }
-    
+
     if (result->bind_result) {
         for (i = 0; i < result->num_fields; i++) {
             MYSQL_BIND *b = &result->bind_result[i];
@@ -370,7 +374,7 @@ _CC_API_PRIVATE(void) __free_bind_result(_cc_sql_result_t *result) {
 _CC_API_PRIVATE(bool_t) _mysql_prepare(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
     size_t sql_string_len = 0;
     int32_t bind_fields;
-    const char* ptr;
+    const char *ptr;
     MYSQL_STMT *stmt = NULL;
 #if DEBUG_EXECUTION_TIME
     clock_t execution_time = clock();
@@ -387,7 +391,7 @@ _CC_API_PRIVATE(bool_t) _mysql_prepare(_cc_sql_t *ctx, const tchar_t *sql_string
     _cc_buf_cleanup(&ctx->buffer);
     _cc_buf_write(&ctx->buffer, sql_string, sql_string_len);
     _cc_buf_utf16_to_utf8(&ctx->buffer, 0);
-    ptr = (const char*)ctx->buffer.bytes;
+    ptr = (const char *)ctx->buffer.bytes;
     sql_string_len = ctx->buffer.length / sizeof(char_t);
 #else
     ptr = sql_string;
@@ -408,7 +412,7 @@ _CC_API_PRIVATE(bool_t) _mysql_prepare(_cc_sql_t *ctx, const tchar_t *sql_string
         res->num_fields = 0;
         res->bind_fields = bind_fields;
         if (bind_fields > 0) {
-            res->binds = (MYSQL_BIND*)_cc_calloc(bind_fields, sizeof(MYSQL_BIND));
+            res->binds = (MYSQL_BIND *)_cc_calloc(bind_fields, sizeof(MYSQL_BIND));
         }
 #if DEBUG_EXECUTION_TIME
         res->execution_time = execution_time;
@@ -435,19 +439,19 @@ _CC_API_PRIVATE(bool_t) _mysql_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     if (result->stmt == NULL) {
         return false;
     }
-    
+
     if (result->binds) {
         if (mysql_stmt_bind_param(result->stmt, result->binds) != 0) {
             _cc_logger_error(_T("mysql_stmt_execute error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
             return false;
         }
     }
-    
+
     if (mysql_stmt_execute(result->stmt) != 0) {
         _cc_logger_error(_T("mysql_stmt_execute error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
-    
+
     return __bind_result(result);
 }
 _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
@@ -475,13 +479,13 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql_string
     if (result == NULL) {
         return _cc_mysql_query(ctx, ptr, (unsigned long)sql_string_len);
     }
-    
+
     stmt = mysql_stmt_init(ctx->sql);
     if (stmt == NULL) {
         _cc_logger_error(_T("mysql_stmt_init error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
-    
+
     if (!_cc_mysql_prepare(ctx, stmt, ptr, (unsigned long)sql_string_len)) {
         return false;
     }
@@ -496,7 +500,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql_string
     res->num_fields = 0;
     res->bind_fields = bind_fields;
     if (bind_fields > 0) {
-        res->binds = (MYSQL_BIND*)_cc_calloc(bind_fields, sizeof(MYSQL_BIND));
+        res->binds = (MYSQL_BIND *)_cc_calloc(bind_fields, sizeof(MYSQL_BIND));
     }
 #if DEBUG_EXECUTION_TIME
     res->execution_time = execution_time;
@@ -537,10 +541,10 @@ _CC_API_PRIVATE(int32_t) _mysql_get_num_fields(_cc_sql_result_t *result) {
 _CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     _cc_assert(result != NULL);
     __free_bind_result(result);
-    
+
     if (result->binds) {
         int i;
-        for (i = 0; i < result->bind_fields;i++) {
+        for (i = 0; i < result->bind_fields; i++) {
             MYSQL_BIND *data = &(result->binds[i]);
             if (data->buffer_type == MYSQL_TYPE_TIMESTAMP) {
                 _cc_free(data->buffer);
@@ -548,7 +552,7 @@ _CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_t *ctx, _cc_sql_result_t *res
         }
         _cc_free(result->binds);
     }
-    
+
     if (result->stmt) {
         mysql_stmt_close(result->stmt);
         result->stmt = NULL;
@@ -559,7 +563,8 @@ _CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_t *ctx, _cc_sql_result_t *res
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _mysql_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
+_CC_API_PRIVATE(bool_t)
+_mysql_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
     MYSQL_BIND *b;
     _cc_assert(result != NULL);
     if (index >= result->bind_fields) {
@@ -567,93 +572,90 @@ _CC_API_PRIVATE(bool_t) _mysql_bind(_cc_sql_result_t *result, int32_t index, con
     }
 
     b = &result->binds[index];
-    b->buffer = (void*)value;
+    b->buffer = (void *)value;
     b->buffer_length = (unsigned long)length;
 
-    switch(type) {
-        case _CC_SQL_TYPE_INT8_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_TINY;
-            break;
-        case _CC_SQL_TYPE_INT16_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_SHORT;
-            break;
-        case _CC_SQL_TYPE_INT32_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_LONG;
-            break;
-        case _CC_SQL_TYPE_INT64_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_LONGLONG;
-            break;
-        case _CC_SQL_TYPE_UINT8_:
-            b->is_unsigned = true;
-            b->buffer_type = MYSQL_TYPE_TINY;
-            break;
-        case _CC_SQL_TYPE_UINT16_:
-            b->is_unsigned = true;
-            b->buffer_type = MYSQL_TYPE_SHORT;
-            break;
-        case _CC_SQL_TYPE_UINT32_:
-            b->is_unsigned = true;
-            b->buffer_type = MYSQL_TYPE_LONG;
-            break;
-        case _CC_SQL_TYPE_UINT64_:
-            b->is_unsigned = true;
-            b->buffer_type = MYSQL_TYPE_LONGLONG;
-            break;
-        case _CC_SQL_TYPE_FLOAT_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_FLOAT;
-            break;
-        case _CC_SQL_TYPE_DOUBLE_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_DOUBLE;
-            break;
-        case _CC_SQL_TYPE_STRING_: {
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_STRING;
-            if (length == -1) {
-                b->buffer_length = (unsigned long)_tcslen((tchar_t*)value);
-            }
+    switch (type) {
+    case _CC_SQL_TYPE_INT8_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_TINY;
+        break;
+    case _CC_SQL_TYPE_INT16_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_SHORT;
+        break;
+    case _CC_SQL_TYPE_INT32_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_LONG;
+        break;
+    case _CC_SQL_TYPE_INT64_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_LONGLONG;
+        break;
+    case _CC_SQL_TYPE_UINT8_:
+        b->is_unsigned = true;
+        b->buffer_type = MYSQL_TYPE_TINY;
+        break;
+    case _CC_SQL_TYPE_UINT16_:
+        b->is_unsigned = true;
+        b->buffer_type = MYSQL_TYPE_SHORT;
+        break;
+    case _CC_SQL_TYPE_UINT32_:
+        b->is_unsigned = true;
+        b->buffer_type = MYSQL_TYPE_LONG;
+        break;
+    case _CC_SQL_TYPE_UINT64_:
+        b->is_unsigned = true;
+        b->buffer_type = MYSQL_TYPE_LONGLONG;
+        break;
+    case _CC_SQL_TYPE_FLOAT_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_FLOAT;
+        break;
+    case _CC_SQL_TYPE_DOUBLE_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_DOUBLE;
+        break;
+    case _CC_SQL_TYPE_STRING_: {
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_STRING;
+        if (length == -1) {
+            b->buffer_length = (unsigned long)_tcslen((tchar_t *)value);
         }
-            break;
-        case _CC_SQL_TYPE_BLOB_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_BLOB;
-            break;
-        case _CC_SQL_TYPE_NULL_:
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_NULL;
-            break;
-        case _CC_SQL_TYPE_TIMESTAMP_:
-        case _CC_SQL_TYPE_DATETIME_: {
-            struct tm *timeinfo = (struct tm *)value;
-            MYSQL_TIME *datetime;
+    } break;
+    case _CC_SQL_TYPE_BLOB_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_BLOB;
+        break;
+    case _CC_SQL_TYPE_NULL_:
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_NULL;
+        break;
+    case _CC_SQL_TYPE_TIMESTAMP_:
+    case _CC_SQL_TYPE_DATETIME_: {
+        struct tm *timeinfo = (struct tm *)value;
+        MYSQL_TIME *datetime;
 
-            b->buffer_length = sizeof(MYSQL_TIME);
-            b->buffer = _cc_malloc(b->buffer_length);
-            b->buffer_type = MYSQL_TYPE_TIMESTAMP;
-            b->is_unsigned = false;
+        b->buffer_length = sizeof(MYSQL_TIME);
+        b->buffer = _cc_malloc(b->buffer_length);
+        b->buffer_type = MYSQL_TYPE_TIMESTAMP;
+        b->is_unsigned = false;
 
-            datetime = (MYSQL_TIME*)b->buffer;
-            datetime->year = timeinfo->tm_year + 1900;
-            datetime->month = timeinfo->tm_mon + 1;
-            datetime->day = timeinfo->tm_mday;
-            datetime->hour = timeinfo->tm_hour;
-            datetime->minute = timeinfo->tm_min;
-            datetime->second = timeinfo->tm_sec;
+        datetime = (MYSQL_TIME *)b->buffer;
+        datetime->year = timeinfo->tm_year + 1900;
+        datetime->month = timeinfo->tm_mon + 1;
+        datetime->day = timeinfo->tm_mday;
+        datetime->hour = timeinfo->tm_hour;
+        datetime->minute = timeinfo->tm_min;
+        datetime->second = timeinfo->tm_sec;
+    } break;
+    case _CC_SQL_TYPE_JSON_: {
+        b->is_unsigned = false;
+        b->buffer_type = MYSQL_TYPE_JSON;
+        if (length == -1) {
+            b->buffer_length = (unsigned long)_tcslen((tchar_t *)value);
         }
-            break;
-        case _CC_SQL_TYPE_JSON_: {
-            b->is_unsigned = false;
-            b->buffer_type = MYSQL_TYPE_JSON;
-            if (length == -1) {
-				b->buffer_length = (unsigned long)_tcslen((tchar_t*)value);
-            }
-        }
-            break;
+    } break;
     }
     return true;
 }
@@ -676,7 +678,7 @@ _CC_API_PRIVATE(int32_t) _mysql_get_int(_cc_sql_result_t *result, int32_t index)
         return 0;
     }
     b = &result->bind_result[index];
-    return *(int32_t*)(b->buffer);
+    return *(int32_t *)(b->buffer);
 }
 
 /**/
@@ -688,7 +690,7 @@ _CC_API_PRIVATE(int64_t) _mysql_get_int64(_cc_sql_result_t *result, int32_t inde
     }
 
     b = &result->bind_result[index];
-    return *(int64_t*)(b->buffer);
+    return *(int64_t *)(b->buffer);
 }
 
 /**/
@@ -699,7 +701,7 @@ _CC_API_PRIVATE(float64_t) _mysql_get_float(_cc_sql_result_t *result, int32_t in
         return false;
     }
     b = &result->bind_result[index];
-    return *(float64_t*)(b->buffer);
+    return *(float64_t *)(b->buffer);
 }
 
 /**/
@@ -713,11 +715,11 @@ _CC_API_PRIVATE(size_t) _mysql_get_string(_cc_sql_result_t *result, int32_t inde
     *buffer = 0;
 
     b = &result->bind_result[index];
-    if (((tchar_t*)b->buffer)[0] == 0) {
+    if (((tchar_t *)b->buffer)[0] == 0) {
         return 0;
     }
-    
-    bytes_length = _tcslen((tchar_t*)b->buffer);
+
+    bytes_length = _tcslen((tchar_t *)b->buffer);
     if (bytes_length >= length) {
         bytes_length = length - 1;
     }
@@ -737,14 +739,14 @@ _CC_API_PRIVATE(size_t) _mysql_get_blob(_cc_sql_result_t *result, int32_t index,
 
     b = &result->bind_result[index];
     if (buffer) {
-        *buffer = (byte_t*)b->buffer;
+        *buffer = (byte_t *)b->buffer;
     }
 
     return b->buffer_length;
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _mysql_get_datetime(_cc_sql_result_t *result, int32_t index,struct tm* timeinfo) {
+_CC_API_PRIVATE(bool_t) _mysql_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm *timeinfo) {
     MYSQL_BIND *b;
     MYSQL_TIME *datetime;
     _cc_assert(result != NULL);
@@ -752,10 +754,9 @@ _CC_API_PRIVATE(bool_t) _mysql_get_datetime(_cc_sql_result_t *result, int32_t in
         return false;
     }
     b = &result->bind_result[index];
-    if (b->buffer_type == MYSQL_TYPE_DATETIME ||
-        b->buffer_type == MYSQL_TYPE_DATE ||
+    if (b->buffer_type == MYSQL_TYPE_DATETIME || b->buffer_type == MYSQL_TYPE_DATE ||
         b->buffer_type == MYSQL_TYPE_TIME) {
-        datetime = (MYSQL_TIME*)(b->buffer);
+        datetime = (MYSQL_TIME *)(b->buffer);
         timeinfo->tm_year = 0;
         timeinfo->tm_mon = 0;
         if (datetime->year >= 1900) {

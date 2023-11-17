@@ -18,10 +18,10 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
+#include <cc/endian.h>
 #include <cc/string.h>
 #include <cc/time.h>
 #include <cc/uuid.h>
-#include <cc/endian.h>
 #include <sys/types.h>
 
 static const tchar_t *fmt_lower = _T("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x");
@@ -76,9 +76,9 @@ _CC_API_PRIVATE(int32_t) _uuid_hex(const struct uuid *u, tchar_t *out, int32_t l
     uint16_t clock_seq = _CC_SWAPBE16(u->clock_seq);
     uint16_t time_mid = _CC_SWAPBE16(u->time_mid);
     uint16_t time_hi_and_version = _CC_SWAPBE16(u->time_hi_and_version);
-    return (int32_t)_sntprintf(out, length, fmt, time_low, time_mid, time_hi_and_version,
-                               clock_seq >> 8, clock_seq & 0xFF, u->node[0], u->node[1], u->node[2],
-                               u->node[3], u->node[4], u->node[5]);
+    return (int32_t)_sntprintf(out, length, fmt, time_low, time_mid, time_hi_and_version, clock_seq >> 8,
+                               clock_seq & 0xFF, u->node[0], u->node[1], u->node[2], u->node[3], u->node[4],
+                               u->node[5]);
 }
 /**/
 _CC_API_PUBLIC(void) _cc_uuid(_cc_uuid_t *u) {
@@ -123,27 +123,27 @@ try_again:
 
 /**/
 _CC_API_PUBLIC(int32_t) _cc_uuid_lower(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
-    return _uuid_hex((struct uuid*)u, buf, length, fmt_lower);
+    return _uuid_hex((struct uuid *)u, buf, length, fmt_lower);
 }
 
 /**/
 _CC_API_PUBLIC(int32_t) _cc_uuid_upper(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
-    return _uuid_hex((struct uuid*)u, buf, length, fmt_upper);
+    return _uuid_hex((struct uuid *)u, buf, length, fmt_upper);
 }
 #endif
 
 #define __CC_TO_BYTE(CH, XX, OP)                                                                                       \
     do {                                                                                                               \
         if (XX <= _T('9')) {                                                                                           \
-            CH OP (XX & 0x0F);                                                                                         \
+            CH OP(XX & 0x0F);                                                                                          \
         } else {                                                                                                       \
-            CH OP ((XX & 0x0F) + 0x09);                                                                                \
+            CH OP((XX & 0x0F) + 0x09);                                                                                 \
         }                                                                                                              \
     } while (0)
 
 _CC_API_PUBLIC(void) _cc_uuid_to_bytes(_cc_uuid_t *u, const tchar_t *buf) {
     byte_t ch = 0;
-    byte_t *uu = (byte_t*)u;
+    byte_t *uu = (byte_t *)u;
     size_t i = 0, k = 0;
 
     if (_cc_unlikely(!buf)) {

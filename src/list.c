@@ -25,7 +25,7 @@
  * and so on. Negative integers are used in order to count
  * from the tail, -1 is the last element, -2 the penultimate
  * and so on. If the index is out of range NULL is returned. */
-_CC_API_PUBLIC(_cc_list_iterator_t*) _cc_list_iterator_index(_cc_list_iterator_t *head, long index) {
+_CC_API_PUBLIC(_cc_list_iterator_t *) _cc_list_iterator_index(_cc_list_iterator_t *head, long index) {
     _cc_list_iterator_t *n;
     if (index < 0) {
         index = (-index) - 1;
@@ -40,8 +40,7 @@ _CC_API_PUBLIC(_cc_list_iterator_t*) _cc_list_iterator_index(_cc_list_iterator_t
     return n;
 }
 
-_CC_API_PRIVATE(void) __list_append(_cc_list_iterator_t *list, _cc_list_iterator_t *prev,
-                                     _cc_list_iterator_t *next) {
+_CC_API_PRIVATE(void) __list_append(_cc_list_iterator_t *list, _cc_list_iterator_t *prev, _cc_list_iterator_t *next) {
     _cc_list_iterator_t *first = list->next;
     _cc_list_iterator_t *last = list->prev;
 
@@ -66,8 +65,9 @@ _CC_API_PUBLIC(void) _cc_list_iterator_append(_cc_list_iterator_t *head, _cc_lis
 }
 
 /* the stable insertion sort */
-_CC_API_PUBLIC(void) _cc_list_iterator_sort(_cc_list_iterator_t *lnk,
-                              int32_t (*_cmp)(const _cc_list_iterator_t *, const _cc_list_iterator_t *)) {
+_CC_API_PUBLIC(void)
+_cc_list_iterator_sort(_cc_list_iterator_t *lnk,
+                       int32_t (*_cmp)(const _cc_list_iterator_t *, const _cc_list_iterator_t *)) {
     _cc_list_iterator_t *q, *prev, *next;
     q = lnk->next;
 
