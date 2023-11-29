@@ -115,27 +115,28 @@ _CC_API_PUBLIC(bool_t) _cc_unbind_event_buffer(_cc_event_cycle_t *cycle, _cc_eve
 /**/
 _CC_API_PUBLIC(int32_t) _cc_event_send(_cc_event_t *e, const byte_t *data, uint16_t length) {
     int32_t off = 0;
+    int32_t data_lenth = length;
     if (_cc_unlikely(e->buffer == NULL)) {
         _cc_logger_error(_T("No write cache was created. e->buffer == NULL"));
         return -1;
     }
 
     if (_CC_EVENT_WBUF_NO_DATA(e->buffer)) {
-        off = _cc_send(e->fd, data, length);
+        off = _cc_send(e->fd, data, data_lenth);
         if (off < 0) {
             return off;
         }
 
-        if (off == length) {
-            return length;
+        if (off == data_lenth) {
+            return data_lenth;
         }
 
-        length -= (uint16_t)off;
+        data_lenth -= off;
         data += off;
     }
 
     /**/
-    if (_cc_copy_event_wbuf(&e->buffer->w, data, length)) {
+    if (_cc_copy_event_wbuf(&e->buffer->w, data, (uint16_t)data_lenth)) {
         _cc_event_change_flag(NULL, e, _CC_EVENT_WRITABLE_);
         return off;
     }
@@ -154,7 +155,8 @@ _CC_API_PUBLIC(int32_t) _cc_event_sendbuf(_cc_event_t *e) {
     }
 
     wbuf = &e->buffer->w;
-    if (wbuf->r == wbuf->w) {
+    if (wbuf->r >= wbuf->w) {
+        wbuf->r = wbuf->w = 0;
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         return 0;
     }
@@ -166,6 +168,9 @@ _CC_API_PUBLIC(int32_t) _cc_event_sendbuf(_cc_event_t *e) {
 
         if (wbuf->r == wbuf->w) {
             _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+        } else if (wbuf->r > wbuf->w) {
+            _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+            wbuf->r = wbuf->w = 0;
         }
     } else if (off < 0) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
