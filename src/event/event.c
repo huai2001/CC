@@ -147,14 +147,13 @@ _CC_API_PUBLIC(bool_t) _cc_event_callback(_cc_event_cycle_t *cycle, _cc_event_t 
     if (e->callback && e->callback(cycle, e, events)) {
         _cc_list_iterator_swap(&cycle->pending, &e->lnk);
         return true;
-    }/* else if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags)) {
-        if (e->descriptor & (_CC_EVENT_DESC_SOCKET_ | _CC_EVENT_DESC_FILE_)) {
-            //_cc_shutdown_socket(e->fd, _CC_SHUT_RD_);
-            _CC_MODIFY_BIT(_CC_EVENT_DISCONNECT_, _CC_EVENT_READABLE_, e->flags);
-            _cc_list_iterator_swap(&cycle->pending, &e->lnk);
-            return true;
-        }
-    }*/
+    } else if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) && 
+              (e->descriptor & (_CC_EVENT_DESC_SOCKET_ | _CC_EVENT_DESC_FILE_))) {
+        //_cc_shutdown_socket(e->fd, _CC_SHUT_RD_);
+        _CC_MODIFY_BIT(_CC_EVENT_DISCONNECT_, _CC_EVENT_READABLE_, e->flags);
+        _cc_list_iterator_swap(&cycle->pending, &e->lnk);
+        return true;
+    }
 
     /*force disconnect socket*/
     _cc_cleanup_event(cycle, e);
@@ -215,7 +214,6 @@ _CC_API_PUBLIC(bool_t) _cc_event_wait_reset(_cc_event_cycle_t *cycle, _cc_event_
             results = false;
         }
     }
-
     _cc_event_unlock(cycle);
 
     return results;

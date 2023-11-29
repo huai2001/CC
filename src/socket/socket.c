@@ -197,6 +197,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_timeout(_cc_socket_t fd, long ms) {
     }
     return 0;
 }
+
 /**/
 _CC_API_PUBLIC(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len) {
     int32_t sent;
@@ -207,17 +208,16 @@ _CC_API_PUBLIC(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len
 #endif
     if (_cc_unlikely(sent <= 0)) {
         int err = _cc_last_errno();
-        if (sent == 0 && err == 0) {
-            return 0;
-        } else if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
+        if ((sent == 0 && err == 0) || err == _CC_EINTR_ || err == _CC_EAGAIN_) {
             return 0;
         }
-        _cc_logger_error(_T("socketfd:%d, send(%d) failed, error code:%d,%s"), fd, sent, err, _cc_last_error(err));
-        sent = _CC_SOCKET_ERROR_;
+        _cc_logger_error(_T("socketfd:%d, send failed, error code:%d,%s"), fd, err, _cc_last_error(err));
+        return _CC_SOCKET_ERROR_;
     }
 
     return sent;
 }
+
 /**/
 _CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_sockaddr_t *sa, _cc_socklen_t sa_len) {
     int32_t sent = 0;
