@@ -12,9 +12,7 @@
 //使用示例：输出hello World!
 CALL(printf, "Hello World!\n");
 /*
- * 示例，开一个玩笑:)！
- * 
- * 这代码库不意味着能优越于libevent、libev、libuv，
+ * 开一个玩笑:)！
  * 
  * 只是出于对C的热爱，累积一份属于自己的C代码
  */
