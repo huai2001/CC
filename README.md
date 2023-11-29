@@ -4,7 +4,7 @@
 ![platform](https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-blue)
 <br>
 
-`libcc`是跨平台，多线程，轻量级的一个类似于`libevent、libev、libuv`的跨平台网络库，提供了更简单的接口和更丰富的协议。提供的函数功能包括：字符串、日志、双向/单向链表、哈希表、网络通信、JSON、XML、INI配置文件读取、AES、DES、MD2、MD4、MD5、base16/base64编码/解码、url编码/解码、时间轮计时器等等。详细信息请参阅C文件
+`libcc`是跨平台，多线程，轻量级的C语言库，提供了更简单的接口和更丰富的协议。提供的函数功能包括：字符串、日志、双向/单向链表、哈希表、网络通信、JSON、XML、INI配置文件读取、AES、DES、MD2、MD4、MD5、base16/base64编码/解码、url编码/解码、时间轮计时器等等。详细信息请参阅C文件
 ```C
 //跨平台，超轻量，易扩展，框架代码如下：
 #define CALL(fn, ...) fn(__VA_ARGS__)
