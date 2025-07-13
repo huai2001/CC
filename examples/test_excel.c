@@ -9,15 +9,15 @@
 #pragma comment(lib,"odbc32.lib")
 
 tchar_t table_name[128];
-void GetSQLDriverList()
+void GetSQLdelegateList()
 {
 	WORD wRet = 0;
-	TCHAR szDrivers[4096];
-	memset(szDrivers, 0, sizeof(szDrivers));
-	if(SQLGetInstalledDrivers(szDrivers, _countof(szDrivers), &wRet))
+	TCHAR szdelegates[4096];
+	memset(szdelegates, 0, sizeof(szdelegates));
+	if(SQLGetInstalleddelegates(szdelegates, _countof(szdelegates), &wRet))
 	{
-		LPTSTR pszDrv = szDrivers;
-		puts(_T("Installed driver list:\n"));
+		LPTSTR pszDrv = szdelegates;
+		puts(_T("Installed delegator list:\n"));
 		while(*pszDrv)
 		{
 			printf(_T("%s\n"), pszDrv);
@@ -33,14 +33,14 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 	SQLHENV m_henv;
 	UCHAR szConnectOutput[512];
 	SWORD nResult;
-	SQLHSTMT hstmt = NULL;
+	SQLHSTMT hstmt = nullptr;
 	tchar_t strConnect[1024];
 	SDWORD cb;
 	char szTable[255];
 	char szTableType[255];
 
 
-	_sntprintf(strConnect,_cc_countof(strConnect),"DBQ=%s;Driver={Microsoft Excel Driver (*.xls)};",
+	_sntprintf(strConnect,_cc_countof(strConnect),"DBQ=%s;delegator={Microsoft Excel delegator (*.xls)};",
 		sExcelFile);
 	//分配环境句柄
 	if(SQLAllocEnv(&m_henv) != SQL_SUCCESS)
@@ -55,7 +55,7 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 	}
 
 	// 连接数据源
-	if(SQLDriverConnect( m_hdbc,NULL,(UCHAR*)strConnect,SQL_NTS,szConnectOutput,sizeof(szConnectOutput),&nResult,SQL_DRIVER_COMPLETE ) != SQL_SUCCESS)
+	if(SQLdelegateConnect( m_hdbc,nullptr,(UCHAR*)strConnect,SQL_NTS,szConnectOutput,sizeof(szConnectOutput),&nResult,SQL_delegate_COMPLETE ) != SQL_SUCCESS)
 	{
 		return false;
 	}
@@ -64,9 +64,9 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 		return false;
 	}
 
-	/*也可对其进行限制，如 if(SQLTables( hstmt, NULL, 0, NULL, 0, NULL, 0, (SQLCHAR*)"TABLE", strlen("TABLE")) != SQL_SUCCESS) 此名则只获取类型为TABLE的表*/
+	/*也可对其进行限制，如 if(SQLTables( hstmt, nullptr, 0, nullptr, 0, nullptr, 0, (SQLCHAR*)"TABLE", strlen("TABLE")) != SQL_SUCCESS) 此名则只获取类型为TABLE的表*/
 	//此是获取所有表名，包括名字后带有$符号的系统表
-	if(SQLTables( hstmt, NULL, 0, NULL, 0, NULL, 0, 0, 0) != SQL_SUCCESS )
+	if(SQLTables( hstmt, nullptr, 0, nullptr, 0, nullptr, 0, 0, 0) != SQL_SUCCESS )
 	{
 		return false;
 	}
@@ -88,54 +88,54 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 int main(int argc, char *const arvg[])
 {
    int c = 0;
-    cc_sql_driver_t sql_driver;
-    cc_sql_t *conn_ptr = NULL;
-    cc_sql_result_t *sql_result = NULL;
+    cc_sql_delegate_t sql_delegate;
+    cc_sql_t *conn_ptr = nullptr;
+    cc_sql_result_t *sql_result = nullptr;
 	tchar_t strConnect[1024];
 	tchar_t *file_name = "C:\\sample2.xls";
 
 	/*
         Microsoft Excel 3.0 or 4.0  
-        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp; DriverID=278
+        Examples: delegator={Microsoft Excel delegator (*.xls)}; DBQ=c:\temp; delegateID=278
         Microsoft Excel 5.0/7.0 
-        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp\sample.xls; DriverID=22
+        Examples: delegator={Microsoft Excel delegator (*.xls)}; DBQ=c:\temp\sample.xls; delegateID=22
     */
-	_sntprintf(strConnect,_cc_countof(strConnect),"DRIVER=Microsoft Excel Driver (*.xls);CREATE_DB=%s;DBQ=%s;READONLY=false;EXCLUSIVE=Yes;",
+	_sntprintf(strConnect,_cc_countof(strConnect),"delegator=Microsoft Excel delegator (*.xls);CREATE_DB=%s;DBQ=%s;READONLY=false;EXCLUSIVE=Yes;",
 			file_name,file_name);
 
-	GetSQLDriverList();
+	GetSQLdelegateList();
 	GetExcelAllTableNames(file_name);
-    cc_init_sqlsvr(&sql_driver);
+    cc_init_sqlsvr(&sql_delegate);
 
-    conn_ptr = sql_driver.connect(strConnect);
+    conn_ptr = sql_delegate.connect(strConnect);
     if(conn_ptr) {
         printf("connection succed\n");
     } else {
         printf("connection failed\n");
     }
 	
-	//sql_driver.execute(conn_ptr, "CREATE TABLE sheet1 (Name TEXT,Age NUMBER)", false);
+	//sql_delegate.execute(conn_ptr, "CREATE TABLE sheet1 (Name TEXT,Age NUMBER)", false);
 	
-	sql_driver.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐景周',26)", false);
-	sql_driver.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐志慧',22)", false);
-	sql_driver.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('郭徽',27)", false);
+	sql_delegate.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐景周',26)", false);
+	sql_delegate.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐志慧',22)", false);
+	sql_delegate.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('郭徽',27)", false);
 	
 	_sntprintf(strConnect,_cc_countof(strConnect),"SELECT Name,Age FROM [%s];","sheet1$");
-	sql_result = sql_driver.execute(conn_ptr, strConnect, true);
+	sql_result = sql_delegate.execute(conn_ptr, strConnect, true);
 
 
     if (sql_result) {
-        int num_fields = 3;//sql_driver.get_num_fields(sql_result);
+        int num_fields = 3;//sql_delegate.get_num_fields(sql_result);
         int i = 0;
-		while(sql_driver.fetch_row(sql_result)) {
+		while(sql_delegate.fetch_row(sql_result)) {
 			char_t buff[256];
-			sql_driver.get_string(sql_result, 1, buff, 256);
-			printf("Name:%s Age:%d\n",buff,sql_driver.get_int32(sql_result, 2));
+			sql_delegate.get_string(sql_result, 1, buff, 256);
+			printf("Name:%s Age:%d\n",buff,sql_delegate.get_int32(sql_result, 2));
         }
-        sql_driver.free_result(conn_ptr, sql_result);
+        sql_delegate.free_result(conn_ptr, sql_result);
     }
 
-    sql_driver.disconnect(conn_ptr);
+    sql_delegate.disconnect(conn_ptr);
 
 	system("pause");
     return 0;

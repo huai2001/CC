@@ -1,0 +1,85 @@
+查看so 函数
+readelf -s libxxx.so | grep FUNC
+
+objdump -tT libxxx.so
+
+# 'T'表示导出的函数
+nm -D libxxx.so | grep ' T ' 
+若需解析C++修饰名，可结合c++filt
+# 查看并解析C++导出函数
+nm -D libxxx.so | grep ' T ' | c++filt  
+
+DLL
+ 使用dumpbin查看DLL中的函数
+dumpbin /EXPORTS example.dll
+查看特定函数的详细信息
+dumpbin /SYMBOLS example.dll
+查看 DLL 导入的 DLL
+dumpbin /imports example.dll
+查看so 中的字符串
+# 扫描UTF-16大端序宽字符
+string -e L
+# 扫描UTF-16编码的宽字符
+string -e l
+# 尝试UTF-8模式
+strings -e S libxxx.so  
+
+strings libxxx.so | grep "关键词"
+strings libxxx.so | grep "篡改"
+
+find ./ -name "*.so" -exec strings | grep "篡改"
+for /r %d in (*.so) do strings -e S "%d" | grep "为了保护您"
+for /r %d in (*.so) do strings -e S "%d" | grep "X509_REVOKED_add_ext" >> output.txt
+
+拷贝文件到电脑
+adb pull /sdcard/Download/com.kdildcr.uzxmjo.txt D:\\
+adb push D:\wp.txt /sdcard/Download/
+
+1. ‌基础行号断点
+break filename:linenumber
+break main.c:10  # 在main.c第10行设置断点
+
+2. ‌函数断点
+break filename:functionname
+break utils.c:parse_data  # 在utils.c的parse_data函数入口设断点
+
+3. ‌条件断点
+break filename:linenumber if condition
+break server.c:47 if len > 0  # 当len>0时触发断点
+
+列出所有断点‌：
+info breakpoints
+
+删除文件断点‌：
+delete breakpoint_number  # 根据info显示的编号删除
+delete filename:linenumber  # 直接指定文件行删除
+
+基础单步命令
+执行下一行代码并进入函数内部，适用于跟踪函数调用细节
+step (缩写 s)
+执行下一行代码但不进入函数，直接跳过函数调用
+next (缩写 n)
+执行下一条机器指令（汇编级别），用于底层调试
+stepi (缩写 si)
+
+恢复程序运行直到下一个断点或程序结束
+continue (缩写 c)
+
+执行完当前函数并返回到调用点
+finish‌
+
+断点结合单步
+
+查看上下文
+list 
+查看变量值：
+print (缩写 p)
+print variable_name
+
+‌跳过循环 
+在循环体内使用 until 直接执行到循环结束
+until 20  # 跳转到第20行
+
+使用 thread 切换线程后单步执行
+thread 2
+step

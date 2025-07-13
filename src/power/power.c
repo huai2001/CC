@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/core.h>
-#include <cc/power.h>
+#include <libcc/core.h>
+#include <libcc/power.h>
 
 bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_*, int32_t*, byte_t*);
 
@@ -29,12 +29,12 @@ _CC_API_PUBLIC(_CC_POWER_STATE_ENUM_) _cc_get_power_info(int32_t* seconds, byte_
     byte_t _percent;
     _CC_POWER_STATE_ENUM_ retval;
 
-    /* Make these never NULL for platform-specific implementations. */
-    if (seconds == NULL) {
+    /* Make these never nullptr for platform-specific implementations. */
+    if (seconds == nullptr) {
         seconds = &_seconds;
     }
 
-    if (percent == NULL) {
+    if (percent == nullptr) {
         percent = &_percent;
     }
 

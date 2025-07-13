@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,9 +18,9 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/hmac.h>
-#include <cc/string.h>
+#include <libcc/alloc.h>
+#include <libcc/hmac.h>
+#include <libcc/string.h>
 
 #define MAX_HASHLEN 64
 #define MAX_BLOCKLEN 128
@@ -120,12 +120,12 @@ _CC_API_PUBLIC(_cc_hmac_t *) _cc_hmac_alloc(byte_t type) {
         break;
     default:
         _cc_free(hmac);
-        return NULL;
+        return nullptr;
     }
 
-    if (hmac->hash == NULL) {
+    if (hmac->hash == nullptr) {
         _cc_free(hmac);
-        return NULL;
+        return nullptr;
     }
 
     return hmac;
@@ -189,7 +189,7 @@ _cc_hmac(byte_t type, const byte_t *input, size_t ilen, const byte_t *key, size_
     int r;
     byte_t digest[MAX_BLOCKLEN];
     _cc_hmac_t *hmac = _cc_hmac_alloc(type);
-    if (hmac == NULL) {
+    if (hmac == nullptr) {
         return 0;
     }
     _cc_hmac_init(hmac, key, key_length);

@@ -24,7 +24,7 @@
 
 //挂载到目标进程
 int ptrace_attach(pid_t pid) {
-    if (ptrace(PTRACE_ATTACH, pid, NULL, 0) < 0) {
+    if (ptrace(PTRACE_ATTACH, pid, nullptr, 0) < 0) {
         perror("ptrace_attach");
         return -1;
     }
@@ -37,7 +37,7 @@ int ptrace_attach(pid_t pid) {
 
 //从目标进程中卸载
 int ptrace_detach(pid_t pid) {
-    if (ptrace(PTRACE_DETACH, pid, NULL, 0) < 0) {
+    if (ptrace(PTRACE_DETACH, pid, nullptr, 0) < 0) {
         perror("ptrace_detach");
         return -1;
     }
@@ -47,7 +47,7 @@ int ptrace_detach(pid_t pid) {
 
 //读取进程寄存器数据
 int ptrace_getregs(pid_t pid, struct pt_regs* regs) {
-    if (ptrace(PTRACE_GETREGS, pid, NULL, regs) < 0) {
+    if (ptrace(PTRACE_GETREGS, pid, nullptr, regs) < 0) {
         perror("ptrace_getregs: Can not get register values");
         return -1;
     }
@@ -57,7 +57,7 @@ int ptrace_getregs(pid_t pid, struct pt_regs* regs) {
 
 //设置进程寄存器
 int ptrace_setregs(pid_t pid, struct pt_regs* regs) {
-    if (ptrace(PTRACE_SETREGS, pid, NULL, regs) < 0) {
+    if (ptrace(PTRACE_SETREGS, pid, nullptr, regs) < 0) {
         perror("ptrace_setregs: Can not set register values");
         return -1;
     }
@@ -67,7 +67,7 @@ int ptrace_setregs(pid_t pid, struct pt_regs* regs) {
 
 //进程继续执行函数
 int ptrace_continue(pid_t pid) {
-    if (ptrace(PTRACE_CONT, pid, NULL, 0) < 0) {
+    if (ptrace(PTRACE_CONT, pid, nullptr, 0) < 0) {
         perror("ptrace_cont");
         return -1;
     }
@@ -312,18 +312,18 @@ int find_pid_of(const char* process_name) {
     char cmdline[256];
 
     struct dirent* entry;
-    if (process_name == NULL) {
+    if (process_name == nullptr) {
         return -1;
     }
 
     dir = opendir("/proc");
-    if (dir == NULL) {
+    if (dir == nullptr) {
         return -1;
     }
 
     pid = -1;
 
-    while ((entry = readdir(dir)) != NULL) {
+    while ((entry = readdir(dir)) != nullptr) {
         id = atoi(entry->d_name);
         if (id != 0) {
             snprintf(filename, "/proc/%d/cmdline", id);
@@ -363,12 +363,12 @@ void* get_module_base(pid_t pid, const char* module_name) {
 
     fp = fopen(filename, "r");
 
-    if (fp != NULL) {
+    if (fp != nullptr) {
         while (fgets(line, sizeof(line), fp)) {
             if (strstr(line, module_name)) {
                 pch = strtok(line, "-");
                 //转成16进制
-                addr = strtoul(pch, NULL, 16);
+                addr = strtoul(pch, nullptr, 16);
 
                 if (addr == 0x8000)
                     addr = 0;

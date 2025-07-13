@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,17 +18,17 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/loadso.h>
-#include <cc/logger.h>
+#include <libcc/loadso.h>
+#include <libcc/logger.h>
 
 _CC_API_PUBLIC(void*) _cc_load_object(const tchar_t *sofile) {
     _cc_logger_error(_T("Failed loading %s : _cc_load_object() not implemented Failed"), sofile);
-    return NULL;
+    return nullptr;
 }
 
 _CC_API_PUBLIC(void*) _cc_load_function(void *handle, const char_t *name) {
     _cc_logger_error(_T("Failed loading : _cc_load_function() not implemented"));
-    return NULL;
+    return nullptr;
 }
 
 _CC_API_PUBLIC(void) _cc_unload_object(void *handle) {

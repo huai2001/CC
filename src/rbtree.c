@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,34 +18,14 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/rbtree.h>
-#define _rb_color(r) ((r)->parent_color & 1)
-#define _rb_is_red(r) (!_rb_color(r))
-#define _rb_is_black(r) (_rb_color(r))
-#define _rb_parent(r) ((_cc_rbtree_iterator_t *)((r)->parent_color & ~3))
-#define _rb_write_once(x, v) (x) = (v)
+#include <libcc/rbtree.h>
 
-/* 'empty' nodes are nodes that are known not to be inserted in an rbtree */
-#define RB_EMPTY_NODE(node) ((node)->parent_color == (_cc_uint_t)(node))
-
-_CC_API_PRIVATE(void) _rb_change_child(_cc_rbtree_iterator_t *old_iter, _cc_rbtree_iterator_t *new_iter,
-                                        _cc_rbtree_iterator_t *parent, _cc_rbtree_t *root) {
-    if (parent) {
-        if (parent->left == old_iter) {
-            _rb_write_once(parent->left, new_iter);
-        } else {
-            _rb_write_once(parent->right, new_iter);
-        }
-    } else {
-        _rb_write_once(root->rb_node, new_iter);
-    }
-}
 /*
  * red-black trees properties:  http://en.wikipedia.org/wiki/Rbtree
  *
  *  1) A node is either red or black
  *  2) The root is black
- *  3) All leaves (NULL) are black
+ *  3) All leaves (nullptr) are black
  *  4) Both children of every red node are black
  *  5) Every simple path from root to leaves contains the same number
  *     of black nodes.
@@ -59,20 +39,42 @@ _CC_API_PRIVATE(void) _rb_change_child(_cc_rbtree_iterator_t *old_iter, _cc_rbtr
  *  nodes will be lowercase. Unknown color nodes shall be drawn as red within
  *  parentheses and have some accompanying text comment.
  */
-_CC_API_PRIVATE(void) _rb_set_black(_cc_rbtree_iterator_t *rb) {
+
+#define _rb_color(r) ((r)->parent_color & 1)
+#define _rb_is_red(r) (!_rb_color(r))
+#define _rb_is_black(r) (_rb_color(r))
+#define _rb_parent(r) ((_cc_rbtree_iterator_t *)((r)->parent_color & ~3))
+#define _rb_write_once(x, v) (x) = (v)
+
+/* 'empty' nodes are nodes that are known not to be inserted in an rbtree */
+#define RB_EMPTY_NODE(node) ((node)->parent_color == (uintptr_t)(node))
+
+_CC_FORCE_INLINE_ void _rb_change_child(_cc_rbtree_iterator_t *old_iter, _cc_rbtree_iterator_t *new_iter, _cc_rbtree_iterator_t *parent, _cc_rbtree_t *root) {
+    if (parent) {
+        if (parent->left == old_iter) {
+            _rb_write_once(parent->left, new_iter);
+        } else {
+            _rb_write_once(parent->right, new_iter);
+        }
+    } else {
+        _rb_write_once(root->rb_node, new_iter);
+    }
+}
+
+_CC_FORCE_INLINE_ void _rb_set_black(_cc_rbtree_iterator_t *rb) {
     rb->parent_color |= _CC_RB_BLACK_;
 }
 
-_CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_red_parent(_cc_rbtree_iterator_t *red) {
+_CC_FORCE_INLINE_ _cc_rbtree_iterator_t* _rb_red_parent(_cc_rbtree_iterator_t *red) {
     return (_cc_rbtree_iterator_t *)red->parent_color;
 }
 
-_CC_API_PRIVATE(void) _rb_set_parent(_cc_rbtree_iterator_t *rb, _cc_rbtree_iterator_t *p) {
-    rb->parent_color = _rb_color(rb) | (_cc_uint_t)p;
+_CC_FORCE_INLINE_ void _rb_set_parent(_cc_rbtree_iterator_t *rb, _cc_rbtree_iterator_t *p) {
+    rb->parent_color = _rb_color(rb) | (uintptr_t)p;
 }
 
-_CC_API_PRIVATE(void) _rb_set_parent_color(_cc_rbtree_iterator_t *rb, _cc_rbtree_iterator_t *p, int color) {
-    rb->parent_color = (_cc_uint_t)p | color;
+_CC_FORCE_INLINE_ void _rb_set_parent_color(_cc_rbtree_iterator_t *rb, _cc_rbtree_iterator_t *p, int color) {
+    rb->parent_color = (uintptr_t)p | color;
 }
 
 /*
@@ -102,7 +104,7 @@ _CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *root, _cc_rbtree_iter
              * first node, or we recursed at Case 1 below and
              * are no longer violating 4).
              */
-            _rb_set_parent_color(node, NULL, _CC_RB_BLACK_);
+            _rb_set_parent_color(node, nullptr, _CC_RB_BLACK_);
             break;
         }
 
@@ -227,13 +229,13 @@ _CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *root, _cc_rbtree_iter
 }
 
 _CC_API_PRIVATE(void) _rb_erase_color(_cc_rbtree_iterator_t *parent, _cc_rbtree_t *root) {
-    _cc_rbtree_iterator_t *node = NULL, *sibling, *tmp1, *tmp2;
+    _cc_rbtree_iterator_t *node = nullptr, *sibling, *tmp1, *tmp2;
 
     while (true) {
         /*
          * Loop invariants:
-         * - node is black (or NULL on first iteration)
-         * - node is not the root (parent is not NULL)
+         * - node is black (or nullptr on first iteration)
+         * - node is not the root (parent is not nullptr)
          * - All leaf paths going through parent and node have a
          *   black node count that is 1 lower than other leaf paths.
          */
@@ -414,16 +416,16 @@ _CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_erase(_cc_rbtree_iterator_t *node, _
         _rb_change_child(node, child, parent, root);
         if (child) {
             child->parent_color = node->parent_color;
-            rebalance = NULL;
+            rebalance = nullptr;
         } else {
-            rebalance = _rb_is_black(node) ? parent : NULL;
+            rebalance = _rb_is_black(node) ? parent : nullptr;
         }
     } else if (!child) {
         /* Still case 1, but this time the child is node->left */
         tmp->parent_color = node->parent_color;
         parent = _rb_parent(node);
         _rb_change_child(node, tmp, parent, root);
-        rebalance = NULL;
+        rebalance = nullptr;
     } else {
         _cc_rbtree_iterator_t *successor = child, *child2;
 
@@ -476,9 +478,9 @@ _CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_erase(_cc_rbtree_iterator_t *node, _
         if (child2) {
             successor->parent_color = node->parent_color;
             _rb_set_parent_color(child2, parent, _CC_RB_BLACK_);
-            rebalance = NULL;
+            rebalance = nullptr;
         } else {
-            rebalance = _rb_is_black(successor) ? parent : NULL;
+            rebalance = _rb_is_black(successor) ? parent : nullptr;
             successor->parent_color = node->parent_color;
         }
     }
@@ -502,7 +504,7 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_first(const _cc_rbtree_t *root
 
     n = root->rb_node;
     if (!n) {
-        return NULL;
+        return nullptr;
     }
 
     while (n->left) {
@@ -516,7 +518,7 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_last(const _cc_rbtree_t *root)
 
     n = root->rb_node;
     if (!n) {
-        return NULL;
+        return nullptr;
     }
 
     while (n->right) {
@@ -529,7 +531,7 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_next(const _cc_rbtree_iterator
     _cc_rbtree_iterator_t *parent;
 
     if (RB_EMPTY_NODE(node)) {
-        return NULL;
+        return nullptr;
     }
 
     /*
@@ -561,7 +563,7 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_prev(const _cc_rbtree_iterator
     _cc_rbtree_iterator_t *parent;
 
     if (RB_EMPTY_NODE(node))
-        return NULL;
+        return nullptr;
 
     /*
      * If we have a left-hand child, go down and then right as far
@@ -620,13 +622,13 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_get(const _cc_rbtree_t *root, 
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 _CC_API_PUBLIC(bool_t) _cc_rbtree_push(_cc_rbtree_t *root, _cc_rbtree_iterator_t *data,
                        int32_t (*func)(_cc_rbtree_iterator_t *, _cc_rbtree_iterator_t *)) {
     int32_t result = 0;
-    _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = NULL;
+    _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = nullptr;
 
     while (*node) {
         result = func(*node, data);
@@ -672,10 +674,10 @@ static void _free_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*_func)(_cc
 }
 
 _CC_API_PUBLIC(void) _cc_rbtree_destroy(_cc_rbtree_t *root, void (*_func)(_cc_rbtree_iterator_t *)) {
-    _cc_assert(_func != NULL);
+    _cc_assert(_func != nullptr);
     if (!_func || !root->rb_node) {
         return;
     }
     _free_rbtree_traverse(root->rb_node, _func);
-    root->rb_node = NULL;
+    root->rb_node = nullptr;
 }

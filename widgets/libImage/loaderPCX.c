@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -22,19 +22,19 @@
 #include "image.h"
 
 _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
-    _cc_image_t* image = NULL;
+    _cc_image_t* image = nullptr;
     byte_t *dataPtr = (byte_t*)data, *tempPalette;
-    uint32_t *PaletteData = NULL;
+    uint32_t *PaletteData = nullptr;
     int32_t PaletteSize = 0;
     int32_t i = 0 , width = 0, height = 0, dataSize = 0;
-    byte_t *pcxData = NULL;
+    byte_t *pcxData = nullptr;
     PCXHeader_t pcxHeader;
     byte_t cnt, value;
     int32_t offset = 0, lineoffset = 0, linestart = 0, nextmode = 1, pad = 0;
 
-    _cc_assert(data != NULL);
-    if (data == NULL) {
-        return NULL;
+    _cc_assert(data != nullptr);
+    if (data == nullptr) {
+        return nullptr;
     }
 
     pcxHeader.Manufacturer = *(byte_t*)dataPtr++;
@@ -65,12 +65,12 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
 
     //! return if the header is wrong
     if (pcxHeader.Manufacturer != 0x0a && pcxHeader.Encoding != 0x01) {
-        return NULL;
+        return nullptr;
     }
     // return if this isn't a supported type
     if ((pcxHeader.BitsPerPixel != 8) && (pcxHeader.BitsPerPixel != 4) && (pcxHeader.BitsPerPixel != 1)) {
         _cc_logger_error(_T("Unsupported bits per pixel in PCX file."));
-        return NULL;
+        return nullptr;
     }
 
     // read palette
@@ -105,9 +105,9 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
     height = pcxHeader.YMax - pcxHeader.YMin + 1;
     dataSize = pcxHeader.BytesPerLine * pcxHeader.Planes * pcxHeader.BitsPerPixel * height / 8;
     pcxData = (byte_t *)_cc_malloc(sizeof(byte_t) * dataSize);
-    if (pcxData == NULL) {
+    if (pcxData == nullptr) {
         _cc_free(PaletteData);
-        return NULL;
+        return nullptr;
     }
 
 
@@ -147,19 +147,19 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
         switch (pcxHeader.Planes) {
         case 1:
             image = _cc_init_image(CF_A1R5G5B5, width, height);
-            if (image == NULL) {
+            if (image == nullptr) {
                 _cc_free(pcxData);
                 _cc_free(PaletteData);
-                return NULL;
+                return nullptr;
             }
             _cc_color_8bit_to_16bit((byte_t*)pcxData, (int16_t*)image->data, width, height, PaletteData, pad, false);
             break;
         case 3:
             image = _cc_init_image(CF_R8G8B8, width, height);
-            if (image == NULL) {
+            if (image == nullptr) {
                 _cc_free(pcxData);
                 _cc_free(PaletteData);
-                return NULL;
+                return nullptr;
             }
             _cc_color_24bit_to_24bit(pcxData, image->data, width, height, pad, false, false);
             break;
@@ -167,28 +167,28 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
     } else if (pcxHeader.BitsPerPixel == 4) {
         if (pcxHeader.Planes == 1) {
             image = _cc_init_image(CF_A1R5G5B5, width, height);
-            if (image == NULL) {
+            if (image == nullptr) {
                 _cc_free(pcxData);
                 _cc_free(PaletteData);
-                return NULL;
+                return nullptr;
             }
             _cc_color_4bit_to_16bit((byte_t*)pcxData, (int16_t*)image->data, width, height, PaletteData, pad, false);
         }
     } else if (pcxHeader.BitsPerPixel == 1) {
         if (pcxHeader.Planes == 4) {
             image = _cc_init_image(CF_A1R5G5B5, width, height);
-            if (image == NULL) {
+            if (image == nullptr) {
                 _cc_free(pcxData);
                 _cc_free(PaletteData);
-                return NULL;
+                return nullptr;
             }
             _cc_color_4bit_to_16bit((byte_t*)pcxData, (int16_t*)image->data, width, height, PaletteData, pad, false);
         } else if (pcxHeader.Planes == 1) {
             image = _cc_init_image(CF_A1R5G5B5, width, height);
-            if (image == NULL) {
+            if (image == nullptr) {
                 _cc_free(pcxData);
                 _cc_free(PaletteData);
-                return NULL;
+                return nullptr;
             }
             _cc_color_1bit_to_16bit((byte_t*)pcxData, (int16_t*)image->data, width, height, pad, false);
         }

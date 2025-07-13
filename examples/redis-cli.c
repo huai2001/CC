@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libcc.h>
-#include <cc/socket/socket.h>
+#include <libcc/socket/socket.h>
 
 #define REDIS_REPLY_STRING      1 //'$'
 #define REDIS_REPLY_ARRAY       2 //'*'
@@ -39,7 +39,7 @@ int32_t redisCommanReply(_cc_thread_t *thrd, void* param) {
         FD_ZERO(&efds);
         FD_SET(sock, &efds);
 
-        res = select(sock + 1,&rfds,NULL,&efds,NULL);
+        res = select(sock + 1,&rfds,nullptr,&efds,nullptr);
         if (res < 0) {
             printf("fail to select : %s\n", _cc_last_error(_cc_last_errno()));
             break;
@@ -140,7 +140,7 @@ int main (int argc, char *argv[])
         char_t command[1024];
         printf("connect OK!\n");
 
-        _cc_thread_start(redisCommanReply, "command-reply", NULL);
+        _cc_thread_start(redisCommanReply, "command-reply", nullptr);
 
         while(keepActive) {
             int len = getInputLine(command, _cc_countof(command));

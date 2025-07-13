@@ -1,13 +1,11 @@
-#include <cc/types.h>
-#include <cc/widgets/widgets.h>
+
+#include <libcc.h>
+#include <libcc/widgets/widgets.h>
 
 #ifdef __CC_WINDOWS__
-//  从 Windows 头文件中排除极少使用的信息
 #define WIN32_LEAN_AND_MEAN
-// Windows 头文件:
 #include <windows.h>
 
-// dllmain.c : 定义 DLL 应用程序的入口点。
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved

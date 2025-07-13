@@ -32,7 +32,7 @@ tchar_t* get_disk_size_unit(uint64_t disk_size, tchar_t *buf, int32_t size) {
 }
 
 static bool_t send_data(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-static _cc_str_t send_str = _cc_string(\
+static _cc_Strint_t send_str = _cc_String(\
     _T("GET / HTTP/1.0\r\n")\
     _T("Host: 47.96.85.231\r\n")\
     _T("User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0)\r\n")\
@@ -50,21 +50,21 @@ static _cc_str_t send_str = _cc_string(\
     return false;
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    if (events & _CC_EVENT_CONNECTED_) {
+static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    if (which & _CC_EVENT_CONNECTED_) {
         //_cc_logger_debug(_T("%d connect to server."), e->fd);
         _cc_atomic32_inc(&monitoring.live);
         return true;//send_data(cycle, e);
     }
 
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         int32_t results = _cc_last_errno();
         _cc_logger_error(_T("Socket(%d) disconnect:%d, %s"), e->fd, results, _cc_last_error(results));
         _cc_atomic32_dec(&monitoring.live);
         return false;
     }
     
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         /*
         _cc_event_buffer_t *rw = e->buffer;
         if (!_cc_event_recv(e)) {
@@ -93,8 +93,8 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         return true;
     }
 
-    if (events & _CC_EVENT_WRITABLE_) {
-        if (events & _CC_EVENT_WRITABLE_) {
+    if (which & _CC_EVENT_WRITABLE_) {
+        if (which & _CC_EVENT_WRITABLE_) {
             int32_t off = _cc_event_sendbuf(e);
             if (off < 0) {
                 return false;
@@ -109,7 +109,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         }
     }
     
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         /*
         if (_cc_send(e->fd, (byte_t*)"ping", 5) < 0) {
             _cc_logger_debug(_T("TCP timeout %d"), e->fd);
@@ -122,23 +122,23 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     return true;
 }
 
-clock_t tick_timer = 0;
+uint64_t tick_timer = 0;
 void testes_connect(const tchar_t* host, const uint16_t port, int32_t count) {
     int c = 0;
     int r = 0;
     struct sockaddr_in sa;
     _cc_event_t *e;
-    _cc_inet_ipv4_addr(&sa, host, port);
     for (c = 0; c < count; c++) {
         _cc_event_cycle_t *cycle = _cc_get_event_cycle();
         r = (rand() % 15) + 5;
 
-        e = _cc_alloc_event(cycle,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
-        if (e == NULL) {
+        e = _cc_event_alloc(cycle,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
+        if (e == nullptr) {
             return;
         }
         e->callback = network_event_callback;
         e->timeout = r * 1000;
+        _cc_inet_ipv4_addr(&sa, host, port);
         if (!_cc_tcp_connect(cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
             _cc_free_event(cycle, e);
             return;
@@ -151,14 +151,14 @@ void testes_connect(const tchar_t* host, const uint16_t port, int32_t count) {
 
 
 #define TCP_CLIENT_IP _T("127.0.0.1")
-#define TCP_CLIENT_PORT 8088
-#define TCP_MAX_CONNECT 1000
+#define TCP_CLIENT_PORT 10000
+#define TCP_MAX_CONNECT 100
 
 int32_t i = 0;
 tchar_t unit_size[2][1024];
 
-bool_t _timeout_callback(_cc_event_cycle_t *event_base, _cc_event_t *e, const uint16_t events) {
-    clock_t t = _cc_get_ticks();
+bool_t _timeout_callback(_cc_event_cycle_t *event_base, _cc_event_t *e, const uint16_t which) {
+    uint64_t t = _cc_get_ticks();
     //
     _cc_logger_debug("total:%d,live:%d,send:%s,revice:%s - %d/s tick_timer:%ld",monitoring.total, monitoring.live,
            get_disk_size_unit(monitoring.send_size,unit_size[0],_cc_countof(unit_size[0])),
@@ -177,10 +177,9 @@ bool_t _timeout_callback(_cc_event_cycle_t *event_base, _cc_event_t *e, const ui
 
 int _tmain (int argc, tchar_t * const argv[]) {
     char c = 0;
-    int i = 0;
 
-    srand((uint32_t)time(NULL));
-    _cc_event_loop(0, NULL);
+    srand((uint32_t)time(nullptr));
+    _cc_event_loop(0, nullptr);
 
     bzero(&monitoring, sizeof(monitoring));
 
@@ -196,7 +195,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
 
     testes_connect(monitoring.ip, monitoring.port, _min(max_client_count, TCP_MAX_CONNECT));
     tick_timer = _cc_get_ticks();
-    _cc_add_event_timeout(_cc_get_event_cycle(), 5000, _timeout_callback, NULL);
+    _cc_add_event_timeout(_cc_get_event_cycle(), 5000, _timeout_callback, nullptr);
 
     while((c = getchar()) != 'q') {
         _cc_sleep(100);

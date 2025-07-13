@@ -1,4 +1,4 @@
-#include <cc/types.h>
+#include <libcc/types.h>
 
 #ifdef __CC_WINDOWS__
 //  从 Windows 头文件中排除极少使用的信息

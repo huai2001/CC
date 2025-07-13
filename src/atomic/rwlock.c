@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <cc/atomic.h>
+#include <libcc/atomic.h>
 #ifndef __CC_WINDOWS__
 #include <pthread.h>
 #endif
@@ -28,7 +28,7 @@
 #include <atomic.h>
 #endif
 
-#define _CC_RWLOCK_WLOCK_ ((uint32_t)-1)
+#define _CC_RWLOCK_WLOCK_ ((_cc_atomic_t)-1)
 
 _CC_API_PUBLIC(void) _cc_cpu_pause() {
 #if __CC_WINDOWS__
@@ -42,13 +42,23 @@ _CC_API_PUBLIC(void) _cc_cpu_pause() {
 #endif
 #else
 #if (__i386__ || __i386 || __amd64__ || __amd64)
-    __asm__("pause");
+    __asm__ __volatile__("pause");
+#elif __aarch64__
+    __asm__ __volatile__("yield");
 #endif
 #endif
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_lock(_cc_atomic32_t *lock, uint32_t value, uint32_t spin) {
+_CC_API_PUBLIC(void) _cc_lock_init(_cc_atomic_lock_t *lock) {
+    if (_cc_cpu_number_processors <= 0) {
+        _cc_cpu_count();
+    }
+    *lock = 0;
+}
+
+/**/
+_CC_API_PUBLIC(void) _cc_lock(_cc_atomic_lock_t *lock, uint32_t value, uint32_t spin) {
     uint32_t i, n;
     for (;;) {
         if (*lock == 0 && _cc_atomic32_cas(lock, 0, value)) {
@@ -69,20 +79,13 @@ _CC_API_PUBLIC(void) _cc_lock(_cc_atomic32_t *lock, uint32_t value, uint32_t spi
         SwitchToThread();
 #else
         sched_yield();
+        //_cc_nsleep(1);
 #endif
     }
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_rwlock_init(_cc_rwlock_t *lock) {
-    if (_cc_cpu_number_processors <= 0) {
-        _cc_cpu_count();
-    }
-    *lock = 0;
-}
-
-/**/
-_CC_API_PUBLIC(void) _cc_rwlock_rlock(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_rlock(_cc_atomic_lock_t *lock) {
     int32_t i, n;
     _cc_atomic32_t readers;
 
@@ -112,31 +115,21 @@ _CC_API_PUBLIC(void) _cc_rwlock_rlock(_cc_rwlock_t *lock) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_rwlock_wlock(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_wlock(_cc_atomic_lock_t *lock) {
     _cc_lock((_cc_atomic32_t *)lock, _CC_RWLOCK_WLOCK_, _CC_LOCK_SPIN_);
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_rwlock_unlock(_cc_rwlock_t *lock) {
-    _cc_atomic32_t readers;
-
-    readers = *lock;
-
-    if (readers == _CC_RWLOCK_WLOCK_) {
+_CC_API_PUBLIC(void) _cc_rwlock_unlock(_cc_atomic_lock_t *lock) {
+    if (*lock == _CC_RWLOCK_WLOCK_) {
         _cc_atomic32_cas(lock, _CC_RWLOCK_WLOCK_, 0);
-        return;
-    }
-
-    for (;;) {
-        if (_cc_atomic32_cas(lock, readers, readers - 1)) {
-            return;
-        }
-        readers = *lock;
+    } else {
+        _cc_atomic32_dec(lock);
     }
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_rwlock_downgrade(_cc_rwlock_t *lock) {
+_CC_API_PUBLIC(void) _cc_rwlock_downgrade(_cc_atomic_lock_t *lock) {
     if (*lock == _CC_RWLOCK_WLOCK_) {
         *lock = 1;
     }

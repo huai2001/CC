@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,22 +18,18 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/atomic.h>
-#include <cc/string.h>
-#include <cc/url.h>
-#include <cc/widgets/url_request.h>
+#include <libcc/widgets/url_request.h>
+#include <libcc/widgets/gzip.h>
 
-bool_t _gzip_inf(_cc_url_request_t *request, byte_t *source, size_t length);
 /**/
-_CC_API_PUBLIC(bool_t) _cc_url_read_response_body(_cc_url_request_t *request, byte_t *source, size_t length) {
+_CC_API_PUBLIC(bool_t) _cc_url_response_body(_cc_url_request_t *request, byte_t *source, size_t length) {
     _cc_http_response_header_t *response = request->response;
     if (response->content_encoding == _CC_URL_CONTENT_ENCODING_GZIP_) {
-        return _gzip_inf(request, source, length);
+        return _gzip_inf(request->gzip, source, length, &request->buffer);
     }
 
     if (response->content_encoding == _CC_URL_CONTENT_ENCODING_PLAINTEXT_) {
-        _cc_buf_write(&request->buffer, source, length);
+        _cc_buf_append(&request->buffer, source, length);
         return true;
     }
     return false;
@@ -69,15 +65,14 @@ _CC_API_PRIVATE(size_t) _url_chunked_hex_length(const char_t *p, size_t *length_
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_url_read_response_chunked(_cc_url_request_t *request, _cc_event_rbuf_t *rbuf) {
+_CC_API_PUBLIC(bool_t) _cc_url_response_chunked(_cc_url_request_t *request, _cc_event_rbuf_t *rbuf) {
     /**/
     size_t offset_of_data = 0;
     size_t length_of_data;
 
     do {
         if (request->response->download_length <= 0) {
-            size_t offset =
-                _url_chunked_hex_length((const char_t *)(rbuf->buf + offset_of_data), &length_of_data, rbuf->length);
+            size_t offset = _url_chunked_hex_length((const char_t *)(rbuf->bytes + offset_of_data), &length_of_data, rbuf->length);
             if (offset < 0) {
                 return false;
             } else if (offset == 0) {
@@ -90,7 +85,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_read_response_chunked(_cc_url_request_t *request,
             }
             request->response->download_length = length_of_data;
             offset_of_data += offset;
-            rbuf->length -= offset;
+            rbuf->length -= (uint16_t)offset;
         }
 
         if (request->response->download_length > rbuf->length) {
@@ -101,14 +96,14 @@ _CC_API_PUBLIC(bool_t) _cc_url_read_response_chunked(_cc_url_request_t *request,
             request->response->download_length = 0;
         }
 
-        if (!_cc_url_read_response_body(request, rbuf->buf + offset_of_data, length_of_data)) {
+        if (!_cc_url_response_body(request, rbuf->bytes + offset_of_data, length_of_data)) {
             return false;
         }
 
         offset_of_data += length_of_data;
-        rbuf->length -= length_of_data;
-        //\r\n0\r\n
-    } while (rbuf->length > 2);
+        rbuf->length -= (uint16_t)length_of_data;
+        //\r\n0\r\n\r\n
+    } while (rbuf->length >= 2);
 
     rbuf->length = 0;
 

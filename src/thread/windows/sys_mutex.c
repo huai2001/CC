@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -26,16 +26,19 @@
 #if _CC_WINDOWS_FORCE_MUTEX_CRITICAL_SECTIONS_ == 0
 #if __WINRT__
 /* Functions are guaranteed to be available */
+#define pInitializeSRWLock InitializeSRWLock
 #define pReleaseSRWLockExclusive ReleaseSRWLockExclusive
 #define pAcquireSRWLockExclusive AcquireSRWLockExclusive
 #define pTryAcquireSRWLockExclusive TryAcquireSRWLockExclusive
 #else
+typedef VOID(WINAPI *pfnInitializeSRWLock)(PSRWLOCK);
 typedef VOID(WINAPI *pfnReleaseSRWLockExclusive)(PSRWLOCK);
 typedef VOID(WINAPI *pfnAcquireSRWLockExclusive)(PSRWLOCK);
 typedef BOOLEAN(WINAPI *pfnTryAcquireSRWLockExclusive)(PSRWLOCK);
-static pfnReleaseSRWLockExclusive pReleaseSRWLockExclusive = NULL;
-static pfnAcquireSRWLockExclusive pAcquireSRWLockExclusive = NULL;
-static pfnTryAcquireSRWLockExclusive pTryAcquireSRWLockExclusive = NULL;
+static pfnInitializeSRWLock pInitializeSRWLock = nullptr;
+static pfnReleaseSRWLockExclusive pReleaseSRWLockExclusive = nullptr;
+static pfnAcquireSRWLockExclusive pAcquireSRWLockExclusive = nullptr;
+static pfnTryAcquireSRWLockExclusive pTryAcquireSRWLockExclusive = nullptr;
 #endif
 #endif
 
@@ -58,7 +61,10 @@ _CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_cs(void) {
 _CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_srw(void) {
     /* Allocate mutex memory */
     struct _cc_mutex_srw *mutex = _CC_MALLOC(struct _cc_mutex_srw);
-    bzero(mutex, sizeof(struct _cc_mutex_srw));
+    if (mutex) {
+        pInitializeSRWLock(&mutex->srw);
+        bzero(mutex, sizeof(struct _cc_mutex_srw));
+    }
     return (_cc_mutex_t *)mutex;
 }
 
@@ -114,8 +120,8 @@ _CC_API_PRIVATE(int) _cc_mutex_try_lock_srw(_cc_mutex_t *mutex_srw) {
     struct _cc_mutex_srw *mutex = (struct _cc_mutex_srw *)mutex_srw;
     DWORD self;
 
-    if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+    if (mutex == nullptr) {
+        _cc_logger_error(_T("Passed a nullptr mutex"));
         return -1;
     }
 
@@ -171,11 +177,12 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
     _cc_mutex_impl_active.Unlock = _cc_mutex_unlock_srw;
     _cc_mutex_impl_active.Type = _CC_MUTEX_SRW_;
 #else
-    if (pReleaseSRWLockExclusive == NULL || pAcquireSRWLockExclusive == NULL || pTryAcquireSRWLockExclusive == NULL) {
+    if (pReleaseSRWLockExclusive == nullptr || pAcquireSRWLockExclusive == nullptr || pTryAcquireSRWLockExclusive == nullptr) {
         /* Try faster implementation for Windows 7 and newer */
         HMODULE kernel32 = _cc_load_windows_kernel32();
         if (kernel32) {
             /* Requires Vista: */
+            pInitializeSRWLock = (pfnInitializeSRWLock)GetProcAddress(kernel32, "InitializeSRWLock");
             pReleaseSRWLockExclusive = (pfnReleaseSRWLockExclusive)GetProcAddress(kernel32, "ReleaseSRWLockExclusive");
             pAcquireSRWLockExclusive = (pfnAcquireSRWLockExclusive)GetProcAddress(kernel32, "AcquireSRWLockExclusive");
             /* Requires 7: */
@@ -196,8 +203,8 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
 }
 /* Lock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
-    if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+    if (mutex == nullptr) {
+        _cc_logger_error(_T("Passed a nullptr mutex"));
         return false;
     }
     return _cc_mutex_impl_active.Lock(mutex);
@@ -205,8 +212,8 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
 
 /* try lock the mutex */
 _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
-    if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+    if (mutex == nullptr) {
+        _cc_logger_error(_T("Passed a nullptr mutex"));
         return false;
     }
     return _cc_mutex_impl_active.TryLock(mutex);
@@ -214,18 +221,18 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
-    if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+    if (mutex == nullptr) {
+        _cc_logger_error(_T("Passed a nullptr mutex"));
         return false;
     }
     return _cc_mutex_impl_active.Unlock(mutex);
 }
 
 _CC_API_PUBLIC(void) _cc_destroy_mutex(_cc_mutex_t **mutex) {
-    if (mutex == NULL || *mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+    if (mutex == nullptr || *mutex == nullptr) {
+        _cc_logger_error(_T("Passed a nullptr mutex"));
         return;
     }
     _cc_mutex_impl_active.Destroy(*mutex);
-    *mutex = NULL;
+    *mutex = nullptr;
 }

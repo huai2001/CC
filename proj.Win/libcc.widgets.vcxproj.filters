@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="头文件\event">
+      <UniqueIdentifier>{0eb9d825-27fd-4c23-9205-a550f876c4c1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -19,25 +22,46 @@
     <Filter Include="源文件\url-request\http">
       <UniqueIdentifier>{8f88855c-c212-4879-885f-75f62d4dc350}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\common">
+    <Filter Include="源文件\generic">
       <UniqueIdentifier>{355c5ae9-a725-412e-87f7-422c93c4bf28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\json">
+      <UniqueIdentifier>{dec980fd-f582-447d-ac36-d5d61f485a4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\db">
+      <UniqueIdentifier>{e0ad716c-7f50-4024-bc2b-6183a510a1f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\xml">
+      <UniqueIdentifier>{76ec8525-c0ad-407c-8383-4ef42f037000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\ini">
+      <UniqueIdentifier>{cc1787e7-b75f-4975-9606-49e9230abc0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\event">
+      <UniqueIdentifier>{666a89a4-57bd-4d2c-a475-a966864a5d5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\event\windows">
+      <UniqueIdentifier>{7305af8c-c878-4976-b2ed-ec54a0bb3c6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\json">
+      <UniqueIdentifier>{fe89a399-4b23-4000-b327-996408f5b3fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\db">
+      <UniqueIdentifier>{4fa2a336-7397-4513-b21b-07a97205ce7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\ini">
+      <UniqueIdentifier>{0a9e34b5-7895-4e6a-8952-229d75534f34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\xml">
+      <UniqueIdentifier>{6b6286d6-c166-4b35-aa6e-8f6ca4d949b4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\widgets\SSL.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\widgets\widgets.c">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\widgets\dict.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\widgets\url_request\http\gzip.c">
-      <Filter>源文件\url-request\http</Filter>
     </ClCompile>
     <ClCompile Include="..\src\widgets\url_request\http\url_request.c">
       <Filter>源文件\url-request\http</Filter>
@@ -45,36 +69,138 @@
     <ClCompile Include="..\src\widgets\url_request\http\url_response.c">
       <Filter>源文件\url-request\http</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\widgets\event\buffer.c">
+      <Filter>源文件\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\event.c">
+      <Filter>源文件\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\loop.c">
+      <Filter>源文件\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\select.c">
+      <Filter>源文件\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\OpenSSL.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\windows\sys_iocp.c">
+      <Filter>源文件\event\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\windows\sys_WSA.c">
+      <Filter>源文件\event\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\timeout.c">
+      <Filter>源文件\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\tcp.c">
+      <Filter>源文件\event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\event\windows\sys_iocp_overlapped.c">
+      <Filter>源文件\event\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\json\json.array.c">
+      <Filter>源文件\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\json\json.c">
+      <Filter>源文件\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\json\json.object.c">
+      <Filter>源文件\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\json\json.parser.c">
+      <Filter>源文件\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\db\mysql.c">
+      <Filter>源文件\db</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\db\sqlite.c">
+      <Filter>源文件\db</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\ini\ini.c">
+      <Filter>源文件\ini</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\ini\ini.parser.c">
+      <Filter>源文件\ini</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\xml\xml.c">
+      <Filter>源文件\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\xml\xml.parser.c">
+      <Filter>源文件\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\map.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\gzip.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\cc\widgets\dns.h">
+    <ClInclude Include="..\include\libcc\widgets\event\timeout.h">
+      <Filter>头文件\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\event\event.h">
+      <Filter>头文件\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\dns.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\ftp.h">
+    <ClInclude Include="..\include\libcc\widgets\dylib.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\ip_locator.h">
+    <ClInclude Include="..\include\libcc\widgets\ftp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\smtp.h">
+    <ClInclude Include="..\include\libcc\widgets\ip_locator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\SSL.h">
+    <ClInclude Include="..\include\libcc\widgets\smtp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\url_request.h">
+    <ClInclude Include="..\include\libcc\widgets\OpenSSL.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\widgets.h">
+    <ClInclude Include="..\include\libcc\widgets\gzip.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\dylib.h">
+    <ClInclude Include="..\include\libcc\widgets\url_request.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\widgets\alloc\alloc_tracked.c.h">
+    <ClInclude Include="..\include\libcc\widgets\widgets.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\widgets\dict.h">
+    <ClInclude Include="..\include\libcc\widgets\json\json.h">
+      <Filter>头文件\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\xml\xml.h">
+      <Filter>头文件\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\db\sql.h">
+      <Filter>头文件\db</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\ini\ini.h">
+      <Filter>头文件\ini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\widgets\event\event.c.h">
+      <Filter>源文件\event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\widgets\event\windows\sys_iocp.h">
+      <Filter>源文件\event\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\widgets\event\windows\sys_socket_c.h">
+      <Filter>源文件\event\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\widgets\json\json.c.h">
+      <Filter>源文件\json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\widgets\ini\ini.c.h">
+      <Filter>源文件\ini</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\widgets\xml\xml.c.h">
+      <Filter>源文件\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\map.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

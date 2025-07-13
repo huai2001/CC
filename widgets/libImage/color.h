@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -22,10 +22,10 @@
 #ifndef _CC_IMAGE_COLOR_H_INCLUDED_
 #define _CC_IMAGE_COLOR_H_INCLUDED_
 
-#include <cc/core.h>
-#include <cc/math.h>
-#include <cc/alloc.h>
-#include <cc/buf.h>
+#include <libcc/core.h>
+#include <libcc/math.h>
+#include <libcc/alloc.h>
+#include <libcc/buf.h>
 
 
 #ifdef __CC_ANDROID__

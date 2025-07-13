@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include <cc/queue.h>
-#include <cc/list.h>
-#include <cc/alloc.h>
-#include <cc/logger.h>
-#include <cc/time.h>
+#include <libcc/queue.h>
+#include <libcc/list.h>
+#include <libcc/alloc.h>
+#include <libcc/logger.h>
+#include <libcc/time.h>
 
 #define N 100//1024 * 1024 * 2
 
@@ -95,7 +95,7 @@ int main (int argc, char * const argv[]) {
         printf("%d, ", ++i);
     }
 
-    while (getchar() != 'q') _cc_sleep(100);
+    system("pause");
 
     return 0;
 }

@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <cc/base64.h>
-#include <cc/alloc.h>
+#include <libcc/base64.h>
+#include <libcc/alloc.h>
 #include <locale.h>
 
 /*

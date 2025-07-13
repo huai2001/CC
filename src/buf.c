@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,14 +18,14 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/buf.h>
-#include <cc/string.h>
+#include <libcc/alloc.h>
+#include <libcc/buf.h>
+#include <libcc/string.h>
 
 /* Skips spaces and comments as many as possible.*/
-_CC_API_PUBLIC(bool_t) _cc_buf_jump_comments(_cc_sbuf_tchar_t *const buffer) {
-    register const tchar_t *p = NULL;
-    /*if ((buffer == NULL) || (buffer->content == NULL)) {
+_CC_API_PUBLIC(bool_t) _cc_buf_jump_comment(_cc_sbuf_t *const buffer) {
+    register const tchar_t *p = nullptr;
+    /*if ((buffer == nullptr) || (buffer->content == nullptr)) {
         return false;
     }*/
     while (_cc_sbuf_access(buffer)) {
@@ -43,7 +43,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_jump_comments(_cc_sbuf_tchar_t *const buffer) {
             if (*p == _T('/')) {
                 buffer->offset += 2;
                 while (_cc_sbuf_access(buffer)) {
-                    if (*_cc_sbuf_offset(buffer) == _T(_CC_LF_)) {
+                    if (_cc_sbuf_offset_equal(buffer, _T(_CC_LF_))) {
                         buffer->offset++;
                         buffer->line++;
                         break;
@@ -76,11 +76,11 @@ _CC_API_PUBLIC(bool_t) _cc_buf_jump_comments(_cc_sbuf_tchar_t *const buffer) {
     return _cc_sbuf_access(buffer);
 }
 
-_CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t *ctx, size_t initsize) {
-    _cc_assert(ctx != NULL);
+_CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t *ctx, size_t initial) {
+    _cc_assert(ctx != nullptr);
 
     memset(ctx, 0, sizeof(_cc_buf_t));
-    ctx->limit = initsize;
+    ctx->limit = _cc_aligned_alloc_opt(initial, 64);
     ctx->length = 0;
     ctx->bytes = _CC_CALLOC(byte_t, ctx->limit);
 
@@ -88,19 +88,19 @@ _CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t *ctx, size_t initsize) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_buf_t *) _cc_create_buf(size_t initsize) {
+_CC_API_PUBLIC(_cc_buf_t *) _cc_create_buf(size_t initial) {
     _cc_buf_t *ctx = _CC_MALLOC(_cc_buf_t);
-    _cc_buf_alloc(ctx, initsize);
+    _cc_buf_alloc(ctx, initial);
     return ctx;
 }
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_buf_free(_cc_buf_t *ctx) {
-    _cc_assert(ctx != NULL);
+    _cc_assert(ctx != nullptr);
 
     if (_cc_likely(ctx->bytes)) {
         _cc_free(ctx->bytes);
-        ctx->bytes = NULL;
+        ctx->bytes = nullptr;
     }
 
     ctx->limit = ctx->length = 0;
@@ -110,18 +110,27 @@ _CC_API_PUBLIC(bool_t) _cc_buf_free(_cc_buf_t *ctx) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_destroy_buf(_cc_buf_t **ctx) {
-    _cc_assert(ctx != NULL);
+    _cc_assert(ctx != nullptr);
 
     if (_cc_buf_free(*ctx)) {
         _cc_free(*ctx);
     }
 
-    *ctx = NULL;
+    *ctx = nullptr;
+}
+
+/**/
+_CC_API_PUBLIC(const tchar_t*) _cc_buf_stringify(_cc_buf_t *ctx, size_t *length) {
+    if (length != nullptr) {
+        *length = ctx->length + 1;
+    }
+    ctx->bytes[ctx->length] = 0;
+    return (const tchar_t*)ctx->bytes;
 }
 
 /**/
 _CC_API_PRIVATE(bool_t) _buf_expand(_cc_buf_t *ctx, size_t size) {
-    size_t new_size = (ctx->length + size);
+    size_t new_size = _cc_aligned_alloc_opt(ctx->length + size, 64);
     byte_t *new_data = (byte_t *)_cc_realloc(ctx->bytes, new_size);
 
     if (_cc_likely(new_data)) {
@@ -135,7 +144,7 @@ _CC_API_PRIVATE(bool_t) _buf_expand(_cc_buf_t *ctx, size_t size) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_buf_expand(_cc_buf_t *ctx, size_t size) {
-    _cc_assert(ctx != NULL && size > 0);
+    _cc_assert(ctx != nullptr && size > 0);
     if (ctx->limit >= (ctx->length + size)) {
         return true;
     }
@@ -144,11 +153,11 @@ _CC_API_PUBLIC(bool_t) _cc_buf_expand(_cc_buf_t *ctx, size_t size) {
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_buf_write(_cc_buf_t *ctx, const void *data, size_t length) {
+_CC_API_PUBLIC(bool_t) _cc_buf_append(_cc_buf_t *ctx, const void *data, size_t length) {
     size_t len = 0;
-    _cc_assert(ctx != NULL && data != NULL);
+    _cc_assert(ctx != nullptr && data != nullptr);
 
-    if (_cc_unlikely(length <= 0 || ctx == NULL)) {
+    if (_cc_unlikely(length <= 0 || ctx == nullptr)) {
         return false;
     }
 
@@ -167,12 +176,12 @@ _CC_API_PUBLIC(bool_t) _cc_buf_write(_cc_buf_t *ctx, const void *data, size_t le
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_puts(_cc_buf_t *ctx, const char_t *s) {
-    _cc_assert(ctx != NULL && s != NULL);
-    return _cc_buf_write(ctx, (const pvoid_t)s, strlen(s) * sizeof(char_t));
+    _cc_assert(ctx != nullptr && s != nullptr);
+    return _cc_buf_append(ctx, (const pvoid_t)s, strlen(s) * sizeof(char_t));
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_bufA_putsvf(_cc_buf_t *ctx, const char_t *fmt, va_list arg) {
+_CC_API_PUBLIC(bool_t) _cc_bufA_appendvf(_cc_buf_t *ctx, const char_t *fmt, va_list arg) {
     int32_t fmt_length, empty_len;
 
     /* If the first attempt to append fails, resize the buffer appropriately
@@ -207,20 +216,20 @@ _CC_API_PUBLIC(bool_t) _cc_bufA_putsvf(_cc_buf_t *ctx, const char_t *fmt, va_lis
     return true;
 }
 
-/* _cc_bufA_putsf() can be used when the there is no known
+/* _cc_bufA_appendf() can be used when the there is no known
  * upper bound for the output string. */
-_CC_API_PUBLIC(bool_t) _cc_bufA_putsf(_cc_buf_t *ctx, const char_t *fmt, ...) {
+_CC_API_PUBLIC(bool_t) _cc_bufA_appendf(_cc_buf_t *ctx, const char_t *fmt, ...) {
     bool_t result;
     va_list arg;
 
-    _cc_assert(ctx != NULL && fmt != NULL);
+    _cc_assert(ctx != nullptr && fmt != nullptr);
 
-    if (_cc_unlikely(NULL == strchr(fmt, '%'))) {
+    if (_cc_unlikely(nullptr == strchr(fmt, '%'))) {
         return _cc_bufA_puts(ctx, fmt);
     }
 
     va_start(arg, fmt);
-    result = _cc_bufA_putsvf(ctx, fmt, arg);
+    result = _cc_bufA_appendvf(ctx, fmt, arg);
     va_end(arg);
 
     return result;
@@ -228,12 +237,12 @@ _CC_API_PUBLIC(bool_t) _cc_bufA_putsf(_cc_buf_t *ctx, const char_t *fmt, ...) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_bufW_puts(_cc_buf_t *ctx, const wchar_t *s) {
-    _cc_assert(ctx != NULL && s != NULL);
-    return _cc_buf_write(ctx, (const pvoid_t)s, wcslen(s) * sizeof(wchar_t));
+    _cc_assert(ctx != nullptr && s != nullptr);
+    return _cc_buf_append(ctx, (const pvoid_t)s, wcslen(s) * sizeof(wchar_t));
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_bufW_putsvf(_cc_buf_t *ctx, const wchar_t *fmt, va_list arg) {
+_CC_API_PUBLIC(bool_t) _cc_bufW_appendvf(_cc_buf_t *ctx, const wchar_t *fmt, va_list arg) {
     size_t fmt_length, empty_len;
 
     /* If the first attempt to append fails, resize the buffer appropriately
@@ -268,43 +277,43 @@ _CC_API_PUBLIC(bool_t) _cc_bufW_putsvf(_cc_buf_t *ctx, const wchar_t *fmt, va_li
     ctx->length += (fmt_length * sizeof(wchar_t));
     return true;
 }
-/* _cc_bufA_putsf() can be used when the there is no known
+/* _cc_bufA_appendf() can be used when the there is no known
  * upper bound for the output string. */
-_CC_API_PUBLIC(bool_t) _cc_bufW_putsf(_cc_buf_t *ctx, const wchar_t *fmt, ...) {
+_CC_API_PUBLIC(bool_t) _cc_bufW_appendf(_cc_buf_t *ctx, const wchar_t *fmt, ...) {
     bool_t result;
     va_list arg;
 
-    _cc_assert(ctx != NULL && fmt != NULL);
+    _cc_assert(ctx != nullptr && fmt != nullptr);
 
-    if (_cc_unlikely(NULL == wcschr(fmt, L'%'))) {
+    if (_cc_unlikely(nullptr == wcschr(fmt, L'%'))) {
         return _cc_bufW_puts(ctx, fmt);
     }
 
     va_start(arg, fmt);
-    result = _cc_bufW_putsvf(ctx, fmt, arg);
+    result = _cc_bufW_appendvf(ctx, fmt, arg);
     va_end(arg);
 
     return result;
 }
 
-_CC_API_PUBLIC(_cc_buf_t*) _cc_load_buf(const tchar_t *file_name) {
-    _cc_buf_t *buf = NULL;
+_CC_API_PUBLIC(_cc_buf_t*) _cc_buf_from_file(const tchar_t *file_name) {
+    _cc_buf_t *buf = nullptr;
     _cc_file_t *f;
     int64_t fsize;
     size_t byte_read;
 
     f = _cc_open_file(file_name, _T("rb"));
-    if (f == NULL) {
-        return NULL;
+    if (f == nullptr) {
+        return nullptr;
     }
 
     fsize = _cc_file_size(f);
 
     if (_cc_likely(fsize > 0)) {
         buf = _cc_create_buf((size_t)fsize);
-        if (_cc_unlikely(buf == NULL)) {
+        if (_cc_unlikely(buf == nullptr)) {
             _cc_file_close(f);
-            return NULL;
+            return nullptr;
         }
 
         while ((byte_read = _cc_file_read(f, buf->bytes + buf->length, sizeof(byte_t), buf->limit - buf->length)) > 0) {
@@ -316,11 +325,11 @@ _CC_API_PUBLIC(_cc_buf_t*) _cc_load_buf(const tchar_t *file_name) {
     return buf;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, uint32_t offset) {
+_CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
     _cc_buf_t b;
-    int32_t len;
+    size_t len;
 
-    if (ctx == NULL || ctx->length <= 0 || ctx->length <= offset) {
+    if (ctx == nullptr || ctx->length <= 0 || ctx->length <= offset) {
         return false;
     }
 
@@ -344,11 +353,11 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, uint32_t offset) {
     return false;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, uint32_t offset) {
+_CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset) {
     _cc_buf_t b;
-    int32_t len;
+    size_t len;
 
-    if (ctx == NULL || ctx->length <= 0 || ctx->length <= offset) {
+    if (ctx == nullptr || ctx->length <= 0 || ctx->length <= offset) {
         return false;
     }
 

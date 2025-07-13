@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "UpdateBuilder.h"
-#include <cc/json/json.h>
+#include <libcc/json/json.h>
 #include <zlib.h>
 
 #define CHUNK_SOURCE (1024 * 6)
@@ -99,12 +99,12 @@ static int compressZipFile(const char *source, const char *dest, uint64_t *resul
     int res;
     FILE *filein, *fileout;
     
-    if ((filein = fopen(source, "rb")) == NULL) {
+    if ((filein = fopen(source, "rb")) == nullptr) {
         _cc_logger_error(_T("Can\'t open %s!"), source);
         return -1;
     }
     
-    if ((fileout = fopen(dest, "wb")) == NULL) {
+    if ((fileout = fopen(dest, "wb")) == nullptr) {
         _cc_logger_error(_T("Can\'t open %s!\n"), dest);
         fclose(filein);
         return -1;
@@ -157,7 +157,7 @@ static uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
     FILE *fp = _tfopen(fileName, _T("rb"));
     uint64_t fileSize = 0;
 
-    if (fp == NULL)
+    if (fp == nullptr)
         return 0;
 
     _cc_md5_init(&c);
@@ -187,7 +187,7 @@ static uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
 #ifndef __CC_WINDOWS__
 static void CopyFile(const tchar_t *source, const tchar_t *dest) {
     bool_t err = false;
-    FILE *fw = NULL;
+    FILE *fw = nullptr;
     FILE* fr = _tfopen(source, _T("rb"));
     if (fr) {
         fw = _tfopen(dest, _T("wb"));
@@ -227,8 +227,8 @@ static void CopyFile(const tchar_t *source, const tchar_t *dest) {
 int createUpdateFile(const tchar_t *,_cc_sql_t *);
 
 int builder_UpdateList(void) {
-    _cc_sql_result_t *resultSQL = NULL;
-    _cc_sql_result_t *resultUpdated = NULL;
+    _cc_sql_result_t *resultSQL = nullptr;
+    _cc_sql_result_t *resultUpdated = nullptr;
     tchar_t name[64];
     tchar_t path[256];
     tchar_t requestMD5[33];
@@ -240,31 +240,31 @@ int builder_UpdateList(void) {
 
     _cc_sql_t *sql = openSQLite3();
 
-    if (sql == NULL) {
+    if (sql == nullptr) {
         return 1;
     }
 
-    sqlDriver.prepare(sql, _T("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;"),&resultUpdated);
-    sqlDriver.execute(sql, _T("select `ID`, `Name`, `CheckMD5`, `Path` from `FileList`;"), &resultSQL);
-    while (sqlDriver.fetch(resultSQL)) {
+    sqldelegate.prepare(sql, _T("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;"),&resultUpdated);
+    sqldelegate.execute(sql, _T("select `ID`, `Name`, `CheckMD5`, `Path` from `FileList`;"), &resultSQL);
+    while (sqldelegate.fetch(resultSQL)) {
         int32_t isCompress = 0;
         sourceDirectory[sourceDirectoryLen] = 0;
         updateDirectory[updateDirectoryLen] = 0;
 
-        sqlID = sqlDriver.get_int(resultSQL, 0);
-        sqlDriver.get_string(resultSQL, 1, name, 64);
-        sqlDriver.get_string(resultSQL, 3, path, 256);
+        sqlID = sqldelegate.get_int(resultSQL, 0);
+        sqldelegate.get_string(resultSQL, 1, name, 64);
+        sqldelegate.get_string(resultSQL, 3, path, 256);
         
         _tcscat(sourceDirectory + sourceDirectoryLen - 1, path);
 
         fileSize = fileCheck(sourceDirectory, requestMD5);
         if (fileSize == 0) {
             _sntprintf(sqlString, _cc_countof(sqlString), _T("DELETE FROM `FileList` WHERE `ID`=%d;"),sqlID);
-            sqlDriver.execute(sql, sqlString, NULL);
+            sqldelegate.execute(sql, sqlString, nullptr);
             continue;
         }
 
-        sqlDriver.get_string(resultSQL, 2, oldCheck, 33);
+        sqldelegate.get_string(resultSQL, 2, oldCheck, 33);
         if (_tcsnicmp(oldCheck, requestMD5, 33) == 0) {
             continue;
         }
@@ -284,19 +284,19 @@ int builder_UpdateList(void) {
         if (!isCompress) {
             CopyFile(sourceDirectory, updateDirectory);
         }
-        sqlDriver.reset(sql, resultUpdated);
-        sqlDriver.bind(resultUpdated, 0, &requestMD5,32,_CC_SQL_TYPE_STRING_);
-        sqlDriver.bind(resultUpdated, 1, &isCompress, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
-        sqlDriver.bind(resultUpdated, 2, &resultSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
-        sqlDriver.bind(resultUpdated, 3, &fileSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
-        sqlDriver.bind(resultUpdated, 4, &sqlID, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
-        sqlDriver.step(sql, resultUpdated);
+        sqldelegate.bind(resultUpdated, 0, &requestMD5,32,_CC_SQL_TYPE_STRING_);
+        sqldelegate.bind(resultUpdated, 1, &isCompress, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
+        sqldelegate.bind(resultUpdated, 2, &resultSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
+        sqldelegate.bind(resultUpdated, 3, &fileSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
+        sqldelegate.bind(resultUpdated, 4, &sqlID, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
+        sqldelegate.step(sql, resultUpdated);
+        sqldelegate.reset(sql, resultUpdated);
         printf("%s\t(%s)\n",&sourceDirectory[sourceDirectoryLen],requestMD5);
     }
-    sqlDriver.free_result(sql, resultUpdated);
+    sqldelegate.free_result(sql, resultUpdated);
     puts("更新完成\n");
     if (resultSQL) {
-        sqlDriver.free_result(sql, resultSQL);
+        sqldelegate.free_result(sql, resultSQL);
     }
 
     updateDirectory[updateDirectoryLen] = 0;
@@ -311,33 +311,33 @@ int builder_UpdateList(void) {
 
 int createUpdateFile(const tchar_t *saveFile, _cc_sql_t *sql) {
     char_t str[256];
-    _cc_sql_result_t *resultSQL = NULL;
+    _cc_sql_result_t *resultSQL = nullptr;
     _cc_buf_t *buf;
-    _cc_json_t *rootJSON = _cc_json_alloc_object(_CC_JSON_ARRAY_, NULL);
-    sqlDriver.execute(sql, "select `ID`, `Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path` from `main`.`FileList`;", &resultSQL);
-    while (sqlDriver.fetch(resultSQL)) {
-        _cc_json_t *json = _cc_json_alloc_object(_CC_JSON_OBJECT_, NULL);
+    _cc_json_t *rootJSON = _cc_json_alloc_object(_CC_JSON_ARRAY_, nullptr);
+    sqldelegate.execute(sql, "select `ID`, `Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path` from `main`.`FileList`;", &resultSQL);
+    while (sqldelegate.fetch(resultSQL)) {
+        _cc_json_t *json = _cc_json_alloc_object(_CC_JSON_OBJECT_, nullptr);
         if (json) {
-            _cc_json_add_number(json, "ID",  sqlDriver.get_int(resultSQL, 0), true);
-            sqlDriver.get_string(resultSQL, 1, str, 256);
+            _cc_json_add_number(json, "ID",  sqldelegate.get_int(resultSQL, 0), true);
+            sqldelegate.get_string(resultSQL, 1, str, 256);
             _cc_json_add_string(json, "Name", str, true);
-            sqlDriver.get_string(resultSQL, 2, str, 256);
+            sqldelegate.get_string(resultSQL, 2, str, 256);
             _cc_json_add_string(json, "MD5", str, true);
-            sqlDriver.get_string(resultSQL, 6, str, 256);
+            sqldelegate.get_string(resultSQL, 6, str, 256);
             _cc_json_add_string(json, "Path", str, true);
 
-            _cc_json_add_number(json, "Compress", sqlDriver.get_int(resultSQL, 3), true);
-            _cc_json_add_number(json, "CompressSize", sqlDriver.get_int64(resultSQL, 4), true);
-            _cc_json_add_number(json, "Size", sqlDriver.get_int64(resultSQL, 5), true);
+            _cc_json_add_number(json, "Compress", sqldelegate.get_int(resultSQL, 3), true);
+            _cc_json_add_number(json, "CompressSize", sqldelegate.get_int64(resultSQL, 4), true);
+            _cc_json_add_number(json, "Size", sqldelegate.get_int64(resultSQL, 5), true);
             _cc_json_object_append(rootJSON, json, true);
         }
     }
     
     if (resultSQL) {
-        sqlDriver.free_result(sql, resultSQL);
+        sqldelegate.free_result(sql, resultSQL);
     }
 
-    buf = _cc_print_json(rootJSON);
+    buf = _cc_json_dump(rootJSON);
     if (buf) {
         _cc_file_t *fp = _cc_open_file(saveFile, _T("wb"));
         if (fp) {

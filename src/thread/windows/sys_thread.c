@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/loadso.h>
+#include <libcc/alloc.h>
+#include <libcc/loadso.h>
 #include "sys_thread.c.h"
 
 #ifndef __CC_WIN32_CE__
@@ -48,48 +48,53 @@ typedef void(__watcall* _end_thread_func_t)(unsigned code);
 typedef void* _begin_thread_func_t;
 typedef void* _end_thread_func_t;
 #else
-typedef uintptr_t(__cdecl* _begin_thread_func_t)(
-    void*,
-    unsigned,
-    unsigned(__stdcall* func)(void*),
-    void* arg,
-    unsigned,
-    unsigned* threadID);
-typedef void(__cdecl* _end_thread_func_t)(unsigned code);
+typedef void (__cdecl * _end_thread_func_t) (unsigned retval);
+typedef uintptr_t (__cdecl * _begin_thread_func_t)
+                   (void *security, unsigned stacksize, unsigned (__stdcall *startaddr)(void *),
+                    void * arglist, unsigned initflag, unsigned *threadaddr);
 #endif
 
-static _begin_thread_func_t pfnBeginThread = NULL;
+static _begin_thread_func_t pfnBeginThread = _beginthreadex;
+static _end_thread_func_t pfnEndThread = _endthreadex;
 
-typedef struct _win_thread_params {
-    void* args;
-} _win_thread_params_t;
-
-/**/
-_CC_API_PRIVATE(DWORD) RunThread(void* args) {
-    /* Call the thread function! */
+static DWORD RunThread(LPVOID args) {
     _cc_thread_running_function(args);
+
+    if (pfnEndThread) {
+        pfnEndThread(0);
+    }
     return 0;
 }
 
-/**/
-_CC_API_PRIVATE(DWORD WINAPI) RunThreadViaCreateThread(LPVOID data) {
-    return RunThread(data);
+static DWORD WINAPI MINGW32_FORCEALIGN RunThreadViaCreateThread(LPVOID args) {
+   return RunThread(args);
+}
+
+static unsigned __stdcall MINGW32_FORCEALIGN RunThreadViaBeginThreadEx(LPVOID args) {
+    return (unsigned)RunThread(args);
 }
 
 #ifndef STACK_SIZE_PARAM_IS_A_RESERVATION
 #define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
 #endif
 /**/
-_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t* thrd, pvoid_t args) {
+_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t* thrd) {
     int flags = thrd->stacksize ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0;
     DWORD thread_id = 0;
-    thrd->handle = CreateThread(NULL, thrd->stacksize, RunThreadViaCreateThread,
-                                args, flags, &thread_id);
-    thrd->thread_id = thread_id;
-    if (thrd->handle == NULL) {
+    // thrd->stacksize == 0 means "system default", same as win32 expects
+    if (pfnBeginThread) {
+        thrd->handle = (_cc_thread_handle_t)((size_t)pfnBeginThread(nullptr, (unsigned int)thrd->stacksize,
+                                                                   (_beginthreadex_proc_type)RunThreadViaBeginThreadEx, thrd, flags, (unsigned*)&thread_id));
+    } else {
+        thrd->handle = CreateThread(nullptr, thrd->stacksize, RunThreadViaCreateThread, thrd, flags, &thread_id);
+        pfnEndThread = nullptr;
+    }
+    
+    if (thrd->handle == nullptr) {
         _cc_logger_error(_T("Not enough resources to create thread"));
         return false;
     }
+    thrd->thread_id = thread_id;
     return true;
 }
 
@@ -105,18 +110,25 @@ typedef struct tagTHREADNAME_INFO {
 #pragma pack(pop)
 
 typedef HRESULT(WINAPI* pfnSetThreadDescription)(HANDLE, PCWSTR);
-const DWORD MS_VC_EXCEPTION = 0x406D1388;
-
+const DWORD CC_DEBUGGER_NAME_EXCEPTION_CODE = 0x406D1388;
+static LONG NTAPI EmptyVectoredExceptionHandler(EXCEPTION_POINTERS *info) {
+    if (info != nullptr && info->ExceptionRecord != nullptr && info->ExceptionRecord->ExceptionCode == CC_DEBUGGER_NAME_EXCEPTION_CODE) {
+        return EXCEPTION_CONTINUE_EXECUTION;
+    } else {
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+}
 /**/
 _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t* name) {
 /* Visual Studio 2015, MSVC++ 14.0*/
-#if (_MSC_VER >= 1900)
-    pfnSetThreadDescription pSetThreadDescription = NULL;
+//#if (_CC_MSVC_ >= 1900) || (defined(__GNUC__) && defined(__i386__))
+    PVOID exceptionHandlerHandle;
+    pfnSetThreadDescription pSetThreadDescription = nullptr;
     HMODULE kernel32 = 0;
 #ifndef _CC_UNICODE_
     wchar_t buf[256];
 #endif
-    if (name == NULL) {
+    if (name == nullptr) {
         return;
     }
 
@@ -124,38 +136,36 @@ _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t* name) {
     if (kernel32) {
         pSetThreadDescription = (pfnSetThreadDescription)_cc_load_function(
             kernel32, "SetThreadDescription");
-        if (pSetThreadDescription == NULL) {
+        if (pSetThreadDescription == nullptr) {
             return;
         }
     }
-
-#ifndef _CC_UNICODE_
-    _cc_a2w(name, strlen(name), buf, _cc_countof(buf));
-    pSetThreadDescription(GetCurrentThread(), buf);
-#else
-    pSetThreadDescription(GetCurrentThread(), name);
-#endif
+    if (pSetThreadDescription) {
+    #ifndef _CC_UNICODE_
+        _cc_a2w(name, (int32_t)strlen(name), buf, _cc_countof(buf));
+        pSetThreadDescription(GetCurrentThread(), buf);
+    #else
+        pSetThreadDescription(GetCurrentThread(), name);
+    #endif
+    }
     /* Presumably some version of Visual Studio will understand
        SetThreadDescription(), but we still need to deal with older OSes and
        debuggers. Set it with the arcane exception magic, too. */
-
-    if (IsDebuggerPresent()) {
+    exceptionHandlerHandle = AddVectoredExceptionHandler(1, EmptyVectoredExceptionHandler);
+    if (exceptionHandlerHandle) {
         THREADNAME_INFO inf;
-
-        /* C# and friends will try to catch this Exception, let's avoid it. */
-
-        /* This magic tells the debugger to name a thread if it's listening. */
+        // This magic tells the debugger to name a thread if it's listening.
         bzero(&inf, sizeof(THREADNAME_INFO));
         inf.dwType = 0x1000;
         inf.szName = (LPCSTR)name;
         inf.dwThreadID = (DWORD)-1;
         inf.dwFlags = 0;
 
-        /* The debugger catches this, renames the thread, continues on. */
-        RaiseException(MS_VC_EXCEPTION, 0, sizeof(inf) / sizeof(ULONG),
-                       (const ULONG_PTR*)&inf);
+        // The debugger catches this, renames the thread, continues on.
+        RaiseException(CC_DEBUGGER_NAME_EXCEPTION_CODE, 0, sizeof(inf) / sizeof(ULONG_PTR), (const ULONG_PTR *)&inf);
+        RemoveVectoredExceptionHandler(exceptionHandlerHandle);
     }
-#endif
+//#endif
     return;
 }
 
@@ -196,15 +206,15 @@ _CC_API_PUBLIC(uint32_t) _cc_get_sys_thread_id(_cc_thread_t* thrd) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t* thrd) {
-    if (thrd->handle != NULL) {
+    if (thrd->handle != nullptr) {
         WaitForSingleObject(thrd->handle, INFINITE);
         CloseHandle(thrd->handle);
         thrd->thread_id = 0;
-        thrd->handle = NULL;
+        thrd->handle = nullptr;
     }
 }
 
 _CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t* thrd) {
     CloseHandle(thrd->handle);
-    thrd->handle = NULL;
+    thrd->handle = nullptr;
 }

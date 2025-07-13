@@ -1,4 +1,4 @@
-#include <cc/widgets/ftp.h>
+#include <libcc/widgets/ftp.h>
 
 _CC_API_PRIVATE(bool_t) libftp_mkd(_cc_ftp_t* ftp,
                                     const byte_t* buf,
@@ -22,13 +22,13 @@ bool_t _cc_ftp_mkdir(_cc_ftp_t* ftp, const char_t* path) {
     char_t cmd[_CC_MAX_PATH_];
     int32_t cmd_len = 0;
 
-    _cc_assert(ftp != NULL);
-    _cc_assert(path != NULL);
+    _cc_assert(ftp != nullptr);
+    _cc_assert(path != nullptr);
 
-    if (ftp == NULL || path == NULL)
+    if (ftp == nullptr || path == nullptr)
         return false;
 
-    if (ftp->ctrl.e == NULL) {
+    if (ftp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -37,7 +37,7 @@ bool_t _cc_ftp_mkdir(_cc_ftp_t* ftp, const char_t* path) {
         return false;
     }
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_MKDIR, libftp_mkd, NULL);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_MKDIR, libftp_mkd, nullptr);
 
     cmd_len = snprintf(cmd, _cc_countof(cmd), "MKD %s\r\n", path);
     _ftp_send_command(ftp->ctrl.e, cmd, cmd_len * sizeof(char_t));

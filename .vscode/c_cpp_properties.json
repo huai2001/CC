@@ -1,6 +1,21 @@
 {
     "configurations": [
         {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include",
+                "D:\\msys2\\ucrt64\\include",
+                "D:\\240216\\01\\include"
+            ],
+            "defines": ["_DEBUG","UNICODE","_unicode"],
+            "macFrameworkPath": [],
+            "compilerPath": "D:\\msys2\\ucrt64\\bin\\gcc",
+            "cStandard": "c99",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "windows-gcc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }, {
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",

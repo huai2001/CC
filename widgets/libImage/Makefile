@@ -1,18 +1,16 @@
 SRCROOT	:= $(abspath ../..)
 
-INCLUDE_PATH += /usr/local/Cellar/jpeg/9e/include
-LIBRARY_PATH += /usr/local/Cellar/jpeg/9e/lib
-
 include $(SRCROOT)/build/Makefile.mak
 
-
-ifeq ($(debug),1)
-	LIBS 	+= ccd.$(PLATFORM)
+ifeq ($(PLATFORM), windows)
+	INCLUDE_PATH += D:\\240216\\third-party\\
+	LIBRARY_PATH += D:\\240216\\third-party\\lib
 else
-	LIBS	+= cc.$(PLATFORM)
+	INCLUDE_PATH += /usr/local/Cellar/jpeg/9e/include
+	LIBRARY_PATH += /usr/local/Cellar/jpeg/9e/lib
 endif
 
-LIBS += z png jpeg
+LIBS += z png jpeg cc
 
 LOCAL_SRC_FILES = loaderBMP.o \
 				  loaderJPG.o \

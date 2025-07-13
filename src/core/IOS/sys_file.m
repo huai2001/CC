@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
+#include <libcc/alloc.h>
 #import <Foundation/Foundation.h>
 /*
 _CC_API_PUBLIC(const byte_t*) _cc_ios_file_context(const char_t *file,
@@ -27,7 +27,7 @@ _CC_API_PUBLIC(const byte_t*) _cc_ios_file_context(const char_t *file,
     NSString *fileName;
     NSString *fileType;
     NSString *path_name;
-    byte_t *source = NULL;
+    byte_t *source = nullptr;
     
     fileName = [NSString stringWithUTF8String:file];
     fileType = [NSString stringWithUTF8String:type];
@@ -36,7 +36,7 @@ _CC_API_PUBLIC(const byte_t*) _cc_ios_file_context(const char_t *file,
     source = (byte_t *)[[NSString stringWithContentsOfFile:path_name encoding:NSUTF8StringEncoding error:nil] UTF8String];
     if (!source) {
         NSLog(@"Failed to load file:%s.%s", file, type);
-        return NULL;
+        return nullptr;
     }
     
     return source;

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -144,7 +144,7 @@ _CC_IMAGE_API(bool_t) _cc_write_JPG(const tchar_t *file_name, _cc_image_t *image
 _CC_IMAGE_API(_cc_image_filetype_t) _cc_get_imagetypes(byte_t *data, int32_t len);
 
 /**/
-_CC_IMAGE_API(_cc_image_t*) _cc_load_image(const tchar_t *file_name);
+_CC_IMAGE_API(_cc_image_t*) _cc_image_from_file(const tchar_t *file_name);
 
 /**/
 _CC_IMAGE_API(_cc_image_t*) _cc_init_image(uint32_t format, uint32_t width, uint32_t height);

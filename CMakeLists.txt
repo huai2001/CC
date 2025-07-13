@@ -36,6 +36,7 @@ MESSAGE("SOURCE:${PROJECT_C_SOURCE_DIR}")
 SET(SRC_LIST
     ${PROJECT_C_SOURCE_DIR}/aes.c
     ${PROJECT_C_SOURCE_DIR}/base16.c
+    ${PROJECT_C_SOURCE_DIR}/base58.c
     ${PROJECT_C_SOURCE_DIR}/base64.c
     ${PROJECT_C_SOURCE_DIR}/crc.c
     ${PROJECT_C_SOURCE_DIR}/md2.c
@@ -51,7 +52,7 @@ SET(SRC_LIST
     ${PROJECT_C_SOURCE_DIR}/GBK.c
     ${PROJECT_C_SOURCE_DIR}/list.c
     ${PROJECT_C_SOURCE_DIR}/queue.c
-    ${PROJECT_C_SOURCE_DIR}/hashtable.c
+    ${PROJECT_C_SOURCE_DIR}/hmap.c
     ${PROJECT_C_SOURCE_DIR}/rbtree.c
     ${PROJECT_C_SOURCE_DIR}/array.c
     ${PROJECT_C_SOURCE_DIR}/string.c
@@ -76,12 +77,12 @@ SET(SRC_LIST
 )
 IF (SRC_EVENT_LIST)
     LIST(APPEND SRC_LIST
-        ${PROJECT_C_SOURCE_DIR}/event/select.c
-        ${PROJECT_C_SOURCE_DIR}/event/event.c
-        ${PROJECT_C_SOURCE_DIR}/event/loop.c
-        ${PROJECT_C_SOURCE_DIR}/event/timeout.c
-        ${PROJECT_C_SOURCE_DIR}/event/tcp.c
-        ${PROJECT_C_SOURCE_DIR}/event/buffer.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/event/select.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/event/event.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/event/loop.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/event/timeout.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/event/tcp.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/event/buffer.c
     )
 ENDIF ()
 
@@ -89,14 +90,15 @@ IF (UNIX)
     ##freebse,unix
     IF (SRC_EVENT_LIST)
         LIST(APPEND SRC_LIST
-            ${PROJECT_C_SOURCE_DIR}/event/unix/sys_kqueue.c
+            ${PROJECT_C_SOURCE_DIR}/widgets/event/unix/sys_kqueue.c
         )
     ENDIF ()
     LIST(APPEND SRC_LIST
         ${PROJECT_C_SOURCE_DIR}/time/unix/sys_time.c
         ${PROJECT_C_SOURCE_DIR}/core/file.c
         ${PROJECT_C_SOURCE_DIR}/core/unix.c
-        ${PROJECT_C_SOURCE_DIR}/core/unix/sys_core.c
+        ${PROJECT_C_SOURCE_DIR}/core/unix/sys_clipboard.c
+        ${PROJECT_C_SOURCE_DIR}/core/unix/sys_dirent.c
         ${PROJECT_C_SOURCE_DIR}/core/unix/sys_locale.c
         ${PROJECT_C_SOURCE_DIR}/socket/unix/sys_socket.c
         ${PROJECT_C_SOURCE_DIR}/thread/pthread/sys_thread.c
@@ -109,14 +111,15 @@ ELSEIF (APPLE)
     #macosx
     IF (SRC_EVENT_LIST)
         LIST(APPEND SRC_LIST
-            ${PROJECT_C_SOURCE_DIR}/event/unix/sys_kqueue.c
+            ${PROJECT_C_SOURCE_DIR}/widgets/event/unix/sys_kqueue.c
         )
     ENDIF ()
 
     LIST(APPEND SRC_LIST
         ${PROJECT_C_SOURCE_DIR}/time/unix/sys_time.c
         ${PROJECT_C_SOURCE_DIR}/core/OSX/sys_file.m
-        ${PROJECT_C_SOURCE_DIR}/core/OSX/sys_core.m
+        ${PROJECT_C_SOURCE_DIR}/core/OSX/sys_clipboard.m
+        ${PROJECT_C_SOURCE_DIR}/core/OSX/sys_dirent.m
         ${PROJECT_C_SOURCE_DIR}/core/OSX/sys_locale.m
         ${PROJECT_C_SOURCE_DIR}/core/unix.c
         ${PROJECT_C_SOURCE_DIR}/power/macosx/sys_power.c
@@ -138,7 +141,8 @@ ELSEIF (IPHONE)
     LIST(APPEND SRC_LIST
         ${PROJECT_C_SOURCE_DIR}/time/unix/sys_time.c
         ${PROJECT_C_SOURCE_DIR}/core/IOS/sys_file.c
-        ${PROJECT_C_SOURCE_DIR}/core/IOS/sys_core.c
+        ${PROJECT_C_SOURCE_DIR}/core/IOS/sys_dirent.c
+        ${PROJECT_C_SOURCE_DIR}/core/IOS/sys_clipboard.c
         ${PROJECT_C_SOURCE_DIR}/core/unix.c
         ${PROJECT_C_SOURCE_DIR}/socket/unix/sys_socket.c
         ${PROJECT_C_SOURCE_DIR}/thread/pthread/sys_thread.c
@@ -157,7 +161,8 @@ ELSEIF (LINUX)
         ${PROJECT_C_SOURCE_DIR}/time/linux/sys_time.c
         ${PROJECT_C_SOURCE_DIR}/core/file.c
         ${PROJECT_C_SOURCE_DIR}/core/unix.c
-        ${PROJECT_C_SOURCE_DIR}/core/unix/sys_core.c
+        ${PROJECT_C_SOURCE_DIR}/core/unix/sys_clipboard.c
+        ${PROJECT_C_SOURCE_DIR}/core/unix/sys_dirent.c
         ${PROJECT_C_SOURCE_DIR}/core/unix/sys_locale.c
         ${PROJECT_C_SOURCE_DIR}/power/linux/sys_power.c
         ${PROJECT_C_SOURCE_DIR}/socket/linux/sys_socket.c
@@ -181,7 +186,7 @@ ELSEIF (WIN32)
         ${PROJECT_C_SOURCE_DIR}/time/windows/sys_time.c
         ${PROJECT_C_SOURCE_DIR}/core/file.c
         ${PROJECT_C_SOURCE_DIR}/core/windows.c
-        ${PROJECT_C_SOURCE_DIR}/core/windows/sys_core.c
+        ${PROJECT_C_SOURCE_DIR}/core/windows/sys_clipboard.c
         ${PROJECT_C_SOURCE_DIR}/core/windows/sys_locale.c
         ${PROJECT_C_SOURCE_DIR}/core/windows/sys_dirent.c
         ${PROJECT_C_SOURCE_DIR}/core/windows/sys_file.c
@@ -198,22 +203,24 @@ ENDIF ()
 
 IF (SRC_JSON_LIST)
     LIST(APPEND SRC_LIST 
-        ${PROJECT_C_SOURCE_DIR}/json/json.c
-        ${PROJECT_C_SOURCE_DIR}/json/json.parser.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/json/json.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/json/json.object.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/json/json.array.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/json/json.parser.c
     )
 ENDIF ()
 
 IF(SRC_XML_LIST)
     LIST(APPEND SRC_LIST 
-        ${PROJECT_C_SOURCE_DIR}/xml/xml.c
-        ${PROJECT_C_SOURCE_DIR}/xml/xml.parser.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/xml/xml.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/xml/xml.parser.c
     )
 ENDIF ()
 
 IF(SRC_INI_LIST)
     LIST(APPEND SRC_LIST 
-        ${PROJECT_C_SOURCE_DIR}/ini/ini.c
-        ${PROJECT_C_SOURCE_DIR}/ini/ini.parser.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/ini/ini.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/ini/ini.parser.c
     )
 ENDIF ()
 
@@ -224,10 +231,10 @@ IF(SRC_DB_LIST)
     )
     
     LIST(APPEND SRC_LIST 
-        ${PROJECT_C_SOURCE_DIR}/db/mysql.c
-        ${PROJECT_C_SOURCE_DIR}/db/sqlite.c
-        ${PROJECT_C_SOURCE_DIR}/db/sqlsvr.c
-        ${PROJECT_C_SOURCE_DIR}/db/oci8.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/db/mysql.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/db/sqlite.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/db/sqlsvr.c
+        ${PROJECT_C_SOURCE_DIR}/widgets/db/oci8.c
     )
 ENDIF ()
 

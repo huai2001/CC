@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -20,8 +20,8 @@
 */
 #include "dns.h"
 
-_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-	if (events & _CC_EVENT_READABLE_) {
+_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+	if (which & _CC_EVENT_READABLE_) {
         struct sockaddr_in sa;
         int32_t n = 0, res = 0;
         int32_t offset = 0;
@@ -54,11 +54,11 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_eve
         return true;
     }
 /*
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         return false;
     }
 
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         return false;
     }
 */
@@ -76,14 +76,14 @@ bool_t _cc_dns_listen(void) {
         return false;
     }
 
-    _cc_inet_ipv4_addr(&sa, NULL, 53);
+    _cc_inet_ipv4_addr(&sa, nullptr, 53);
     if (bind(io_fd, (struct sockaddr *)&sa, sizeof(sa)) == -1) {
         _cc_logger_error(_T("bing port error:%s"), _cc_last_error(_cc_last_errno()));
         return false;
     }
 
-    if (cycle->driver.add(cycle, _CC_EVENT_READABLE_, io_fd, 0, _dns_response_callback, NULL) == NULL) {
-        _cc_logger_error(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), io_fd);
+    if (cycle->attach(cycle, _CC_EVENT_READABLE_, io_fd, 0, _dns_response_callback, nullptr) == nullptr) {
+        _cc_logger_error(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), io_fd);
         return false;
     }
     return true;

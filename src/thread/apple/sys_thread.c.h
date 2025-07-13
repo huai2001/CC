@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -21,9 +21,9 @@
 #ifndef _C_CC_SYS_APPLE_GCD_C_H_INCLUDED_
 #define _C_CC_SYS_APPLE_GCD_C_H_INCLUDED_
 
-#include <cc/alloc.h>
-#include <cc/thread.h>
-#include <cc/time.h>
+#include <libcc/alloc.h>
+#include <libcc/thread.h>
+#include <libcc/time.h>
 #include <errno.h>
 #include <semaphore.h>
 

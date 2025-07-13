@@ -5,28 +5,51 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A639159E-608E-43BC-8C30-FAC68BAC6AAC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>libccwidgets</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -34,20 +57,42 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\bin\</OutDir>
-    <IntDir>$(Configuration)\widgets\</IntDir>
-    <TargetName>$(ProjectName)d</TargetName>
+    <OutDir>..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+    <IncludePath>D:\240216\third-party\OpenSSL-Win64\include;D:\240216\01\include;D:\240216\third-party;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\240216\01\lib\$(Platform)\debug;D:\240216\third-party\OpenSSL-Win64\lib\VC\$(Platform)\MT;D:\240216\third-party\lib\$(Platform);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>$(ProjectName)</TargetName>
+    <IncludePath>D:\240216\third-party\OpenSSL-Win64\include;D:\240216\01\include;D:\240216\third-party;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\240216\01\lib\$(Platform)\debug\;D:\240216\third-party\OpenSSL-Win64\lib\VC\$(Platform)\MT;D:\240216\third-party\lib\$(Platform)\;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\bin\</OutDir>
-    <IntDir>$(Configuration)\widgets\</IntDir>
+    <OutDir>..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ShortProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>D:\240216\third-party\OpenSSL-Win64\include;D:\240216\01\include;D:\240216\third-party;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>D:\240216\01\lib\$(Platform)\release;D:\240216\third-party\lib\$(Platform);$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>D:\240216\third-party\OpenSSL-Win64\include;D:\240216\01\include;D:\240216\third-party;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>D:\240216\01\lib\$(Platform)\release;D:\240216\third-party\lib\$(Platform);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <OutDir>..\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -60,8 +105,23 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libccd.lib;libcc.eventd.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\lib\$(ProjectName)d.lib</ImportLibrary>
+      <AdditionalDependencies>libcc.lib;libmysql.lib;libsqlite3.a;zlib.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>..\lib\$(Platform)\$(Configuration)\$(ProjectName).lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CC_WIDGETS_EXPORT_SHARED_LIBRARY_;_CC_ENABLE_OPENSSL_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libcc.lib;libmysql.lib;libsqlite3.a;zlib.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>..\lib\$(Platform)\$(Configuration)\$(ProjectName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -72,37 +132,87 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CC_WIDGETS_EXPORT_SHARED_LIBRARY_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CC_WIDGETS_EXPORT_SHARED_LIBRARY_;_CC_ENABLE_OPENSSL_；%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libcc.lib;libcc.event.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImportLibrary>..\lib\$(ProjectName).lib</ImportLibrary>
+      <AdditionalDependencies>libcc.lib;libmysql.lib;libsqlite3.a;zlib.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>..\lib\$(Platform)\$(Configuration)\$(ProjectName).lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CC_WIDGETS_EXPORT_SHARED_LIBRARY_;_CC_ENABLE_OPENSSL_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libcc.lib;libmysql.lib;libsqlite3.a;zlib.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>..\lib\$(Platform)\$(Configuration)\$(TargetName)x.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\widgets\dict.c" />
-    <ClCompile Include="..\src\widgets\SSL.c" />
-    <ClCompile Include="..\src\widgets\url_request\http\gzip.c" />
+    <ClCompile Include="..\src\widgets\generic\gzip.c" />
+    <ClCompile Include="..\src\widgets\generic\map.c" />
+    <ClCompile Include="..\src\widgets\generic\OpenSSL.c" />
+    <ClCompile Include="..\src\widgets\db\mysql.c" />
+    <ClCompile Include="..\src\widgets\db\sqlite.c" />
+    <ClCompile Include="..\src\widgets\ini\ini.c" />
+    <ClCompile Include="..\src\widgets\ini\ini.parser.c" />
+    <ClCompile Include="..\src\widgets\json\json.array.c" />
+    <ClCompile Include="..\src\widgets\json\json.c" />
+    <ClCompile Include="..\src\widgets\json\json.object.c" />
+    <ClCompile Include="..\src\widgets\json\json.parser.c" />
     <ClCompile Include="..\src\widgets\url_request\http\url_request.c" />
     <ClCompile Include="..\src\widgets\url_request\http\url_response.c" />
+    <ClCompile Include="..\src\widgets\event\event.c" />
+    <ClCompile Include="..\src\widgets\event\loop.c" />
+    <ClCompile Include="..\src\widgets\event\buffer.c" />
+    <ClCompile Include="..\src\widgets\event\select.c" />
+    <ClCompile Include="..\src\widgets\event\tcp.c" />
+    <ClCompile Include="..\src\widgets\event\timeout.c" />
+    <ClCompile Include="..\src\widgets\event\windows\sys_iocp.c" />
+    <ClCompile Include="..\src\widgets\event\windows\sys_iocp_overlapped.c" />
+    <ClCompile Include="..\src\widgets\event\windows\sys_WSA.c" />
     <ClCompile Include="..\src\widgets\widgets.c" />
+    <ClCompile Include="..\src\widgets\xml\xml.c" />
+    <ClCompile Include="..\src\widgets\xml\xml.parser.c" />
     <ClCompile Include="dllmain.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\cc\widgets\dict.h" />
-    <ClInclude Include="..\include\cc\widgets\dns.h" />
-    <ClInclude Include="..\include\cc\widgets\dylib.h" />
-    <ClInclude Include="..\include\cc\widgets\ftp.h" />
-    <ClInclude Include="..\include\cc\widgets\ip_locator.h" />
-    <ClInclude Include="..\include\cc\widgets\smtp.h" />
-    <ClInclude Include="..\include\cc\widgets\SSL.h" />
-    <ClInclude Include="..\include\cc\widgets\url_request.h" />
-    <ClInclude Include="..\include\cc\widgets\widgets.h" />
-    <ClInclude Include="..\src\widgets\alloc\alloc_tracked.c.h" />
+    <ClInclude Include="..\include\libcc\widgets\db\sql.h" />
+    <ClInclude Include="..\include\libcc\widgets\event\event.h" />
+    <ClInclude Include="..\include\libcc\widgets\event\timeout.h" />
+    <ClInclude Include="..\include\libcc\widgets\ini\ini.h" />
+    <ClInclude Include="..\include\libcc\widgets\json\json.h" />
+    <ClInclude Include="..\include\libcc\widgets\map.h" />
+    <ClInclude Include="..\include\libcc\widgets\xml\xml.h" />
+    <ClInclude Include="..\src\widgets\event\event.c.h" />
+    <ClInclude Include="..\src\widgets\event\windows\sys_iocp.h" />
+    <ClInclude Include="..\src\widgets\event\windows\sys_socket_c.h" />
+    <ClInclude Include="..\include\libcc\widgets\dns.h" />
+    <ClInclude Include="..\include\libcc\widgets\dylib.h" />
+    <ClInclude Include="..\include\libcc\widgets\ftp.h" />
+    <ClInclude Include="..\include\libcc\widgets\ip_locator.h" />
+    <ClInclude Include="..\include\libcc\widgets\smtp.h" />
+    <ClInclude Include="..\include\libcc\widgets\OpenSSL.h" />
+    <ClInclude Include="..\include\libcc\widgets\gzip.h" />
+    <ClInclude Include="..\include\libcc\widgets\url_request.h" />
+    <ClInclude Include="..\include\libcc\widgets\widgets.h" />
+    <ClInclude Include="..\src\widgets\ini\ini.c.h" />
+    <ClInclude Include="..\src\widgets\json\json.c.h" />
+    <ClInclude Include="..\src\widgets\xml\xml.c.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

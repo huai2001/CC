@@ -76,7 +76,7 @@
     // 所能选择的文件类型
     //[panel setAllowedFileTypes: [NSArray arrayWithObjects:@"png",@"jpg",@"bmp", nil]];
     // 默认打开路径（桌面、 下载、...）
-    [panel setDirectoryURL:NULL];
+    [panel setDirectoryURL:nullptr];
     __block NSArray *chooseFiles;
     [panel beginSheetModalForWindow:[NSApp mainWindow] completionHandler:^(NSModalResponse result) {
         if (result == NSModalResponseOK) {
@@ -257,7 +257,7 @@
 }
 
 //用户编辑列表
-- (void)tableView:(NSTableView *)tableView setObjectValue:(nullable id)object forTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row {
+- (void)tableView:(NSTableView *)tableView setObjectValue:(nullptrable id)object forTableColumn:(nullptrable NSTableColumn *)tableColumn row:(NSInteger)row {
     if (tableColumn == [self.tableView.tableColumns objectAtIndex:0]) {
         self.tableDataArray[row][0] = object;
     }
@@ -267,13 +267,13 @@
 }
 
 //cell-base的cell展示前调用 可以进行自定制
-- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row {
+- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(nullptrable NSTableColumn *)tableColumn row:(NSInteger)row {
     //NSTextFieldCell * _cell = cell;
    //_cell.textColor = [NSColor redColor];
 }
 
 //设置是否可以进行编辑
-- (BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row {
+- (BOOL)tableView:(NSTableView *)tableView shouldEditTableColumn:(nullptrable NSTableColumn *)tableColumn row:(NSInteger)row {
     return YES;
 }
 

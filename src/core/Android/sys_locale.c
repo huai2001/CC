@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,11 +18,11 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/core.h>
-#include <cc/core/android.h>
+#include <libcc/alloc.h>
+#include <libcc/core.h>
+#include <libcc/core/android.h>
 #include <sys/errno.h>
 
 _CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
-    _cc_jni_get_locale(buf, buflen);
+    Android_JNI_GetLocale(buf, buflen);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,42 +18,16 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/endian.h>
-#include <cc/string.h>
-#include <cc/time.h>
-#include <cc/uuid.h>
+#include <libcc/endian.h>
+#include <libcc/string.h>
+#include <libcc/time.h>
+#include <libcc/uuid.h>
 #include <sys/types.h>
 
 static const tchar_t *fmt_lower = _T("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x");
 
 static const tchar_t *fmt_upper = _T("%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X");
 
-#ifdef __CC_WINDOWS__
-#include <objbase.h>
-/**/
-_CC_API_PUBLIC(void) _cc_uuid(_cc_uuid_t *uuid) {
-    CoCreateGuid((GUID *)uuid);
-}
-
-/**/
-_CC_API_PUBLIC(int32_t) _cc_uuid_lower(_cc_uuid_t *uuid, tchar_t *buf, int32_t length) {
-    GUID *guid;
-    guid = (GUID *)uuid;
-
-    return _sntprintf(buf, length, fmt_lower, guid->Data1, guid->Data2, guid->Data3, guid->Data4[0], guid->Data4[1],
-                      guid->Data4[2], guid->Data4[3], guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7]);
-}
-
-/**/
-_CC_API_PUBLIC(int32_t) _cc_uuid_upper(_cc_uuid_t *uuid, tchar_t *buf, int32_t length) {
-    GUID *guid;
-    guid = (GUID *)uuid;
-
-    return _sntprintf(buf, length, fmt_upper, guid->Data1, guid->Data2, guid->Data3, guid->Data4[0], guid->Data4[1],
-                      guid->Data4[2], guid->Data4[3], guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7]);
-}
-
-#else
 /**/
 struct uuid {
     uint32_t time_low;
@@ -80,6 +54,7 @@ _CC_API_PRIVATE(int32_t) _uuid_hex(const struct uuid *u, tchar_t *out, int32_t l
                                clock_seq & 0xFF, u->node[0], u->node[1], u->node[2], u->node[3], u->node[4],
                                u->node[5]);
 }
+
 /**/
 _CC_API_PUBLIC(void) _cc_uuid(_cc_uuid_t *u) {
     static struct timeval last = {0, 0};
@@ -130,7 +105,6 @@ _CC_API_PUBLIC(int32_t) _cc_uuid_lower(_cc_uuid_t *u, tchar_t *buf, int32_t leng
 _CC_API_PUBLIC(int32_t) _cc_uuid_upper(_cc_uuid_t *u, tchar_t *buf, int32_t length) {
     return _uuid_hex((struct uuid *)u, buf, length, fmt_upper);
 }
-#endif
 
 #define __CC_TO_BYTE(CH, XX, OP)                                                                                       \
     do {                                                                                                               \

@@ -1,4 +1,4 @@
-#include <cc/widgets/ftp.h>
+#include <libcc/widgets/ftp.h>
 
 _CC_API_PRIVATE(bool_t) libftp_delete_file(_cc_ftp_t* ftp,
                                             const byte_t* buf,
@@ -21,13 +21,13 @@ bool_t _cc_ftp_del_file(_cc_ftp_t* ftp, const char_t* file) {
     char_t cmd[_CC_MAX_PATH_];
     int32_t cmd_len = 0;
 
-    _cc_assert(ftp != NULL);
-    _cc_assert(file != NULL);
+    _cc_assert(ftp != nullptr);
+    _cc_assert(file != nullptr);
 
-    if (ftp == NULL || file == NULL)
+    if (ftp == nullptr || file == nullptr)
         return false;
 
-    if (ftp->ctrl.e == NULL) {
+    if (ftp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -36,7 +36,7 @@ bool_t _cc_ftp_del_file(_cc_ftp_t* ftp, const char_t* file) {
         return false;
     }
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_DEL_FILE, libftp_delete_file, NULL);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_DEL_FILE, libftp_delete_file, nullptr);
 
     if (file) {
         cmd_len = snprintf(cmd, _cc_countof(cmd), "DELETE %s\r\n", file);

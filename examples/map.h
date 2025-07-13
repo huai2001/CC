@@ -32,7 +32,7 @@ _map_t *get(_cc_rbtree_t *root, uint32_t key) {
 #endif
    _cc_rbtree_iterator_t *node = root->rb_node;
    while (node) {
-        _map_t *item = _cc_upcast(node, _map_t, node);
+        _map_t *item = _cc_upcast(node, _map_t, lnk);
 
         //compare between the key with the keys in map
 #if TESTES_STRING
@@ -48,16 +48,16 @@ _map_t *get(_cc_rbtree_t *root, uint32_t key) {
             return item;
         }
    }
-   return NULL;
+   return nullptr;
 }
 #if TESTES_STRING
 int put(_cc_rbtree_t *root, char* key, _map_t* data) {
 #else
 int put(_cc_rbtree_t *root, uint32_t key, _map_t* data) {
 #endif
-    _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = NULL;
+    _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = nullptr;
     while (*node) {
-        _map_t *item = _cc_upcast(*node, _map_t, node);
+        _map_t *item = _cc_upcast(*node, _map_t, lnk);
 #if TESTES_STRING
         int result = strcmp(key, item->key_string);
 #else
@@ -73,18 +73,18 @@ int put(_cc_rbtree_t *root, uint32_t key, _map_t* data) {
             return 0;
         }
     }
-    _cc_rbtree_insert(root, &data->node, parent, node);
+    _cc_rbtree_insert(root, &data->lnk, parent, node);
 
     return 1;
 }
 _map_t *map_first(_cc_rbtree_t *tree) {
     _cc_rbtree_iterator_t *node = _cc_rbtree_first(tree);
-    return (_cc_rbtree_entry(node, _map_t, node));
+    return (_cc_rbtree_entry(node, _map_t, lnk));
 }
 
 _map_t *map_next(_cc_rbtree_iterator_t *node) {
     _cc_rbtree_iterator_t *next =  _cc_rbtree_next(node);
-    return _cc_rbtree_entry(next, _map_t, node);
+    return _cc_rbtree_entry(next, _map_t, lnk);
 }
 #if TESTES_STRING
 _map_t *map_erase(_cc_rbtree_t *root, char* key) {
@@ -100,7 +100,7 @@ _map_t *map_erase(_cc_rbtree_t *root, uint32_t key) {
 
 void map_free(_map_t *node){
         _cc_free(node);
-        node = NULL;
+        node = nullptr;
 }
 void _map_free(_cc_rbtree_iterator_t *node) {
     _map_t *data;
@@ -110,17 +110,11 @@ void _map_free(_cc_rbtree_iterator_t *node) {
     if (node->right) {
         _map_free(node->right);
     }
-    data = _cc_upcast(node, _map_t, node);
+    data = _cc_upcast(node, _map_t, lnk);
     _cc_free(data);
 }
 
 void map_destroy(_cc_rbtree_t *root) {
-    /*_map_t *data;
-    _cc_rbtree_for_each(node, root, {
-        data = _cc_upcast(node, _map_t, node);
-        _cc_rbtree_erase(root, node);
-        _cc_free(data);
-    });*/
     if (root->rb_node) {
         _map_free(root->rb_node);
     }

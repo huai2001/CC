@@ -1,5 +1,5 @@
-#include <cc/widgets/ftp.h>
-#include <cc/alloc.h>
+#include <libcc/widgets/ftp.h>
+#include <libcc/alloc.h>
 
 typedef struct _libftp_rename {
     char_t* src;
@@ -17,7 +17,7 @@ _CC_API_PRIVATE(_libftp_rename_t*) libftp_alloc_rename(const char_t* src,
 }
 
 _CC_API_PRIVATE(void) libftp_free_rename(_libftp_rename_t* rn) {
-    if (rn == NULL)
+    if (rn == nullptr)
         return;
 
     if (rn->src)
@@ -61,7 +61,7 @@ _CC_API_PRIVATE(bool_t) libftp_rename_RNFR(_cc_ftp_t* ftp,
         return false;
     }
 
-    if (rn == NULL)
+    if (rn == nullptr)
         return false;
 
     ftp->resp.flag = _CC_LIBFTP_RESP_PENDING;
@@ -87,17 +87,17 @@ bool_t _cc_ftp_rename_file(_cc_ftp_t* ftp,
                            const char_t* dst) {
     char_t cmd[_CC_MAX_PATH_];
     int32_t cmd_len = 0;
-    _libftp_rename_t* rn = NULL;
+    _libftp_rename_t* rn = nullptr;
 
-    _cc_assert(ftp != NULL);
-    _cc_assert(src != NULL);
-    _cc_assert(dst != NULL);
+    _cc_assert(ftp != nullptr);
+    _cc_assert(src != nullptr);
+    _cc_assert(dst != nullptr);
 
-    if (ftp == NULL || src == NULL || dst == NULL) {
+    if (ftp == nullptr || src == nullptr || dst == nullptr) {
         return false;
     }
 
-    if (ftp->ctrl.e == NULL) {
+    if (ftp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -107,7 +107,7 @@ bool_t _cc_ftp_rename_file(_cc_ftp_t* ftp,
     }
 
     rn = libftp_alloc_rename(src, dst);
-    if (rn == NULL)
+    if (rn == nullptr)
         return false;
 
     libftp_setup(ftp, _CC_LIBFTP_RESP_RENAME_FILE, libftp_rename_RNFR, rn);

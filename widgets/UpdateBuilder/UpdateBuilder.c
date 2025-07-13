@@ -21,7 +21,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	) {
 	switch (ul_reason_for_call) {
 	case DLL_PROCESS_ATTACH:
-		_cc_init_sqlite(&sqlDriver);
+		_cc_init_sqlite(&sqldelegate);
 		break;
 	case DLL_THREAD_ATTACH:
 		break;
@@ -35,7 +35,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 */
 #else
 static __attribute__((constructor)) void _dynamic_attach(void) {
-    _cc_init_sqlite(&sqlDriver);
+    _cc_init_sqlite(&sqldelegate);
 }
 
 static __attribute__((destructor)) void _dynamic_detach(void) {
@@ -45,16 +45,16 @@ static __attribute__((destructor)) void _dynamic_detach(void) {
 /*
 void DeleteDeepDirectory(const tchar_t *directory) {
     tchar_t sourceFile[_CC_MAX_PATH_] = {0};
-    DIR *dpath = NULL;
+    DIR *dpath = nullptr;
     struct dirent *d;
     struct stat stat_buf;
     
-    if( (dpath = opendir(directory)) == NULL) {
+    if( (dpath = opendir(directory)) == nullptr) {
         return;
     }
     
     //读取目录
-    while ((d = readdir(dpath)) != NULL) {
+    while ((d = readdir(dpath)) != nullptr) {
         //
         if ((d->d_name[0]=='.' && d->d_name[1] == 0) ||
             (d->d_name[0]=='.' && d->d_name[1] == '.' && d->d_name[2] == 0)) {
@@ -79,7 +79,7 @@ void DeleteDeepDirectory(const tchar_t *directory) {
 }*/
 
 int main(int argc, char const *argv[]) {
-    _cc_init_sqlite(&sqlDriver);
+    _cc_init_sqlite(&sqldelegate);
 
     if (argc < 3) {
         return 0;

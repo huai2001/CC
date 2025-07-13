@@ -1,6 +1,6 @@
 /**/
-#include <cc/alloc.h>
-#include <cc/widgets/ftp.h>
+#include <libcc/alloc.h>
+#include <libcc/widgets/ftp.h>
 
 _CC_API_PRIVATE(bool_t) libftp_connected(_cc_ftp_t* ftp,
                                           const byte_t* buf,
@@ -23,30 +23,30 @@ _CC_API_PRIVATE(bool_t) libftp_connected(_cc_ftp_t* ftp,
 }
 
 bool_t _cc_ftp_connected(_cc_ftp_t* ftp) {
-    if (ftp == NULL)
+    if (ftp == nullptr)
         return false;
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_CONNECTED, libftp_connected, NULL);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_CONNECTED, libftp_connected, nullptr);
 
     ftp->logined = false;
-    ftp->user = NULL;
-    ftp->password = NULL;
+    ftp->user = nullptr;
+    ftp->password = nullptr;
 
     return true;
 }
 
 bool_t _cc_ftp_disconnected(_cc_ftp_t* ftp) {
-    if (ftp == NULL)
+    if (ftp == nullptr)
         return false;
 
     if (ftp->user) {
         _cc_free(ftp->user);
-        ftp->user = NULL;
+        ftp->user = nullptr;
     }
 
     if (ftp->password) {
         _cc_free(ftp->password);
-        ftp->password = NULL;
+        ftp->password = nullptr;
     }
     return true;
 }

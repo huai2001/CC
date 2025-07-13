@@ -55,7 +55,7 @@ static void _delete_file(tchar_t *path) {
 }
 static int32_t filters_get(_cc_rbtree_iterator_t *node, pvoid_t args) {
     _filters_name_t *f = (_filters_name_t*)args;
-    _filters_file_t *ff = _cc_upcast(node, _filters_file_t, node);
+    _filters_file_t *ff = _cc_upcast(node, _filters_file_t, lnk);
     return strincmp(ff->path, f->path, ff->length);
 }
 
@@ -72,14 +72,14 @@ static bool_t filler_file_list(tchar_t *name, int32_t namlen) {
 
 bool_t _depth_delete_file(tchar_t *root) {
     tchar_t path[_CC_MAX_PATH_] = {0};
-    struct dirent *d = NULL;
+    struct dirent *d = nullptr;
 
     DIR *dir = opendir(root);
-    if (dir == NULL) {
+    if (dir == nullptr) {
         return false;
     }
     
-    while((d = readdir(dir)) != NULL) {
+    while((d = readdir(dir)) != nullptr) {
         if ((d->d_name[0]=='.' && d->d_name[1] == 0) ||
             (d->d_name[0]=='.' && d->d_name[1] == '.' && d->d_name[2] == 0)) {
             continue;
@@ -88,7 +88,7 @@ bool_t _depth_delete_file(tchar_t *root) {
         _tcsncpy(path, root, _CC_MAX_PATH_);
         path[_CC_MAX_PATH_ - 1] = 0;
 
-        _tcscat(path, _CC_PATH_SEP_S_);
+        _tcscat(path, _CC_SLASH_S_);
         _tcscat(path, d->d_name);
         
         if (d->d_type == DT_DIR) {
@@ -116,7 +116,7 @@ void _delete(tchar_t *root) {
 }
 
 int _tmain (int argc, tchar_t * const argv[]) {
-    tchar_t *arg = NULL;
+    tchar_t *arg = nullptr;
     int i = 2;
     tchar_t cwd[_CC_MAX_PATH_];
     arg = argv[1];

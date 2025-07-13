@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,24 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/atomic.h>
-#if 0
-_CC_API_PRIVATE(int32_t) _xxx_atomic32_set(_cc_atomic32_t* a, int32_t v) {
-    int32_t value;
-    do {
-        value = *a;
-    } while (!_cc_atomic32_cas(a, value, v));
-    return value;
-}
-
-_CC_API_PRIVATE(int64_t) _xxx_atomic64_set(_cc_atomic64_t* a, int64_t v) {
-    int64_t value;
-    do {
-        value = *a;
-    } while (!_cc_atomic64_cas(a, value, v));
-    return value;
-}
-#endif
+#include <libcc/atomic.h>
 
 _CC_API_PUBLIC(int32_t) _cc_atomic32_get(_cc_atomic32_t *a) {
     _cc_atomic32_t value;

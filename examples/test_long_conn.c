@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cc/socket/socket.h>
+#include <libcc/socket/socket.h>
 
 #ifndef MSG_WAITALL
 #define MSG_WAITALL 0

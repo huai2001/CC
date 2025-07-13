@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,10 +18,10 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/string.h>
-#include <cc/time.h>
-#include <cc/types.h>
+#include <libcc/alloc.h>
+#include <libcc/string.h>
+#include <libcc/time.h>
+#include <libcc/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -408,6 +408,8 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
             return (0);
         }
     }
+
+    //_cc_civil_to_days(_cp->tm_year + TM_YEAR_BASE,_cp->tm_mon + 1,_cp->day,&_cp->tm_wday,&_cp->tm_yday);
 
     /* LINTED functional specification */
     return bp;

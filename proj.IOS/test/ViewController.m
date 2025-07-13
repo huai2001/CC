@@ -51,10 +51,11 @@
     // Do any additional setup after loading the view.
     [self.view addSubview:self.webView];
     
-    tchar_t cwd[_CC_MAX_PATH_];
-    _cc_get_module_directory(NULL, cwd, _CC_MAX_PATH_);
     
-    NSLog(@"%s", cwd);
+    tchar_t path[_CC_MAX_PATH_];
+    _cc_get_base_path(path, _cc_countof(path));
+    
+    NSLog(@"%s", path);
 }
 //被自定义的WKScriptMessageHandler在回调方法里通过代理回调回来，绕了一圈就是为了解决内存不释放的问题
 //通过接收JS传出消息的name进行捕捉的回调方法
@@ -149,7 +150,7 @@
 }
 
 // 页面加载失败时调用
-- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
+- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(nullptr_unspecified WKNavigation *)navigation withError:(NSError *)error {
     //[self.progressView setProgress:0.0f animated:NO];
 }
 
@@ -159,11 +160,11 @@
 }
 
 // 页面加载完成之后调用
-- (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
+- (void)webView:(WKWebView *)webView didFinishNavigation:(nullptr_unspecified WKNavigation *)navigation {
     //[self getCookie];
     //__block typeof(self) weakSelf = self;
     NSLog(@"页面加载完成之后调用");
-    //[webView evaluateJavaScript:self.jsString completionHandler:^(id _Nullable w, NSError * _Nullable error) {
+    //[webView evaluateJavaScript:self.jsString completionHandler:^(id _nullable w, NSError * _nullable error) {
         
     //}];
     
@@ -216,7 +217,7 @@
 }
 
 //需要响应身份验证时调用 同样在block中需要传入用户身份凭证
-- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler{
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _nullable credential))completionHandler{
     
     //用户身份信息
     NSURLCredential * newCred = [[NSURLCredential alloc] initWithUser:@"user123" password:@"123" persistence:NSURLCredentialPersistenceNone];
@@ -261,7 +262,7 @@
 }
 // 输入框
 //JavaScript调用prompt方法后回调的方法 prompt是js中的输入框 需要在block中把用户输入的信息传入
-- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable))completionHandler{
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _nullable))completionHandler{
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:prompt message:@"" preferredStyle:UIAlertControllerStyleAlert];
     [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
         textField.text = defaultText;

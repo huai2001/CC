@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/socket/socket.h>
+#include <libcc/socket/socket.h>
 
 _CC_API_PRIVATE(SOCKET) _tcp_socket(void) {
 #if _CC_USE_WSASOCKET_
@@ -29,7 +29,7 @@ _CC_API_PRIVATE(SOCKET) _tcp_socket(void) {
 }
 
 /* oh, the humanity! */
-_CC_API_PUBLIC(int) _cc_pipe(int filedes[2]) {
+_CC_API_PUBLIC(int) _cc_pipe(SOCKET filedes[2]) {
     static int id = 0;
     FD_SET rs;
     SOCKET ls;
@@ -89,7 +89,6 @@ _CC_API_PUBLIC(int) _cc_pipe(int filedes[2]) {
 
     for (;;) {
         int ns;
-        int nc = 0;
         /* Listening socket is nonblocking by now.
          * The accept should create the socket
          * immediatelly because we are connected already.
@@ -102,7 +101,7 @@ _CC_API_PUBLIC(int) _cc_pipe(int filedes[2]) {
         socktm.tv_sec  = 1;
         socktm.tv_usec = 0;
 
-        if ((ns = select(0, &rs, NULL, NULL, &socktm)) == SOCKET_ERROR) {
+        if ((ns = select(0, &rs, nullptr, nullptr, &socktm)) == SOCKET_ERROR) {
             /* Accept still not signaled */
             Sleep(100);
             continue;
@@ -119,7 +118,7 @@ _CC_API_PUBLIC(int) _cc_pipe(int filedes[2]) {
 
         /* Verify the connection by reading the send identification.
          */
-        nrd = _cc_recv(*rd, iid, sizeof(iid));
+        nrd = _cc_recv(*rd, (byte_t*)iid, (int32_t)sizeof(iid));
         if (nrd == sizeof(iid)) {
             if (memcmp(uid, iid, sizeof(uid)) == 0) {
                 /* Wow, we recived what we send.

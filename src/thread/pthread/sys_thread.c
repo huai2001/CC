@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -31,13 +31,13 @@
 #endif /* __CC_LINUX__ */
 
 #ifdef __CC_ANDROID__
-#include <cc/core/android.h>
+#include <libcc/core/android.h>
 #endif
 
 #if defined(__CC_LINUX__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
 #include <dlfcn.h>
 #ifndef RTLD_DEFAULT
-#define RTLD_DEFAULT NULL
+#define RTLD_DEFAULT nullptr
 #endif
 #endif
 
@@ -48,26 +48,26 @@ static int sig_list[] = {SIGHUP, SIGINT, SIGQUIT, SIGPIPE, SIGALRM, SIGTERM, SIG
 
 _CC_API_PRIVATE(void *) RunThread(pvoid_t args) {
 #ifdef __CC_ANDROID__
-    _cc_jni_setup_thread();
+    Android_JNI_SetupThread();
 #endif
 
     /* Call the thread function! */
     _cc_thread_running_function(args);
     //
-    pthread_exit(NULL);
+    pthread_exit(nullptr);
 
-    return NULL;
+    return nullptr;
 }
 
 #if defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
 static bool_t checked_setname = false;
-static int (*ppthread_setname_np)(const char *) = NULL;
+static int (*ppthread_setname_np)(const char *) = nullptr;
 #elif defined(__CC_LINUX__)
 static bool_t checked_setname = false;
-static int (*ppthread_setname_np)(pthread_t, const char *) = NULL;
+static int (*ppthread_setname_np)(pthread_t, const char *) = nullptr;
 #endif
 
-_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *thrd, pvoid_t args) {
+_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *thrd) {
     pthread_attr_t type;
 /* do this here before any threads exist, so there's no race condition. */
 #if defined(__CC_LINUX__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -93,7 +93,7 @@ _CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *thrd, pvoid_t args) {
         pthread_attr_setstacksize(&type, thrd->stacksize);
     }
     /* Create the thread and go! */
-    if (pthread_create(&(thrd->handle), &type, RunThread, args) != 0) {
+    if (pthread_create(&(thrd->handle), &type, RunThread, thrd) != 0) {
         _cc_logger_error(_T("Not enough resources to create thread"));
         return false;
     }
@@ -115,8 +115,8 @@ _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t *name) {
 #endif /* !__CC_NACL__ */
 
 #if defined(__CC_MACOSX__) || defined(__IPHONEOS__) || defined(__CC_LINUX__)
-    if (name != NULL) {
-        if (ppthread_setname_np != NULL) {
+    if (name != nullptr) {
+        if (ppthread_setname_np != nullptr) {
 #if defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
             ppthread_setname_np(name);
 #elif defined(__CC_LINUX__)

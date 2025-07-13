@@ -104,7 +104,7 @@ static int crypthead(const char* passwd,      /* password string */
      * often poorly implemented.
      */
     if (++calls == 1) {
-        srand((unsigned)(time(NULL) ^ ZCR_SEED2));
+        srand((unsigned)(time(nullptr) ^ ZCR_SEED2));
     }
     init_keys(passwd, pkeys, pcrc_32_tab);
     for (n = 0; n < RAND_HEAD_LEN-2; n++) {

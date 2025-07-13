@@ -30,22 +30,22 @@ static bool_t isFillerList(tchar_t *name, int32_t namlen) {
 static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_result_t *result) {
     tchar_t sourceFile[_CC_MAX_PATH_] = {0};
     tchar_t updateFile[_CC_MAX_PATH_] = {0};
-    DIR *dpath = NULL;
+    DIR *dpath = nullptr;
     struct dirent *d;
     struct _stat stat_buf;
 
-    if( (dpath = opendir(directory)) == NULL) {
+    if( (dpath = opendir(directory)) == nullptr) {
         _cc_logger_error("opendir:fail(%s).\n",directory);
         return;
     }
     
-    while ((d = readdir(dpath)) != NULL) {
+    while ((d = readdir(dpath)) != nullptr) {
         //
         if (isFillerList(d->d_name, -1)) continue;
 
         sourceFile[0] = 0;
         _tcscat(sourceFile,directory);
-        _tcscat(sourceFile, _CC_PATH_SEP_S_);
+        _tcscat(sourceFile, _CC_SLASH_S_);
         _tcscat(sourceFile,d->d_name);
         
         _tstat( sourceFile, &stat_buf);
@@ -53,12 +53,12 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
 
         if (S_ISDIR(stat_buf.st_mode) == 0) {
             int i = 0;
-            sqlDriver.reset(sql, result);
-            sqlDriver.bind(result, i++, &d->d_name, -1, _CC_SQL_TYPE_STRING_);
-            sqlDriver.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
-            sqlDriver.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
-            sqlDriver.bind(result, i++, (sourceFile + sourceDirectoryLen), -1, _CC_SQL_TYPE_STRING_);
-            sqlDriver.step(sql, result);
+            sqldelegate.reset(sql, result);
+            sqldelegate.bind(result, i++, &d->d_name, -1, _CC_SQL_TYPE_STRING_);
+            sqldelegate.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
+            sqldelegate.bind(result, i++, &stat_buf.st_size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
+            sqldelegate.bind(result, i++, (sourceFile + sourceDirectoryLen), -1, _CC_SQL_TYPE_STRING_);
+            sqldelegate.step(sql, result);
         } else {
             _cc_mkdir(updateFile);
             OpenDeepDirectory(sourceFile, sql, result);
@@ -68,18 +68,18 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
 }
 
 int builder_ReloadList(void) {
-    _cc_sql_result_t *result = NULL;
+    _cc_sql_result_t *result = nullptr;
 
     _cc_sql_t *sql = openSQLite3();
-    if (sql == NULL) {
+    if (sql == nullptr) {
         return 1;
     }
 
-    sqlDriver.execute(sql, _T("delete from `FileList`;"), NULL);
-    sqlDriver.execute(sql, _T("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'FileList';"), NULL);
-    if (sqlDriver.prepare(sql, _T("INSERT INTO `FileList` (`Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path`) VALUES ( ?,'',0,?,?,?);"), &result)) {
+    sqldelegate.execute(sql, _T("DELETE FROM `FileList`;"), nullptr);
+    sqldelegate.execute(sql, _T("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'FileList';"), nullptr);
+    if (sqldelegate.prepare(sql, _T("INSERT INTO `FileList` (`Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path`) VALUES ( ?,'',0,?,?,?);"), &result)) {
         OpenDeepDirectory(sourceDirectory, sql, result);
-        sqlDriver.free_result(sql, result);
+        sqldelegate.free_result(sql, result);
     }
     
     closeSQLit3(sql);

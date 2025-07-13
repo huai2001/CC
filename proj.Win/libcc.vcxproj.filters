@@ -9,12 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="src\JSON">
-      <UniqueIdentifier>{10198a31-7cfd-4e50-85b4-1a6a8cd3815a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\cc\JSON">
-      <UniqueIdentifier>{315d4f84-32e4-4002-828f-dae3e1eb708e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\thread">
       <UniqueIdentifier>{369ba964-d92d-4023-932d-88836499bd04}</UniqueIdentifier>
     </Filter>
@@ -24,13 +18,13 @@
     <Filter Include="include">
       <UniqueIdentifier>{01ff5427-4a3f-4278-bec0-d7b763c9c84a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\cc">
+    <Filter Include="include\libcc">
       <UniqueIdentifier>{082f0bd5-ae24-443c-96ba-dbb67c5f44b2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\cc\thread">
+    <Filter Include="include\libcc\thread">
       <UniqueIdentifier>{d38c3a63-ea89-4732-b728-066fafdf4495}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\cc\thread\windows">
+    <Filter Include="include\libcc\thread\windows">
       <UniqueIdentifier>{b92361ab-37ee-4bc6-8ea6-b0d32aa4b24e}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\power">
@@ -51,10 +45,10 @@
     <Filter Include="src\core\windows">
       <UniqueIdentifier>{7e7ad889-67df-48f1-877f-4a00363f4f2e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\cc\core">
+    <Filter Include="include\libcc\core">
       <UniqueIdentifier>{4c38b1f2-2a98-4966-99ae-c85519b9e3f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\cc\core\windows">
+    <Filter Include="include\libcc\core\windows">
       <UniqueIdentifier>{5fb476ab-87b8-4637-bb8f-8cb54bb9a14b}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\loadso">
@@ -72,29 +66,11 @@
     <Filter Include="src\socket\windows">
       <UniqueIdentifier>{8cb9ec9a-6218-4a03-a6d3-5369f0afba1f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\cc\socket">
+    <Filter Include="include\libcc\socket">
       <UniqueIdentifier>{c47bbfa5-77da-4ae9-bb88-769cc97a036a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\cc\socket\windows">
+    <Filter Include="include\libcc\socket\windows">
       <UniqueIdentifier>{9e86c5c1-7478-457b-9932-057c5fe3a05d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\DB">
-      <UniqueIdentifier>{dbe62928-0639-4a4e-9021-aa9058160952}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\cc\DB">
-      <UniqueIdentifier>{9ce1b669-917d-49da-b6c7-3c92832b3919}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\cc\XML">
-      <UniqueIdentifier>{55248caa-742c-4980-8f15-d90df1329c0f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\XML">
-      <UniqueIdentifier>{19f03f51-13d2-493a-9183-80e9318be572}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\INI">
-      <UniqueIdentifier>{f289b440-ba70-4845-a622-1b6c333d1b48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\cc\INI">
-      <UniqueIdentifier>{d43d40db-0161-4b93-87c1-05a1da5e9410}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +78,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\array.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\base58.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\base64.c">
@@ -140,9 +119,6 @@
     <ClCompile Include="..\src\thread\thread.c">
       <Filter>src\thread</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\json\json.c">
-      <Filter>src\JSON</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\power\power.c">
       <Filter>src\power</Filter>
     </ClCompile>
@@ -159,9 +135,6 @@
       <Filter>src\core</Filter>
     </ClCompile>
     <ClCompile Include="..\src\atomic\atomic.c">
-      <Filter>src\atomic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\atomic\spinlock.c">
       <Filter>src\atomic</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\cpu_info.c">
@@ -188,9 +161,6 @@
     <ClCompile Include="..\src\socket\socket.c">
       <Filter>src\socket</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\db\mysql.c">
-      <Filter>src\db</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\sha1.c">
       <Filter>src</Filter>
     </ClCompile>
@@ -206,14 +176,8 @@
     <ClCompile Include="..\src\md4.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\db\sqlite.c">
-      <Filter>src\DB</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\time\time.c">
       <Filter>src\time</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\db\sqlsvr.c">
-      <Filter>src\DB</Filter>
     </ClCompile>
     <ClCompile Include="..\src\atomic\rwlock.c">
       <Filter>src\atomic</Filter>
@@ -224,7 +188,7 @@
     <ClCompile Include="..\src\core\file.c">
       <Filter>src\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\core\windows\sys_core.c">
+    <ClCompile Include="..\src\core\windows\sys_clipboard.c">
       <Filter>src\core\windows</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\windows\sys_dirent.c">
@@ -242,26 +206,11 @@
     <ClCompile Include="..\src\time\strptime.c">
       <Filter>src\time</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\json\json.parser.c">
-      <Filter>src\JSON</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\xml\xml.c">
-      <Filter>src\XML</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\xml\xml.parser.c">
-      <Filter>src\XML</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\base16.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\hashtable.c">
+    <ClCompile Include="..\src\hmap.c">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ini\ini.c">
-      <Filter>src\INI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ini\ini.parser.c">
-      <Filter>src\INI</Filter>
     </ClCompile>
     <ClCompile Include="..\src\alloc.c">
       <Filter>src</Filter>
@@ -283,173 +232,158 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\cc\thread\windows\sys_thread.h">
-      <Filter>include\cc\thread\windows</Filter>
+    <ClInclude Include="..\include\libcc\thread\windows\sys_thread.h">
+      <Filter>include\libcc\thread\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\thread\sys_thread.h">
-      <Filter>include\cc\thread</Filter>
+    <ClInclude Include="..\include\libcc\thread\sys_thread.h">
+      <Filter>include\libcc\thread</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\aes.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\aes.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\array.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\array.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\base64.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\base64.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\des.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\des.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\dirent.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\dirent.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\list.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\list.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\logger.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\logger.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\md5.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\md5.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\mutex.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\mutex.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\rand.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\rand.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\queue.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\queue.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\string.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\string.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\tchar.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\tchar.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\thread.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\thread.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\types.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\types.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\url.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\url.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\version.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\version.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\power.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\power.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\time.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\time.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\loadso.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\loadso.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\core\windows.h">
-      <Filter>include\cc\core</Filter>
+    <ClInclude Include="..\include\libcc\atomic.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\atomic.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\core.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\core.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\endian.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\endian.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\core\cpu_info.h">
+      <Filter>include\libcc\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\core\cpu_info.h">
-      <Filter>include\cc\core</Filter>
+    <ClInclude Include="..\include\libcc\ring.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\ring.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\UTF.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\buf.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\socket\socket.h">
+      <Filter>include\libcc\socket</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\UTF.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\socket\windows\sys_socket.h">
+      <Filter>include\libcc\socket\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\socket\socket.h">
-      <Filter>include\cc\socket</Filter>
+    <ClInclude Include="..\include\libcc\sha.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\socket\windows\sys_socket.h">
-      <Filter>include\cc\socket\windows</Filter>
+    <ClInclude Include="..\include\libcc\md2.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\sha.h">
-      <Filter>include\cc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cc\md2.h">
-      <Filter>include\cc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cc\md4.h">
-      <Filter>include\cc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cc\db\sql.h">
-      <Filter>include\cc\DB</Filter>
+    <ClInclude Include="..\include\libcc\md4.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\rbtree.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\rbtree.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\core\compiler.h">
-      <Filter>include\cc\core</Filter>
+    <ClInclude Include="..\include\libcc\core\compiler.h">
+      <Filter>include\libcc\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\core\platform.h">
-      <Filter>include\cc\core</Filter>
+    <ClInclude Include="..\include\libcc\core\platform.h">
+      <Filter>include\libcc\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\core\file.h">
-      <Filter>include\cc\core</Filter>
+    <ClInclude Include="..\include\libcc\core\file.h">
+      <Filter>include\libcc\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\core\windows\sys_flock.h">
-      <Filter>include\cc\core\windows</Filter>
+    <ClInclude Include="..\include\libcc\core\windows\sys_flock.h">
+      <Filter>include\libcc\core\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\socket\windows\sys_iocp.h">
-      <Filter>include\cc\socket\windows</Filter>
+    <ClInclude Include="..\include\libcc\socket\windows\sys_iocp.h">
+      <Filter>include\libcc\socket\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\crc.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\crc.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\math.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\math.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\json\json.c.h">
-      <Filter>src\JSON</Filter>
+    <ClInclude Include="..\include\libcc\hmap.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\json\json.h">
-      <Filter>include\cc\JSON</Filter>
+    <ClInclude Include="..\include\libcc\base16.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\xml\xml.h">
-      <Filter>include\cc\XML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cc\hashtable.h">
-      <Filter>include\cc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\xml\xml.c.h">
-      <Filter>src\XML</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cc\base16.h">
-      <Filter>include\cc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ini\ini.c.h">
-      <Filter>src\INI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cc\ini\ini.h">
-      <Filter>include\cc\INI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\cc\alloc.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\alloc.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\src\thread\windows\sys_thread.c.h">
       <Filter>src\thread\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\cc\uuid.h">
-      <Filter>include\cc</Filter>
+    <ClInclude Include="..\include\libcc\uuid.h">
+      <Filter>include\libcc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\core\windows\sys_mmap.h">
+      <Filter>include\libcc\core\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\base58.h">
+      <Filter>include\libcc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\core\windows\sys_windows.h">
+      <Filter>include\libcc\core\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\buf.h">
+      <Filter>include\libcc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

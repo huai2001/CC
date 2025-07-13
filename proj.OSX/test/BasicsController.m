@@ -54,11 +54,11 @@ static bool _isRunning = NO;
 #pragma mark - 判断字符串是否为空
 - (BOOL)isEmptyString:(NSString *)str {
     NSString *string = str;
-    if (string == nil || string == NULL) {
+    if (string == nil || string == nullptr) {
         return YES;
     }
     
-    if ([string isKindOfClass:[NSNull class]]) {
+    if ([string isKindOfClass:[NSnullptr class]]) {
         return YES;
     }
     
@@ -93,12 +93,12 @@ static bool _isRunning = NO;
     
     int res = gethostname(host, sizeof(host));
     if (res == -1) {
-        return NULL;
+        return nullptr;
     }
 
     hent = gethostbyname2(host, family);
-    if (NULL == hent) {
-        return NULL;
+    if (nullptr == hent) {
+        return nullptr;
     }
     
     for(i = 0; hent->h_addr_list[i]; i++) {

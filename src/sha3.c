@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/sha.h>
-#include <cc/string.h>
+#include <libcc/sha.h>
+#include <libcc/string.h>
 
 #define _CC_SHA3_MDSIZE(x) ((x) / 8)
 #define _CC_KMAC_MDSIZE(x) (2 * ((x) / 8))

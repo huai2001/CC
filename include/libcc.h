@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -21,36 +21,35 @@
 #ifndef _C_CC_LIBCC_H_INCLUDED_
 #define _C_CC_LIBCC_H_INCLUDED_
 
-#include "cc/endian.h"
-#include "cc/rand.h"
-#include "cc/buf.h"
-#include "cc/power.h"
-#include "cc/thread.h"
-#include "cc/atomic.h"
-#include "cc/crc.h"
-#include "cc/ring.h"
-#include "cc/base16.h"
-#include "cc/base64.h"
-#include "cc/aes.h"
-#include "cc/des.h"
-#include "cc/md2.h"
-#include "cc/md4.h"
-#include "cc/md5.h"
-#include "cc/math.h"
-#include "cc/xxtea.h"
-#include "cc/hmac.h"
-#include "cc/logger.h"
-#include "cc/alloc.h"
-#include "cc/loadso.h"
-#include "cc/dirent.h"
-#include "cc/url.h"
-#include "cc/uuid.h"
-#include "cc/hashtable.h"
-#include "cc/rbtree.h"
-#include "cc/queue.h"
-#include "cc/version.h"
-#include "cc/event/event.h"
-#include "cc/event/timeout.h"
+#include "libcc/endian.h"
+#include "libcc/rand.h"
+#include "libcc/buf.h"
+#include "libcc/power.h"
+#include "libcc/thread.h"
+#include "libcc/atomic.h"
+#include "libcc/crc.h"
+#include "libcc/ring.h"
+#include "libcc/base16.h"
+#include "libcc/base58.h"
+#include "libcc/base64.h"
+#include "libcc/aes.h"
+#include "libcc/des.h"
+#include "libcc/md2.h"
+#include "libcc/md4.h"
+#include "libcc/md5.h"
+#include "libcc/math.h"
+#include "libcc/xxtea.h"
+#include "libcc/hmac.h"
+#include "libcc/logger.h"
+#include "libcc/alloc.h"
+#include "libcc/loadso.h"
+#include "libcc/dirent.h"
+#include "libcc/url.h"
+#include "libcc/uuid.h"
+#include "libcc/hmap.h"
+#include "libcc/rbtree.h"
+#include "libcc/queue.h"
+#include "libcc/version.h"
 
 
 /* Set up for C function definitions, even when using C++ */

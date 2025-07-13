@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,44 +18,17 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/logger.h>
-#include <cc/socket/windows/sys_socket.h>
-#include <cc/time.h>
+#include <libcc/logger.h>
+#include <libcc/socket/windows/sys_socket.h>
+#include <libcc/time.h>
 
 #ifndef __CC_WINRT__
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
+    #include <mmsystem.h>
+    #ifdef _CC_MSVC_
+        #pragma comment(lib, "winmm.lib")
+    #endif
 #endif
 
-/* The first (low-resolution) ticks value of the application */
-static DWORD ticks_start = 0;
-static bool_t ticks_started = false;
-
-/* Store if a high-resolution performance counter exists on the system */
-static bool_t hires_timer_available;
-/* The first high-resolution ticks value of the application */
-static LARGE_INTEGER hires_start_ticks;
-/* The number of ticks per second of the high-resolution performance counter */
-static LARGE_INTEGER hires_ticks_per_second;
-
-_CC_API_PRIVATE(void) _tick_init() {
-    if (ticks_started) {
-        return;
-    }
-    ticks_started = true;
-
-    /* QueryPerformanceCounter has had problems in the past, but lots of games
-       use it, so we'll rely on it here.
-     */
-    hires_timer_available = QueryPerformanceFrequency(&hires_ticks_per_second);
-    if (hires_timer_available) {
-        QueryPerformanceCounter(&hires_start_ticks);
-    } else {
-#ifndef __CC_WINRT__
-        ticks_start = timeGetTime();
-#endif /* __CC_WINRT__ */
-    }
-}
 /**/
 _CC_API_PUBLIC(void) _cc_sleep(uint32_t ms) {
     // Sleep(ms);
@@ -84,7 +57,7 @@ _CC_API_PUBLIC(void) _cc_sleep(uint32_t ms) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_nsleep(uint32_t nsec) {
+_CC_API_PUBLIC(void) _cc_nsleep(uint64_t ns) {
     LARGE_INTEGER freq = {0};
     LARGE_INTEGER tc_start = {0};
     LARGE_INTEGER tc_end = {0};
@@ -95,55 +68,39 @@ _CC_API_PUBLIC(void) _cc_nsleep(uint32_t nsec) {
         _cc_sleep(0);
         return;
     }
-
+    
     QueryPerformanceCounter(&tc_start);
     while (true) {
         QueryPerformanceCounter(&tc_end);
-        counter = (((tc_end.QuadPart - tc_start.QuadPart) * 1000000) / (double)freq.QuadPart);
-        if (counter >= (double)nsec) {
+        counter = (((tc_end.QuadPart - tc_start.QuadPart) * _CC_US_PER_SECOND_) / (double)freq.QuadPart);
+        if (counter >= (double)ns) {
             break;
         }
     }
 }
 
-/*
- * The elapsed time is stored as a uint32_t value. Therefore, the time will wrap
- * around to zero if the system is run continuously for 49.7 days.
- */
-_CC_API_PUBLIC(uint32_t) _cc_get_ticks(void) {
-    DWORD now = 0;
-    LARGE_INTEGER hires_now;
+_CC_API_PUBLIC(uint64_t) _cc_query_performance_counter(void) {
+    LARGE_INTEGER counter;
+    QueryPerformanceCounter(&counter);
+    return (uint64_t)counter.QuadPart;
+}
 
-    if (!ticks_started) {
-        _tick_init();
-    }
+_CC_API_PUBLIC(uint64_t) _cc_query_performance_frequency(void) {
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
 
-    if (hires_timer_available) {
-        QueryPerformanceCounter(&hires_now);
-
-        hires_now.QuadPart -= hires_start_ticks.QuadPart;
-        hires_now.QuadPart *= 1000;
-        hires_now.QuadPart /= hires_ticks_per_second.QuadPart;
-
-        return (DWORD)hires_now.QuadPart;
-    } else {
-#ifndef __CC_WINRT__
-        now = timeGetTime();
-#endif /* __CC_WINRT__ */
-    }
-
-    return (now - ticks_start);
+    return (uint64_t)frequency.QuadPart;
 }
 
 typedef VOID(WINAPI *MyGetSystemTimeAsFileTime)(LPFILETIME lpSystemTimeAsFileTime);
 
-static MyGetSystemTimeAsFileTime _getSystemTimeAsFileTimeFunc = NULL;
+static MyGetSystemTimeAsFileTime _getSystemTimeAsFileTimeFunc = nullptr;
 
 _CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
     FILETIME ft;
     unsigned __int64 ff = 0;
     ULARGE_INTEGER fft;
-    if (_getSystemTimeAsFileTimeFunc == NULL) {
+    if (_getSystemTimeAsFileTimeFunc == nullptr) {
         HMODULE hMod = _cc_load_windows_kernel32();
         if (hMod) {
             /* Max possible resolution <1us, win8/server2012 */
@@ -170,12 +127,12 @@ _CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
     ff = fft.QuadPart;
 
     /* convert to microseconds */
-    ff /= 10Ui64;
+    ff /= 10ULL;
     /* convert to unix epoch */
-    ff -= 11644473600000000Ui64;
+    ff -= 11644473600000000ULL;
 
-    tv->tv_sec = (long)(ff / 1000000Ui64);
-    tv->tv_usec = (long)(ff % 1000000Ui64);
+    tv->tv_sec = (long)(ff / 1000000ULL);
+    tv->tv_usec = (long)(ff % 1000000ULL);
 
     return 0;
 }
@@ -183,11 +140,11 @@ _CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
 /**/
 _CC_API_PUBLIC(int) gettimeofday(struct timeval *tp, struct timezone *tzp) {
     /* Get the time, if they want it */
-    if (tp != NULL) {
+    if (tp != nullptr) {
         getfilesystemtime(tp);
     }
     /* Get the timezone, if they want it */
-    if (tzp != NULL) {
+    if (tzp != nullptr) {
         _tzset();
         tzp->tz_minuteswest = _timezone;
         tzp->tz_dsttime = _daylight;

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/md2.h>
-#include <cc/string.h>
+#include <libcc/md2.h>
+#include <libcc/string.h>
 
 static const byte_t PI_SUBST[256] = {
     0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36, 0x54, 0xA1,
@@ -55,7 +55,7 @@ _CC_API_PUBLIC(void) _cc_md2_init(_cc_md2_t *ctx) {
     ctx->left = 0;
 }
 
-#if !defined(_CC_MD2_PROCESS_ALT)
+#ifndef _CC_MD2_PROCESS_ALT
 _CC_API_PUBLIC(void) _cc_md2_process(_cc_md2_t *ctx) {
     int i, j;
     byte_t t = 0;
@@ -139,7 +139,7 @@ _CC_API_PUBLIC(bool_t) _cc_md2_fp(FILE *fp, tchar_t *output) {
     long seek_cur = 0;
     _cc_md2_t c;
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         return false;
     }
 
@@ -178,7 +178,7 @@ _CC_API_PUBLIC(bool_t) _cc_md2file(const tchar_t *filename, tchar_t *output) {
 /*
  * output = MD2( input buffer )
  */
-_CC_API_PUBLIC(void) _cc_md2(const byte_t *input, uint32_t length, tchar_t *output) {
+_CC_API_PUBLIC(void) _cc_md2(const byte_t *input, size_t length, tchar_t *output) {
     _cc_md2_t c;
     byte_t md[_CC_MD2_DIGEST_LENGTH_];
 

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -25,12 +25,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cc/alloc.h>
-#include <cc/core.h>
-#include <cc/thread.h>
-#include <cc/event/event.h>
+#include <libcc/alloc.h>
+#include <libcc/core.h>
+#include <libcc/thread.h>
 
-#include <cc/widgets/dns.h>
+#include <libcc/widgets/event/event.h>
+#include <libcc/widgets/dns.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

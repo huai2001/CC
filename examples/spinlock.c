@@ -8,7 +8,7 @@
 #if USE_MUTEX
 _cc_mutex_t* mutexlock;
 #else
-_cc_spinlock_t spinlock;
+_cc_atomic_lock_t spinlock;
 #endif
 clock_t start, end;
 int32_t refcount = 0;
@@ -22,7 +22,7 @@ int32_t func(_cc_thread_t *thrd, void* arg) {
 #else
     _cc_spin_lock(&spinlock);
     refcount++;
-    _cc_spin_unlock(&spinlock);
+    _cc_unlock(&spinlock);
 #endif
     }
     return 0;
@@ -33,23 +33,23 @@ int main (int argc, char * const argv[]) {
 #if USE_MUTEX
     mutexlock = _cc_create_mutex();
 #else
-    _cc_spin_lock_init(&spinlock);
+    _cc_lock_init(&spinlock);
 #endif
     
     start = clock();
     
-    p1 = _cc_create_thread(func, "test 1", NULL);
+    p1 = _cc_create_thread(func, "test 1", nullptr);
     if(!p1){
         exit(1);
     }
     
-    p2 = _cc_create_thread(func, "test 2", NULL);
+    p2 = _cc_create_thread(func, "test 2", nullptr);
     if(!p2){
         exit(1);
     }
     
-    _cc_wait_thread(p1, NULL);
-    _cc_wait_thread(p2, NULL);
+    _cc_wait_thread(p1, nullptr);
+    _cc_wait_thread(p2, nullptr);
     
     end = clock();
     printf("lock time span: %f seconds refcount:%d\n", (double)(end - start) / CLOCKS_PER_SEC, refcount);

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libcc.h>
-#include <cc/widgets/widgets.h>
+#include <libcc/widgets/widgets.h>
 #include <locale.h>
 
 int c = 0;
@@ -9,7 +9,7 @@ int main (int argc, char * const argv[]) {
     //_cc_dns_t dns;
     //char *dns_servers_list[2] = {"114.114.114.114", "223.5.5.5"};
     setlocale( LC_CTYPE, "chs" );
-    _cc_event_loop(0, NULL);
+    _cc_event_loop(0, nullptr);
 
     //bzero(&dns, sizeof(_cc_dns_t));
 

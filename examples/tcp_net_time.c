@@ -27,7 +27,7 @@ uint32_t getIP(const _cc_event_t* e) {
 void ConvertTime(time_t ulTime) {
     time_t t = 0;
 
-    struct tm* local_time = NULL;
+    struct tm* local_time = nullptr;
 
     t = _cc_mktime(1900, 1, 1, 0, 0, 0, 0);
     //_tprintf("_cc_mktime:%ld\n",t);
@@ -45,21 +45,21 @@ void ConvertTime(time_t ulTime) {
     }
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *event_base, _cc_event_t *ev, const uint16_t events) {
-    if (events & _CC_EVENT_CONNECT_) {
-        start_time = time(NULL);
+static bool_t network_event_callback(_cc_event_cycle_t *event_base, _cc_event_t *ev, const uint16_t which) {
+    if (which & _CC_EVENT_CONNECT_) {
+        start_time = time(nullptr);
         _tprintf(_T(" connect to server!\n"));
 
         return true;
     }
 
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("TCP Close - %d\n"), ev->fd);
 
         return false;
     }
     /**/
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         //uint32_t IPv4 = getIP(ev);
         time_t ulTime = 0;
 
@@ -73,14 +73,14 @@ static bool_t network_event_callback(_cc_event_cycle_t *event_base, _cc_event_t 
         return true;//send_data(event_base, ev);;
     }
 
-    if (events & _CC_EVENT_WRITABLE_) {
-        if (_cc_event_send(ev, NULL, 0) < 0) {
+    if (which & _CC_EVENT_WRITABLE_) {
+        if (_cc_event_send(ev, nullptr, 0) < 0) {
             _tprintf(_T(" Fail to send, error = %d\n"), _cc_last_errno());
             return false;
         }
     }
 
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TimeOut - %d\n"), ev->fd);
         return true;
     }
@@ -111,8 +111,8 @@ int main (int argc, char * const argv[]) {
 
     _cc_inet_ipv4_addr(&sa, webUrl[rand() % _cc_countof(webUrl)], 53);
 
-    e = _cc_alloc_event(&cycle,  _CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_);
-    if (e == NULL) {
+    e = _cc_event_alloc(&cycle,  _CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_);
+    if (e == nullptr) {
         return;
     }
     e->callback = network_event_callback;
@@ -126,7 +126,7 @@ int main (int argc, char * const argv[]) {
         _cc_sleep(100);
     }
 
-    cycle.driver.quit(&cycle);
+    cycle.delegator.quit(&cycle);
 
     _cc_uninstall_socket();
 

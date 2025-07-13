@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,18 +18,18 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/atomic.h>
-#include <cc/logger.h>
-#include <cc/string.h>
+#include <libcc/alloc.h>
+#include <libcc/atomic.h>
+#include <libcc/logger.h>
+#include <libcc/string.h>
 #include <time.h>
 
 #ifdef __CC_ANDROID__
-#include <cc/core/android.h>
+#include <libcc/core/android.h>
 #endif
 
 #ifdef _CC_MSVC_
-#include <cc/core/windows.h>
+#include <libcc/core/windows.h>
 #endif
 
 #define _CC_LOGGER_BUFFER_SIZE_ 1024
@@ -41,8 +41,8 @@ static struct {
     _cc_loggerA_callback_t callbackA;
     _cc_loggerW_callback_t callbackW;
     pvoid_t userdata;
-    _cc_spinlock_t lock;
-} _logger = {_print_loggerA_callback, _print_loggerW_callback, NULL, 0};
+    _cc_atomic_lock_t lock;
+} _logger = {_print_loggerA_callback, _print_loggerW_callback, nullptr, 0};
 
 #ifdef __CC_ANDROID__
 _CC_API_PRIVATE(void) _print_loggerA_callback(uint16_t flags, const char_t *logstr, size_t len, pvoid_t userdata) {
@@ -63,7 +63,7 @@ _CC_API_PRIVATE(void) _print_loggerW_callback(uint16_t flags, const wchar_t *log
 }
 #else
 _CC_API_PRIVATE(void) _logger_print_header(uint16_t flags) {
-    time_t now_time = time(NULL);
+    time_t now_time = time(nullptr);
     struct tm *t = localtime(&now_time);
 
     fprintf(stderr, "[%4d-%02d-%02d %02d:%02d:%02d]", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour,
@@ -92,7 +92,7 @@ _CC_API_PRIVATE(void) _print_loggerA_callback(uint16_t flags, const char_t *logs
     }
 
     if (flags & _CC_LOGGER_FLAGS_ERROR_) {
-        _cc_print_stack_trace(stderr, 4);
+        _cc_dump_stack_trace(stderr, 4);
     }
 
 #ifdef _CC_MSVC_
@@ -110,7 +110,7 @@ _CC_API_PRIVATE(void) _print_loggerW_callback(uint16_t flags, const wchar_t *log
     }
 
     if (flags & _CC_LOGGER_FLAGS_ERROR_) {
-        _cc_print_stack_trace(stderr, 4);
+        _cc_dump_stack_trace(stderr, 4);
     }
 
 #ifdef _CC_MSVC_
@@ -126,7 +126,7 @@ _CC_API_PUBLIC(void) _cc_logger_lock(void) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_logger_unlock() {
-    _cc_spin_unlock(&_logger.lock);
+    _cc_unlock(&_logger.lock);
 }
 
 /**/
@@ -174,8 +174,8 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(uint16_t flags, const char_t *fmt, va_l
     static char_t buf[_CC_LOGGER_BUFFER_SIZE_];
     size_t fmt_length, empty_len;
     char_t *ptr = buf;
-    char_t *tmp_ptr = NULL;
-    if (_cc_unlikely(_logger.callbackA == NULL)) {
+    char_t *tmp_ptr = nullptr;
+    if (_cc_unlikely(_logger.callbackA == nullptr)) {
         return;
     }
 
@@ -188,14 +188,14 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(uint16_t flags, const char_t *fmt, va_l
     flags |= _CC_LOGGER_FLAGS_UTF8_;
 #endif
 
-    _cc_assert(fmt != NULL);
+    _cc_assert(fmt != nullptr);
 
-    empty_len = _CC_LOGGER_BUFFER_SIZE_ - 1;
+    empty_len = _CC_LOGGER_BUFFER_SIZE_;
     /* If the first attempt to append fails, resize the buffer appropriately
      * and try again */
     while (true) {
         /* fmt_length is the length of the string required, excluding the
-         * trailing NULL */
+         * trailing nullptr */
         fmt_length = _vsnprintf(ptr, empty_len, fmt, arg);
 
 #ifdef __CC_WINDOWS__
@@ -212,10 +212,9 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(uint16_t flags, const char_t *fmt, va_l
             _logger.callbackA(flags, ptr, fmt_length, _logger.userdata);
             break;
         }
-
-        ptr = (char_t *)_cc_realloc(tmp_ptr, sizeof(char_t) * (fmt_length + 10));
+        empty_len = _cc_aligned_alloc_opt(fmt_length + 10,32);
+        ptr = (char_t *)_cc_realloc(tmp_ptr, sizeof(char_t) * empty_len);
         tmp_ptr = ptr;
-        empty_len = fmt_length + 10;
     }
     _cc_logger_unlock();
 
@@ -229,9 +228,9 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(uint16_t flags, const wchar_t *fmt, va_
     size_t fmt_length, empty_len;
 
     wchar_t *ptr = buf;
-    wchar_t *tmp_ptr = NULL;
+    wchar_t *tmp_ptr = nullptr;
 
-    if (_cc_likely(_logger.callbackW == NULL)) {
+    if (_cc_likely(_logger.callbackW == nullptr)) {
         return;
     }
 
@@ -244,7 +243,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(uint16_t flags, const wchar_t *fmt, va_
      * and try again */
     while (true) {
         /* fmt_length is the length of the string required, excluding the
-         * trailing NULL */
+         * trailing nullptr */
         fmt_length = _vsnwprintf(ptr, empty_len, fmt, arg);
 
 #ifdef __CC_WINDOWS__
@@ -262,9 +261,9 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(uint16_t flags, const wchar_t *fmt, va_
             break;
         }
 
-        ptr = (wchar_t *)_cc_realloc(tmp_ptr, sizeof(wchar_t) * (fmt_length + 10));
+        empty_len = _cc_aligned_alloc_opt(fmt_length + 10,32);
+        ptr = (wchar_t *)_cc_realloc(tmp_ptr, sizeof(wchar_t) * empty_len);
         tmp_ptr = ptr;
-        empty_len = fmt_length + 10;
     }
     _cc_logger_unlock();
 

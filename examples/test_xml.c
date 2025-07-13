@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <locale.h>
 #include <libcc.h>
-#include <cc/xml/xml.h>
+#include <libcc/xml/xml.h>
 
 const tchar_t *xml_test = _T("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")\
     _T("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")\
@@ -54,9 +54,9 @@ int _tmain (int argc, tchar_t * const argv[]) {
     _cc_xml_t* xml;
 
     if (argc < 2) {
-        xml = _cc_parse_xml(xml_test);//
+        xml = _cc_xml_parse(xml_test);//
     } else {
-        xml = _cc_open_xml_file(argv[1]);
+        xml = _cc_xml_from_file(argv[1]);
     }
     
     if (xml) {
@@ -83,7 +83,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
         }*/
 
         {
-        _cc_buf_t* buf = _cc_print_xml(xml);
+        _cc_buf_t* buf = _cc_dump_xml(xml);
         if (buf) {
             fflush(stdout);
             //fwrite(buf->bytes, sizeof(byte_t), buf->length, stdout);

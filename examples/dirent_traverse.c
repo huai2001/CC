@@ -68,16 +68,15 @@ tchar_t* getDiskSizeUnit(int64_t diskSize, tchar_t *buf, int32_t buf_len) {
 void OpenDeepDirectory(const tchar_t *directory) {
     tchar_t sourceFile[_CC_MAX_PATH_] = {0};
     tchar_t diskBuf[1024] = {0};
-    DIR *dpath = NULL;
+    DIR *dpath = nullptr;
     struct dirent *d;
     struct _stat stat_buf;
     
-    if( (dpath = opendir(directory)) == NULL) {
+    if( (dpath = opendir(directory)) == nullptr) {
         return;
     }
     
-    //¶ÁÈ¡Ä¿Â¼
-    while ((d = readdir(dpath)) != NULL) {
+    while ((d = readdir(dpath)) != nullptr) {
         //
         if (isFillerList(d->d_name, d->d_reclen)) continue;
 
@@ -107,7 +106,7 @@ void OpenDeepDirectory(const tchar_t *directory) {
 int main (int argc, char * const argv[]) {
 	_cc_install_memory_tracked();
     //tchar_t directory[_CC_MAX_PATH_];
-    //_cc_get_module_directory(NULL, directory, _CC_MAX_PATH_);
+    //_cc_get_base_path(directory, _CC_MAX_PATH_);
     OpenDeepDirectory("C:\\Legend of mir");
     _tprintf(_T("OK, Find %d files.\n"), filesCount);
 

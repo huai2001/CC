@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -108,7 +108,7 @@ static void _jpeg_term_destination(j_compress_ptr cinfo) {
 // set up buffer data
 static void _jpeg_file_dest(j_compress_ptr cinfo, _cc_file_t *file) {
 	__jpg_destination_mgr_t* dest;
-	if (cinfo->dest == NULL) {
+	if (cinfo->dest == nullptr) {
 		/* first time for this JPEG object? */
 		cinfo->dest = (struct jpeg_destination_mgr *)
 		              (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo,
@@ -136,10 +136,10 @@ bool_t _cc_write_JPG(const tchar_t *file_name, _cc_image_t *image, uint32_t qual
 	struct __jpeg_error_mgr jerr;
 	struct jpeg_compress_struct cinfo;
 
-	void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = NULL;
+	void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = nullptr;
 
 	wfp = _cc_open_file(file_name, _T("wb"));
-	if (wfp == NULL) {
+	if (wfp == nullptr) {
 		return false;
 	}
 
@@ -159,7 +159,7 @@ bool_t _cc_write_JPG(const tchar_t *file_name, _cc_image_t *image, uint32_t qual
 	}
 
 	// couldn't find a color converter
-	if ( NULL == color_convert_format ) {
+	if ( nullptr == color_convert_format ) {
 		_cc_file_close(wfp);
 		return false;
 	}

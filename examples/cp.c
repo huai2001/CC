@@ -71,18 +71,18 @@ static bool_t isFillerList(tchar_t *name, int32_t namlen) {
 size_t OpenDeepDirectory(const tchar_t *sourceDirectory, const tchar_t *targetDirectory) {
     tchar_t sourceFile[_CC_MAX_PATH_] = {0};
     tchar_t targetFile[_CC_MAX_PATH_] = {0};
-    DIR *dpath = NULL;
+    DIR *dpath = nullptr;
     struct dirent *d;
     struct _stat stat_buf;
     size_t filesCount = 0;
     
-    if( (dpath = opendir(sourceDirectory)) == NULL) {
+    if( (dpath = opendir(sourceDirectory)) == nullptr) {
         _cc_logger_error(_T("Could't open directory:%s\n"), sourceDirectory);
         return 0;
     }
     
     //¶ÁÈ¡Ä¿Â¼
-    while ((d = readdir(dpath)) != NULL) {
+    while ((d = readdir(dpath)) != nullptr) {
         //
         if (isFillerList(d->d_name, d->d_reclen)) continue;
 
@@ -122,9 +122,9 @@ size_t OpenDeepDirectory(const tchar_t *sourceDirectory, const tchar_t *targetDi
 
 int _tmain (int argc, tchar_t * const argv[]) {
     size_t filesCount = 0;
-    tchar_t *source = NULL;
-    tchar_t *target = NULL;
-    tchar_t *ptr = NULL;
+    tchar_t *source = nullptr;
+    tchar_t *target = nullptr;
+    tchar_t *ptr = nullptr;
     struct _stat stat_buf;
     
     if (!argv[1]) {

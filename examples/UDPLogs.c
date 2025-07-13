@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <cc/rand.h>
-#include <cc/event/event.h>
-#include <cc/thread.h>
-#include <cc/logger.h>
-#include <cc/string.h>
+#include <libcc/rand.h>
+#include <libcc/widgets/event/event.h>
+#include <libcc/thread.h>
+#include <libcc/logger.h>
+#include <libcc/string.h>
 #include <locale.h>
 
 static byte_t c = 0;
@@ -29,9 +29,9 @@ int32_t fn_thread(_cc_thread_t *thrd, void* param) {
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
 #ifndef __CC_WINDOWS__
-        res = select((int)(io_fd+1), &read_set, NULL, NULL, &tv);
+        res = select((int)(io_fd+1), &read_set, nullptr, nullptr, &tv);
 #else
-        res = select(0, &read_set, NULL, NULL, &tv);
+        res = select(0, &read_set, nullptr, nullptr, &tv);
 #endif
         if (res == 0) {
             continue;
@@ -169,14 +169,14 @@ int main (int argc, char * const argv[]) {
         return -1;
     }
 
-    _cc_inet_ipv4_addr(&sin, NULL, port);
+    _cc_inet_ipv4_addr(&sin, nullptr, port);
     if(bind(io_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1){
         fprintf(stderr, "%s\n", "bing port error\n");
         return -1;
     }
 
     _tprintf(_T("UDPLogs Listen Port: %d\n"), port);
-    _cc_thread_start(fn_thread, "UDPLogs", NULL);
+    _cc_thread_start(fn_thread, "UDPLogs", nullptr);
 
     while((c = getchar()) != 'q') {
         if (c == 'c') {

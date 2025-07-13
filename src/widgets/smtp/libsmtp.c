@@ -1,5 +1,5 @@
 
-#include <cc/widgets/smtp.h>
+#include <libcc/widgets/smtp.h>
 
 static tchar_t libsmtp_error_buf[512];
 /**/
@@ -16,10 +16,7 @@ void libsmtp_set_error_info(const char_t* p, int32_t len) {
 }
 
 /**/
-void libsmtp_setup(_cc_smtp_t* smtp,
-                   uint16_t flag,
-                   _cc_smtp_resp_callback_t fn,
-                   pvoid_t data) {
+void libsmtp_setup(_cc_smtp_t* smtp, uint16_t flag, _cc_smtp_resp_callback_t fn, pvoid_t data) {
     smtp->resp.flag = flag;
     smtp->resp.callback = fn;
     smtp->resp.data = data;
@@ -27,9 +24,7 @@ void libsmtp_setup(_cc_smtp_t* smtp,
     libsmtp_error_buf[0] = 0;
 }
 
-_CC_API_PRIVATE(bool_t) libsmtp_send_email(_cc_smtp_t* smtp,
-                                            const byte_t* buf,
-                                            uint32_t len) {
+_CC_API_PRIVATE(bool_t) libsmtp_send_email(_cc_smtp_t* smtp, const byte_t* buf, uint32_t len) {
     if (smtp->resp.flag != _CC_LIBSMTP_RESP_SEND_EMAIL) {
         return false;
     }
@@ -47,7 +42,7 @@ _CC_API_PRIVATE(bool_t) libsmtp_send_email(_cc_smtp_t* smtp,
 }
 
 /**/
-bool_t _cc_send_email(_cc_smtp_t* smtp,
+_CC_API_PUBLIC(bool_t) _cc_send_email(_cc_smtp_t* smtp,
                       const char_t* from_name,
                       const char_t* subject,
                       const char_t* content) {
@@ -56,17 +51,17 @@ bool_t _cc_send_email(_cc_smtp_t* smtp,
     char_t date[128];
 
     char* content_type = "text/plain;charset=UTF-8";
-    time_t seconds = time(NULL);
+    time_t seconds = time(nullptr);
     struct tm* m = gmtime(&seconds);
 
-    _cc_assert(smtp != NULL);
-    _cc_assert(subject != NULL);
-    _cc_assert(content != NULL);
+    _cc_assert(smtp != nullptr);
+    _cc_assert(subject != nullptr);
+    _cc_assert(content != nullptr);
 
-    if (smtp == NULL)
+    if (smtp == nullptr)
         return false;
 
-    if (smtp->ctrl.e == NULL) {
+    if (smtp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to SMTP server"));
         return false;
     }
@@ -79,8 +74,7 @@ bool_t _cc_send_email(_cc_smtp_t* smtp,
     }
 
     strftime(date, _cc_countof(date), "%a, %d %b %Y %H:%M:%S GMT", m);
-    len =
-        _snprintf(head, _cc_countof(head),
+    len = _snprintf(head, _cc_countof(head),
                   "FROM:\"%s\"<%s>\r\n"
                   "TO:<%s>\r\n"
                   "SUBJECT:%s\r\n"
@@ -91,7 +85,8 @@ bool_t _cc_send_email(_cc_smtp_t* smtp,
                   "\r\n",
                   from_name, smtp->from, smtp->to, subject, date, content_type);
 
-    libsmtp_setup(smtp, _CC_LIBSMTP_RESP_SEND_EMAIL, libsmtp_send_email, NULL);
+    libsmtp_setup(smtp, _CC_LIBSMTP_RESP_SEND_EMAIL, libsmtp_send_email, nullptr);
+
     _cc_event_send(smtp->ctrl.e, (byte_t*)head, len * sizeof(char_t));
     _cc_event_send(smtp->ctrl.e, (byte_t*)content,
                    strlen(content) * sizeof(char_t));

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,9 +18,9 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/core.h>
-#include <cc/loadso.h>
-#include <cc/logger.h>
+#include <libcc/core.h>
+#include <libcc/loadso.h>
+#include <libcc/logger.h>
 #include <dlfcn.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,15 +30,15 @@ _CC_API_PUBLIC(bool_t) _cc_is_system_version_at_least(double version);
 #endif
 
 _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
-    pvoid_t handle = NULL;
+    pvoid_t handle = nullptr;
 #ifdef __CC_IPHONEOS__
     if (!_cc_is_system_version_at_least(8.0)) {
         _cc_logger_error(_T("_cc_load_object requires iOS 8+"));
-        return NULL;
+        return nullptr;
     }
 #endif
     handle = dlopen(sofile, RTLD_NOW | RTLD_LOCAL);
-    if (handle == NULL) {
+    if (handle == nullptr) {
         _cc_logger_error(_T("Failed dlopen %s : %s"), sofile, (tchar_t *)dlerror());
     }
 
@@ -47,7 +47,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
 
 _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
     pvoid_t symbol = dlsym(handle, name);
-    if (symbol == NULL) {
+    if (symbol == nullptr) {
         tchar_t _func_name[256] = {0};
 
         _func_name[0] = '_';
@@ -55,7 +55,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
         _func_name[_cc_countof(_func_name) - 1] = 0;
 
         symbol = dlsym(handle, _func_name);
-        if (symbol == NULL) {
+        if (symbol == nullptr) {
             _cc_logger_error(_T("Failed dlsym(%s): %s"), name, (tchar_t *)dlerror());
         }
     }
@@ -63,7 +63,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
 }
 
 _CC_API_PUBLIC(void) _cc_unload_object(pvoid_t handle) {
-    if (handle != NULL) {
+    if (handle != nullptr) {
         dlclose(handle);
     }
 }

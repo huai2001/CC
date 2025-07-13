@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -25,17 +25,17 @@ bool_t _cc_write_TGA(const tchar_t *file_name, _cc_image_t *image) {
     TGAHeader_t imageHeader;
     TGAFooter_t imageFooter;
 
-    void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = NULL;
-    byte_t *scan_lines = NULL;
-    byte_t *row = NULL;
+    void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = nullptr;
+    byte_t *scan_lines = nullptr;
+    byte_t *row = nullptr;
     int32_t y = 0;
     uint32_t row_stride = 0;
     size_t row_size = 0;
 
-    _cc_file_t *wfp = NULL;
+    _cc_file_t *wfp = nullptr;
 
     scan_lines = image->data;
-    if (scan_lines == NULL) {
+    if (scan_lines == nullptr) {
         return false;
     }
 
@@ -94,12 +94,12 @@ bool_t _cc_write_TGA(const tchar_t *file_name, _cc_image_t *image) {
     row_size = ((imageHeader.PixelDepth / 8) * imageHeader.Width);
 
     row = (byte_t*)_cc_malloc(row_size);
-    if (row == NULL) {
+    if (row == nullptr) {
         return false;
     }
 
     wfp = _cc_open_file(file_name, _T("wb"));
-    if (wfp == NULL) {
+    if (wfp == nullptr) {
         _cc_free(row);
         return false;
     }

@@ -35,8 +35,8 @@ int main(){
     if(!p2){
         exit(1);
     }
-    _cc_wait_thread(p1, NULL);
-    _cc_wait_thread(p2, NULL);
+    _cc_wait_thread(p1, nullptr);
+    _cc_wait_thread(p2, nullptr);
     
     _cc_destroy_mutex(&mutex);
 }

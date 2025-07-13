@@ -3,15 +3,15 @@
 #define _C_UPDATE_BUILDER_H_INCLUDED_
 
 #include <libcc.h>
-#include <cc/db/sql.h>
-#include <cc/json/json.h>
+#include <libcc/db/sql.h>
+#include <libcc/json/json.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern _cc_sql_driver_t sqlDriver;
+extern _cc_sql_delegate_t sqldelegate;
 
 extern int32_t updateDirectoryLen;
 extern tchar_t updateDirectory[_CC_MAX_PATH_];

@@ -11,8 +11,8 @@ sourcePath="$(readlink "$sourcePath")"
 done
 basePath="$( cd -P "$( dirname "$sourcePath"  )" && pwd  )"
 
-echo "NDK_ROOT = $NDK_ROOT"
+echo "NDK_HOME = $NDK_HOME"
 echo "APP_ROOT = $basePath"
 
 cd $basePath
-bash $NDK_ROOT/ndk-build
+bash $NDK_HOME/ndk-build

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,9 +18,9 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/logger.h>
-#include <cc/math.h>
+#include <libcc/alloc.h>
+#include <libcc/logger.h>
+#include <libcc/math.h>
 
 #if __WINRT__
 _CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
@@ -58,8 +58,7 @@ typedef BOOL(WINAPI *pfnGetUserPreferredUILanguages)(DWORD, PULONG, WCHAR *, PUL
 #define MUI_LANGUAGE_NAME 0x8
 #endif
 
-static pfnGetUserPreferredUILanguages pGetUserPreferredUILanguages = NULL;
-static HMODULE kernel32 = 0;
+static pfnGetUserPreferredUILanguages pGetUserPreferredUILanguages = nullptr;
 
 /* this is the fallback for WinXP...one language, not a list. */
 _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t buflen) {
@@ -77,18 +76,14 @@ _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t
     }
 }
 
-_CC_API_PRIVATE(ULONG) _cc_ulong_min(ULONG x, ULONG y) {
-    return _min(x, y);
-}
-
 /* this works on Windows Vista and later. */
 _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t buflen) {
     ULONG numlangs = 0;
-    WCHAR *wbuf = NULL;
+    WCHAR *wbuf = nullptr;
     ULONG wbuflen = 0;
 
-    // SDL_assert(pGetUserPreferredUILanguages != NULL);
-    pGetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numlangs, NULL, &wbuflen);
+    _cc_assert(pGetUserPreferredUILanguages != nullptr);
+    pGetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numlangs, nullptr, &wbuflen);
 
     wbuf = (WCHAR *)_cc_malloc(sizeof(WCHAR) * wbuflen);
     if (!pGetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numlangs, wbuf, &wbuflen)) {
@@ -100,7 +95,7 @@ _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t
             const WCHAR ch = (WCHAR)wbuf[i];
             /* these should all be low-ASCII, safe to cast */
             if (ch == '\0') {
-                /* change null separators to commas */
+                /* change nullptr separators to commas */
                 wbuf[i] = ',';
                 str_start = i;
             }
@@ -119,7 +114,7 @@ _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t
 _CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
     pGetUserPreferredUILanguages =
         (pfnGetUserPreferredUILanguages)GetProcAddress(_cc_load_windows_kernel32(), "GetUserPreferredUILanguages");
-    if (pGetUserPreferredUILanguages == NULL) {
+    if (pGetUserPreferredUILanguages == nullptr) {
         SYS_GetUserPreferredUILanguages_winxp(buf, buflen);
     } else {
         SYS_GetUserPreferredUILanguages_vista(buf, buflen);

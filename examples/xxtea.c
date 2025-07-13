@@ -1,9 +1,9 @@
-#include <cc/alloc.h>
-#include <cc/base64.h>
-#include <cc/buf.h>
-#include <cc/dirent.h>
-#include <cc/md5.h>
-#include <cc/xxtea.h>
+#include <libcc/alloc.h>
+#include <libcc/base64.h>
+#include <libcc/buf.h>
+#include <libcc/dirent.h>
+#include <libcc/md5.h>
+#include <libcc/xxtea.h>
 #include <stdio.h>
 #include <string.h>
 #include <zlib.h>
@@ -45,7 +45,7 @@ _CC_FORCE_INLINE_ uint64_t fileCheck(const tchar_t* fileName, tchar_t* output) {
     FILE* fp = _tfopen(fileName, _T("rb"));
     uint64_t fileSize;
 
-    if (fp == NULL)
+    if (fp == nullptr)
         return 0;
 
     _cc_md5_init(&c);
@@ -75,19 +75,19 @@ _CC_FORCE_INLINE_ uint64_t fileCheck(const tchar_t* fileName, tchar_t* output) {
 
 _CC_FORCE_INLINE_ bool_t _mk(const tchar_t* path) {
     int32_t i = 0;
-    const tchar_t* cp = NULL;
+    const tchar_t* cp = nullptr;
     tchar_t cpath[_CC_MAX_PATH_];
 
     //
     cp = path;
     /* Skip the first / */
-    if (*cp == _CC_T_PATH_SEP_C_) {
+    if (*cp == _CC_T_SLASH_C_) {
         cpath[i++] = *cp++;
     }
 
     /**/
     while (*cp) {
-        if (*cp == _CC_T_PATH_SEP_C_) {
+        if (*cp == _CC_T_SLASH_C_) {
             cpath[i] = 0;
             if (_taccess(cpath, 0) != 0) {
                 _tmkdir(cpath);
@@ -113,8 +113,8 @@ _CC_FORCE_INLINE_ _cc_buf_t* _gzip_def(const tchar_t* source_file,
     FILE* fp;
 
     fp = _tfopen(source_file, _T("rb"));
-    if (fp == NULL) {
-        return NULL;
+    if (fp == nullptr) {
+        return nullptr;
     }
 
     /* allocate deflate state */
@@ -126,11 +126,11 @@ _CC_FORCE_INLINE_ _cc_buf_t* _gzip_def(const tchar_t* source_file,
     res = deflateInit2(&strm, level, Z_DEFLATED, MAX_WBITS + 16, MAX_MEM_LEVEL,
                        Z_DEFAULT_STRATEGY);
     if (res != Z_OK) {
-        return NULL;
+        return nullptr;
     }
 
     buf = _cc_create_buf(file_size);
-    if (buf == NULL) {
+    if (buf == nullptr) {
         goto DEF_FIAL;
     }
     /* compress until end of file */
@@ -149,7 +149,7 @@ _CC_FORCE_INLINE_ _cc_buf_t* _gzip_def(const tchar_t* source_file,
             /* no bad return value */
             res = deflate(&strm, flush);
             _cc_assert(res != Z_STREAM_ERROR);
-            _cc_buf_write(buf, dest, CHUNK_DEST - strm.avail_out);
+            _cc_buf_append(buf, dest, CHUNK_DEST - strm.avail_out);
         } while (strm.avail_out == 0);
         /* all input will be used */
         _cc_assert(strm.avail_in == 0);
@@ -174,7 +174,7 @@ DEF_FIAL:
         _cc_destroy_buf(&buf);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 _CC_FORCE_INLINE_ int _gzip_inf(const tchar_t* dest_file,
@@ -188,7 +188,7 @@ _CC_FORCE_INLINE_ int _gzip_inf(const tchar_t* dest_file,
     FILE* fp;
 
     fp = _tfopen(dest_file, _T("wb"));
-    if (fp == NULL) {
+    if (fp == nullptr) {
         return Z_DATA_ERROR;
     }
 
@@ -253,7 +253,7 @@ void _xxtea_decrypt_file(const tchar_t* source_path, const tchar_t* save_path) {
     byte_t* output;
     size_t output_length;
 
-    fdata = _cc_load_buf(source_path);
+    fdata = _cc_buf_from_file(source_path);
 
     if (fdata) {
         output = _cc_xxtea_decrypt(fdata->bytes, fdata->length, keys,
@@ -280,7 +280,7 @@ void _xxtea_encrypt_file(const tchar_t* source_path, const tchar_t* save_path) {
 
     _cc_file_t* w;
     w = _cc_open_file(save_path, _T("w"));
-    if (w == NULL) {
+    if (w == nullptr) {
         return;
     }
 
@@ -327,11 +327,11 @@ void finder(const tchar_t* source_path, const tchar_t* save_path) {
     struct dirent* d;
 
     dir = opendir(source_path);
-    if (dir == NULL) {
+    if (dir == nullptr) {
         return;
     }
 
-    while ((d = readdir(dir)) != NULL) {
+    while ((d = readdir(dir)) != nullptr) {
         //
         if (d->d_type == DT_DIR &&
             ((d->d_name[0] == '.' && d->d_name[1] == 0) ||
@@ -375,27 +375,27 @@ static void _injectJS(const tchar_t *source_path, const tchar_t* save_path) {
     FILE *wf;
 
     // 解压注入
-    inject_file = _cc_load_buf(_T("./inject.js"));
-    if (inject_file == NULL) {
+    inject_file = _cc_buf_from_file(_T("./inject.js"));
+    if (inject_file == nullptr) {
         return;
     }
 
-    buf = _cc_load_buf(source_path);
-    if (buf == NULL) {
+    buf = _cc_buf_from_file(source_path);
+    if (buf == nullptr) {
         return;
     }
     _cc_buf_alloc(&modify, buf->length + 2480 + inject_file->length);
     packageUrl = _tcsstr((tchar_t *)buf->bytes, "updateManifestUrls: function(");
     if (packageUrl) {
-        _cc_strA_t updateManifestUrls = _cc_string(
+        _cc_AString_t updateManifestUrls = _cc_String(
             "updateManifestUrls: function(e, t, n){return this.old_updateManifestUrls(e,dyad.packageUrl,n);},old_");
         pos = (size_t)(packageUrl - (tchar_t *)buf->bytes);
-        _cc_buf_write(&modify, buf->bytes, pos);
-        _cc_buf_write(&modify, updateManifestUrls.data, updateManifestUrls.length);
-        _cc_buf_write(&modify, buf->bytes + pos, buf->length - pos);
+        _cc_buf_append(&modify, buf->bytes, pos);
+        _cc_buf_append(&modify, updateManifestUrls.data, updateManifestUrls.length);
+        _cc_buf_append(&modify, buf->bytes + pos, buf->length - pos);
     }
 
-    _cc_buf_write(&modify, inject_file->bytes, inject_file->length);
+    _cc_buf_append(&modify, inject_file->bytes, inject_file->length);
 
     wf = _tfopen(source_path, _T("wb"));
     if (wf) {
@@ -411,8 +411,8 @@ static void _injectJS(const tchar_t *source_path, const tchar_t* save_path) {
 
 int main(int argc, char* const argv[]) {
     int i;
-    const char* src = NULL;
-    const char* dest = NULL;
+    const char* src = nullptr;
+    const char* dest = nullptr;
     int m = 0,r = 0;
 
     if (argc <= 3) {
@@ -471,7 +471,7 @@ int main(int argc, char* const argv[]) {
         }
     }
 
-    if (m == 0 || src == NULL || dest == NULL) {
+    if (m == 0 || src == nullptr || dest == nullptr) {
         print_usage();
         return 1;
     }
@@ -494,7 +494,7 @@ int main(int argc, char* const argv[]) {
         _injectJS(dest, src);
     }
 
-    /*finder("/Users/QIU/Desktop/Inject/Android-Inject/WePoker",
-     "/Users/QIU/Desktop/Inject/Android-Inject/WePoker2");*/
+    /*finder("/Users/Desktop/Inject/Android-Inject/WePoker",
+     "/Users/Desktop/Inject/Android-Inject/WePoker2");*/
     return 0;
 }

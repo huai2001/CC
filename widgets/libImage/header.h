@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -22,7 +22,7 @@
 #ifndef _CC_IMAGE_HEADER_H_INCLUDED_
 #define _CC_IMAGE_HEADER_H_INCLUDED_
 
-#include <cc/types.h>
+#include <libcc/types.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

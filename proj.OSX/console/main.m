@@ -5,7 +5,7 @@
 //  Created by CC on 2023/2/21.
 //
 #include <libcc.h>
-#include <cc/widgets/widgets.h>
+#include <libcc/widgets/widgets.h>
 #import <Foundation/Foundation.h>
 
 void test() {

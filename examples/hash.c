@@ -1,12 +1,12 @@
 #include <stdio.h>
-#include <cc/socket/socket.h>
-#include <cc/alloc.h>
-#include <cc/crc.h>
-#include <cc/time.h>
-#include <cc/md2.h>
-#include <cc/md4.h>
-#include <cc/md5.h>
-#include <cc/hmac.h>
+#include <libcc/socket/socket.h>
+#include <libcc/alloc.h>
+#include <libcc/crc.h>
+#include <libcc/time.h>
+#include <libcc/md2.h>
+#include <libcc/md4.h>
+#include <libcc/md5.h>
+#include <libcc/hmac.h>
 
 uint8_t* _cc_build_crc8_msb_table(uint8_t polynomial);
 uint8_t* _cc_build_crc8_lsb_table(uint8_t polynomial);

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/widgets/widgets.h>
+#include <libcc/widgets/widgets.h>
 #include <libcc.h>
 #include <locale.h>
 #include <stdio.h>
@@ -51,19 +51,19 @@ typedef struct _socks5 {
 
 } _cc_socks5_t;
 
-static bool_t _socks5_event_callback2(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    if (events & _CC_EVENT_CONNECTED_) {
+static bool_t _socks5_event_callback2(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    if (which & _CC_EVENT_CONNECTED_) {
         _cc_logger_debug(_T("%d connect to server."), e->fd);
         return true;
     }
 
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         int32_t results = _cc_last_errno();
         _cc_logger_error(_T("Socket(%d) disconnect:%d, %s"), e->fd, results, _cc_last_error(results));
         return false;
     }
 
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         byte_t buf[1024 * 16];
         _cc_event_t *ow = (_cc_event_t *)e->args;
         int32_t length;
@@ -80,8 +80,8 @@ static bool_t _socks5_event_callback2(_cc_event_cycle_t *cycle, _cc_event_t *e, 
         return false;
     }
 
-    if (events & _CC_EVENT_WRITABLE_) {
-        if (events & _CC_EVENT_WRITABLE_) {
+    if (which & _CC_EVENT_WRITABLE_) {
+        if (which & _CC_EVENT_WRITABLE_) {
             int32_t off = _cc_event_sendbuf(e);
             if (off < 0) {
                 return false;
@@ -94,7 +94,7 @@ static bool_t _socks5_event_callback2(_cc_event_cycle_t *cycle, _cc_event_t *e, 
         }
     }
 
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _cc_logger_debug(_T("TCP timeout %d"), e->fd);
         return false;
     }
@@ -208,8 +208,8 @@ bool_t ProtocolRequest(byte_t *m, _cc_socks5_t *socks, _cc_event_t *e) {
     return true;
 }
 
-static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    if (events & _CC_EVENT_ACCEPT_) {
+static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    if (which & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_event_t *event;
         _cc_socks5_t *socks5;
@@ -219,13 +219,13 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
 
         fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
-            _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(NULL),
+            _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(nullptr),
                              _cc_last_error(_cc_last_errno()));
             return true;
         }
 
-        event = _cc_alloc_event(cycle_new, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_ | _CC_EVENT_BUFFER_);
-        if (event == NULL) {
+        event = _cc_event_alloc(cycle_new, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_ | _CC_EVENT_BUFFER_);
+        if (event == nullptr) {
             _cc_close_socket(fd);
             return true;
         }
@@ -241,8 +241,8 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         event->args = socks5;
         event->timeout = e->timeout;
 
-        if (cycle_new->driver.attach(cycle_new, event) == false) {
-            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
+        if (cycle_new->attach(cycle_new, event) == false) {
+            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
             _cc_free_event(cycle_new, event);
             return true;
         }
@@ -256,12 +256,12 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         return true;
     }
 
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         _cc_logger_debug(_T("%d client disconnect."), e->fd);
         return false;
     }
 
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         _cc_event_buffer_t *rw = e->buffer;
         _cc_socks5_t *socks = (_cc_socks5_t *)e->args;
         if (!_cc_event_recv(e)) {
@@ -271,26 +271,26 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
 
         if (socks->status == 0) {
             rw->r.length = 0;
-            return ShakeHands(rw->r.buf, socks, e);
+            return ShakeHands(rw->r.bytes, socks, e);
         }
 
         if (socks->status == 1) {
             rw->r.length = 0;
-            return ValidateIdentity(rw->r.buf, socks, e);
+            return ValidateIdentity(rw->r.bytes, socks, e);
         }
 
         if (socks->status == 3) {
             rw->r.length = 0;
-            return ProtocolRequest(rw->r.buf, socks, e);
+            return ProtocolRequest(rw->r.bytes, socks, e);
         }
 
         if (socks->status == 4) {
             _cc_event_t *ow = socks->e;
-            // rw->r.buf[rw->r.length] = 0;
-            // printf("%s\n", rw->r.buf);
+            // rw->r.bytes[rw->r.length] = 0;
+            // printf("%s\n", rw->r.bytes);
 
             if (ow && ow->fd != _CC_INVALID_SOCKET_ && (ow->flags & _CC_EVENT_DISCONNECT_) == 0) {
-                _cc_event_send(ow, rw->r.buf, rw->r.length);
+                _cc_event_send(ow, rw->r.bytes, rw->r.length);
                 rw->r.length = 0;
             } else {
                 return false;
@@ -301,7 +301,7 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         return true;
     }
 
-    if (events & _CC_EVENT_WRITABLE_) {
+    if (which & _CC_EVENT_WRITABLE_) {
         int32_t off = _cc_event_sendbuf(e);
         if (off < 0) {
             return false;
@@ -314,7 +314,7 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         }
     }
 
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _cc_logger_debug(_T("%d client timeout."), e->fd);
         return false;
     }
@@ -325,21 +325,21 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
 void _cc_socks5_starting(uint16_t port) {
     struct sockaddr_in sa;
     _cc_event_cycle_t *cycle = _cc_get_event_cycle();
-    _cc_evnet_t *e = _cc_alloc_event(cycle, _CC_EVENT_ACCEPT_);
-    if (e == NULL) {
+    _cc_evnet_t *e = _cc_event_alloc(cycle, _CC_EVENT_ACCEPT_);
+    if (e == nullptr) {
         return;
     }
     e->timeout = 300000;
     e->callback = _socks5_event_callback;
 
-    _cc_inet_ipv4_addr(&sa, NULL, port);
+    _cc_inet_ipv4_addr(&sa, nullptr, port);
     if (!_cc_tcp_listen(cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
         _cc_free_event(cycle, e);
     }
 }
 
 int main(int argc, char *argv[]) {
-    _cc_event_loop(0, NULL);
+    _cc_event_loop(0, nullptr);
 
     _cc_socks5_starting(8088);
     while (getchar() != 'q') {

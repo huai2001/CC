@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/base64.h>
+#include <libcc/alloc.h>
+#include <libcc/base16.h>
 
 /* {{{ base16 tables */
 static const tchar_t base16_table[] = {
@@ -39,11 +39,11 @@ static const short base16_reverse_table[256] = {
 /* }}} */
 
 /* {{{ */
-_CC_API_PUBLIC(int32_t) _cc_base16_encode(const byte_t *input, int32_t length, tchar_t *output, int32_t output_length) {
+_CC_API_PUBLIC(size_t) _cc_base16_encode(const byte_t *input, size_t length, tchar_t *output, size_t output_length) {
     const byte_t *current = input;
     tchar_t *p = output;
 
-    if (_cc_unlikely(length < 0 || output == NULL)) {
+    if (_cc_unlikely(length < 0 || output == nullptr)) {
         return 0;
     }
 
@@ -62,15 +62,15 @@ _CC_API_PUBLIC(int32_t) _cc_base16_encode(const byte_t *input, int32_t length, t
 
     *p = 0;
 
-    return (int32_t)(p - output);
+    return (size_t)(p - output);
 }
 
 /* {{{ */
-_CC_API_PUBLIC(int32_t) _cc_base16_decode(const tchar_t *input, int32_t length, byte_t *output, int32_t output_length) {
-    int32_t i = 0;
+_CC_API_PUBLIC(size_t) _cc_base16_decode(const tchar_t *input, size_t length, byte_t *output, size_t output_length) {
+    size_t i = 0;
     byte_t *p = output;
     /* this sucks for threaded environments */
-    if (_cc_unlikely(output == NULL)) {
+    if (_cc_unlikely(output == nullptr)) {
         return 0;
     }
 
@@ -86,5 +86,5 @@ _CC_API_PUBLIC(int32_t) _cc_base16_decode(const tchar_t *input, int32_t length, 
 
     *p = 0;
 
-    return (int32_t)(p - output);
+    return (size_t)(p - output);
 }

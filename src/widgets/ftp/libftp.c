@@ -1,6 +1,6 @@
-#include <cc/widgets/ftp.h>
+#include <libcc/widgets/ftp.h>
 
-// static char *version = "libftp Release 1.0,* Copyright 2018-2019 .qiu";
+// static char *version = "libftp Release 1.0,* Copyright 2018-2019 .ftp";
 
 static tchar_t libftp_error_buf[512];
 /**/
@@ -35,9 +35,9 @@ void libftp_setup(_cc_ftp_t* ftp,
 
 bool_t _cc_ftp_unbind_accept(_cc_ftp_t* ftp) {
     if (ftp->data.accept.e && ftp->data.accept.cycle) {
-        ftp->data.accept.cycle->driver.disconnect(ftp->data.accept.cycle, ftp->data.accept.e);
-        ftp->data.accept.e = NULL;
-        ftp->data.accept.cycle = NULL;
+        ftp->data.accept.cycle->disconnect(ftp->data.accept.cycle, ftp->data.accept.e);
+        ftp->data.accept.e = nullptr;
+        ftp->data.accept.cycle = nullptr;
     }
     return true;
 }

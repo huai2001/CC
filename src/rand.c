@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,147 +18,256 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/core.h>
-#include <cc/math.h>
-#include <cc/rand.h>
-#include <cc/time.h>
+#include <libcc/core.h>
+#include <libcc/math.h>
+#include <libcc/time.h>
+#include <libcc/rand.h>
 
-#define MT_RAND_MT19937 0
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 
-#define N (624)                                 /* length of state vector */
-#define M (397)                                 /* a period parameter */
-#define hi_bit(u) ((u)&0x80000000U)             /* mask all but highest   bit of u */
-#define lo_bit(u) ((u)&0x00000001U)             /* mask all but lowest    bit of u */
-#define lo_bits(u) ((u)&0x7FFFFFFFU)            /* mask     the highest   bit of u */
-#define mix_bits(u, v) (hi_bit(u) | lo_bits(v)) /* move hi bit of u to hi bit of v */
+/* kFreeBSD */
+#if defined(__FreeBSD_kernel__) && defined(__GLIBC__)
+    #define GNU_KFREEBSD
+#endif
 
-#define twist_v(m, u, v) (m ^ (mix_bits(u, v) >> 1) ^ ((uint32_t)(-(int32_t)(lo_bit(v))) & 0x9908b0dfU))
-#define twist_u(m, u, v) (m ^ (mix_bits(u, v) >> 1) ^ ((uint32_t)(-(int32_t)(lo_bit(u))) & 0x9908b0dfU))
+#ifdef __CC_WINDOWS__
+    #include <wincrypt.h> /* CryptAcquireContext, CryptGenRandom */
+#else
+    #include <sys/errno.h>
+#endif
 
-#define _CC_GENERATE_SEED() (((long)(time(0) * _cc_getpid())) ^ ((long)(1000000.0 * (long)&mt_rand)))
+#if defined(__CC_LINUX__) || defined(__GNU__) || defined(GNU_KFREEBSD)
+    #include <stdint.h>
+    #include <stdio.h>
+    #include <sys/ioctl.h>
 
-static struct {
-    uint32_t state[N + 1]; /* state vector + 1 extra to not violate ANSI C */
-    uint32_t *next;        /* next random value is computed from here */
-    int left;              /* can *next++ this many times before reloading */
+    #if (defined(__CC_LINUX__) || defined(__GNU__)) && defined(__GLIBC__) && ((__GLIBC__ > 2) || (__GLIBC_MINOR__ > 24))
+    #   define USE_GLIBC
+    #   include <sys/random.h>
+    #endif /* (defined(__linux__) || defined(__GNU__)) && defined(__GLIBC__) && ((__GLIBC__ > 2) || (__GLIBC_MINOR__ > 24)) */
 
-    bool_t is_seeded; /* Whether _cc_rand() has been seeded */
-    long mode;
-} mt_rand;
+    // We need SSIZE_MAX as the maximum read len from /dev/urandom
+    #ifndef SSIZE_MAX
+    #   define SSIZE_MAX (SIZE_MAX / 2 - 1)
+    # endif /* defined(SSIZE_MAX) */
 
-/* */
-_CC_API_PRIVATE(void) _mt_initialize(uint32_t seed, uint32_t *state) {
-    /* Initialize generator state with seed
-       See Knuth TAOCP Vol 2, 3rd Ed, p.106 for multiplier.
-       In previous versions, most significant bits (MSBs) of the seed affect
-       only MSBs of the state array.  Modified 9 Jan 2002 by Makoto Matsumoto.
-     */
-    register uint32_t *s = state;
-    register uint32_t *r = state;
-    register int i = 1;
+#endif /* defined(__linux__) || defined(__GNU__) || defined(GNU_KFREEBSD) */
 
-    *s++ = seed & 0xffffffffU;
-    for (; i < N; ++i) {
-        *s++ = (1812433253U * (*r ^ (*r >> 30)) + i) & 0xffffffffU;
-        r++;
+#if defined(__unix__) || (defined(__CC_APPLE__) && defined(__MACH__)) || defined(__CC_BSD__)
+    /* Dragonfly, FreeBSD, NetBSD, OpenBSD (has arc4random) */
+    #include <sys/param.h>
+    #if defined(__CC_BSD__)
+        #include <stdlib.h>
+    #endif
+    /* GNU/Hurd defines BSD in sys/param.h which causes problems later */
+    #ifndef __GNU__
+        #define ARC4RANDOM 1
+    #endif
+#endif
+
+static uint64_t _rand_state;
+static bool_t _rand_initialized = false;
+
+_CC_API_PUBLIC(void) _cc_srand(uint64_t seed) {
+    if (!seed) {
+        seed = _cc_query_performance_counter();
+    }
+    _rand_state = seed;
+    _rand_initialized = true;
+}
+
+_CC_API_PUBLIC(int32_t) _cc_rand(int32_t n) {
+
+    if (!_rand_initialized) {
+        _cc_srand(0);
+    }
+
+    return _cc_rand_r(&_rand_state, n);
+}
+_CC_API_PUBLIC(float32_t) _cc_randf(void) {
+    if (!_rand_initialized) {
+        _cc_srand(0);
+    }
+
+    return _cc_randf_r(&_rand_state);
+}
+
+_CC_API_PUBLIC(int32_t) _cc_rand_bits(void) {
+    if (!_rand_initialized) {
+        _cc_srand(0);
+    }
+
+    return _cc_rand_bits_r(&_rand_state);
+}
+
+_CC_API_PUBLIC(int32_t) _cc_rand_bits_r(uint64_t *state) {
+    if (!state) {
+        return 0;
+    }
+    // The C and A parameters of this LCG have been chosen based on hundreds
+    // of core-hours of testing with PractRand and TestU01's Crush.
+    // Using a 32-bit A improves performance on 32-bit architectures.
+    // C can be any odd number, but < 256 generates smaller code on ARM32
+    // These values perform as well as a full 64-bit implementation against
+    // Crush and PractRand. Plus, their worst-case performance is better
+    // than common 64-bit constants when tested against PractRand using seeds
+    // with only a single bit set.
+
+    // We tested all 32-bit and 33-bit A with all C < 256 from a v2 of:
+    // Steele GL, Vigna S. Computationally easy, spectrally good multipliers
+    // for congruential pseudorandom number generators.
+    // Softw Pract Exper. 2022;52(2):443-458. doi: 10.1002/spe.3030
+    // https://arxiv.org/abs/2001.05304v2
+
+    *state = *state * 0xff1cd035ul + 0x05;
+
+    // Only return top 32 bits because they have a longer period
+    return (int32_t)(*state >> 32);
+}
+
+_CC_API_PUBLIC(int32_t) _cc_rand_r(uint64_t *state, int32_t n) {
+    int64_t val;
+    // Algorithm: get 32 bits from _cc_rand_bits() and treat it as a 0.32 bit
+    // fixed point number. Multiply by the 31.0 bit n to get a 31.32 bit
+    // result. Shift right by 32 to get the 31 bit integer that we want.
+
+    if (n < 0) {
+        // The algorithm looks like it works for numbers < 0 but it has an
+        // infinitesimal chance of returning a value out of range.
+        // Returning -_cc_rand(abs(n)) blows up at INT_MIN instead.
+        // It's easier to just say no.
+        return 0;
+    }
+
+    // On 32-bit arch, the compiler will optimize to a single 32-bit multiply
+    val = (uint64_t)_cc_rand_bits_r(state) * n;
+    return (int32_t)(val >> 32);
+}
+
+_CC_API_PUBLIC(float32_t) _cc_randf_r(uint64_t *state) {
+    // Note: its using 24 bits because float has 23 bits significand + 1 implicit bit
+    return (_cc_rand_bits_r(state) >> (32 - 24)) * 0x1p-24f;
+}
+
+#define _random()                                                          \
+    ((long) (0x7fffffff & ( ((uint32_t) rand() << 16)                      \
+                          ^ ((uint32_t) rand() << 8)                       \
+                          ^ ((uint32_t) rand()) )))
+
+_CC_API_PRIVATE(void) generic_random_bytes(byte_t *buf, size_t nbytes) {
+    byte_t *cp = buf;
+    size_t i;
+    int32_t n = _random();
+    for ( i = 0; i < nbytes; i++) {
+        *cp++ ^= (_cc_rand(n) >> 7) & 0xFF;
     }
 }
 
-_CC_API_PRIVATE(void) _mt_reload(void) {
-    /* Generate N new values in state
-    Made clearer and faster by Matthew Bellew (matthew.bellew@home.com) */
+#ifdef __CC_WINDOWS__
+_CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
+	HCRYPTPROV ctx;
+	BOOL tmp;
+	DWORD to_read = 0;
+	const size_t MAX_DWORD = 0xFFFFFFFF;
 
-    register uint32_t *state = mt_rand.state;
-    register uint32_t *p = state;
-    register int i;
-
-    if (mt_rand.mode == MT_RAND_MT19937) {
-        for (i = N - M; i--; ++p) {
-            *p = twist_v(p[M], p[0], p[1]);
-        }
-
-        for (i = M; --i; ++p) {
-            *p = twist_v(p[M - N], p[0], p[1]);
-        }
-
-        *p = twist_v(p[M - N], p[0], state[0]);
-    } else {
-        for (i = N - M; i--; ++p) {
-            *p = twist_u(p[M], p[0], p[1]);
-        }
-
-        for (i = M; --i; ++p) {
-            *p = twist_u(p[M - N], p[0], p[1]);
-        }
-
-        *p = twist_u(p[M - N], p[0], state[0]);
+	tmp = CryptAcquireContext(&ctx, nullptr, nullptr, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+	if (tmp == FALSE) {
+        generic_random_bytes(buf,nbytes);
+        return;
     }
 
-    mt_rand.left = N;
-    mt_rand.next = state;
-}
-/* }}} */
+	while (nbytes > 0) {
+		to_read = (DWORD)(nbytes < MAX_DWORD ? nbytes : MAX_DWORD);
+		tmp = CryptGenRandom(ctx, to_read, (BYTE*)buf);
+		if (tmp == FALSE) {
+            break;
+        }
+		buf = buf + to_read;
+		nbytes -= to_read;
+	}
 
-_CC_API_PUBLIC(void) _cc_srand(uint32_t seed) {
-    /* Seed the generator with a simple uint32 */
-    _mt_initialize(seed, mt_rand.state);
-    _mt_reload();
-
-    /* Seed only once */
-    mt_rand.is_seeded = 1;
-}
-
-_CC_API_PUBLIC(uint32_t) _cc_rand(void) {
-    /* Pull a 32-bit integer from the generator state
-     Every other access function simply transforms the numbers extracted here */
-    register uint32_t s1;
-
-    if (_cc_likely(!mt_rand.is_seeded)) {
-        _cc_srand((uint32_t)_CC_GENERATE_SEED());
+	tmp = CryptReleaseContext(ctx, 0);
+	if (tmp == FALSE) {
+        generic_random_bytes(buf,nbytes);
     }
-
-    if (mt_rand.left == 0) {
-        _mt_reload();
-    }
-
-    --mt_rand.left;
-
-    s1 = *mt_rand.next++;
-    s1 ^= (s1 >> 11);
-    s1 ^= (s1 << 7) & 0x9d2c5680U;
-    s1 ^= (s1 << 15) & 0xefc60000U;
-
-    return (s1 ^ (s1 >> 18));
 }
+#endif /* defined(_WIN32) */
+
+#if (defined(__CC_LINUX__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom))
+# if defined(USE_GLIBC)
+// getrandom is declared in glibc.
+# elif defined(SYS_getrandom)
+_CC_API_PRIVATE(ssize_t) getrandom(void *buf, size_t nbytes, unsigned int flags) {
+	return syscall(SYS_getrandom, buf, buflen, flags);
+}
+# endif
 
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
-    size_t i;
-    byte_t *cp = buf;
-    struct timeval tv;
-    unsigned short uuid_rand_seed[3];
+	/* I have thought about using a separate PRF, seeded by getrandom, but
+	 * it turns out that the performance of getrandom is good enough
+	 * (250 MB/s on my laptop).
+	 */
+	size_t offset = 0, chunk;
+	int ret;
+	while (nbytes > 0) {
+		/* getrandom does not allow chunks larger than 33554431 */
+		chunk = nbytes <= 33554431 ? nbytes : 33554431;
+		do {
+			ret = getrandom((char *)buf + offset, chunk, 0);
+		} while (ret == -1 && errno == EINTR);
 
-    gettimeofday(&tv, 0);
-    srand((uint32_t)((_cc_getpid() << 16) ^ getuid() ^ tv.tv_sec ^ tv.tv_usec));
+		if (ret < 0) {
+            break;
+        }
+		offset += ret;
+		nbytes -= ret;
+	}
 
-    uuid_rand_seed[0] = getpid() ^ (tv.tv_sec & 0xFFFF);
-    uuid_rand_seed[1] = getppid() ^ (tv.tv_usec & 0xFFFF);
-    uuid_rand_seed[2] = (tv.tv_sec ^ tv.tv_usec) >> 16;
-
-    /* Crank the random number generator a few times */
-    gettimeofday(&tv, 0);
-    for (i = (tv.tv_sec ^ tv.tv_usec) & 0x1F; i > 0; i--) {
-        rand();
-    }
-
-    for (i = 0; i < nbytes; i++) {
-        *cp++ ^= (rand() >> 7) & 0xFF;
-    }
-
-    for (cp = buf, i = 0; i < nbytes; i++) {
-        *cp++ ^= (jrand48(uuid_rand_seed) >> 7) & 0xFF;
-    }
+	return;
 }
+#endif /* (defined(__linux__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom)) */
 
+#ifdef ARC4RANDOM
+_CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
+	arc4random_buf(buf, nbytes);
+}
+#endif /* defined(ARC4RANDOM) */
+
+# if defined(__CC_LINUX__) && !defined(__CC_ANDROID__)
+_CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
+    int fd;
+	size_t offset = 0, count;
+	ssize_t tmp;
+	do {
+		fd = open("/dev/urandom", O_RDONLY);
+	} while (fd == -1 && errno == EINTR);
+
+	if (fd == -1) {
+        generic_random_bytes(buf,nbytes);
+        return;
+    }
+
+	while (nbytes > 0) {
+		count = nbytes <= SSIZE_MAX ? nbytes : SSIZE_MAX;
+		tmp = read(fd, (char *)buf + offset, count);
+		if (tmp == -1 && (errno == EAGAIN || errno == EINTR)) {
+			continue;
+		}
+        /* Unrecoverable IO error */
+		if (tmp == -1) {
+            generic_random_bytes(buf,nbytes);
+            break;
+        }
+		offset += tmp;
+		nbytes -= tmp;
+	}
+
+	close(fd);
+}
+#endif /* defined(__linux__) */
 
 /**/
 _CC_API_PUBLIC(float32_t) _cc_randomf32(float32_t from, float32_t to) {
@@ -172,12 +281,14 @@ _CC_API_PUBLIC(float64_t) _cc_randomf64(float64_t from, float64_t to) {
 
 /**/
 _CC_API_PUBLIC(uint32_t) _cc_random32(uint32_t from, uint32_t to) {
-    return _cc_rand() * (to - from) + from;
+    int32_t n = _random();
+    return _cc_rand(n) * (to - from) + from;
 }
 
 /**/
 _CC_API_PUBLIC(uint64_t) _cc_random64(uint64_t from, uint64_t to) {
-    return _cc_rand() * (to - from) + from;
+    int32_t n = _random();
+    return _cc_rand(n) * (to - from) + from;
 }
 
 _CC_API_PRIVATE(float64_t) C2P(_cc_prd_t *prd) {

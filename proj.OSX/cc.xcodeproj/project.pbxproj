@@ -46,7 +46,7 @@
 		414B4D202990BEE400F4A7CB /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C0D2990BEE300F4A7CB /* list.c */; };
 		414B4D212990BEE400F4A7CB /* md2.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C0E2990BEE300F4A7CB /* md2.c */; };
 		414B4D222990BEE400F4A7CB /* ring.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C0F2990BEE300F4A7CB /* ring.c */; };
-		414B4D232990BEE400F4A7CB /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C102990BEE300F4A7CB /* hashtable.c */; };
+		414B4D232990BEE400F4A7CB /* hmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C102990BEE300F4A7CB /* hmap.c */; };
 		414B4D242990BEE400F4A7CB /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C112990BEE300F4A7CB /* base64.c */; };
 		414B4D252990BEE400F4A7CB /* uuid.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C122990BEE300F4A7CB /* uuid.c */; };
 		414B4D262990BEE400F4A7CB /* sqlite.c in Sources */ = {isa = PBXBuildFile; fileRef = 414B4C142990BEE300F4A7CB /* sqlite.c */; };
@@ -86,8 +86,8 @@
 		41E3A6D629FE46D300BEFBD6 /* buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6D029FE46D200BEFBD6 /* buffer.c */; };
 		41E3A6D829FE46D300BEFBD6 /* timeout.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6D229FE46D300BEFBD6 /* timeout.c */; };
 		41E3A6DE29FE46FA00BEFBD6 /* sys_kqueue.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6DD29FE46FA00BEFBD6 /* sys_kqueue.c */; };
-		41E3A6F929FE473500BEFBD6 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6EB29FE471200BEFBD6 /* dict.c */; };
-		41E3A6FA29FE473500BEFBD6 /* SSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6E229FE471100BEFBD6 /* SSL.c */; };
+		41E3A6F929FE473500BEFBD6 /* map.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6EB29FE471200BEFBD6 /* map.c */; };
+		41E3A6FA29FE473500BEFBD6 /* OpenSSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6E229FE471100BEFBD6 /* OpenSSL.c */; };
 		41E3A6FB29FE473500BEFBD6 /* url_request.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6E529FE471100BEFBD6 /* url_request.c */; };
 		41E3A6FC29FE473500BEFBD6 /* url_response.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6E729FE471100BEFBD6 /* url_response.c */; };
 		41E3A6FD29FE473500BEFBD6 /* gzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 41E3A6E829FE471100BEFBD6 /* gzip.c */; };
@@ -157,7 +157,7 @@
 		414B4C0D2990BEE300F4A7CB /* list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = list.c; sourceTree = "<group>"; };
 		414B4C0E2990BEE300F4A7CB /* md2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = md2.c; sourceTree = "<group>"; };
 		414B4C0F2990BEE300F4A7CB /* ring.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ring.c; sourceTree = "<group>"; };
-		414B4C102990BEE300F4A7CB /* hashtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
+		414B4C102990BEE300F4A7CB /* hmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hmap.c; sourceTree = "<group>"; };
 		414B4C112990BEE300F4A7CB /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
 		414B4C122990BEE300F4A7CB /* uuid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uuid.c; sourceTree = "<group>"; };
 		414B4C142990BEE300F4A7CB /* sqlite.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqlite.c; sourceTree = "<group>"; };
@@ -196,13 +196,13 @@
 		41E3A6D029FE46D200BEFBD6 /* buffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = buffer.c; sourceTree = "<group>"; };
 		41E3A6D229FE46D300BEFBD6 /* timeout.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timeout.c; sourceTree = "<group>"; };
 		41E3A6DD29FE46FA00BEFBD6 /* sys_kqueue.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sys_kqueue.c; sourceTree = "<group>"; };
-		41E3A6E229FE471100BEFBD6 /* SSL.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SSL.c; sourceTree = "<group>"; };
+		41E3A6E229FE471100BEFBD6 /* OpenSSL.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = OpenSSL.c; sourceTree = "<group>"; };
 		41E3A6E529FE471100BEFBD6 /* url_request.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = url_request.c; sourceTree = "<group>"; };
 		41E3A6E729FE471100BEFBD6 /* url_response.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = url_response.c; sourceTree = "<group>"; };
 		41E3A6E829FE471100BEFBD6 /* gzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gzip.c; sourceTree = "<group>"; };
 		41E3A6E929FE471100BEFBD6 /* url_request.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = url_request.c; sourceTree = "<group>"; };
 		41E3A6EA29FE471100BEFBD6 /* widgets.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = widgets.c; sourceTree = "<group>"; };
-		41E3A6EB29FE471200BEFBD6 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
+		41E3A6EB29FE471200BEFBD6 /* map.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = map.c; sourceTree = "<group>"; };
 		41E3A70329FE47D300BEFBD6 /* libssl.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libssl.1.1.dylib; sourceTree = "<group>"; };
 		41E3A70429FE47D300BEFBD6 /* libcrypto.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libcrypto.1.1.dylib; sourceTree = "<group>"; };
 		41E3A70A29FE47D900BEFBD6 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -288,7 +288,7 @@
 				414B4C0D2990BEE300F4A7CB /* list.c */,
 				414B4C0E2990BEE300F4A7CB /* md2.c */,
 				414B4C0F2990BEE300F4A7CB /* ring.c */,
-				414B4C102990BEE300F4A7CB /* hashtable.c */,
+				414B4C102990BEE300F4A7CB /* hmap.c */,
 				414B4C112990BEE300F4A7CB /* base64.c */,
 				414B4C122990BEE300F4A7CB /* uuid.c */,
 				414B4C132990BEE300F4A7CB /* db */,
@@ -510,8 +510,8 @@
 		41E3A5F329FE415D00BEFBD6 /* widgets */ = {
 			isa = PBXGroup;
 			children = (
-				41E3A6EB29FE471200BEFBD6 /* dict.c */,
-				41E3A6E229FE471100BEFBD6 /* SSL.c */,
+				41E3A6EB29FE471200BEFBD6 /* map.c */,
+				41E3A6E229FE471100BEFBD6 /* OpenSSL.c */,
 				41E3A6E329FE471100BEFBD6 /* url_request */,
 				41E3A6EA29FE471100BEFBD6 /* widgets.c */,
 			);
@@ -721,7 +721,7 @@
 				414B4D0E2990BEE400F4A7CB /* alloc.c in Sources */,
 				414B4D222990BEE400F4A7CB /* ring.c in Sources */,
 				414B4D082990BEE400F4A7CB /* des.c in Sources */,
-				414B4D232990BEE400F4A7CB /* hashtable.c in Sources */,
+				414B4D232990BEE400F4A7CB /* hmap.c in Sources */,
 				414B4D102990BEE400F4A7CB /* spinlock.c in Sources */,
 				414B4D2F2990BEE400F4A7CB /* base16.c in Sources */,
 				414B4D7A2990BEE400F4A7CB /* socket.c in Sources */,
@@ -800,8 +800,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41E3A6F929FE473500BEFBD6 /* dict.c in Sources */,
-				41E3A6FA29FE473500BEFBD6 /* SSL.c in Sources */,
+				41E3A6F929FE473500BEFBD6 /* map.c in Sources */,
+				41E3A6FA29FE473500BEFBD6 /* OpenSSL.c in Sources */,
 				41E3A6FB29FE473500BEFBD6 /* url_request.c in Sources */,
 				41E3A6FC29FE473500BEFBD6 /* url_response.c in Sources */,
 				41E3A6FD29FE473500BEFBD6 /* gzip.c in Sources */,
@@ -817,7 +817,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NONnullptr = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -878,7 +878,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NONnullptr = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libc++";

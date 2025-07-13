@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -22,7 +22,7 @@
 #include <IOKit/ps/IOPSKeys.h>
 #include <IOKit/ps/IOPowerSources.h>
 
-#include <cc/power.h>
+#include <libcc/power.h>
 
 /* Carbon is so verbose... */
 #define STRMATCH(a, b) (CFStringCompare(a, b, 0) == kCFCompareEqualTo)
@@ -121,9 +121,9 @@ _CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int3
     *percent = -1;
     *state = _CC_POWERSTATE_UNKNOWN_;
 
-    if (blob != NULL) {
+    if (blob != nullptr) {
         CFArrayRef list = IOPSCopyPowerSourcesList(blob);
-        if (list != NULL) {
+        if (list != nullptr) {
             /* don't CFRelease() the list items, or dictionaries! */
             bool_t have_ac = false;
             bool_t have_battery = false;
@@ -133,7 +133,7 @@ _CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int3
             for (i = 0; i < total; i++) {
                 CFTypeRef ps = (CFTypeRef)CFArrayGetValueAtIndex(list, i);
                 CFDictionaryRef dict = IOPSGetPowerSourceDescription(blob, ps);
-                if (dict != NULL) {
+                if (dict != nullptr) {
                     checkps(dict, &have_ac, &have_battery, &charging, seconds, percent);
                 }
             }

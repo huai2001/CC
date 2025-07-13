@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,9 +18,9 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/core.h>
-#include <cc/loadso.h>
-#include <cc/logger.h>
+#include <libcc/core.h>
+#include <libcc/loadso.h>
+#include <libcc/logger.h>
 
 /**/
 _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
@@ -37,13 +37,13 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
     */
     handle = LoadPackagedLibrary(sofile, 0);
 #else
-    handle = LoadLibraryEx(sofile, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-    if (handle == NULL) {
-        handle = LoadLibraryEx(sofile, NULL, 0);
+    handle = LoadLibraryEx(sofile, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+    if (handle == nullptr) {
+        handle = LoadLibraryEx(sofile, nullptr, 0);
     }
 #endif
 
-    if (handle == NULL) {
+    if (handle == nullptr) {
         int32_t e = _cc_last_errno();
         _cc_logger_error(_T("Failed loading: %s(%d) %s"), sofile, e, _cc_last_error(e));
     }
@@ -58,7 +58,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
 /**/
 _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
     pvoid_t symbol = GetProcAddress((HMODULE)handle, name);
-    if (symbol == NULL) {
+    if (symbol == nullptr) {
         int32_t e = _cc_last_errno();
 #ifdef _CC_UNICODE_
         wchar_t buf[128];
@@ -73,7 +73,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_unload_object(pvoid_t handle) {
-    if (handle != NULL) {
+    if (handle != nullptr) {
         FreeLibrary((HMODULE)handle);
     }
 }

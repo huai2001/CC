@@ -63,7 +63,7 @@
 		41ACE47E26FE8DB000AAAAF2 /* rwlock.c in Sources */ = {isa = PBXBuildFile; fileRef = 41ACE47D26FE8DB000AAAAF2 /* rwlock.c */; };
 		41ACE48226FE8E0700AAAAF2 /* strptime.c in Sources */ = {isa = PBXBuildFile; fileRef = 41ACE48126FE8E0700AAAAF2 /* strptime.c */; };
 		41ACE48526FE8E2300AAAAF2 /* GBK.c in Sources */ = {isa = PBXBuildFile; fileRef = 41ACE48426FE8E2300AAAAF2 /* GBK.c */; };
-		41ACE48826FE8E3700AAAAF2 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 41ACE48726FE8E3700AAAAF2 /* hashtable.c */; };
+		41ACE48826FE8E3700AAAAF2 /* hmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 41ACE48726FE8E3700AAAAF2 /* hmap.c */; };
 		41B8354B2488C21E00A86658 /* json.c in Sources */ = {isa = PBXBuildFile; fileRef = 41B835472488C21E00A86658 /* json.c */; };
 		41CDDDF429A384D8008F372C /* uuid.c in Sources */ = {isa = PBXBuildFile; fileRef = 41CDDDF329A384D8008F372C /* uuid.c */; };
 		41CDDDF729A384E0008F372C /* xxtea.c in Sources */ = {isa = PBXBuildFile; fileRef = 41CDDDF629A384E0008F372C /* xxtea.c */; };
@@ -139,7 +139,7 @@
 		414E51471F6CB7F80085AF50 /* dirent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dirent.h; sourceTree = "<group>"; };
 		414E51481F6CB7F80085AF50 /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = list.h; sourceTree = "<group>"; };
 		414E51491F6CB7F80085AF50 /* endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = endian.h; sourceTree = "<group>"; };
-		414E514C1F6CB7F80085AF50 /* hashtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
+		414E514C1F6CB7F80085AF50 /* hmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hmap.h; sourceTree = "<group>"; };
 		414E514F1F6CB7F80085AF50 /* loadso.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loadso.h; sourceTree = "<group>"; };
 		414E51501F6CB7F80085AF50 /* logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
 		414E51521F6CB7F80085AF50 /* md5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = md5.h; sourceTree = "<group>"; };
@@ -189,7 +189,7 @@
 		41ACE48026FE8DFB00AAAAF2 /* sys_thread.c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sys_thread.c.h; sourceTree = "<group>"; };
 		41ACE48126FE8E0700AAAAF2 /* strptime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strptime.c; sourceTree = "<group>"; };
 		41ACE48426FE8E2300AAAAF2 /* GBK.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GBK.c; sourceTree = "<group>"; };
-		41ACE48726FE8E3700AAAAF2 /* hashtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
+		41ACE48726FE8E3700AAAAF2 /* hmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hmap.c; sourceTree = "<group>"; };
 		41ACE48A26FE8E5000AAAAF2 /* base16.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base16.h; sourceTree = "<group>"; };
 		41ACE48B26FE8E6E00AAAAF2 /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
 		41ACE48C26FE8E6E00AAAAF2 /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
@@ -281,7 +281,7 @@
 				41CDDDF629A384E0008F372C /* xxtea.c */,
 				41CDDDF329A384D8008F372C /* uuid.c */,
 				41A7789E271862630070082E /* alloc.c */,
-				41ACE48726FE8E3700AAAAF2 /* hashtable.c */,
+				41ACE48726FE8E3700AAAAF2 /* hmap.c */,
 				41ACE48426FE8E2300AAAAF2 /* GBK.c */,
 				41ACE47326FE8D8000AAAAF2 /* base16.c */,
 				41AA15F524BBF7A800B4CA51 /* xml */,
@@ -479,7 +479,7 @@
 				414E51471F6CB7F80085AF50 /* dirent.h */,
 				414E51481F6CB7F80085AF50 /* list.h */,
 				414E51491F6CB7F80085AF50 /* endian.h */,
-				414E514C1F6CB7F80085AF50 /* hashtable.h */,
+				414E514C1F6CB7F80085AF50 /* hmap.h */,
 				414E514F1F6CB7F80085AF50 /* loadso.h */,
 				414E51501F6CB7F80085AF50 /* logger.h */,
 				414E51521F6CB7F80085AF50 /* md5.h */,
@@ -695,7 +695,7 @@
 				414E510B1F6CB7E70085AF50 /* inet.c in Sources */,
 				41AA15F924BBF7A800B4CA51 /* xml.c in Sources */,
 				414BE8EE248A3164003E1ADC /* event.c in Sources */,
-				41ACE48826FE8E3700AAAAF2 /* hashtable.c in Sources */,
+				41ACE48826FE8E3700AAAAF2 /* hmap.c in Sources */,
 				414E50D21F6CB7E70085AF50 /* aes.c in Sources */,
 				4177E5C9289624D000781FFB /* sys_sem.c in Sources */,
 				414E51071F6CB7E70085AF50 /* rand.c in Sources */,
@@ -744,7 +744,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NONnullptr = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -802,7 +802,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NONnullptr = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
 				CLANG_CXX_LIBRARY = "libc++";

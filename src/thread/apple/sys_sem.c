@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -25,10 +25,10 @@ _CC_API_PUBLIC(_cc_semaphore_t*) _cc_create_semaphore(int32_t initial_value) {
     /* Allocate sem memory */
     _cc_semaphore_t *sem = (_cc_semaphore_t *)_cc_malloc(sizeof(_cc_semaphore_t));
     sem->sem = dispatch_semaphore_create(initial_value);
-    if (sem->sem == NULL) {
+    if (sem->sem == nullptr) {
         _cc_logger_error(_T("create semaphore failed"));
         _cc_destroy_semaphore(&sem);
-        return NULL;
+        return nullptr;
     }
 
     return sem;
@@ -44,7 +44,7 @@ _CC_API_PUBLIC(void) _cc_destroy_semaphore(_cc_semaphore_t **sem) {
 _CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t timeout) {
     dispatch_time_t t = 0;
     if (!sem) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger_error(_T("Passed a nullptr semaphore"));
         return -1;
     }
 
@@ -60,7 +60,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t ti
 _CC_API_PUBLIC(int) _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
     int res = _CC_MUTEX_TIMEDOUT_;
     if (!sem) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger_error(_T("Passed a nullptr semaphore"));
         return -1;
     }
 
@@ -69,7 +69,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
 
 _CC_API_PUBLIC(int) _cc_semaphore_wait(_cc_semaphore_t *sem) {
     if (!sem) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger_error(_T("Passed a nullptr semaphore"));
         return -1;
     }
     return (int)dispatch_semaphore_wait(sem->sem, DISPATCH_TIME_FOREVER);
@@ -83,7 +83,7 @@ _CC_API_PUBLIC(uint32_t) _cc_semaphore_value(_cc_semaphore_t *sem) {
 
 _CC_API_PUBLIC(bool_t) _cc_semaphore_post(_cc_semaphore_t *sem) {
     if (!sem) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger_error(_T("Passed a nullptr semaphore"));
         return false;
     }
 

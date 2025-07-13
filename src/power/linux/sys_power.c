@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/power.h>
+#include <libcc/power.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -56,7 +56,7 @@ _CC_API_PRIVATE(bool_t) read_power_file(const char *base, const char *node, cons
     if (br < 0) {
         return false;
     }
-    /* null-terminate the string. */
+    /* nullptr-terminate the string. */
     buf[br] = '\0';
     return true;
 }
@@ -111,9 +111,9 @@ _CC_API_PRIVATE(void) check_proc_acpi_battery(const char *node, bool_t *have_bat
     const char *base = proc_acpi_battery_path;
     char info[1024];
     char state[1024];
-    char *ptr = NULL;
-    char *key = NULL;
-    char *val = NULL;
+    char *ptr = nullptr;
+    char *key = nullptr;
+    char *val = nullptr;
     bool_t charge = false;
     bool_t choose = false;
     int32_t maximum = -1;
@@ -141,7 +141,7 @@ _CC_API_PRIVATE(void) check_proc_acpi_battery(const char *node, bool_t *have_bat
                 charge = true;
             }
         } else if (strcmp(key, "remaining capacity") == 0) {
-            char *endptr = NULL;
+            char *endptr = nullptr;
             const int cvt = (int)strtol(val, &endptr, 10);
             if (*endptr == ' ') {
                 remaining = cvt;
@@ -152,7 +152,7 @@ _CC_API_PRIVATE(void) check_proc_acpi_battery(const char *node, bool_t *have_bat
     ptr = &info[0];
     while (make_proc_acpi_key_val(&ptr, &key, &val)) {
         if (strcmp(key, "design capacity") == 0) {
-            char *endptr = NULL;
+            char *endptr = nullptr;
             const int cvt = (int)strtol(val, &endptr, 10);
             if (*endptr == ' ') {
                 maximum = cvt;
@@ -196,9 +196,9 @@ _CC_API_PRIVATE(void) check_proc_acpi_battery(const char *node, bool_t *have_bat
 _CC_API_PRIVATE(void) check_proc_acpi_ac_adapter(const char *node, bool_t *have_ac) {
     const char *base = proc_acpi_ac_adapter_path;
     char state[256];
-    char *ptr = NULL;
-    char *key = NULL;
-    char *val = NULL;
+    char *ptr = nullptr;
+    char *key = nullptr;
+    char *val = nullptr;
 
     if (!read_power_file(base, node, "state", state, sizeof(state))) {
         return;
@@ -215,8 +215,8 @@ _CC_API_PRIVATE(void) check_proc_acpi_ac_adapter(const char *node, bool_t *have_
 }
 
 _CC_API_PRIVATE(bool_t) _sys_get_power_info_acpi(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
-    struct dirent *dent = NULL;
-    DIR *dirp = NULL;
+    struct dirent *dent = nullptr;
+    DIR *dirp = nullptr;
     bool_t have_battery = false;
     bool_t have_ac = false;
     bool_t charging = false;
@@ -226,10 +226,10 @@ _CC_API_PRIVATE(bool_t) _sys_get_power_info_acpi(_CC_POWER_STATE_ENUM_ *state, i
     *state = _CC_POWERSTATE_UNKNOWN_;
 
     dirp = opendir(proc_acpi_battery_path);
-    if (dirp == NULL) {
+    if (dirp == nullptr) {
         return false; /* can't use this interface. */
     } else {
-        while ((dent = readdir(dirp)) != NULL) {
+        while ((dent = readdir(dirp)) != nullptr) {
             const char *node = dent->d_name;
             check_proc_acpi_battery(node, &have_battery, &charging, seconds, percent);
         }
@@ -237,10 +237,10 @@ _CC_API_PRIVATE(bool_t) _sys_get_power_info_acpi(_CC_POWER_STATE_ENUM_ *state, i
     }
 
     dirp = opendir(proc_acpi_ac_adapter_path);
-    if (dirp == NULL) {
+    if (dirp == nullptr) {
         return false; /* can't use this interface. */
     } else {
-        while ((dent = readdir(dirp)) != NULL) {
+        while ((dent = readdir(dirp)) != nullptr) {
             const char *node = dent->d_name;
             check_proc_acpi_ac_adapter(node, &have_ac);
         }
@@ -288,12 +288,12 @@ _CC_API_PRIVATE(bool_t) next_string(char **_ptr, char **_str) {
 }
 
 _CC_API_PRIVATE(bool_t) int_string(char *str, int *val) {
-    char *endptr = NULL;
+    char *endptr = nullptr;
     *val = (int)strtol(str, &endptr, 0);
     return ((*str != '\0') && (*endptr == '\0'));
 }
 
-/* http://lxr.linux.no/linux+v2.6.29/drivers/char/apm-emulation.c */
+/* http://lxr.linux.no/linux+v2.6.29/delegates/char/apm-emulation.c */
 _CC_API_PRIVATE(bool_t) _sys_get_power_info_apm(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     bool_t need_details = false;
     int ac_status = 0;
@@ -304,7 +304,7 @@ _CC_API_PRIVATE(bool_t) _sys_get_power_info_apm(_CC_POWER_STATE_ENUM_ *state, in
     const int fd = open(proc_apm_path, O_RDONLY);
     char buf[128];
     char *ptr = &buf[0];
-    char *str = NULL;
+    char *str = nullptr;
     ssize_t br;
 
     if (fd == -1) {
@@ -318,8 +318,8 @@ _CC_API_PRIVATE(bool_t) _sys_get_power_info_apm(_CC_POWER_STATE_ENUM_ *state, in
         return false;
     }
 
-    buf[br] = '\0';                 /* null-terminate the string. */
-    if (!next_string(&ptr, &str)) { /* driver version */
+    buf[br] = '\0';                 /* nullptr-terminate the string. */
+    if (!next_string(&ptr, &str)) { /* delegate version */
         return false;
     }
     if (!next_string(&ptr, &str)) { /* BIOS version */
@@ -410,7 +410,7 @@ _CC_API_PRIVATE(bool_t) _sys_get_sys_class_power_supply(_CC_POWER_STATE_ENUM_ *s
     *seconds = -1;
     *percent = -1;
 
-    while ((dent = readdir(dirp)) != NULL) {
+    while ((dent = readdir(dirp)) != nullptr) {
         const char *name = dent->d_name;
         bool_t choose = false;
         char str[64];
@@ -442,7 +442,7 @@ _CC_API_PRIVATE(bool_t) _sys_get_sys_class_power_supply(_CC_POWER_STATE_ENUM_ *s
             }
         }
 
-        /* some drivers don't offer this, so if it's not explicitly reported
+        /* some delegates don't offer this, so if it's not explicitly reported
          * assume it's present. */
         if (read_power_file(base, name, "present", str, sizeof(str)) && (strcmp(str, "0\n") == 0)) {
             st = _CC_POWERSTATE_NO_BATTERY_;

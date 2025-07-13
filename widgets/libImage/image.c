@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -117,8 +117,8 @@ void _cc_set_pixel(_cc_image_t *image, uint32_t x, uint32_t y, const _cc_color_t
     uint32_t *dest32;
     uint16_t *dest16;
     byte_t *dest8;
-    _cc_assert(image != NULL);
-    if(image == NULL) return ;
+    _cc_assert(image != nullptr);
+    if(image == nullptr) return ;
 
     if (x >= image->width || y >= image->height)
         return;
@@ -150,8 +150,8 @@ void _cc_set_pixel(_cc_image_t *image, uint32_t x, uint32_t y, const _cc_color_t
 //! returns a pixel
 uint32_t _cc_get_pixel(_cc_image_t *image, uint32_t x, uint32_t y) {
     byte_t *dest;
-    _cc_assert(image != NULL);
-    if(image == NULL) return 0;
+    _cc_assert(image != nullptr);
+    if(image == nullptr) return 0;
     if (x >= image->width || y >= image->height)
         return 0;
 
@@ -298,9 +298,9 @@ void _cc_image_resampled (_cc_image_t* dst, _cc_image_t* src,
 void _cc_image_scaling(_cc_image_t *dst, _cc_image_t *src) {
     uint32_t bpp,bw,rest,y;
     byte_t *dstpos, *srcpos;
-    _cc_assert(dst->data != NULL && src->data != NULL);
+    _cc_assert(dst->data != nullptr && src->data != nullptr);
 
-    if(dst->data == NULL || src->data == NULL)
+    if(dst->data == nullptr || src->data == nullptr)
         return;
 
     if (!dst->width || !dst->height)
@@ -358,8 +358,8 @@ int32_t _cc_get_bits_per_pixel_from_format(const byte_t format) {
 
 _cc_image_t* _cc_init_image_data(uint32_t format, uint32_t width, uint32_t height, byte_t *data) {
     _cc_image_t  *image = (_cc_image_t  *)_cc_malloc(sizeof(_cc_image_t ));
-    if(image == NULL) {
-        return NULL;
+    if(image == nullptr) {
+        return nullptr;
     }
     image->format = format;
     image->width = width;
@@ -368,14 +368,14 @@ _cc_image_t* _cc_init_image_data(uint32_t format, uint32_t width, uint32_t heigh
     image->pitch = (image->channel * image->width);
     image->size = height * image->pitch;
     
-    image->palette.data = NULL;
+    image->palette.data = nullptr;
     image->palette.size = 0;
 
-    if(data == NULL) {
+    if(data == nullptr) {
         image->data = (byte_t *)_cc_malloc(sizeof(byte_t) * (uint32_t)image->size);
-        if(image->data == NULL) {
+        if(image->data == nullptr) {
             _cc_free(image);
-            return NULL;
+            return nullptr;
         }
         memset(image->data, 0xff, sizeof(byte_t) * image->size);
     } else {
@@ -441,18 +441,18 @@ _cc_image_filetype_t _cc_get_imagetypes(byte_t *data, int32_t len) {
 }
 
 _cc_image_t* _cc_init_image(uint32_t format, uint32_t width, uint32_t height) {
-    return _cc_init_image_data(format,width,height,NULL);
+    return _cc_init_image_data(format,width,height,nullptr);
 }
 
 
-_cc_image_t * _cc_load_image(const tchar_t *file_name) {
-    _cc_image_t *img = NULL;
+_cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
+    _cc_image_t *img = nullptr;
     _cc_buf_t *buf;
     _cc_image_filetype_t filetype;
 
-    buf = _cc_load_buf(file_name);
-    if (buf == NULL) {
-        return NULL;
+    buf = _cc_buf_from_file(file_name);
+    if (buf == nullptr) {
+        return nullptr;
     }
 
     filetype = _cc_get_imagetypes( buf->bytes, (int32_t)buf->length );
@@ -461,7 +461,7 @@ _cc_image_t * _cc_load_image(const tchar_t *file_name) {
         _cc_destroy_buf(&buf);
         _cc_logger_error(_T("Image file type(%d) unknown :%s"), filetype, file_name);
 
-        return NULL;
+        return nullptr;
     }
 
     switch(filetype) {
@@ -496,18 +496,18 @@ _cc_image_t * _cc_load_image(const tchar_t *file_name) {
 }
 
 bool_t _cc_destroy_image( _cc_image_t** image ) {
-    if ( image == NULL || (*image) == NULL )
+    if ( image == nullptr || (*image) == nullptr )
         return false;
 
     _cc_safe_free((*image)->data);
 
     if ((*image)->palette.data && (*image)->palette.size > 0) {
         _cc_free((*image)->palette.data);
-        (*image)->palette.data = NULL;
+        (*image)->palette.data = nullptr;
         (*image)->palette.size = 0;
     }
     _cc_free((*image));
-    (*image)=NULL;
+    (*image)=nullptr;
 
     return true;
 }

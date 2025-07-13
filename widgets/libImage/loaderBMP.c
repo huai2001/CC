@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -23,8 +23,8 @@
 
 static void decompress8BitRLE(byte_t** bmpData, int32_t size, int32_t width, int32_t height, int32_t pitch) {
     byte_t* p = (*bmpData);
-    byte_t* newBmp = NULL;
-    byte_t* d = NULL;
+    byte_t* newBmp = nullptr;
+    byte_t* d = nullptr;
     byte_t* destEnd = newBmp + (width + pitch) * height;
     int32_t line = 0;
     byte_t count, readAdditional, i, color;
@@ -83,8 +83,8 @@ static void decompress8BitRLE(byte_t** bmpData, int32_t size, int32_t width, int
 void decompress4BitRLE(byte_t** bmpData, int32_t size, int32_t width, int32_t height, int32_t pitch) {
     int32_t linewidth = (width + 1) / 2 + pitch;
     byte_t* p = *bmpData;
-    byte_t* newBmp = NULL;
-    byte_t* d = NULL;
+    byte_t* newBmp = nullptr;
+    byte_t* d = nullptr;
     byte_t* destEnd = newBmp + linewidth * height;
     byte_t x, y, count, readAdditional, i, color1, color2, readShift, mask, toSet;
     int32_t line = 0, shift = 4;
@@ -171,16 +171,16 @@ void decompress4BitRLE(byte_t** bmpData, int32_t size, int32_t width, int32_t he
 _cc_image_t* _cc_load_BMP(const byte_t *data, uint32_t size) {
     int32_t w, p;
     float t;
-    byte_t *bmpData = NULL, *dataPtr = (byte_t*)data;
+    byte_t *bmpData = nullptr, *dataPtr = (byte_t*)data;
     BMPHeader_t bmpHeader;
 
     int32_t PaletteSize, i;
-    uint32_t *PaletteData = NULL;
+    uint32_t *PaletteData = nullptr;
 
-    _cc_image_t* image = NULL;
-    _cc_assert( data != NULL );
-    if (data == NULL) {
-        return NULL;
+    _cc_image_t* image = nullptr;
+    _cc_assert( data != nullptr );
+    if (data == nullptr) {
+        return nullptr;
     }
 
     bzero(&bmpHeader, sizeof(bmpHeader));
@@ -202,15 +202,15 @@ _cc_image_t* _cc_load_BMP(const byte_t *data, uint32_t size) {
 
     if ( bmpHeader.Id != 0x4d42 ) {
         _cc_logger_error(_T("LoadBMP: only Windows-style BMP files supported"));
-        return NULL;
+        return nullptr;
     }
     if ( bmpHeader.FileSize != size ) {
         _cc_logger_error(_T("LoadBMP: header size does not match file size"));
-        return NULL;
+        return nullptr;
     }
     if ( bmpHeader.Compression > 2 ) {
         _cc_logger_error(_T("LoadBMP: only uncompressed BMP files supported"));
-        return NULL;
+        return nullptr;
     }
 
     // adjust bitmap data size to dword boundary
@@ -222,9 +222,9 @@ _cc_image_t* _cc_load_BMP(const byte_t *data, uint32_t size) {
     PaletteSize = (bmpHeader.BitmapDataOffset - (sizeof(BMPHeader_t) - 2)) / 4;
     if (PaletteSize) {
         PaletteData = (uint32_t*)_cc_malloc(sizeof(uint32_t) * PaletteSize);
-        _cc_assert( PaletteData != NULL );
-        if (PaletteData == NULL) {
-            return NULL;
+        _cc_assert( PaletteData != nullptr );
+        if (PaletteData == nullptr) {
+            return nullptr;
         }
 
         for (i = 0; i < PaletteSize; ++i) {
@@ -250,8 +250,8 @@ _cc_image_t* _cc_load_BMP(const byte_t *data, uint32_t size) {
 
     p = ((4 - (w % 4)) % 4);
     bmpData = (byte_t *)_cc_malloc(sizeof(byte_t) * bmpHeader.BitmapDataSize);
-    if (bmpData == NULL) {
-        return NULL;
+    if (bmpData == nullptr) {
+        return nullptr;
     }
     memcpy(bmpData, dataPtr, sizeof(byte_t) * bmpHeader.BitmapDataSize);
 
@@ -267,49 +267,49 @@ _cc_image_t* _cc_load_BMP(const byte_t *data, uint32_t size) {
     switch (bmpHeader.BPP) {
     case 1:
         image = _cc_init_image(CF_A1R5G5B5, bmpHeader.Width, bmpHeader.Height);
-        if (image == NULL) {
+        if (image == nullptr) {
             _cc_free(bmpData);
-            return NULL;
+            return nullptr;
         }
         _cc_color_1bit_to_16bit(bmpData, (int16_t*)image->data, image->width, image->height, p, true);
         break;
     case 4:
         image = _cc_init_image(CF_A1R5G5B5, bmpHeader.Width, bmpHeader.Height);
-        if (image == NULL) {
+        if (image == nullptr) {
             _cc_free(bmpData);
-            return NULL;
+            return nullptr;
         }
         _cc_color_4bit_to_16bit(bmpData, (int16_t*)image->data, image->width, image->height, PaletteData, p, true);
         break;
     case 8:
         image = _cc_init_image(CF_A1R5G5B5, bmpHeader.Width, bmpHeader.Height);
-        if (image == NULL) {
+        if (image == nullptr) {
             _cc_free(bmpData);
-            return NULL;
+            return nullptr;
         }
         _cc_color_8bit_to_16bit(bmpData, (int16_t*)image->data, image->width, image->height, PaletteData, p, true);
         break;
     case 16:
         image = _cc_init_image(CF_A1R5G5B5, bmpHeader.Width, bmpHeader.Height);
-        if (image == NULL) {
+        if (image == nullptr) {
             _cc_free(bmpData);
-            return NULL;
+            return nullptr;
         }
         _cc_color_16bit_to_16bit((int16_t*)bmpData, (int16_t*)image->data, image->width, image->height, p, true);
         break;
     case 24:
         image = _cc_init_image(CF_R8G8B8, bmpHeader.Width, bmpHeader.Height);
-        if (image == NULL) {
+        if (image == nullptr) {
             _cc_free(bmpData);
-            return NULL;
+            return nullptr;
         }
         _cc_color_24bit_to_24bit(bmpData, image->data, image->width, image->height, p, true, true);
         break;
     case 32: // thx to Reinhard Ostermeier
         image = _cc_init_image(CF_A8R8G8B8, bmpHeader.Width, bmpHeader.Height);
-        if (image == NULL) {
+        if (image == nullptr) {
             _cc_free(bmpData);
-            return NULL;
+            return nullptr;
         }
         _cc_color_32bit_to_32bit((int32_t*)bmpData, (int32_t*)image->data, image->width, image->height, p, true);
         break;

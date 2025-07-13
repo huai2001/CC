@@ -1,4 +1,4 @@
-#include <cc/widgets/ftp.h>
+#include <libcc/widgets/ftp.h>
 
 _CC_API_PRIVATE(bool_t) libftp_cdup(_cc_ftp_t* ftp,
                                      const byte_t* buf,
@@ -18,12 +18,12 @@ _CC_API_PRIVATE(bool_t) libftp_cdup(_cc_ftp_t* ftp,
 }
 
 bool_t _cc_ftp_cdup(_cc_ftp_t* ftp) {
-    _cc_assert(ftp != NULL);
+    _cc_assert(ftp != nullptr);
 
-    if (ftp == NULL)
+    if (ftp == nullptr)
         return false;
 
-    if (ftp->ctrl.e == NULL) {
+    if (ftp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -32,7 +32,7 @@ bool_t _cc_ftp_cdup(_cc_ftp_t* ftp) {
         return false;
     }
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_CDUP, libftp_cdup, NULL);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_CDUP, libftp_cdup, nullptr);
 
     _ftp_send_command(ftp->ctrl.e, "CDUP\r\n", 6 * sizeof(char_t));
     return true;

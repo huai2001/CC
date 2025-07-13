@@ -1,12 +1,12 @@
 #include <stdio.h>
 
-#include <cc/alloc.h>
-#include <cc/array.h>
-#include <cc/string.h>
+#include <libcc/alloc.h>
+#include <libcc/array.h>
+#include <libcc/string.h>
 
 int main (int argc, char * const argv[]) {
     _cc_array_t *arr;
-    int *find_val = NULL;
+    int *find_val = nullptr;
     uint32_t i = 0;
     
     arr = _cc_create_array(15);
@@ -38,5 +38,6 @@ int main (int argc, char * const argv[]) {
     
     _cc_destroy_array(&arr);
     
+    system("pause");
     return 0;
 }

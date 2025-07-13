@@ -54,8 +54,8 @@ static bool_t send_data(_cc_event_cycle_t *cycle, _cc_event_t *e, byte_t *buf, i
     return false;
 }
 
-static bool_t timeout_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    time_t t = time(NULL);
+static bool_t timeout_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    time_t t = time(nullptr);
     tchar_t unit_size[2][1024];
     struct tm* local_time = localtime(&t);
     _cc_logger_debug(_T("#%04d-%02d-%02d %02d:%02d:%02d delay running %d"),
@@ -73,8 +73,8 @@ static bool_t timeout_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     return true;
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    if (events & _CC_EVENT_ACCEPT_) {
+static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    if (which & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_event_t *event;
         _cc_sockaddr_t remote_addr = {0};
@@ -82,12 +82,12 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         _cc_event_cycle_t *cycle_new = _cc_get_event_cycle();
         fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
 		if (fd == _CC_INVALID_SOCKET_) {
-            _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(NULL), _cc_last_error(_cc_last_errno()));
+            _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(nullptr), _cc_last_error(_cc_last_errno()));
             return true;
         }
         
-        event = _cc_alloc_event(cycle_new, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
-        if (event == NULL) {
+        event = _cc_event_alloc(cycle_new, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
+        if (event == nullptr) {
             _cc_close_socket(fd);
             return true;
         }
@@ -97,8 +97,8 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         event->callback = e->callback;
         event->timeout = e->timeout;
 
-        if (cycle_new->driver.attach(cycle_new, event) == false) {
-            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
+        if (cycle_new->attach(cycle_new, event) == false) {
+            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
             _cc_free_event(cycle_new,event);
             return true;
         }
@@ -114,17 +114,16 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         return true;
     }
     
-	if (events & _CC_EVENT_DISCONNECT_) {
+	if (which & _CC_EVENT_DISCONNECT_) {
         //_cc_logger_debug(_T("%d disconnect to client."), e->fd);
         _cc_atomic32_dec(&monitoring.live);
         return false;
     }
     
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         /*_cc_event_buffer_t *rw = e->buffer;
-        if (e->buffer == NULL) {
-            _cc_bind_event_buffer(cycle, &e->buffer);
-            rw = e->buffer;
+        if (e->buffer == nullptr) {
+            rw = e->buffer = _cc_alloc_event_buffer();
         }
         if (!_cc_event_recv(e)) {
             //_cc_logger_debug(_T("%d close to client."), e->fd);
@@ -133,7 +132,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         }
         if (rw->r.length > 0) {
             _cc_atomic64_add(&monitoring.revice_size, rw->r.length);
-            send_data(cycle, e, rw->r.buf, rw->r.length);
+            send_data(cycle, e, rw->r.bytes, rw->r.length);
         }
 
         //_cc_sleep(1);
@@ -157,7 +156,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         return true;
     }
     
-    if (events & _CC_EVENT_WRITABLE_) {
+    if (which & _CC_EVENT_WRITABLE_) {
         int32_t off = _cc_event_sendbuf(e);
         if (off < 0) {
             return false;
@@ -171,7 +170,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         }
     }
     
-	if (events & _CC_EVENT_TIMEOUT_) {
+	if (which & _CC_EVENT_TIMEOUT_) {
         if (_cc_send(e->fd, (byte_t*)_T("ping"), 5) < 0) {
             _cc_atomic32_dec(&monitoring.live);
             return false;
@@ -212,32 +211,32 @@ int main (int argc, char * const argv[]) {
 	//char c = 0;
     int32_t i = 0;
     struct sockaddr_in sa;
-    _cc_evnet_t *e;
+    _cc_event_t *e;
+    _cc_event_cycle_t *cycle;
+    int16_t port = 10000;
 
     _cc_install_socket();
-    _cc_event_loop(0, NULL);
-    
+    _cc_event_loop(0, nullptr);
     bzero(&monitoring, sizeof(monitoring));
     if (_cc_init_event_poller(&accept_event) == false) {
         return 1;
     }
     
-    _cc_inet_ipv4_addr(&sa, NULL, 8088);
-    e = _cc_alloc_event(&accept_event, _CC_EVENT_ACCEPT_);
-    if (e == NULL) {
+    e = _cc_event_alloc(&accept_event, _CC_EVENT_ACCEPT_);
+    if (e == nullptr) {
         return - 1;
     }
     e->timeout = 60000;
     e->callback = network_event_callback;
 
-    _cc_inet_ipv4_addr(&sa, NULL, port);
-    if (!_cc_tcp_listen(accept_event, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
-        _cc_free_event(accept_event, e);
+    _cc_inet_ipv4_addr(&sa, nullptr, port);
+    if (!_cc_tcp_listen(&accept_event, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _cc_free_event(&accept_event, e);
         return -1;
     }
-    
+    //
     {
-        time_t t = time(NULL);
+        time_t t = time(nullptr);
         struct tm* local_time = localtime(&t);
         _cc_logger_debug(_T("#%04d-%02d-%02d %02d:%02d:%02d delay"),
                     local_time->tm_year + 1900,
@@ -247,8 +246,10 @@ int main (int argc, char * const argv[]) {
                     local_time->tm_min,
                     local_time->tm_sec);
     }
-    _cc_add_event_timeout(_cc_get_event_cycle(), 5000, timeout_event_callback, NULL);
-    //_cc_add_event_timeout(_cc_get_event_cycle(), 1000*60, timeout_event_callback, NULL);
+    cycle = _cc_get_event_cycle();
+
+    _cc_add_event_timeout(cycle, 5000, timeout_event_callback, nullptr);
+    //_cc_add_event_timeout(_cc_get_event_cycle(), 1000*60, timeout_event_callback, nullptr);
     
 #ifndef __CC_WINDOWS__
     signal(SIGHUP,exit_proc);

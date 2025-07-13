@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -48,23 +48,23 @@ static void PNGAPI _user_write_data_fcn(png_structp png_ptr, png_bytep data, png
 bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	png_infop info_ptr;
 	_cc_file_t *wfp;
-	png_structp png_ptr = NULL;
+	png_structp png_ptr = nullptr;
 	int32_t line_width;
 	uint8_t *tmp, *tmp_ptr;
 	uint8_t **row_pointers;
 	uint32_t i;
 
-	void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = NULL;
+	void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = nullptr;
 
 	wfp = _cc_open_file(file_name, _T("wb"));
-	if (wfp == NULL) {
+	if (wfp == nullptr) {
 		return false;
 	}
 
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-	                                  NULL, (png_error_ptr)_png_cpexcept_error, (png_error_ptr)_png_cpexcept_warning);
+	                                  nullptr, (png_error_ptr)_png_cpexcept_error, (png_error_ptr)_png_cpexcept_warning);
 
-	if (png_ptr == NULL) {
+	if (png_ptr == nullptr) {
 		_cc_file_close(wfp);
 		_cc_logger_error(_T("Internal PNG create write struct failure."));
 		return false;
@@ -75,7 +75,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		_cc_logger_error(_T("Internal PNG create info struct failure."));
-		png_destroy_write_struct(&png_ptr, NULL);
+		png_destroy_write_struct(&png_ptr, nullptr);
 		_cc_file_close(wfp);
 		return false;
 	}
@@ -87,7 +87,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 		return false;
 	}
 
-	png_set_write_fn(png_ptr, wfp, _user_write_data_fcn, NULL);
+	png_set_write_fn(png_ptr, wfp, _user_write_data_fcn, nullptr);
 
 	// Set info
 	switch (image->format) {
@@ -148,7 +148,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 
 	//Used to point to image rows
 	row_pointers = (png_bytep*)_cc_malloc(sizeof(png_bytep) * image->height);
-	if (row_pointers == NULL) {
+	if (row_pointers == nullptr) {
 		_cc_logger_error(_T("Internal PNG create row pointers failure."));
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 		_cc_free(tmp);
@@ -174,9 +174,9 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	png_set_rows(png_ptr, info_ptr, row_pointers);
 
 	if (image->format == CF_A8R8G8B8 || image->format == CF_A1R5G5B5) {
-		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR, NULL);
+		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR, nullptr);
 	} else {
-		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 	}
 
 	_cc_free(tmp);

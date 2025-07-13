@@ -6,7 +6,7 @@
     
       <script type="text/javascript">
          let index = 0;
-         let ws = null;
+         let ws = nullptr;
          function WebSocketTest() {
             let text = document.getElementById('text');
             if ("WebSocket" in window) {
@@ -34,7 +34,7 @@
                   if (text) {
                      text.innerHTML = "Web Socket 连接已关闭...";
                   }
-                  ws = null;
+                  ws = nullptr;
                };
             }
             
@@ -54,7 +54,7 @@
          function WebSocketClose() {
             if (ws) {
                ws.close();
-               ws = null;
+               ws = nullptr;
                if (text) {
                   text.innerHTML = "Web Socket 连接已关闭...";
                }

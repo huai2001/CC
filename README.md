@@ -68,7 +68,7 @@ make path
 ./build.sh
 ```
 #### Support
-Email: [huai2011@163.com](mailto:huai2011@163.com)
+Email: [libcc.cn@gmail.com](mailto:libcc.cn@gmail.com)
 
 ## ✨ TCP Client
 ```C
@@ -110,19 +110,19 @@ static bool_t send_message(_cc_event_t *e) {
     return true;
 }
 
-static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    if (events & _CC_EVENT_CONNECT_) {
+static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    if (which & _CC_EVENT_CONNECT_) {
         _tprintf(_T(" connect to server!\n"));
         curr_event = e;
     }
     
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("Disconnect to server: %d.\n"), e->fd);
         keep_active = false;
         return false;
     }
 
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         if (!_cc_event_recv(e)) {
             _tprintf(_T("TCP close %d\n"), e->fd);
             keep_active = false;
@@ -134,31 +134,31 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
             int i;
             int start;
             start = 0;
-            r->buf[r->length] = 0;
+            r->bytes[r->length] = 0;
 
             for (i = 0; i < r->length; i++) {
-                if (r->buf[i] == '\n') {
-                    r->buf[i] = 0;
-                    onLine(e, (char_t*)&r->buf[start], i - start);
+                if (r->bytes[i] == '\n') {
+                    r->bytes[i] = 0;
+                    onLine(e, (char_t*)&r->bytes[start], i - start);
                     start = i + 1;
                 }
             }
 
             i = r->length - start;
             if (i > 0) {
-                memmove(r->buf, &r->buf[start], i);
+                memmove(r->bytes, &r->bytes[start], i);
             }
             r->length = i;
         }
     }
 
-    if (events & _CC_EVENT_WRITABLE_) {
+    if (which & _CC_EVENT_WRITABLE_) {
         if (_cc_event_sendbuf(e) < 0) {
             return false;
         }
     }
 
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP Timeout - %d\n"), e->fd);
         return false;
     }
@@ -169,7 +169,7 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
 int _tmain (int argc, tchar_t * const argv[]) {
     _cc_event_cycle_t cycle;
     struct sockaddr_in sa;
-    curr_event = NULL;
+    curr_event = nullptr;
 
     _cc_install_socket();
 
@@ -177,8 +177,8 @@ int _tmain (int argc, tchar_t * const argv[]) {
         return 0;
     }
     _cc_inet_ipv4_addr(&sa, "127.0.0.1", 8088);
-    curr_event = _cc_alloc_event(cycle,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
-    if (curr_event == NULL) {
+    curr_event = _cc_event_alloc(cycle,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
+    if (curr_event == nullptr) {
         return 0;
     }
     curr_event->callback = _callback;
@@ -196,7 +196,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
         }
     }
 
-    cycle.driver.quit(&cycle);
+    cycle.delegator.quit(&cycle);
     _cc_uninstall_socket();
     return 1;
 }
@@ -231,8 +231,8 @@ static void onLine(_cc_event_t *e, const char_t* data, uint16_t length) {
     }
 }
 
-static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    if (events & _CC_EVENT_ACCEPT_) {
+static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    if (which & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_sockaddr_t remote_addr = {0};
         _cc_socklen_t remote_addr_len = sizeof(_cc_sockaddr_t);
@@ -245,8 +245,8 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
         
         _cc_set_socket_nonblock(fd, 1);
 
-        if (cycle->driver.add(cycle, _CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_|_CC_EVENT_BUFFER_, fd, e->timeout, _callback, NULL) == NULL) {
-            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
+        if (cycle->attach(cycle, _CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_|_CC_EVENT_BUFFER_, fd, e->timeout, _callback, nullptr) == nullptr) {
+            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
             return true;
         }
 
@@ -258,12 +258,12 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
         return true;
     }
 
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("Disconnect to server: %d.\n"), e->fd);
         return false;
     }
 
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         if (!_cc_event_recv(e)) {
             _tprintf(_T("TCP close %d\n"), e->fd);
             return false;
@@ -274,31 +274,31 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
             int i;
             int start;
             start = 0;
-            r->buf[r->length] = 0;
+            r->bytes[r->length] = 0;
 
             for (i = 0; i < r->length; i++) {
-                if (r->buf[i] == '\n') {
-                    r->buf[i] = 0;
-                    onLine(e, (char_t*)&r->buf[start], i - start);
+                if (r->bytes[i] == '\n') {
+                    r->bytes[i] = 0;
+                    onLine(e, (char_t*)&r->bytes[start], i - start);
                     start = i + 1;
                 }
             }
 
             i = r->length - start;
             if (i > 0) {
-                memmove(r->buf, &r->buf[start], i);
+                memmove(r->bytes, &r->bytes[start], i);
             }
             r->length = i;
         }
     }
 
-    if (events & _CC_EVENT_WRITABLE_) {
+    if (which & _CC_EVENT_WRITABLE_) {
         if (_cc_event_sendbuf(e) < 0) {
             return false;
         }
     }
 
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP Timeout - %d\n"), e->fd);
         return ping(e);
     }
@@ -317,14 +317,14 @@ int _tmain (int argc, tchar_t * const argv[]) {
         return 0;
     }
 
-    e = _cc_alloc_event(&cycle, _CC_EVENT_ACCEPT_);
-    if (e == NULL) {
+    e = _cc_event_alloc(&cycle, _CC_EVENT_ACCEPT_);
+    if (e == nullptr) {
         return - 1;
     }
     e->timeout = 60000;
     e->callback = network_event_callback;
     
-    _cc_inet_ipv4_addr(&sa, NULL, 8088);
+    _cc_inet_ipv4_addr(&sa, nullptr, 8088);
     if (!_cc_tcp_listen(&cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
         _cc_free_event(&cycle, e);
         return -1;
@@ -336,7 +336,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
         _cc_event_wait(&cycle, 100);
     }
 
-    cycle.driver.quit(&cycle);
+    cycle.delegator.quit(&cycle);
     _cc_uninstall_socket();
     return 1;
 }

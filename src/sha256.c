@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/sha.h>
-#include <cc/string.h>
+#include <libcc/sha.h>
+#include <libcc/string.h>
 
 #if !defined(_CC_SHA256_ALT_)
 
@@ -103,12 +103,12 @@ static const uint32_t K[] = {
 #define R(t) (W[t] = S1(W[t - 2]) + W[t - 7] + S0(W[t - 15]) + W[t - 16])
 
 #define P(a, b, c, d, e, f, g, h, x, K)                                                                                \
-    {                                                                                                                  \
+    do {                                                                                                               \
         temp1 = h + S3(e) + F1(e, f, g) + K + x;                                                                       \
         temp2 = S2(a) + F0(a, b, c);                                                                                   \
         d += temp1;                                                                                                    \
         h = temp1 + temp2;                                                                                             \
-    }
+    } while (0)
 
 _CC_API_PUBLIC(void) _cc_sha256_process(_cc_sha256_t *ctx, const byte_t *data) {
     uint32_t temp1, temp2, W[64];
@@ -278,7 +278,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224) {
     _cc_sha256_t c;
     size_t digest_length = is224 ? _CC_SHA224_DIGEST_LENGTH_ : _CC_SHA256_DIGEST_LENGTH_;
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         return false;
     }
 

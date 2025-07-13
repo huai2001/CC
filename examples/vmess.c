@@ -135,7 +135,7 @@ void _build_vmess_aead_header(_cc_uuid_t *u, byte_t *data, uint32_t length) {
     uint32_t zero;
     byte_t buf[8];
     //信息为当前的 UTC 时间（Unix 时间戳，精确到秒）
-    timestamp = time(NULL);
+    timestamp = time(nullptr);
     timestamp = _cc_swap64(timestamp);
     memcpy(buf, &timestamp, sizeof(uint64_t));
     buf[4] = rand() % 256;
@@ -160,7 +160,7 @@ void _build_vmess_user(_vmess_user_t *user) {
     _cc_md5_final(&c, user->key);
 
     //信息为当前的 UTC 时间（Unix 时间戳，精确到秒）上下随机浮动 30 秒，然后表示为 8 字节大端格式
-    timestamp = time(NULL) - (rand() % 31) + (rand() % 31);
+    timestamp = time(nullptr) - (rand() % 31) + (rand() % 31);
     timestamp = _cc_swap64(timestamp);
 
     // the iv of AES-128-CFB encrypter
@@ -175,7 +175,7 @@ void _build_vmess_user(_vmess_user_t *user) {
     //16 字节认证信息
     //密钥为十六字节的 uuid + timestamp
     _cc_hmac_t *hmac = _cc_hmac_alloc(_CC_HMAC_MD5_);
-    if (hmac == NULL) {
+    if (hmac == nullptr) {
         return;
     }
 
@@ -257,7 +257,7 @@ void _build_vmess_header(_vmess_t *vmess, const byte_t *addr, uint16_t len, uint
 byte_t c = 0;
 time_t start_time = 0;
 _cc_event_cycle_t network_event;
-_cc_thread_t *network_thread = NULL;
+_cc_thread_t *network_thread = nullptr;
 
 int32_t fn_thread(_cc_thread_t *thrd, void* param) {
     while(c!='q')
@@ -327,20 +327,20 @@ void sendVmess(_cc_event_t *e) {
     }
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
-    if(events & _CC_EVENT_CONNECT_){
+static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+    if(which & _CC_EVENT_CONNECT_){
         sendVmess(e);
         _cc_logger_debug(_T("Connect to server!\n"));
         return true;
     }
     
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("TCP Close - %d\n"), e->fd);
 
         return false;
     }
     /**/
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         char_t buf[_CC_IO_BUFFER_SIZE_];
         int32_t length;
         length = _cc_recv(e->fd, (byte_t*)buf, _CC_IO_BUFFER_SIZE_);
@@ -354,14 +354,14 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         return true;
     }
 
-    if (events & _CC_EVENT_WRITABLE_) {
-        if (_cc_event_send(e,NULL,0) < 0) {
+    if (which & _CC_EVENT_WRITABLE_) {
+        if (_cc_event_send(e,nullptr,0) < 0) {
             _cc_logger_debug(_T(" Fail to send, error = %d\n"), _cc_last_errno());
             return false;   
         }
     }
     
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _cc_logger_debug(_T("Timeout - %d\n"), e->fd);
         return true;
     }
@@ -392,14 +392,14 @@ int main (int argc, char * const argv[]) {
 
     e = _cc_tcp_connect(&network_event, 
     _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockaddr_t*)&sa,
-    60 * 5 * 1000, network_event_callback, NULL);
+    60 * 5 * 1000, network_event_callback, nullptr);
     
     while((c = getchar()) != 'q') {
         _cc_sleep(100);
     }
     
-    _cc_wait_thread(network_thread, NULL);
-    network_event.driver.quit(&network_event);
+    _cc_wait_thread(network_thread, nullptr);
+    network_event.delegator.quit(&network_event);
     _cc_uninstall_socket();
 
     return 0;

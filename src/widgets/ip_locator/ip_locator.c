@@ -1,5 +1,5 @@
-#include <cc/widgets/ip_locator.h>
-#include <cc/logger.h>
+#include <libcc/widgets/ip_locator.h>
+#include <libcc/logger.h>
 #include <stdio.h>
 
 #define REDIRECT_MODE1 0x01
@@ -137,7 +137,7 @@ _CC_API_PRIVATE(void) set_ip_range(int rec_no, _cc_ip_locator_t* f) {
     byte_t buf[7];
     uint32_t offset = 0;
 
-    if (f == NULL) {
+    if (f == nullptr) {
         return;
     }
 
@@ -212,7 +212,7 @@ _CC_API_PRIVATE(void) _ip_locator_quit(_cc_ip_locator_t* f) {
 bool_t _cc_init_ip_locator(_cc_ip_locator_t* f, const char_t* path) {
     byte_t buf[4];
 
-    if ((f->fp = fopen(path, "rb")) == NULL) {
+    if ((f->fp = fopen(path, "rb")) == nullptr) {
         _cc_logger_error(_T("Unable to open file: %s"), path);
         return false;
     }

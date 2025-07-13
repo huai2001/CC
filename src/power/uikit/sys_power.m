@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -19,18 +19,18 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #import <UIKit/UIKit.h>
-#include <cc/power.h>
-#include <cc/core.h>
-#include <cc/time.h>
+#include <libcc/power.h>
+#include <libcc/core.h>
+#include <libcc/time.h>
 
 #ifndef __CC_APPLE_TVOS__
 /* turn off the battery monitor if it's been more than X ms since last check. */
 static const int BATTERY_MONITORING_TIMEOUT = 3000;
-static uint32_t UIKitLastPowerInfoQuery = 0;
+static uint64_t UIKitLastPowerInfoQuery = 0;
 
 _CC_API_PRIVATE(void) UIKit_UpdateBatteryMonitoring(void) {
     if (UIKitLastPowerInfoQuery) {
-        if (_CC_TICKS_PASSED((uint32_t)_cc_get_ticks(), UIKitLastPowerInfoQuery + BATTERY_MONITORING_TIMEOUT)) {
+        if (_CC_TICKS_PASSED(_cc_get_ticks(), UIKitLastPowerInfoQuery + BATTERY_MONITORING_TIMEOUT)) {
             UIDevice *uidev = [UIDevice currentDevice];
             _cc_assert([uidev isBatteryMonitoringEnabled] == YES);
             [uidev setBatteryMonitoringEnabled:NO];
@@ -59,7 +59,7 @@ _CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int3
          *  Apparently monitoring the battery burns battery life.  :)
          *  Apple's docs say not to monitor the battery unless you need it.
          */
-        UIKitLastPowerInfoQuery = (uint32_t)_cc_get_ticks();
+        UIKitLastPowerInfoQuery = _cc_get_ticks();
 
         /* no API to estimate this in UIKit. */
         *seconds = -1;

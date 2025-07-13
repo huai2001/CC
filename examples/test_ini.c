@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libcc.h>
-#include <cc/ini/ini.h>
+#include <libcc/ini/ini.h>
 
 const tchar_t *iniconf = _T("[reactor]\n")\
                          _T("maxConn = 1024   /*abc*/\n")\
@@ -30,7 +30,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
             _tprintf(_T("HOST:%s\n"), _cc_ini_find_string(section, _T("db_host")));
             _tprintf(_T("PSWD:%s\n"), _cc_ini_find_string(section, _T("db_passwd")));
         }
-        buf = _cc_print_ini(ini);
+        buf = _cc_dump_ini(ini);
         _tprintf(_T("%s"), (tchar_t*)buf->bytes);
     } else {
         _tprintf(_T("error:%s"), _cc_ini_error());

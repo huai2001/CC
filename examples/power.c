@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include <cc/alloc.h>
-#include <cc/power.h>
+#include <libcc/alloc.h>
+#include <libcc/power.h>
 
 int main (int argc, char * const argv[]) {
     char c;

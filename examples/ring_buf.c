@@ -1,17 +1,17 @@
 #include <stdio.h>
-#include <cc/variant.h>
-#include <cc/alloc.h>
-#include <cc/ring.h>
-#include <cc/time.h>
-#include <cc/thread.h>
-#include <cc/mutex.h>
+#include <libcc/variant.h>
+#include <libcc/alloc.h>
+#include <libcc/ring.h>
+#include <libcc/time.h>
+#include <libcc/thread.h>
+#include <libcc/mutex.h>
 
 int i = 0;
 char c = 0;
 int thread_count = 0;
 _cc_thread_t *rw_thread[10];
-_cc_mutex_t *rw_lock = NULL;
-_cc_ring_t *buf = NULL;
+_cc_mutex_t *rw_lock = nullptr;
+_cc_ring_t *buf = nullptr;
 
 typedef struct _test_
 {
@@ -75,25 +75,25 @@ int main (int argc, char * const argv[]) {
     }
     /*
     rw_lock = _cc_create_mutex();
-    if (rw_lock == NULL) {
+    if (rw_lock == nullptr) {
         _tprintf(_T("create mutex lock fial.\n"));
         _cc_destroy_ring(&buf);
         return 0;
     }
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_read, "read", NULL);
+    rw_thread[thread_count] = _cc_create_thread(fn_thread_read, "read", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }
 
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 1", NULL);
+    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 1", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 2", NULL);
+    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 2", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 3", NULL);
+    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 3", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }

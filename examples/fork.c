@@ -22,7 +22,7 @@
  * @return 在父进程中返回子进程的进程号;在子进程中返回0。
  */
 pid_t pid;
-int* shm = NULL;
+int* shm = nullptr;
 int shmid = 0;
 
 void exit_proc(int sig);

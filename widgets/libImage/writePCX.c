@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -26,7 +26,7 @@ bool_t _cc_write_PCX(const tchar_t *file_name, _cc_image_t *image) {
     byte_t cnt, value;
     uint32_t y = 0, x = 0, k = 0;
 
-    _cc_file_t *wfp = NULL;
+    _cc_file_t *wfp = nullptr;
 
     bzero(&imageHeader, sizeof(PCXHeader_t));
 
@@ -64,7 +64,7 @@ bool_t _cc_write_PCX(const tchar_t *file_name, _cc_image_t *image) {
 
 
     wfp = _cc_open_file(file_name, _T("wb"));
-    if (wfp == NULL) {
+    if (wfp == nullptr) {
         return false;
     }
     _cc_file_write(wfp, &imageHeader, sizeof(PCXHeader_t), 1);

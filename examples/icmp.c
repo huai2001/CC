@@ -11,7 +11,7 @@
 
 
 char        lpdest[16];                   //用来存放目的IP地址  
-uint32_t    cStartTickCount;              //用来存放发送包的起始时间  
+uint64_t    cStartTickCount;              //用来存放发送包的起始时间  
 
 #pragma pack(1)
 
@@ -54,11 +54,11 @@ uint16_t checksum(uint16_t *buffer, int size) {
 
 int DecodeIPHeader(char *buf, int bytes, struct sockaddr_in *from) {
     _ICMPHeader_t *icmpHeader;
-    uint32_t tick;
+    uint64_t tick;
     static int count = 1;
     uint16_t iphdrlen;
 
-    if (buf == NULL) {
+    if (buf == nullptr) {
         printf("%2d:\t\t***.***.***.***\t\tRequest timed out.\n",count++);  
         return 1;
     }

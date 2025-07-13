@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -83,7 +83,7 @@ int _build_question(uint8_t *buf, const char_t *host, int type) {
     return offset + sizeof(struct QUESTION);
 }
 
-_CC_API_PRIVATE(void) _print_type(const byte_t *rdata, const uint16_t type) {
+_CC_API_PRIVATE(void) dump_type(const byte_t *rdata, const uint16_t type) {
     tchar_t addr_buf[128];
     switch (type) {
     case _CC_DNS_T_A_: {
@@ -104,14 +104,14 @@ _CC_API_PRIVATE(void) _print_type(const byte_t *rdata, const uint16_t type) {
     }
 }
 
-_CC_API_PRIVATE(void) _print(const _cc_dns_t *dns) {
+_CC_API_PRIVATE(void) dump(const _cc_dns_t *dns) {
     // print answers
     _tprintf(_T("Answer Records : %d \n"), dns->header.answer);
 
     _cc_list_iterator_for_each(v, &dns->answers, {
         _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
         _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
-        _print_type(r->rdata, r->type);
+        dump_type(r->rdata, r->type);
     });
 
     // print authorities
@@ -131,12 +131,12 @@ _CC_API_PRIVATE(void) _print(const _cc_dns_t *dns) {
     _cc_list_iterator_for_each(v, &dns->additional, {
         _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
         _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
-        _print_type(r->rdata, r->type);
+        dump_type(r->rdata, r->type);
     });
 }
 
 void _cc_dns_free(_cc_dns_t *dns) {
-    _print(dns);
+    dump(dns);
 
     _cc_list_iterator_for_each(v, &dns->answers, {
         _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
@@ -164,8 +164,8 @@ void _cc_dns_free(_cc_dns_t *dns) {
     _cc_list_iterator_cleanup(&dns->additional);
 }
 
-_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t events) {
-    if (events & _CC_EVENT_READABLE_) {
+_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t which) {
+    if (which & _CC_EVENT_READABLE_) {
         uint16_t i;
         uint8_t *reader;
         int offset;
@@ -287,7 +287,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_eve
         for (i = 0; i < dns->header.answer; i++) {
             _cc_dns_record_t *r = (_cc_dns_record_t *)_cc_malloc(sizeof(_cc_dns_record_t));
             reader = dns_read_rdata(reader, buffer, r);
-            if (reader == NULL) {
+            if (reader == nullptr) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
                 _cc_free(r);
                 return false;
@@ -299,7 +299,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_eve
         for (i = 0; i < dns->header.author; i++) {
             _cc_dns_record_t *r = (_cc_dns_record_t *)_cc_malloc(sizeof(_cc_dns_record_t));
             reader = dns_read_rdata(reader, buffer, r);
-            if (reader == NULL) {
+            if (reader == nullptr) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
                 _cc_free(r);
                 return false;
@@ -311,18 +311,18 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_eve
         for (i = 0; i < dns->header.addition; i++) {
             _cc_dns_record_t *r = (_cc_dns_record_t *)_cc_malloc(sizeof(_cc_dns_record_t));
             reader = dns_read_rdata(reader, buffer, r);
-            if (reader == NULL) {
+            if (reader == nullptr) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
                 _cc_free(r);
                 return false;
             }
             _cc_list_iterator_push_front(&dns->additional, &r->lnk);
         }
-        _print(dns);
+        dump(dns);
         return true;
     }
 
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         return false;
     }
 
@@ -372,9 +372,9 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
 
     {
         _cc_event_cycle_t *cycle = _cc_get_event_cycle();
-        if (cycle->driver.add(cycle, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_, dns_sock, 60000, _dns_response_callback,
-                              dns) == NULL) {
-            _cc_logger_error(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), dns_sock);
+        if (cycle->attach(cycle, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_, dns_sock, 60000, _dns_response_callback,
+                              dns) == nullptr) {
+            _cc_logger_error(_T("thread %d attach socket (%d) event fial."), _cc_get_thread_id(nullptr), dns_sock);
             return _CC_DNS_ERR_SEE_ERRNO_;
         }
     }
@@ -385,7 +385,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
  *
  * */
 _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *addr) {
-    _cc_assert(addr != NULL);
+    _cc_assert(addr != nullptr);
 
     bzero(addr, sizeof(struct sockaddr_in));
 
@@ -492,7 +492,7 @@ void _cc_dns_servers(const tchar_t *servers[], int count) {
             }
             if (strncmp(line, "nameserver", 10) == 0) {
                 p = strtok(line, " ");
-                p = strtok(NULL, " ");
+                p = strtok(nullptr, " ");
                 // p now is the dns ip :)
                 if (_cc_inet_pton(AF_INET, p, (byte_t *)&dns_servers[dns_server_count])) {
                     // printf("nameserver:%s\n", p);

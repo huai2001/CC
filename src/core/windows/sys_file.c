@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,15 +18,35 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
+#include <libcc/alloc.h>
 
-#define _GET_HANDLE(x) (HANDLE)(x->fp)
+#ifdef __CC_WIN32_CE__
+/*-- Called from fileio.c */
+_CC_API_PUBLIC(int) unlink(const tchar_t *filename) {
+    /* Called to delete files before an extract overwrite. */
+    return (DeleteFile(filename) ? 0 : -1);
+}
+
+#if __CC_WIN32_CE__ < 211
+/*
+// Old versions of Win CE prior to 2.11 do not support stdio library functions.
+// We provide simplyfied replacements that are more or less copies of the
+// UNIX style low level I/O API functions. Only unbuffered I/O in binary mode
+// is supported.
+//-- Called from fileio.c
+*/
+_CC_API_PUBLIC(int) fflush(FILE *stream) {
+    return (FlushFileBuffers((HANDLE)stream) ? 0 : EOF);
+}
+#endif
+#endif
+
 /**/
 _CC_API_PUBLIC(bool_t) flock(int fd, int32_t op) {
 #ifndef __CC_WIN32_CE__
     HANDLE hdl = (HANDLE)_get_osfhandle(fd);
     DWORD low = 1, high = 0;
-    OVERLAPPED offset = {0, 0, 0, 0, NULL};
+    OVERLAPPED offset = {0};
     if (hdl < 0) {
         return false; /* error in file descriptor */
     }
@@ -54,25 +74,25 @@ _CC_API_PUBLIC(bool_t) flock(int fd, int32_t op) {
 _CC_API_PRIVATE(int64_t) _cc_win_file_size(_cc_file_t *context) {
     LARGE_INTEGER size;
 
-    if (!context || _GET_HANDLE(context) == INVALID_HANDLE_VALUE) {
-        _cc_logger_error(_T("windows_file_size: invalid context/file not opened"));
+    if (!context || (HANDLE)context->fp == INVALID_HANDLE_VALUE) {
+        _cc_logger_error(_T("Error seek invalid context/file not opened"));
         return -1;
     }
 
-    if (!GetFileSizeEx(_GET_HANDLE(context), &size)) {
-        _cc_logger_error(_T("windows_file_size %s"), _cc_last_error(_cc_last_errno()));
+    if (!GetFileSizeEx((HANDLE)context->fp, &size)) {
+        _cc_logger_error(_T("Error size: %s"), _cc_last_error(_cc_last_errno()));
         return -1;
     }
 
     return size.QuadPart;
 }
 
-_CC_API_PRIVATE(bool_t) _cc_win_file_seek(_cc_file_t *context, int64_t offset, int whence) {
+_CC_API_PRIVATE(int64_t) _cc_win_file_seek(_cc_file_t *context, int64_t offset, int whence) {
     DWORD windowswhence;
     LARGE_INTEGER windowsoffset;
 
-    if (!context || _GET_HANDLE(context) == INVALID_HANDLE_VALUE) {
-        _cc_logger_error(_T("windows_file_seek: invalid context/file not opened"));
+    if (!context || (HANDLE)context->fp == INVALID_HANDLE_VALUE) {
+        _cc_logger_error(_T("Error seek: invalid context/file not opened"));
         return false;
     }
 
@@ -87,16 +107,16 @@ _CC_API_PRIVATE(bool_t) _cc_win_file_seek(_cc_file_t *context, int64_t offset, i
         windowswhence = FILE_END;
         break;
     default:
-        _cc_logger_error(_T("windows_file_seek: Unknown value for 'whence'"));
-        return false;
+        _cc_logger_error(_T("Error seek: Unknown value for 'whence'"));
+        return -1;
     }
 
     windowsoffset.QuadPart = offset;
-    if (!SetFilePointerEx(_GET_HANDLE(context), windowsoffset, &windowsoffset, windowswhence)) {
-        _cc_logger_error(_T("windows_file_seek %s"), _cc_last_error(_cc_last_errno()));
+    if (!SetFilePointerEx((HANDLE)context->fp, windowsoffset, &windowsoffset, windowswhence)) {
+        _cc_logger_error(_T("Error seek: %s"), _cc_last_error(_cc_last_errno()));
         return false;
     }
-    return true;
+    return windowsoffset.QuadPart;
 }
 
 _CC_API_PRIVATE(size_t) _cc_win_file_read(_cc_file_t *context, pvoid_t ptr, size_t size, size_t maxnum) {
@@ -105,11 +125,11 @@ _CC_API_PRIVATE(size_t) _cc_win_file_read(_cc_file_t *context, pvoid_t ptr, size
 
     total_need = size * maxnum;
 
-    if (!context || _GET_HANDLE(context) == INVALID_HANDLE_VALUE || !total_need) {
+    if (!context || (HANDLE)context->fp == INVALID_HANDLE_VALUE || !total_need) {
         return 0;
     }
 
-    if (!ReadFile(_GET_HANDLE(context), ptr, (DWORD)total_need, &byte_read, NULL)) {
+    if (!ReadFile((HANDLE)context->fp, ptr, (DWORD)total_need, &byte_read, nullptr)) {
         return 0;
     }
 
@@ -120,33 +140,44 @@ _CC_API_PRIVATE(size_t) _cc_win_file_write(_cc_file_t *context, const pvoid_t pt
     size_t total_bytes = size * num;
     DWORD byte_written = 0;
 
-    if (!context || _GET_HANDLE(context) == INVALID_HANDLE_VALUE || total_bytes <= 0 || !size) {
+    if (!context || (HANDLE)context->fp == INVALID_HANDLE_VALUE || total_bytes <= 0 || !size) {
         return 0;
     }
 
     /* if in append mode, we must go to the EOF before write */
     if (context->append) {
-        if (SetFilePointer(_GET_HANDLE(context), 0L, NULL, FILE_END) == INVALID_SET_FILE_POINTER) {
+        LARGE_INTEGER windowsoffset;
+        windowsoffset.QuadPart = 0;
+        if (!SetFilePointerEx(context->fp, windowsoffset, &windowsoffset, FILE_END)) {
+            _cc_logger_error(_T("Error seeking: %s"), strerror(errno));
             return 0;
         }
     }
 
-    if (!WriteFile(_GET_HANDLE(context), ptr, (DWORD)total_bytes, &byte_written, NULL)) {
+    if (!WriteFile((HANDLE)context->fp, ptr, (DWORD)total_bytes, &byte_written, nullptr)) {
         return 0;
     }
 
     return ((size_t)byte_written / size);
 }
 
+_CC_API_PRIVATE(bool_t) _cc_win_file_flush(_cc_file_t *context) {
+    if (!FlushFileBuffers((HANDLE)context->fp)) {
+        _cc_logger_error(_T("Error flushing: %s"), strerror(errno));
+        return false;
+    }
+    return true;
+}
+
 _CC_API_PRIVATE(bool_t) _cc_win_file_close(_cc_file_t *context) {
-    if (!context || _GET_HANDLE(context) == NULL) {
-        _cc_logger_error(_T("_cc_win_file_close: invalid context/file not closed"));
+    if (!context || (HANDLE)context->fp == nullptr) {
+        //_cc_logger_error(_T("_cc_win_file_close: invalid context/file not closed"));
         return false;
     }
 
-    if (_GET_HANDLE(context)) {
-        CloseHandle(_GET_HANDLE(context));
-        _GET_HANDLE(context) = INVALID_HANDLE_VALUE;
+    if (context->fp) {
+        CloseHandle((HANDLE)context->fp);
+        context->fp = nullptr;
     }
 
     _cc_free(context);
@@ -199,8 +230,8 @@ _CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename,
         return false;
     }
 
-    h = CreateFile(filename, (r_right | w_right), (w_right ? 0 : FILE_SHARE_READ), NULL,
-                   (fmode[0] | fmode[1] | fmode[2]), FILE_ATTRIBUTE_NORMAL, NULL);
+    h = CreateFile(filename, (r_right | w_right), (w_right ? 0 : FILE_SHARE_READ), nullptr,
+                   (fmode[0] | fmode[1] | fmode[2]), FILE_ATTRIBUTE_NORMAL, nullptr);
 
     if (h == INVALID_HANDLE_VALUE) {
         return false;
@@ -213,6 +244,7 @@ _CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename,
     f->write = _cc_win_file_write;
     f->size = _cc_win_file_size;
     f->seek = _cc_win_file_seek;
+    f->flush = _cc_win_file_flush;
     f->close = _cc_win_file_close;
 
     return true;

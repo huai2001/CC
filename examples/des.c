@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <cc/alloc.h>
-#include <cc/des.h>
-#include <cc/base64.h>
+#include <libcc/alloc.h>
+#include <libcc/des.h>
+#include <libcc/base64.h>
 
 int main (int argc, char * const argv[]) {
     int i = 0;
@@ -77,5 +77,6 @@ int main (int argc, char * const argv[]) {
 
     _tprintf(_T("des3: %s\n"), out);
 
+    system("pause");
     return 0;
 }

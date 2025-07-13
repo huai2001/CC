@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/md4.h>
-#include <cc/string.h>
+#include <libcc/md4.h>
+#include <libcc/string.h>
 
 /*
  * 32-bit integer manipulation macros (little endian)
@@ -55,7 +55,7 @@ _CC_API_PUBLIC(void) _cc_md4_init(_cc_md4_t *ctx) {
     ctx->state[3] = 0x10325476;
 }
 
-#if !defined(_CC_MD4_PROCESS_ALT)
+#ifndef _CC_MD4_PROCESS_ALT
 _CC_API_PUBLIC(void) _cc_md4_process(_cc_md4_t *ctx, const byte_t data[64]) {
     uint32_t X[16], A, B, C, D;
 
@@ -211,9 +211,9 @@ _CC_API_PUBLIC(void) _cc_md4_update(_cc_md4_t *ctx, const byte_t *input, size_t 
     }
 }
 
-static const byte_t md4_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                       0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                       0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static const byte_t md4_padding[64] = {0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 /*
  * MD4 final digest
@@ -251,7 +251,7 @@ _CC_API_PUBLIC(bool_t) _cc_md4_fp(FILE *fp, tchar_t *output) {
     long seek_cur = 0;
     _cc_md4_t c;
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         return false;
     }
 
@@ -290,7 +290,7 @@ _CC_API_PUBLIC(bool_t) _cc_md4file(const tchar_t *filename, tchar_t *output) {
 /*
  * output = MD4( input buffer )
  */
-_CC_API_PUBLIC(void) _cc_md4(const byte_t *input, uint32_t length, tchar_t *output) {
+_CC_API_PUBLIC(void) _cc_md4(const byte_t *input, size_t length, tchar_t *output) {
     _cc_md4_t c;
     byte_t md[_CC_MD4_DIGEST_LENGTH_];
 

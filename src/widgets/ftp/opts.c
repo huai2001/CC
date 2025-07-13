@@ -1,4 +1,4 @@
-#include <cc/widgets/ftp.h>
+#include <libcc/widgets/ftp.h>
 
 _CC_API_PRIVATE(bool_t) libftp_opts(_cc_ftp_t* ftp,
                                      const byte_t* buf,
@@ -63,7 +63,7 @@ _CC_API_PRIVATE(bool_t) libftp_opts(_cc_ftp_t* ftp,
 
 bool_t _cc_ftp_opts_port_passive(_cc_ftp_t* ftp) {
     if (ftp->cmode == _CC_LIBFTP_PASSIVE) {
-        libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_PASV, libftp_opts, NULL);
+        libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_PASV, libftp_opts, nullptr);
         _ftp_send_command(ftp->ctrl.e, "PASV\r\n", 6 * sizeof(char_t));
         return true;
     } else {
@@ -81,12 +81,12 @@ bool_t _cc_ftp_opts_datatype(_cc_ftp_t* ftp) {
     char_t cmd[256];
     int32_t cmd_len = 0;
 
-    _cc_assert(ftp != NULL);
+    _cc_assert(ftp != nullptr);
 
-    if (ftp == NULL)
+    if (ftp == nullptr)
         return false;
 
-    if (ftp->ctrl.e == NULL) {
+    if (ftp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -94,7 +94,7 @@ bool_t _cc_ftp_opts_datatype(_cc_ftp_t* ftp) {
     if (ftp->resp.flag != _CC_LIBFTP_RESP_PENDING) {
         return false;
     }
-    libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_DATATYPE, libftp_opts, NULL);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_DATATYPE, libftp_opts, nullptr);
 
     cmd_len = _snprintf(cmd, _cc_countof(cmd), "TYPE %c\r\n", ftp->smode);
     _ftp_send_command(ftp->ctrl.e, cmd, cmd_len * sizeof(char_t));
@@ -103,12 +103,12 @@ bool_t _cc_ftp_opts_datatype(_cc_ftp_t* ftp) {
 }
 
 bool_t _cc_ftp_opts_utf8(_cc_ftp_t* ftp) {
-    _cc_assert(ftp != NULL);
+    _cc_assert(ftp != nullptr);
 
-    if (ftp == NULL)
+    if (ftp == nullptr)
         return false;
 
-    if (ftp->ctrl.e == NULL) {
+    if (ftp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -117,7 +117,7 @@ bool_t _cc_ftp_opts_utf8(_cc_ftp_t* ftp) {
         return false;
     }
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_UTF8, libftp_opts, NULL);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_UTF8, libftp_opts, nullptr);
 
     _ftp_send_command(ftp->ctrl.e, "OPTS UTF8 ON\r\n", 14 * sizeof(char_t));
     return true;
@@ -127,12 +127,12 @@ bool_t _cc_ftp_open_port(_cc_ftp_t* ftp) {
     char_t cmd[256];
     int32_t len = 0;
     int32_t err = 0;
-    _cc_assert(ftp != NULL);
+    _cc_assert(ftp != nullptr);
     _cc_socklen_t l = 0;
-    if (ftp == NULL)
+    if (ftp == nullptr)
         return false;
 
-    if (ftp->ctrl.e == NULL) {
+    if (ftp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -143,8 +143,7 @@ bool_t _cc_ftp_open_port(_cc_ftp_t* ftp) {
 
     l = sizeof(ftp->sa);
     if (getsockname(ftp->data.e->fd, &ftp->sa, &l) < 0) {
-        _cc_logger_error(_T("getsockname error(%d) %s"), err,
-                         _cc_last_error(err));
+        _cc_logger_error(_T("getsockname error(%d) %s"), err, _cc_last_error(err));
         return false;
     }
 
@@ -154,7 +153,7 @@ bool_t _cc_ftp_open_port(_cc_ftp_t* ftp) {
         (unsigned char)ftp->sa.sa_data[4], (unsigned char)ftp->sa.sa_data[5],
         (unsigned char)ftp->sa.sa_data[0], (unsigned char)ftp->sa.sa_data[1]);
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_PORT, libftp_opts, NULL);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_OPTS_PORT, libftp_opts, nullptr);
 
     _ftp_send_command(ftp->ctrl.e, cmd, len);
     return true;

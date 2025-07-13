@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -18,12 +18,12 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
+#include <libcc/alloc.h>
 #import <Foundation/Foundation.h>
 
 _CC_API_PRIVATE(FILE*) _osx_open_file_m(const tchar_t *file, const tchar_t *mode) {
     @autoreleasepool {
-        FILE* fp = NULL;
+        FILE* fp = nullptr;
 
         /* If the file mode is read, skip all the bundle stuff because generally the bundle is read-only. */
         if (*mode != 'r' && *(mode + 1) != 'b') {
@@ -48,5 +48,5 @@ _CC_API_PRIVATE(FILE*) _osx_open_file_m(const tchar_t *file, const tchar_t *mode
 /**/
 _CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
     f->fp = (pvoid_t)_osx_open_file_m(filename, mode);
-    return f->fp != NULL;
+    return f->fp != nullptr;
 }

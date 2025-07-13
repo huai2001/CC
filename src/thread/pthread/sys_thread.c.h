@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -30,9 +30,9 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include <cc/alloc.h>
-#include <cc/thread.h>
-#include <cc/time.h>
+#include <libcc/alloc.h>
+#include <libcc/thread.h>
+#include <libcc/time.h>
 #include <semaphore.h>
 
 /* Set up for C function definitions, even when using C++ */

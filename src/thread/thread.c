@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,40 +18,26 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/array.h>
-#include <cc/string.h>
-#include <cc/thread.h>
-
-/* Arguments and callback to setup and run the user thread function */
-typedef struct _cc_thread_args {
-    _cc_thread_callback_t callback;
-    void *user_args;
-    _cc_semaphore_t *wait;
-    _cc_thread_t *info;
-} _cc_thread_args_t;
-
+#include <libcc/alloc.h>
+#include <libcc/array.h>
+#include <libcc/string.h>
+#include <libcc/thread.h>
 /**/
 _CC_API_PUBLIC(void) _cc_thread_running_function(void *args) {
-    _cc_thread_args_t *thread_args;
     _cc_thread_t *self;
     _cc_thread_callback_t user_func;
     void *user_args;
 
     /* Get the thread id */
-    thread_args = (_cc_thread_args_t *)args;
-    thread_args->info->thread_id = _cc_get_current_sys_thread_id();
+    self = (_cc_thread_t *)args;
+    self->thread_id = _cc_get_current_sys_thread_id();
 
     /* Figure out what function to run */
-    self = thread_args->info;
-    user_func = thread_args->callback;
-    user_args = thread_args->user_args;
+    user_func = self->callback;
+    user_args = self->user_args;
 
     /* Perform any system-dependent setup - this function may not fail */
     _cc_setup_sys_thread(self->name);
-
-    /* Wake up the parent thread */
-    _cc_semaphore_post(thread_args->wait);
 
     /* Run the function */
     self->status = user_func(self, user_args);
@@ -73,7 +59,6 @@ _CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread(_cc_thread_callback_t callback, 
 _CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize,
                                                pvoid_t args) {
     _cc_thread_t *self;
-    _cc_thread_args_t thread_args;
 
     /* Allocate memory for the thread info structure */
     self = _CC_MALLOC(_cc_thread_t);
@@ -82,32 +67,20 @@ _CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread_with_stacksize(_cc_thread_callba
     self->stacksize = stacksize > 0 ? stacksize : 0;
     _cc_atomic32_set(&self->state, _CC_THREAD_STATE_ALIVE_);
 
-    if (name != NULL) {
+    if (name != nullptr) {
         self->name = _cc_tcsdup(name);
     }
 
     /* Set up the arguments for the thread */
-    thread_args.callback = callback;
-    thread_args.user_args = args;
-    thread_args.info = self;
-    thread_args.wait = _cc_create_semaphore(0);
-
-    if (_cc_unlikely(thread_args.wait == NULL)) {
-        _cc_free(self);
-        return (NULL);
-    }
+    self->callback = callback;
+    self->user_args = args;
 
     /* Create the thread and go! */
-    if (_cc_likely(_cc_create_sys_thread(self, &thread_args))) {
-        /* Wait for the thread function to use arguments */
-        _cc_semaphore_wait(thread_args.wait);
-    } else {
+    if (_cc_unlikely(!_cc_create_sys_thread(self))) {
         /* Oops, failed.  Gotta free everything */
         _cc_free(self);
-        self = NULL;
+        self = nullptr;
     }
-
-    _cc_destroy_semaphore(&thread_args.wait);
 
     /* Everything is running now */
     return self;
@@ -130,7 +103,7 @@ _CC_API_PUBLIC(int32_t) _cc_get_thread_id(_cc_thread_t *self) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_wait_thread(_cc_thread_t *self, int32_t *status) {
-    _cc_assert(self != NULL);
+    _cc_assert(self != nullptr);
 
     _cc_wait_sys_thread(self);
     if (status) {
@@ -142,7 +115,7 @@ _CC_API_PUBLIC(void) _cc_wait_thread(_cc_thread_t *self, int32_t *status) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_detach_thread(_cc_thread_t *self) {
-    _cc_assert(self != NULL);
+    _cc_assert(self != nullptr);
 
     /* Grab dibs if the state is alive+joinable. */
     if (_cc_atomic32_cas(&self->state, _CC_THREAD_STATE_ALIVE_, _CC_THREAD_STATE_DETACHED_)) {
@@ -153,7 +126,7 @@ _CC_API_PUBLIC(void) _cc_detach_thread(_cc_thread_t *self) {
         if ((thread_state == _CC_THREAD_STATE_DETACHED_) || (thread_state == _CC_THREAD_STATE_CLEANED_)) {
             return; /* already detached (you shouldn't call this twice!) */
         } else if (thread_state == _CC_THREAD_STATE_ZOMBIE_) {
-            _cc_wait_thread(self, NULL); /* already done, clean it up. */
+            _cc_wait_thread(self, nullptr); /* already done, clean it up. */
         } else {
             _cc_assert(0 && "Unexpected thread state");
         }

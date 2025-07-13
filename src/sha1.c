@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/sha.h>
-#include <cc/string.h>
+#include <libcc/sha.h>
+#include <libcc/string.h>
 
 #if !defined(_CC_SHA1_ALT_)
 /*
@@ -27,20 +27,20 @@
  */
 #ifndef GET_UINT32_BE
 #define GET_UINT32_BE(n, b, i)                                                                                         \
-    {                                                                                                                  \
+    do {                                                                                                               \
         (n) = ((uint32_t)(b)[(i)] << 24) | ((uint32_t)(b)[(i) + 1] << 16) | ((uint32_t)(b)[(i) + 2] << 8) |            \
               ((uint32_t)(b)[(i) + 3]);                                                                                \
-    }
+    } while(0)
 #endif
 
 #ifndef PUT_UINT32_BE
 #define PUT_UINT32_BE(n, b, i)                                                                                         \
-    {                                                                                                                  \
+    do {                                                                                                               \
         (b)[(i)] = (byte_t)((n) >> 24);                                                                                \
         (b)[(i) + 1] = (byte_t)((n) >> 16);                                                                            \
         (b)[(i) + 2] = (byte_t)((n) >> 8);                                                                             \
         (b)[(i) + 3] = (byte_t)((n));                                                                                  \
-    }
+    } while(0)
 #endif
 
 /*
@@ -84,10 +84,10 @@ _CC_API_PUBLIC(void) _cc_sha1_process(_cc_sha1_t *ctx, const byte_t data[64]) {
     (temp = W[(t - 3) & 0x0F] ^ W[(t - 8) & 0x0F] ^ W[(t - 14) & 0x0F] ^ W[t & 0x0F], (W[t & 0x0F] = S(temp, 1)))
 
 #define P(a, b, c, d, e, x)                                                                                            \
-    {                                                                                                                  \
+    do {                                                                                                               \
         e += S(a, 5) + F(b, c, d) + K + x;                                                                             \
         b = S(b, 30);                                                                                                  \
-    }
+    } while(0)
 
     A = ctx->state[0];
     B = ctx->state[1];
@@ -293,7 +293,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha1_fp(FILE *fp, tchar_t *output) {
     long seek_cur = 0;
     _cc_sha1_t c;
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         return false;
     }
 

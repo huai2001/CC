@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/crc.h>
-#include <cc/string.h>
+#include <libcc/crc.h>
+#include <libcc/string.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -332,8 +332,8 @@ _CC_API_PUBLIC(uint8_t *) _cc_build_crc8_msb_table(uint8_t polynomial) {
 }
 
 /*Return a 8-bit CRC of the contents of the buffer.*/
-_CC_API_PUBLIC(uint8_t) _cc_crc8(const byte_t *s, uint32_t len, bool_t msb) {
-    uint32_t i;
+_CC_API_PUBLIC(uint8_t) _cc_crc8(const byte_t *s, size_t len, bool_t msb) {
+    size_t i;
     uint8_t crc = 0;
     const uint8_t *crc_table;
     if (msb) {
@@ -349,8 +349,8 @@ _CC_API_PUBLIC(uint8_t) _cc_crc8(const byte_t *s, uint32_t len, bool_t msb) {
 }
 
 /*Return a 16-bit CRC of the contents of the buffer.*/
-_CC_API_PUBLIC(uint16_t) _cc_crc16(const byte_t *s, uint32_t len) {
-    uint32_t i;
+_CC_API_PUBLIC(uint16_t) _cc_crc16(const byte_t *s, size_t len) {
+    size_t i;
     uint16_t crc = 0;
 
     for (i = 0; i < len; i++) {
@@ -360,8 +360,8 @@ _CC_API_PUBLIC(uint16_t) _cc_crc16(const byte_t *s, uint32_t len) {
 }
 
 /*Return a 32-bit CRC32 of the contents of the buffer.*/
-_CC_API_PUBLIC(uint32_t) _cc_crc32(const byte_t *s, uint32_t len) {
-    uint32_t i;
+_CC_API_PUBLIC(uint32_t) _cc_crc32(const byte_t *s, size_t len) {
+    size_t i;
     uint32_t crc = 0xffffffff;
 
     for (i = 0; i < len; i++) {
@@ -371,8 +371,8 @@ _CC_API_PUBLIC(uint32_t) _cc_crc32(const byte_t *s, uint32_t len) {
 }
 
 /*Return a 32-bit CRC32-MPEG-2 of the contents of the buffer.*/
-_CC_API_PUBLIC(uint32_t) _cc_crc32_mpeg2(const byte_t *s, uint32_t len) {
-    uint32_t i;
+_CC_API_PUBLIC(uint32_t) _cc_crc32_mpeg2(const byte_t *s, size_t len) {
+    size_t i;
     uint32_t crc = 0xffffffff;
 
     for (i = 0; i < len; i++) {
@@ -382,8 +382,8 @@ _CC_API_PUBLIC(uint32_t) _cc_crc32_mpeg2(const byte_t *s, uint32_t len) {
 }
 
 /*Return a 64-bit CRC of the contents of the buffer.*/
-_CC_API_PUBLIC(uint64_t) _cc_cr64(const byte_t *s, uint32_t len) {
-    uint32_t i;
+_CC_API_PUBLIC(uint64_t) _cc_crc64(const byte_t *s, size_t len) {
+    size_t i;
     uint64_t crc = 0;
 
     for (i = 0; i < len; i++) {
@@ -393,10 +393,10 @@ _CC_API_PUBLIC(uint64_t) _cc_cr64(const byte_t *s, uint32_t len) {
 }
 
 /**/
-_CC_API_PUBLIC(uint32_t) _cc_hash(const byte_t *key, uint32_t len) {
+_CC_API_PUBLIC(uint32_t) _cc_hash(const byte_t *key, size_t len) {
     const unsigned int seed = 131;
     uint32_t hash = 0;
-    uint32_t i = 0;
+    size_t i = 0;
 
     while (i < len) {
         hash = hash * seed + (*key++);
@@ -407,13 +407,14 @@ _CC_API_PUBLIC(uint32_t) _cc_hash(const byte_t *key, uint32_t len) {
 }
 
 /**/
-_CC_API_PUBLIC(uint32_t) _cc_hash_rotating(const byte_t *key, uint32_t len) {
-    uint32_t hash, i;
+_CC_API_PUBLIC(uint32_t) _cc_hash_rotating(const byte_t *key, size_t len) {
+    size_t hash;
+    size_t i;
 
     for (hash = len, i = 0; i < len; ++i)
         hash = (hash << 4) ^ (hash >> 28) ^ key[i];
 
-    return hash;
+    return (uint32_t)hash;
 }
 
 #define FNV_32_PRIME 0x01000193
@@ -426,54 +427,54 @@ _CC_API_PUBLIC(uint32_t) _cc_hash_rotating(const byte_t *key, uint32_t len) {
 #define FNV1_64_INIT 0xCBF29CE484222325
 #define FNV1_64A_INIT FNV1_64_INIT
 
-_CC_API_PRIVATE(uint32_t) _hash_fnv_32(const byte_t *key, uint32_t len, uint32_t havl_init) {
+_CC_API_PRIVATE(uint32_t) _hash_fnv_32(const byte_t *key, size_t len, uint32_t havl_init) {
     uint32_t hash = havl_init;
-    uint32_t i;
+    size_t i;
     for (i = 0; i < len; i++) {
         hash = (hash * FNV_32_PRIME) ^ *(key + i);
     }
     return hash;
 }
 
-_CC_API_PRIVATE(uint32_t) _hash_fnva_32(const byte_t *key, uint32_t len, uint32_t havl_init) {
+_CC_API_PRIVATE(uint32_t) _hash_fnva_32(const byte_t *key, size_t len, uint32_t havl_init) {
     uint32_t hash = havl_init;
-    uint32_t i;
+    size_t i;
     for (i = 0; i < len; i++) {
         hash = (hash ^ *(key + i)) * FNV_32_PRIME;
     }
     return hash;
 }
 
-_CC_API_PRIVATE(uint64_t) _hash_fnv_64(const byte_t *key, uint32_t len, uint64_t havl_init) {
+_CC_API_PRIVATE(uint64_t) _hash_fnv_64(const byte_t *key, size_t len, uint64_t havl_init) {
     uint64_t hash = havl_init;
-    uint32_t i;
+    size_t i;
     for (i = 0; i < len; i++) {
         hash = (hash * FNV_64_PRIME) ^ *(key + i);
     }
     return hash;
 }
 
-_CC_API_PRIVATE(uint64_t) _hash_fnva_64(const byte_t *key, uint32_t len, uint64_t havl_init) {
+_CC_API_PRIVATE(uint64_t) _hash_fnva_64(const byte_t *key, size_t len, uint64_t havl_init) {
     uint64_t hash = havl_init;
-    uint32_t i;
+    size_t i;
     for (i = 0; i < len; i++) {
         hash = (hash ^ *(key + i)) * FNV_64_PRIME;
     }
     return hash;
 }
 
-_CC_API_PUBLIC(uint32_t) _cc_hash_fnv1_32(const byte_t *key, uint32_t len) {
+_CC_API_PUBLIC(uint32_t) _cc_hash_fnv1_32(const byte_t *key, size_t len) {
     return _hash_fnv_32(key, len, FNV1_32_INIT);
 }
 
-_CC_API_PUBLIC(uint32_t) _cc_hash_fnv1a_32(const byte_t *key, uint32_t len) {
+_CC_API_PUBLIC(uint32_t) _cc_hash_fnv1a_32(const byte_t *key, size_t len) {
     return _hash_fnva_32(key, len, FNV1_32_INIT);
 }
 
-_CC_API_PUBLIC(uint64_t) _cc_hash_fnv1_64(const byte_t *key, uint32_t len) {
+_CC_API_PUBLIC(uint64_t) _cc_hash_fnv1_64(const byte_t *key, size_t len) {
     return _hash_fnv_64(key, len, FNV1_64_INIT);
 }
 
-_CC_API_PUBLIC(uint64_t) _cc_hash_fnv1a_64(const byte_t *key, uint32_t len) {
+_CC_API_PUBLIC(uint64_t) _cc_hash_fnv1a_64(const byte_t *key, size_t len) {
     return _hash_fnva_64(key, len, FNV1_64_INIT);
 }

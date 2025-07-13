@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/socket/socket.h>
+#include <libcc/alloc.h>
+#include <libcc/socket/socket.h>
 
 #define _CC_INET_ADDRSTRLEN_ 16
 #define _CC_INET6_ADDRSTRLEN_ 46
@@ -28,7 +28,7 @@
 _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *addr, _cc_socklen_t socklen) {
     int i;
     struct hostent *remoteHost;
-    if ((remoteHost = gethostbyname(host)) == NULL) {
+    if ((remoteHost = gethostbyname(host)) == nullptr) {
         return false;
     }
     i = 0;
@@ -49,8 +49,8 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
     bzero(&hints, sizeof(hints));
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_family = family;
-    rc = _cc_getaddrinfo(host, NULL, &hints, &addr_list);
-    if (rc != 0 || addr_list == NULL) {
+    rc = _cc_getaddrinfo(host, nullptr, &hints, &addr_list);
+    if (rc != 0 || addr_list == nullptr) {
 #ifdef EAI_SYSTEM
         _cc_logger_error(_T("getaddrinfo Error: %s, %s"), rc != EAI_SYSTEM ? gai_strerror(rc) : _cc_last_error(rc), host);
 #else
@@ -62,7 +62,7 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
         return false;
     }
 
-    for (cur = addr_list; cur != NULL; cur = cur->ai_next) {
+    for (cur = addr_list; cur != nullptr; cur = cur->ai_next) {
         if (cur->ai_family == family) {
             memcpy(addr, cur->ai_addr, socklen);
             result = true;
@@ -76,13 +76,13 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
 #endif
 /**/
 _CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t *ip, int port) {
-    _cc_assert(addr != NULL);
+    _cc_assert(addr != nullptr);
 
     bzero(addr, sizeof(struct sockaddr_in));
 
     addr->sin_family = AF_INET;
     addr->sin_port = htons(port);
-    if (ip == NULL) {
+    if (ip == nullptr) {
         addr->sin_addr.s_addr = INADDR_ANY;
         return;
     }
@@ -93,19 +93,18 @@ _CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t 
 
     if (_get_remote_host(AF_INET, ip, (_cc_sockaddr_t *)addr, sizeof(struct sockaddr_in))) {
         addr->sin_port = htons(port);
-        return;
     }
 }
 
 /**/
 _CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t *ip, int port) {
-    _cc_assert(addr != NULL);
+    _cc_assert(addr != nullptr);
 
     bzero(addr, sizeof(struct sockaddr_in6));
 
     addr->sin6_family = AF_INET6;
     addr->sin6_port = htons(port);
-    if (ip == NULL) {
+    if (ip == nullptr) {
         _cc_inet_pton6(_T("::"), (byte_t *)&addr->sin6_addr);
         return;
     }
@@ -116,7 +115,6 @@ _CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t
 
     if (_get_remote_host(AF_INET6, ip, (_cc_sockaddr_t *)addr, sizeof(struct sockaddr_in6))) {
         addr->sin6_port = htons(port);
-        return;
     }
 }
 
@@ -224,7 +222,7 @@ _CC_API_PUBLIC(bool_t) _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t s
             tp += _tcslen(tp);
             break;
         }
-        tp += _stprintf(tp, _T("%x"), words[i]);
+        tp += _sntprintf(tp, (int32_t)(sizeof tmp - (tp - tmp)), _T("%x"), words[i]);
     }
 
     /* Was it a trailing run of 0x00's? */
@@ -249,7 +247,7 @@ _CC_API_PUBLIC(bool_t) _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t s
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) {
-    if (src == NULL || dst == NULL) {
+    if (src == nullptr || dst == nullptr) {
         return false;
     }
 
@@ -258,11 +256,11 @@ _CC_API_PUBLIC(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) {
         return (_cc_inet_pton4(src, dst));
     case AF_INET6: {
         long len = 0;
-        const tchar_t *p = NULL;
+        const tchar_t *p = nullptr;
         tchar_t tmp[_CC_INET6_ADDRSTRLEN_], *s;
         s = (tchar_t *)src;
         p = _tcschr(src, _T('%'));
-        if (p != NULL) {
+        if (p != nullptr) {
             s = tmp;
             len = (long)(p - (tchar_t *)src);
             if (len > _CC_INET6_ADDRSTRLEN_ - 1) {
@@ -291,7 +289,7 @@ _CC_API_PUBLIC(bool_t) _cc_inet_pton4(const tchar_t *src, byte_t *dst) {
     while ((ch = *src++) != '\0') {
         const tchar_t *pch;
 
-        if ((pch = _tcschr(digits, ch)) != NULL) {
+        if ((pch = _tcschr(digits, ch)) != nullptr) {
             unsigned long nw = (unsigned long)(*tp * 10 + (pch - digits));
 
             if (saw_digit && *tp == 0) {
@@ -340,7 +338,7 @@ _CC_API_PUBLIC(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst) {
 
     bzero((tp = tmp), sizeof tmp);
     endp = tp + sizeof tmp;
-    colonp = NULL;
+    colonp = nullptr;
 
     /* Leading :: requires some special handling. */
     if (*src == _T(':')) {
@@ -353,11 +351,11 @@ _CC_API_PUBLIC(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst) {
     while ((ch = *src++) != _T('\0')) {
         const tchar_t *pch;
 
-        if ((pch = _tcschr((xdigits = _lower_xdigits), ch)) == NULL) {
+        if ((pch = _tcschr((xdigits = _lower_xdigits), ch)) == nullptr) {
             pch = _tcschr((xdigits = _upper_xdigits), ch);
         }
 
-        if (pch != NULL) {
+        if (pch != nullptr) {
             val <<= 4;
             val |= (pch - xdigits);
             if (++seen_xdigits > 4) {
@@ -403,7 +401,7 @@ _CC_API_PUBLIC(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst) {
         *tp++ = (byte_t)(val >> 8) & 0xff;
         *tp++ = (byte_t)val & 0xff;
     }
-    if (colonp != NULL) {
+    if (colonp != nullptr) {
         /*
          * Since some memmove()'s erroneously fail to handle
          * overlapping regions, we'll do the shift by hand.

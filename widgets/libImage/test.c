@@ -1,33 +1,3 @@
-/*
- * Copyright (c) 2006 - 2014 QIU ZHONG HUAI <bodhi8@163.com>
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
-
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *    "This product includes GHO software, freely available from
- *    <https://github.com/huai2001/tinyGL>".
- * 4. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
-
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 #include "image.h"
 #include <libcc.h>
 
@@ -114,7 +84,7 @@ void _cc_image_to_binary(_cc_image_t *src, double SPACE_BREAKING_POINT) {
 
 #if MAIN_BIN
 void to(const char* src, const char* dest) {
-     _cc_image_t *img = _cc_load_image(src);
+     _cc_image_t *img = _cc_image_from_file(src);
      if (img) {
 		//printf("src:%s\ndst:%s\nSPACE_BREAKING_POINT:%f\n",src,dest,SPACE_BREAKING_POINT);
         _cc_image_to_gray(img);
@@ -139,7 +109,7 @@ static bool_t is_filler(tchar_t *name) {
     tchar_t *p;
 
     p = _tcsrchr(name, _T('.'));
-    if (p == NULL) {
+    if (p == nullptr) {
         return true;
     }
     
@@ -159,11 +129,11 @@ void finder(const tchar_t* source_path, const tchar_t* save_path) {
     struct dirent* d;
 
     dir = opendir(source_path);
-    if (dir == NULL) {
+    if (dir == nullptr) {
         return;
     }
 
-    while ((d = readdir(dir)) != NULL) {
+    while ((d = readdir(dir)) != nullptr) {
         //
         if (d->d_type == DT_DIR &&
             ((d->d_name[0] == '.' && d->d_name[1] == 0) ||
@@ -206,9 +176,9 @@ const char *get_argv(int argc, char* const argv[], int *point) {
 
 int main(int argc, char* const argv[]) {
     int i;
-    const char* src = NULL;
-    const char* dest = NULL;
-    const char* point = NULL;
+    const char* src = nullptr;
+    const char* dest = nullptr;
+    const char* point = nullptr;
     int r = 0;
     double SPACE_BREAKING_POINT = 0;
 
@@ -242,11 +212,11 @@ int main(int argc, char* const argv[]) {
         }
     }
 
-    if (point != NULL) {
+    if (point != nullptr) {
         SPACE_BREAKING_POINT = atof(point) / 30.0f;
     }
 
-    if (src == NULL || dest == NULL) {
+    if (src == nullptr || dest == nullptr) {
         print_usage();
         return 1;
     }

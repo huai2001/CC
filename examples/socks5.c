@@ -5,7 +5,7 @@
 //定义一个事件对象
 static _cc_event_cycle_t network_event;
 //定义一个线程
-static _cc_thread_t *network_thread = NULL;
+static _cc_thread_t *network_thread = nullptr;
 //线程生命周期变量
 static bool_t keep_active = true;
 
@@ -164,38 +164,38 @@ BND.PORT 代理服务器连接目标服务器成功后的代理服务器端口
 
 //send_socks5_request(cycle, e, "www.ip138.com", 80);
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
+static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
     /*成功连接服务器*/
-    if (events & _CC_EVENT_CONNECTED_) {
+    if (which & _CC_EVENT_CONNECTED_) {
         _tprintf(_T("%d connect to server.\n"), e->fd);
         
-        _cc_bind_event_buffer(cycle, &e->buffer);
+        e->buffer = _cc_alloc_event_buffer();
         
         return send_socks5_methods(cycle, e);
     }
     
     /*无法连接*/
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("%d disconnect to server.\n"), e->fd);
         return false;
     }
     
     /*有数据可以读*/
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         if (!_cc_event_recv(e)) {
             _tprintf(_T("TCP close %d\n"), e->fd);
             return false;
         }
         
         if (e->buffer) {
-            e->buffer->r.buf[e->buffer->r.length] = 0;
+            e->buffer->r.bytes[e->buffer->r.length] = 0;
             e->buffer->r.length = 0;
-            byte_t *s = e->buffer->r.buf;
+            byte_t *s = e->buffer->r.bytes;
             switch(socks5_status) {
                 case 0:{
                     if (*s == 0x05 && *(s + 1) == 0x02) {
                         socks5_status = 1;
-                        return send_socks5_auth(cycle, e, "huai2001", "123654aa");
+                        return send_socks5_auth(cycle, e, "account", "123654aa");
                     }
                 }
                     break;
@@ -214,7 +214,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
                     }
                     break;
                 default:
-                    printf("%s", e->buffer->r.buf);
+                    printf("%s", e->buffer->r.bytes);
                 }
             }
         }
@@ -222,13 +222,13 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         return true;
     }
     /*可写数据*/
-    if (events & _CC_EVENT_WRITABLE_) {
-        _cc_event_send(e, NULL, 0);
+    if (which & _CC_EVENT_WRITABLE_) {
+        _cc_event_send(e, nullptr, 0);
         return true;
     }
     
     /*连接超时*/
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
         return false;
     }
@@ -244,15 +244,15 @@ static _cc_event_t *connect_server(const tchar_t* addr, uint16_t port) {
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (!fd){
         printf("socket %d\n", fd);
-        return NULL;
+        return nullptr;
     }
     
     _cc_set_socket_nonblock(fd, true);
     
     _cc_inet_ipv4_addr(&dest, addr, port);
     
-    return network_event.driver.connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_, fd,
-                                        120000, network_event_callback, NULL,
+    return network_event.delegator.connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_, fd,
+                                        120000, network_event_callback, nullptr,
                                         (const _cc_sockaddr_t*)&dest, sizeof(struct sockaddr_in));
 }
 
@@ -272,7 +272,7 @@ int main (int argc, char * const argv[]) {
     network_thread = _cc_create_thread(thread_running, "socks5", &network_event);
     
     /*连接到服务端口为8088*/
-    if(connect_server(_T("47.96.85.231"), 3128) == NULL) {
+    if(connect_server(_T("47.96.85.231"), 3128) == nullptr) {
         _tprintf(_T("Unable to connect to the network port 3128\n"));
     }
 
@@ -285,9 +285,9 @@ int main (int argc, char * const argv[]) {
     /*释放资源*/
     keep_active = false;
     /*等待线程退出*/
-    _cc_wait_thread(network_thread, NULL);
+    _cc_wait_thread(network_thread, nullptr);
     /*释放事件资源*/
-    network_event.driver.quit(&network_event);
+    network_event.delegator.quit(&network_event);
     /*卸载系统网络*/
     _cc_uninstall_socket();
     

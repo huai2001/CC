@@ -11,7 +11,7 @@ int main (int argc, char* argv[]) {
     int w = 1500;
     int i;
     _cc_prd_t prd;
-    srand(time(NULL));
+    srand(time(nullptr));
 
     for (i = 1; i < 100; i++) {
         _cc_calculate_prd(&prd, i);

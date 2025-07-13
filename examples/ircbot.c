@@ -43,7 +43,7 @@ static bool_t send_message(_cc_event_t *e) {
 
 static bool_t close_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (curr_event == e) {
-        curr_event = NULL;
+        curr_event = nullptr;
         _putts(_T("Press 'enter' key to exit\n"));
     }
     
@@ -71,14 +71,14 @@ static void onLine(_cc_event_t *e, const char_t* data, uint16_t length) {
     }
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t events) {
+static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
     /*成功连接服务器*/
-    if (events & _CC_EVENT_CONNECTED_) {
+    if (which & _CC_EVENT_CONNECTED_) {
         tchar_t data[1024];
         tchar_t nick[32];
         uint16_t len;
         
-        _sntprintf(nick, _cc_countof(nick), _T("CCBot %04X"), ((uint32_t)time(NULL)) % 0xffff);
+        _sntprintf(nick, _cc_countof(nick), _T("CCBot %04X"), ((uint32_t)time(nullptr)) % 0xffff);
         len = _sntprintf(data, _cc_countof(data), _T("NICK %s\r\nUSER %s %s bla : %s\r\n"), 
             nick, nick, nick, nick);
 
@@ -88,13 +88,13 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     }
     
     /*无法连接*/
-    if (events & _CC_EVENT_DISCONNECT_) {
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("Disconnect to server: %s.\n"), _cc_last_error(_cc_last_errno()));
         return close_event(cycle, e);
     }
     
     /*有数据可以读*/
-    if (events & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         if (!_cc_event_recv(e)) {
             _tprintf(_T("TCP close %d\n"), e->fd);
             return close_event(cycle, e);
@@ -106,19 +106,19 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
             int start;
             
             start = 0;
-            r->buf[r->length - 1] = 0;
+            r->bytes[r->length - 1] = 0;
 
             for (i = 0; i < r->length; i++) {
-                if (r->buf[i] == '\n') {
-                    r->buf[i] = 0;
-                    onLine(e, (char_t*)&r->buf[start], i - start);
+                if (r->bytes[i] == '\n') {
+                    r->bytes[i] = 0;
+                    onLine(e, (char_t*)&r->bytes[start], i - start);
                     start = i + 1;
                 }
             }
 
             i = r->length - start;
             if (i > 0) {
-                memmove(r->buf, &r->buf[start], i);
+                memmove(r->bytes, &r->bytes[start], i);
             }
             r->length = i;
         }
@@ -127,13 +127,13 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     }
     
     /*可写数据*/
-    if (events & _CC_EVENT_WRITABLE_) {
+    if (which & _CC_EVENT_WRITABLE_) {
         _cc_event_sendbuf(e);
         return true;
     }
     
     /*连接超时*/
-    if (events & _CC_EVENT_TIMEOUT_) {
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
         return close_event(cycle, e);
     }
@@ -173,7 +173,7 @@ int main (int argc, char * const argv[]) {
     }
 */
     _cc_inet_ipv4_addr(&adress, "202.103.224.72", 80);
-    if (_cc_tcp_connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockadr_t*)&adress, 60000, network_event_callback, NULL)) {
+    if (_cc_tcp_connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockadr_t*)&adress, 60000, network_event_callback, nullptr)) {
         printf("OK\n");
         fflush(stdout);
         fflush(stdin);
@@ -192,9 +192,9 @@ int main (int argc, char * const argv[]) {
     /*释放资源*/
     keep_active = false;
     /*等待线程退出*/
-    _cc_wait_thread(network_thread, NULL);
+    _cc_wait_thread(network_thread, nullptr);
     /*释放事件资源*/
-    network_event.driver.quit(&network_event);
+    network_event.delegator.quit(&network_event);
     /*卸载系统网络*/
     _cc_uninstall_socket();
     

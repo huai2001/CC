@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,145 +18,130 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/array.h>
+#include <libcc/alloc.h>
+#include <libcc/array.h>
 
-#define _CC_MAX_ARRAY_EXPAND_ 64
-
-_CC_API_PRIVATE(uint32_t) _static_array_expand_size(uint32_t number) {
-    if (number & (_CC_MAX_ARRAY_EXPAND_ - 1)) {
-        number = (uint32_t)(number / _CC_MAX_ARRAY_EXPAND_) + 1;
-    } else {
-        number = (uint32_t)(number / _CC_MAX_ARRAY_EXPAND_);
-    }
-    return number * _CC_MAX_ARRAY_EXPAND_;
-}
+#define _CC_MAX_ARRAY_EXPAND_ 32
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_array_alloc(_cc_array_t *ctx, uint32_t initsize) {
-    _cc_assert(ctx != NULL);
+_CC_API_PUBLIC(bool_t) _cc_array_alloc(_cc_array_t *ctx, size_t capacity) {
+    _cc_assert(ctx != nullptr);
 
-    if (_cc_unlikely(initsize == 0)) {
-        return false;
-    }
-
-    memset(ctx, 0, sizeof(_cc_array_t));
-    ctx->size = initsize;
+    ctx->limit = _cc_aligned_alloc_opt(capacity, 64);
     ctx->length = 0;
-    ctx->data = _CC_CALLOC(pvoid_t, ctx->size);
+    ctx->data = _CC_CALLOC(pvoid_t, ctx->limit);
     return true;
 }
 
 /**/
-_CC_API_PUBLIC(_cc_array_t*) _cc_create_array(uint32_t initsize) {
+_CC_API_PUBLIC(_cc_array_t*) _cc_create_array(size_t capacity) {
     _cc_array_t *ctx = _CC_MALLOC(_cc_array_t);
-    if (_cc_array_alloc(ctx, initsize)) {
+    if (_cc_array_alloc(ctx, capacity)) {
         return ctx;
     }
 
     _cc_safe_free(ctx);
-    return NULL;
+    return nullptr;
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_array_expand(_cc_array_t *ctx, uint32_t slot_size) {
+_CC_API_PUBLIC(bool_t) _cc_array_realloc(_cc_array_t *ctx, size_t capacity) {
     pvoid_t *data;
 
-    _cc_assert(ctx != NULL);
-    if (slot_size <= ctx->size) {
+    _cc_assert(ctx != nullptr);
+    if (capacity <= ctx->limit) {
         return true;
     }
 
-    slot_size = _static_array_expand_size(slot_size);
-    data = (pvoid_t *)_cc_realloc(ctx->data, sizeof(pvoid_t) * slot_size);
-    bzero(&data[ctx->size], (slot_size - ctx->size) * sizeof(pvoid_t));
+    capacity = _cc_aligned_alloc_opt(capacity, 64);
+    data = (pvoid_t *)_cc_realloc(ctx->data, sizeof(pvoid_t) * capacity);
+    bzero(&data[ctx->limit], (capacity - ctx->limit) * sizeof(pvoid_t));
     ctx->data = data;
-    ctx->size = slot_size;
+    ctx->limit = capacity;
 
     return true;
 }
 
-_CC_API_PUBLIC(pvoid_t) _cc_array_find(const _cc_array_t *ctx, const uint32_t index) {
-    _cc_assert(ctx != NULL);
+_CC_API_PUBLIC(pvoid_t) _cc_array_find(const _cc_array_t *ctx, const size_t index) {
+    _cc_assert(ctx != nullptr);
 
-    if (_cc_unlikely(ctx->size <= index)) {
-        _cc_logger_error(_T("Array find: index out of range [%d] with size %d"), index, ctx->size);
-        return NULL;
+    if (_cc_unlikely(ctx->limit <= index)) {
+        _cc_logger_error(_T("Array find: index out of range [%d] with size %d"), index, ctx->limit);
+        return nullptr;
     }
 
     return ctx->data[index];
 }
 
-_CC_API_PUBLIC(uint32_t) _cc_array_push(_cc_array_t *ctx, void *data) {
-    uint32_t index = 0;
-    _cc_assert(ctx != NULL);
-
+_CC_API_PUBLIC(size_t) _cc_array_push(_cc_array_t *ctx, pvoid_t data) {
+    _cc_assert(ctx != nullptr && data != nullptr);
+    size_t index;
+    if (_cc_unlikely(data == nullptr)) {
+        return -1;
+    }
+    
     index = ctx->length;
-
-    if (_cc_array_insert(ctx, index, data)) {
-        return index;
+    /*if not enough space,expand first*/
+    if (ctx->limit <= 0x80000000 && index >= ctx->limit) {
+        _cc_array_realloc(ctx, index + 1);
     }
 
-    return -1;
+    if (index >= ctx->limit) {
+        _cc_logger_error(_T("Array insert: index out of range [%d] with capacity %d"), index, ctx->limit);
+        return -1;
+    }
+
+    ctx->data[ctx->length++] = data;
+    return index;
 }
 
-_CC_API_PUBLIC(void *) _cc_array_pop(_cc_array_t *ctx) {
-    _cc_assert(ctx != NULL);
+_CC_API_PUBLIC(pvoid_t) _cc_array_pop(_cc_array_t *ctx) {
+    _cc_assert(ctx != nullptr);
     return _cc_array_remove(ctx, ctx->length - 1);
 }
 
 _CC_API_PUBLIC(bool_t) _cc_array_append(_cc_array_t *ctx, const _cc_array_t *append) {
-    uint32_t size = 0;
-    _cc_assert(ctx != NULL && append != NULL);
+    size_t capacity = 0;
+    _cc_assert(ctx != nullptr && append != nullptr);
 
-    size = ctx->length + append->length;
+    capacity = ctx->length + append->length;
     /*if not enough space,expand first*/
-    if (ctx->size <= 0x80000000 && size > ctx->size) {
-        _cc_array_expand(ctx, size);
+    if (ctx->limit <= 0x80000000 && capacity > ctx->limit) {
+        _cc_array_realloc(ctx, capacity);
     }
 
     memcpy(ctx->data[ctx->length], append->data[0], append->length * sizeof(pvoid_t));
 
-    ctx->length = size;
+    ctx->length = capacity;
 
     return true;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_array_insert(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
-    _cc_assert(ctx != NULL && data != NULL);
+_CC_API_PUBLIC(bool_t) _cc_array_insert(_cc_array_t *ctx, const size_t index, pvoid_t data) {
+    _cc_assert(ctx != nullptr && data != nullptr);
 
-    if (_cc_unlikely(data == NULL)) {
-        return false;
+    if (_cc_unlikely(data == nullptr)) {
+        return -1;
     }
 
-    /*if not enough space,expand first*/
-    if (ctx->size <= 0x80000000 && index >= ctx->size) {
-        _cc_array_expand(ctx, index + 1);
-    }
-
-    if (index >= ctx->size) {
-        _cc_logger_error(_T("Array insert: index out of range [%d] with size %d"), index, ctx->size);
-        return false;
-    }
-
-    if (_cc_likely(index >= ctx->length)) {
-        ctx->length++;
+    if (index >= ctx->limit) {
+        _cc_logger_error(_T("Array push: index out of range [%d] with capacity %d"), index, ctx->limit);
+        return -1;
     }
 
     ctx->data[index] = data;
-
     return true;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_array_set(_cc_array_t *ctx, const uint32_t index, pvoid_t data) {
-    _cc_assert(ctx != NULL);
+_CC_API_PUBLIC(bool_t) _cc_array_set(_cc_array_t *ctx, const size_t index, pvoid_t data) {
+    _cc_assert(ctx != nullptr);
 
-    if (_cc_unlikely(index >= ctx->size)) {
-        _cc_logger_error(_T("Array insert: index out of range [%d] with size %d"), index, ctx->size);
+    if (_cc_unlikely(index >= ctx->limit)) {
+        _cc_logger_error(_T("Array insert: index out of range [%d] with size %d"), index, ctx->limit);
         return false;
     }
 
-    if (ctx->data[index] && data == NULL) {
+    if (ctx->data[index] && data == nullptr) {
         ctx->length--;
     }
 
@@ -164,34 +149,30 @@ _CC_API_PUBLIC(bool_t) _cc_array_set(_cc_array_t *ctx, const uint32_t index, pvo
     return true;
 }
 
-_CC_API_PUBLIC(pvoid_t) _cc_array_remove(_cc_array_t *ctx, const uint32_t index) {
-    uint32_t i = 0;
-    uint32_t length = 0;
-    pvoid_t data = NULL;
-
-    _cc_assert(ctx != NULL && ctx->size > index);
-    if (_cc_unlikely(ctx->size <= index)) {
-        return NULL;
+_CC_API_PUBLIC(pvoid_t) _cc_array_remove(_cc_array_t *ctx, const size_t index) {
+    size_t move_count;
+    pvoid_t data;
+    if (_cc_unlikely(ctx == nullptr || ctx->data == nullptr || ctx->limit <= index)) {
+        return nullptr;
     }
-
+    
     data = ctx->data[index];
-    length = ctx->length - 1;
-
-    for (i = index; i < length; i++) {
-        ctx->data[i] = ctx->data[i + 1];
+    move_count = ctx->length - index - 1;
+    
+    if (move_count > 0) {
+        memmove(&ctx->data[index], &ctx->data[index + 1], move_count * sizeof(pvoid_t));
     }
-
-    ctx->length = length;
-
+    
+    ctx->length--;
     return data;
 }
 
 _CC_API_PUBLIC(bool_t) _cc_array_free(_cc_array_t *ctx) {
-    _cc_assert(ctx != NULL);
+    _cc_assert(ctx != nullptr);
 
     _cc_safe_free(ctx->data);
     ctx->length = 0;
-    ctx->size = 0;
+    ctx->limit = 0;
 
     return true;
 }
@@ -201,31 +182,31 @@ _CC_API_PUBLIC(void) _cc_destroy_array(_cc_array_t **ctx) {
         _cc_free(*ctx);
     }
 
-    *ctx = NULL;
+    *ctx = nullptr;
 }
 
 _CC_API_PUBLIC(bool_t) _cc_array_cleanup(_cc_array_t *ctx) {
-    _cc_assert(ctx != NULL);
-    bzero(ctx->data, sizeof(pvoid_t) * ctx->size);
+    _cc_assert(ctx != nullptr);
+    bzero(ctx->data, sizeof(pvoid_t) * ctx->limit);
     ctx->length = 0;
 
     return true;
 }
 
-_CC_API_PUBLIC(uint32_t) _cc_array_length(const _cc_array_t *ctx) {
-    _cc_assert(ctx != NULL);
+_CC_API_PUBLIC(size_t) _cc_array_length(const _cc_array_t *ctx) {
+    _cc_assert(ctx != nullptr);
 
     return ctx->length;
 }
 
 _CC_API_PUBLIC(pvoid_t) _cc_array_begin(const _cc_array_t *ctx) {
-    _cc_assert(ctx != NULL);
+    _cc_assert(ctx != nullptr);
 
     return ctx->data[0];
 }
 
 _CC_API_PUBLIC(pvoid_t) _cc_array_end(const _cc_array_t *ctx) {
-    _cc_assert(ctx != NULL);
+    _cc_assert(ctx != nullptr);
 
-    return ctx->data[ctx->size - 1];
+    return ctx->data[ctx->limit - 1];
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -97,9 +97,9 @@ _cc_image_t* _cc_load_JPG(const byte_t *image_data, uint32_t image_size) {
     int16_t rowspan;
     bool_t use_CMYK = false;
 
-    _cc_assert(image_data != NULL);
-    if (image_data == NULL) {
-        return NULL;
+    _cc_assert(image_data != nullptr);
+    if (image_data == nullptr) {
+        return nullptr;
     }
 
 
@@ -116,7 +116,7 @@ _cc_image_t* _cc_load_JPG(const byte_t *image_data, uint32_t image_size) {
 
         jpeg_destroy_decompress(&cinfo);
 
-        return NULL;
+        return nullptr;
     }
     /* Now we can initialize the JPEG decompression object. */
     jpeg_create_decompress(&cinfo);
@@ -188,9 +188,9 @@ _cc_image_t* _cc_load_JPG(const byte_t *image_data, uint32_t image_size) {
         _cc_image_t  *img = _cc_init_image(CF_R8G8B8, width, height);
         size = 3 * width * height;
 
-        if (img == NULL) {
+        if (img == nullptr) {
             _cc_free(output);
-            return NULL;
+            return nullptr;
         }
 
         if (img->data) {

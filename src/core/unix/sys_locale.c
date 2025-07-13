@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,21 +18,21 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/logger.h>
+#include <libcc/alloc.h>
+#include <libcc/logger.h>
 
 _CC_API_PRIVATE(void) normalize_locale_str(tchar_t *dst, tchar_t *str, size_t buflen) {
     tchar_t *ptr;
 
     /* chop off encoding if specified. */
     ptr = _tcschr(str, '.');
-    if (ptr != NULL) {
+    if (ptr != nullptr) {
         *ptr = '\0';
     }
 
     /* chop off extra bits if specified. */
     ptr = _tcschr(str, '@');
-    if (ptr != NULL) {
+    if (ptr != nullptr) {
         *ptr = '\0';
     }
 
@@ -53,7 +53,7 @@ _CC_API_PRIVATE(void) normalize_locales(tchar_t *dst, tchar_t *src, size_t bufle
     tchar_t *ptr;
 
     /* entries are separated by colons */
-    while ((ptr = _tcschr(src, ':')) != NULL) {
+    while ((ptr = _tcschr(src, ':')) != nullptr) {
         *ptr = '\0';
         normalize_locale_str(dst, src, buflen);
         src = ptr + 1;

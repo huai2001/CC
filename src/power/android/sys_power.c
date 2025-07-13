@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,31 +18,28 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/core/android.h>
-#include <cc/power.h>
+#include <libcc/core/android.h>
+#include <libcc/power.h>
 
 _CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
     int battery;
     int plugged;
     int charged;
+    
+    Android_JNI_GetPowerInfo(&plugged, &charged, &battery, seconds, percent);
 
-    if (_cc_jni_get_power_info(&plugged, &charged, &battery, seconds, percent) != -1) {
-        if (plugged) {
-            if (charged) {
-                *state = _CC_POWERSTATE_CHARGED_;
-            } else if (battery) {
-                *state = _CC_POWERSTATE_CHARGING_;
-            } else {
-                *state = _CC_POWERSTATE_NO_BATTERY_;
-            }
+    if (plugged) {
+        if (charged) {
+            *state = _CC_POWERSTATE_CHARGED_;
+        } else if (battery) {
+            *state = _CC_POWERSTATE_CHARGING_;
         } else {
-            *state = _CC_POWERSTATE_ON_BATTERY_;
+            *state = _CC_POWERSTATE_NO_BATTERY_;
         }
     } else {
-        *state = _CC_POWERSTATE_UNKNOWN_;
-        *seconds = -1;
-        *percent = -1;
+        *state = _CC_POWERSTATE_ON_BATTERY_;
     }
+
 
     return true;
 }

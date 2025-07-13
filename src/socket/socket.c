@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,10 +18,10 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/logger.h>
-#include <cc/socket/socket.h>
-#include <cc/time.h>
+#include <libcc/alloc.h>
+#include <libcc/logger.h>
+#include <libcc/socket/socket.h>
+#include <libcc/time.h>
 
 #if defined(__CC_WINDOWS__)
 #define SETSOCKOPT_OPTVAL_TYPE (const char *)

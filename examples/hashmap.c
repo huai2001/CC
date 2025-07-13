@@ -11,7 +11,7 @@
 
 #if TESTES
 /**/
-bool_t _hashmap_equals(const pvoid_t custom, const pvoid_t keyword) {
+bool_t _hashmap_equals(const intptr_t custom, const intptr_t keyword) {
     _map_t *u = (_map_t*)custom;
 #if TESTES_STRING
     int n = _stricmp(u->key_string, (char*)keyword);
@@ -25,7 +25,7 @@ bool_t _hashmap_equals(const pvoid_t custom, const pvoid_t keyword) {
 /*
  * Hashing function for a string
  */
-static uint32_t hashmap_build_hash(const pvoid_t keyword) {
+static uint32_t hashmap_build_hash(const intptr_t keyword) {
 #if TESTES_STRING
     tchar_t* str = (tchar_t*)keyword;
     uint32_t key = _cc_crc32((byte_t*)str, (uint32_t)_tcslen(str) * sizeof(tchar_t));
@@ -60,15 +60,15 @@ int main (int argc, char * const argv[]) {
     clock_t start, end;
     
 #if TESTES
-    _cc_hashtable_t* mymap = NULL;
+    _cc_hmap_t* mymap = nullptr;
 #else
     _cc_rbtree_t mymap;
 #endif
 
 #if TESTES
-    mymap = _cc_create_hashtable(0, _hashmap_equals, hashmap_build_hash);
+    mymap = _cc_create_hmap(0, _hashmap_equals, hashmap_build_hash);
 #else
-    mymap.rb_node = NULL;
+    mymap.rb_node = nullptr;
 #endif
     start = clock();
     /* First, populate the hash map with ascending values */
@@ -79,7 +79,7 @@ int main (int argc, char * const argv[]) {
         /* Store the key string along side the numerical value so we can free it later */
         _snprintf(value->key_string, KEY_MAX_LENGTH, "%s-%d", KEY_PREFIX, index);
         #if TESTES
-        if(!_cc_hashtable_insert(mymap, value->key_string, value)) {
+        if(!_cc_hmap_push(mymap, value->key_string, value)) {
             printf("%d - put fail.\n", value->number);
         }
         #else
@@ -89,7 +89,7 @@ int main (int argc, char * const argv[]) {
         #endif
 #else
 #if TESTES
-        if(!_cc_hashtable_insert(mymap, &value->number, value)) {
+        if(!_cc_hmap_push(mymap, &value->number, value)) {
             //printf("%d - put fail.\n",index);
         }
 #else
@@ -110,21 +110,21 @@ int main (int argc, char * const argv[]) {
 #if TESTES_STRING
         _snprintf(key_string, KEY_MAX_LENGTH, "%s-%d", KEY_PREFIX, index);
         #if TESTES
-        if(_cc_hashtable_find(mymap, key_string) == NULL) {
+        if(_cc_hmap_find(mymap, key_string) == nullptr) {
             printf("%s - Not found\n", key_string);
         }
         #else
-        if(get(&mymap, key_string) == NULL) {
+        if(get(&mymap, key_string) == nullptr) {
             printf("%s - Not found\n", key_string);
         }
         #endif
 #else
 #if TESTES
-        if(_cc_hashtable_find(mymap, &index) == NULL) {
+        if(_cc_hmap_find(mymap, &index) == nullptr) {
             printf("%d - Not found\n", index);
         }
 #else
-        if(get(&mymap, index) == NULL) {
+        if(get(&mymap, index) == nullptr) {
             printf("%d - Not found\n", index);
         }
 #endif
@@ -139,10 +139,10 @@ int main (int argc, char * const argv[]) {
 
     for (index = 0; index < KEY_COUNT; index += 1) {
 #if TESTES_STRING
-        value = NULL;
+        value = nullptr;
         _snprintf(key_string, KEY_MAX_LENGTH, "%s-%d", KEY_PREFIX, index);
 #if TESTES
-        value = (_map_t*)_cc_hashtable_remove(mymap, &key_string);
+        value = (_map_t*)_cc_hmap_pop(mymap, &key_string);
 #else
         value = map_erase(&mymap, key_string);
 #endif
@@ -155,7 +155,7 @@ int main (int argc, char * const argv[]) {
         }
 #else
 #if TESTES
-        value = (_map_t*)_cc_hashtable_remove(mymap, &index);
+        value = (_map_t*)_cc_hmap_pop(mymap, &index);
 #else
         value = map_erase(&mymap, index);
 #endif
@@ -174,7 +174,7 @@ int main (int argc, char * const argv[]) {
     start = clock();
 #if TESTES
     /* Now, destroy the map */
-    _cc_destroy_hashtable(&mymap);
+    _cc_destroy_hmap(&mymap);
 #else
     map_destroy(&mymap);
 #endif

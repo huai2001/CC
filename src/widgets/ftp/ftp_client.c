@@ -1,4 +1,4 @@
-#include <cc/widgets/ftp.h>
+#include <libcc/widgets/ftp.h>
 #include <libcc.h>
 #include <locale.h>
 #include <stdio.h>
@@ -10,7 +10,7 @@
 #define SETSOCKOPT_OPTVAL_TYPE (void*)
 #endif
 
-_CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t events);
+_CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t which);
 
 _CC_API_PRIVATE(bool_t) network_event_close(_cc_event_cycle_t* cycle,
                                              _cc_event_t* e) {
@@ -22,56 +22,54 @@ _CC_API_PRIVATE(bool_t) network_event_close(_cc_event_cycle_t* cycle,
 
 _CC_API_PRIVATE(bool_t) network_event_pasv_callback(_cc_event_cycle_t* cycle,
                                                      _cc_event_t* e,
-                                                     const uint16_t events) {
-    /*æˆåŠŸè¿žæŽ¥æœåŠ¡å™¨*/
-    if (events & _CC_EVENT_CONNECTED_) {
+                                                     const uint16_t which) {
+    /*³É¹¦Á¬½Ó·þÎñÆ÷*/
+    if (which & _CC_EVENT_CONNECTED_) {
         _tprintf(_T("%d connect to server.\n"), e->fd);
-        if (!_cc_bind_event_buffer(cycle, &e->buffer)) {
-            return false;
-        }
-        _cc_ftp_list((_cc_ftp_t*)e->args, NULL);
-        if (events == _CC_EVENT_CONNECTED_)
+        e->buffer = _cc_alloc_event_buffer();
+        _cc_ftp_list((_cc_ftp_t*)e->args, nullptr);
+        if (which == _CC_EVENT_CONNECTED_)
             return true;
     }
 
-    /*æ— æ³•è¿žæŽ¥*/
-    if (events & _CC_EVENT_DISCONNECT_) {
+    /*ÎÞ·¨Á¬½Ó*/
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("%d disconnect to server.\n"), e->fd);
         return false;
     }
 
-    /*æœ‰æ•°æ®å¯ä»¥è¯»*/
-    if (events & _CC_EVENT_READABLE_) {
+    /*ÓÐÊý¾Ý¿ÉÒÔ¶Á*/
+    if (which & _CC_EVENT_READABLE_) {
         _cc_event_rbuf_t* rbuf = &e->buffer->r;
 
         if (!_cc_event_recv(e)) {
             _tprintf(_T("PORT TCP close %d\n"), e->fd);
 
-            rbuf->buf[rbuf->length - 1] = 0;
-            printf("%s\n", (char_t*)rbuf->buf);
+            rbuf->bytes[rbuf->length - 1] = 0;
+            printf("%s\n", (char_t*)rbuf->bytes);
             rbuf->length = 0;
 
             network_event_close(cycle, e);
             return false;
         }
 
-        if (rbuf->length >= _CC_IO_BUFFER_SIZE_) {
-            rbuf->buf[rbuf->length - 1] = 0;
-            printf("%s\n", (char_t*)rbuf->buf);
+        if (rbuf->length >= rbuf->limit) {
+            rbuf->bytes[rbuf->length - 1] = 0;
+            printf("%s\n", (char_t*)rbuf->bytes);
             rbuf->length = 0;
         }
 
         return true;
     }
 
-    /*å¯å†™æ•°æ®*/
-    if (events & _CC_EVENT_WRITABLE_) {
-        _ftp_send_command(e, NULL, 0);
+    /*¿ÉÐ´Êý¾Ý*/
+    if (which & _CC_EVENT_WRITABLE_) {
+        _ftp_send_command(e, nullptr, 0);
         return true;
     }
 
-    /*è¿žæŽ¥è¶…æ—¶*/
-    if (events & _CC_EVENT_TIMEOUT_) {
+    /*Á¬½Ó³¬Ê±*/
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
         network_event_close(cycle, e);
         return false;
@@ -81,9 +79,9 @@ _CC_API_PRIVATE(bool_t) network_event_pasv_callback(_cc_event_cycle_t* cycle,
 
 _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
                                                      _cc_event_t* e,
-                                                     const uint16_t events) {
-    /*æˆåŠŸè¿žæŽ¥æœåŠ¡å™¨*/
-    if (events & _CC_EVENT_ACCEPT_) {
+                                                     const uint16_t which) {
+    /*³É¹¦Á¬½Ó·þÎñÆ÷*/
+    if (which & _CC_EVENT_ACCEPT_) {
         _cc_ftp_t* ftp = (_cc_ftp_t*)e->args;
         _cc_socket_t fd = _CC_INVALID_SOCKET_;
         _cc_event_t* new_event;
@@ -93,13 +91,13 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
 
         fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
-            _cc_logger_error(_T("thread %d accept fail.\n"), _cc_get_thread_id(NULL));
+            _cc_logger_error(_T("thread %d accept fail.\n"), _cc_get_thread_id(nullptr));
             return true;
         }
 
-        new_event = new_cycle->driver.add(new_cycle, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_ | _CC_EVENT_BUFFER_, fd, 30000, network_event_port_callback, ftp);
+        new_event = new_cycle->attach(new_cycle, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_ | _CC_EVENT_BUFFER_, fd, 30000, network_event_port_callback, ftp);
         if (!new_event) {
-            _cc_logger_error(_T("thread %d add socket (%d) event fial.\n"), _cc_get_thread_id(NULL), fd);
+            _cc_logger_error(_T("thread %d attach socket (%d) event fial.\n"), _cc_get_thread_id(nullptr), fd);
             _cc_close_socket(fd);
             return true;
         }
@@ -113,39 +111,39 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
         return _cc_ftp_bind_accept(ftp, new_cycle, new_event);
     }
 
-    /*æ— æ³•è¿žæŽ¥*/
-    if (events & _CC_EVENT_DISCONNECT_) {
+    /*ÎÞ·¨Á¬½Ó*/
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("%d disconnect to server.\n"), e->fd);
         _cc_ftp_unbind_accept((_cc_ftp_t*)e->args);
         return false;
     }
 
-    /*æœ‰æ•°æ®å¯ä»¥è¯»*/
-    if (events & _CC_EVENT_READABLE_) {
+    /*ÓÐÊý¾Ý¿ÉÒÔ¶Á*/
+    if (which & _CC_EVENT_READABLE_) {
         _cc_event_rbuf_t* rbuf = &e->buffer->r;
 
         if (!_cc_event_recv(e)) {
             _tprintf(_T("PORT TCP close %d\n"), e->fd);
 
-            rbuf->buf[rbuf->length - 1] = 0;
-            printf("%s\n", (char_t*)rbuf->buf);
+            rbuf->bytes[rbuf->length - 1] = 0;
+            printf("%s\n", (char_t*)rbuf->bytes);
             rbuf->length = 0;
 
             network_event_close(cycle, e);
             return false;
         }
 
-        if (rbuf->length >= _CC_IO_BUFFER_SIZE_) {
-            rbuf->buf[rbuf->length - 1] = 0;
-            printf("%s\n", (char_t*)rbuf->buf);
+        if (rbuf->length >= rbuf->limit) {
+            rbuf->bytes[rbuf->length - 1] = 0;
+            printf("%s\n", (char_t*)rbuf->bytes);
             rbuf->length = 0;
         }
 
         return true;
     }
 
-    /*å¯å†™æ•°æ®*/
-    if (events & _CC_EVENT_WRITABLE_) {
+    /*¿ÉÐ´Êý¾Ý*/
+    if (which & _CC_EVENT_WRITABLE_) {
         if (e->buffer) {
             if (_CC_EVENT_WBUF_HAS_DATA(e->buffer)) {
                 if (!_cc_event_sendbuf(e)) {
@@ -166,21 +164,20 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
         return true;
     }
 
-    /*è¿žæŽ¥è¶…æ—¶*/
-    if (events & _CC_EVENT_TIMEOUT_) {
+    /*Á¬½Ó³¬Ê±*/
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
         _cc_ftp_unbind_accept((_cc_ftp_t*)e->args);
         return false;
-    }
-
+    which
     return true;
 }
 
 _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
                                                 _cc_event_t* e,
-                                                const uint16_t events) {
-    /*æˆåŠŸè¿žæŽ¥æœåŠ¡å™¨*/
-    if (events & _CC_EVENT_CONNECTED_) {
+                                                const uint16_t which) {
+    /*³É¹¦Á¬½Ó·þÎñÆ÷*/
+    if (which & _CC_EVENT_CONNECTED_) {
         _cc_ftp_t* ftp = (_cc_ftp_t*)e->args;
         _tprintf(_T("%d connect to server .\n"), e->fd);
         ftp->ctrl.e = e;
@@ -190,20 +187,20 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
             return false;
         }
 
-        if (events == _CC_EVENT_CONNECTED_)
+        if (which == _CC_EVENT_CONNECTED_)
             return true;
     }
 
-    /*æ— æ³•è¿žæŽ¥*/
-    if (events & _CC_EVENT_DISCONNECT_) {
+    /*ÎÞ·¨Á¬½Ó*/
+    if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("%d disconnect to server.\n"), e->fd);
 
         network_event_close(cycle, e);
         return false;
     }
 
-    /*æœ‰æ•°æ®å¯ä»¥è¯»*/
-    if (events & _CC_EVENT_READABLE_) {
+    /*ÓÐÊý¾Ý¿ÉÒÔ¶Á*/
+    if (which & _CC_EVENT_READABLE_) {
         _cc_ftp_t* ftp = (_cc_ftp_t*)e->args;
         _cc_event_rbuf_t* rbuf = &e->buffer->r;
         if (!_cc_event_recv(e)) {
@@ -212,13 +209,13 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
             return false;
         }
 
-        if (!strstr((char_t*)rbuf->buf, _CC_CRLF_)) {
+        if (!strstr((char_t*)rbuf->bytes, _CC_CRLF_)) {
             return true;
         }
 
-        rbuf->buf[rbuf->length] = 0;
+        rbuf->bytes[rbuf->length] = 0;
         if (ftp && ftp->resp.callback) {
-            if (ftp->resp.callback(ftp, rbuf->buf, rbuf->length)) {
+            if (ftp->resp.callback(ftp, rbuf->bytes, rbuf->length)) {
                 rbuf->length = 0;
                 return true;
             }
@@ -227,14 +224,14 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
         return false;
     }
 
-    /*å¯å†™æ•°æ®*/
-    if (events & _CC_EVENT_WRITABLE_) {
-        _ftp_send_command(e, NULL, 0);
+    /*¿ÉÐ´Êý¾Ý*/
+    if (which & _CC_EVENT_WRITABLE_) {
+        _ftp_send_command(e, nullptr, 0);
         return true;
     }
 
-    /*è¿žæŽ¥è¶…æ—¶*/
-    if (events & _CC_EVENT_TIMEOUT_) {
+    /*Á¬½Ó³¬Ê±*/
+    if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
         network_event_close(cycle, e);
         return false;
@@ -246,7 +243,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
 /**/
 bool_t _cc_ftp_tcp_listen(_cc_ftp_t* ftp) {
     struct linger lng = {0, 0};
-    _cc_event_cycle_t *cycle = NULL;
+    _cc_event_cycle_t *cycle = nullptr;
     _cc_socket_t fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (fd == -1) {
         return false;
@@ -280,7 +277,7 @@ bool_t _cc_ftp_tcp_listen(_cc_ftp_t* ftp) {
         return false;
     }
 
-    ftp->data.e = cycle->driver.add(cycle, _CC_EVENT_ACCEPT_, fd, 60000, network_event_port_callback, ftp);
+    ftp->data.e = cycle->attach(cycle, _CC_EVENT_ACCEPT_, fd, 60000, network_event_port_callback, ftp);
     if (ftp->data.e) {
         _cc_set_socket_nonblock(fd, true);
         return true;
@@ -290,8 +287,8 @@ bool_t _cc_ftp_tcp_listen(_cc_ftp_t* ftp) {
     return false;
 }
 
-_CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t events) {
-    switch (events) {
+_CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t which) {
+    switch (which) {
         case _CC_LIBFTP_CONNECTED:
             printf("CC_LIBFTP_CONNECTED OK\n");
             _cc_ftp_login(ftp, "username", "password");
@@ -346,11 +343,11 @@ _CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t events) {
             break;
         case _CC_LIBFTP_OPTS_PORT:
             printf("CC_LIBFTP_OPTS_PORT OK\n");
-            _cc_ftp_list(ftp, NULL);
+            _cc_ftp_list(ftp, nullptr);
             break;
         case _CC_LIBFTP_CWD:
             printf("CC_LIBFTP_CWD OK\n");
-            _cc_ftp_list(ftp, NULL);
+            _cc_ftp_list(ftp, nullptr);
             break;
         case _CC_LIBFTP_LIST_WAITING:
             printf("CC_LIBFTP_LIST_WAITING\n");
@@ -373,7 +370,7 @@ _CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t events) {
 bool_t ftp_client(_cc_ftp_t* ftp, tchar_t *host, uint16_t port) {
     struct sockaddr_in sa;
     _cc_event_cycle_t *cycle = _cc_get_event_cycle();
-    if (ftp == NULL) {
+    if (ftp == nullptr) {
         return false;
     }
 
@@ -384,7 +381,7 @@ bool_t ftp_client(_cc_ftp_t* ftp, tchar_t *host, uint16_t port) {
     ftp->logined = false;
 
     _cc_inet_ipv4_addr(&sa, host, port);
-    if (_cc_tcp_connect(cycle, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockaddr_t*)&sa, 60000, network_event_callback, ftp) == NULL) {
+    if (_cc_tcp_connect(cycle, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockaddr_t*)&sa, 60000, network_event_callback, ftp) == nullptr) {
         _tprintf(_T("Unable to connect to the network port %s:%d\n"), host, port);
     }
     return true;

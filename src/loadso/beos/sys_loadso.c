@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,8 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/loadso.h>
-#include <cc/utils.h>
+#include <libcc/loadso.h>
+#include <libcc/utils.h>
 #include <stdio.h>
 // #include <be/kernel/image.h>
 #include <kernel/image.h>
@@ -28,25 +28,25 @@ _CC_API_PUBLIC(void*) _cc_load_object(const tchar_t *sofile) {
     image_id library_id = load_add_on(sofile);
     if (library_id < 0) {
         _cc_logger_error(_T("Failed load_add_on %s : %s"), sofile, strerror((int)library_id));
-        return NULL;
+        return nullptr;
     }
 
     return (void *)(library_id);
 }
 
 _CC_API_PUBLIC(void*) _cc_load_function(void *handle, const char_t *name) {
-    void *sym = NULL;
+    void *sym = nullptr;
     image_id library_id = (image_id)handle;
     status_t rc = get_image_symbol(library_id, name, B_SYMBOL_TYPE_TEXT, &sym);
     if (rc != B_NO_ERROR) {
         _cc_logger_error(_T("Failed get_image_symbol %s : %s"), name, strerror((int)rc));
-        return NULL;
+        return nullptr;
     }
     return (sym);
 }
 
 _CC_API_PUBLIC(void) _cc_unload_object(void *handle) {
-    if (handle != NULL) {
+    if (handle != nullptr) {
         unload_add_on((image_id)handle);
     }
 }

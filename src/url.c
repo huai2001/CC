@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,15 +18,15 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
-#include <cc/socket/socket.h>
-#include <cc/string.h>
-#include <cc/url.h>
+#include <libcc/alloc.h>
+#include <libcc/socket/socket.h>
+#include <libcc/string.h>
+#include <libcc/url.h>
 
 #ifndef __CC_WINDOWS__
 #include <arpa/inet.h>
 #else
-#include <cc/core/windows.h>
+#include <libcc/core/windows.h>
 #endif
 
 /* POST PORT*/
@@ -45,9 +45,9 @@ static tchar_t *_URL_PATH_ROOT_ = _T("/");
 #define _alloc_url_field_data(S1, S2, D, U)                                                                            \
     do {                                                                                                               \
         U->D = _cc_tcsndup((S2), (size_t)((S1) - (S2)));                                                               \
-        if (_cc_unlikely(NULL == U->D)) {                                                                              \
+        if (_cc_unlikely(nullptr == U->D)) {                                                                              \
             _cc_free_url(U);                                                                                           \
-            return NULL;                                                                                               \
+            return nullptr;                                                                                               \
         }                                                                                                              \
         (S2) = (S1);                                                                                                   \
     } while (0)
@@ -106,7 +106,7 @@ _CC_API_PRIVATE(void) parse_url_scheme(_cc_url_t *u, const tchar_t *scheme, int3
     int32_t i;
 
     u->scheme.ident = _CC_SCHEME_UNKNOWN_;
-    u->scheme.value = NULL;
+    u->scheme.value = nullptr;
     u->port = 0;
 
     for (i = 0; i < _cc_countof(_url_supported_schemes); i++) {
@@ -153,7 +153,7 @@ _CC_API_PRIVATE(bool_t) is_valid_host(const tchar_t *_host) {
 /*create url*/
 _CC_API_PRIVATE(_cc_url_t *) _create_url(_cc_url_t *u, const tchar_t *url) {
     const tchar_t *curstr, *tmpstr;
-    const tchar_t *user_name = NULL, *user_password = NULL;
+    const tchar_t *user_name = nullptr, *user_password = nullptr;
 
     _cc_assert(u && url);
     /*init url*/
@@ -192,7 +192,7 @@ _CC_API_PRIVATE(_cc_url_t *) _create_url(_cc_url_t *u, const tchar_t *url) {
             if (_T(':') == *tmpstr) {
                 user_name = tmpstr;
             } else if (_T('@') == *tmpstr) {
-                if (user_name == NULL) {
+                if (user_name == nullptr) {
                     user_name = tmpstr;
                 } else {
                     user_password = tmpstr;
@@ -225,11 +225,10 @@ _CC_API_PRIVATE(_cc_url_t *) _create_url(_cc_url_t *u, const tchar_t *url) {
     /* Proceed on by delimiters with reading host */
     tmpstr = curstr;
     if (_T('[') == *tmpstr) {
+        u->ipv6 = true;
         while (*tmpstr) {
             /* End of IPv6 address. */
             if (_T(']') == *tmpstr) {
-                tmpstr++;
-                u->ipv6 = true;
                 break;
             }
             tmpstr++;
@@ -246,9 +245,8 @@ _CC_API_PRIVATE(_cc_url_t *) _create_url(_cc_url_t *u, const tchar_t *url) {
 
     /* Get the host */
     if (u->ipv6) {
-        /* Skip IPv6 ++'[,]'-- */
+        /* Skip IPv6 ++'[ */
         curstr++;
-        tmpstr--;
         _alloc_url_field_data(tmpstr, curstr, host, u);
         /* Skip IPv6 ++']' */
         curstr++;
@@ -282,14 +280,14 @@ _CC_API_PRIVATE(_cc_url_t *) _create_url(_cc_url_t *u, const tchar_t *url) {
     /* Skip '/' */
     if (_T('/') != *curstr) {
         _cc_free_url(u);
-        return NULL;
+        return nullptr;
     }
 
 URL_PRASE_PATH_PARAMS:
     u->request = _cc_tcsdup(curstr);
-    if (_cc_unlikely(u->request == NULL)) {
+    if (_cc_unlikely(u->request == nullptr)) {
         _cc_free_url(u);
-        return NULL;
+        return nullptr;
     }
     /* Parse request*/
     tmpstr = curstr;
@@ -322,7 +320,7 @@ URL_PRASE_PATH_PARAMS:
 }
 
 _CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
-    if (_create_url(u, url) == NULL) {
+    if (_create_url(u, url) == nullptr) {
         return false;
     }
     return true;
@@ -331,22 +329,22 @@ _CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
 /*create url*/
 _CC_API_PUBLIC(_cc_url_t *) _cc_create_url(const tchar_t *url) {
     _cc_url_t *u = _CC_MALLOC(_cc_url_t);
-    if (_create_url(u, url) == NULL) {
+    if (_create_url(u, url) == nullptr) {
         _cc_free(u);
-        return NULL;
+        return nullptr;
     }
     return u;
 }
 /**/
 _CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *url) {
-    if (url->request != NULL && url->request != _URL_PATH_ROOT_) {
+    if (url->request != nullptr && url->request != _URL_PATH_ROOT_) {
         _cc_free(url->request);
-        url->request = NULL;
+        url->request = nullptr;
     }
 
-    if (url->path != NULL && url->path != _URL_PATH_ROOT_) {
+    if (url->path != nullptr && url->path != _URL_PATH_ROOT_) {
         _cc_free(url->path);
-        url->path = NULL;
+        url->path = nullptr;
     }
 
     _cc_safe_free(url->host);
@@ -357,7 +355,7 @@ _CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *url) {
 
     if (url->scheme.value && url->scheme.ident == _CC_SCHEME_UNKNOWN_) {
         _cc_free(url->scheme.value);
-        url->scheme.value = NULL;
+        url->scheme.value = nullptr;
     }
     return true;
 }
@@ -366,7 +364,7 @@ _CC_API_PUBLIC(bool_t) _cc_destroy_url(_cc_url_t **url) {
     if (_cc_likely(url && *url)) {
         _cc_free_url(*url);
         _cc_free((*url));
-        (*url) = NULL;
+        (*url) = nullptr;
 
         return true;
     }
@@ -388,7 +386,7 @@ _CC_API_PUBLIC(int32_t) _cc_url_encode(const tchar_t *src, int32_t src_len, tcha
         c = (int)src[x];
 #ifdef _CC_UNICODE_
         if (c > 0xff) {
-            y += _stprintf(dst + y, _T("%%u%04X"), c);
+            y += _sntprintf(dst + y, dst_len - y, _T("%%u%04X"), c);
         } else
 #endif
             if (c == 0x20) {
@@ -464,7 +462,7 @@ _CC_API_PUBLIC(int32_t) _cc_raw_url_encode(const tchar_t *src, int32_t src_len, 
         c = (int)src[x];
 #ifdef _CC_UNICODE_
         if (c > 0xff) {
-            y += _stprintf(dst + y, _T("%%u%04X"), c);
+            y += _sntprintf(dst + y, dst_len - y, _T("%%u%04X"), c);
         } else
 #endif
             if ((c < '0' && c != '-' && c != '.') || (c < 'A' && c > '9') || (c > 'Z' && c < 'a' && c != '_') ||

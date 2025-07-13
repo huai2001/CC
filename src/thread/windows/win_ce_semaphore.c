@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/thread/windows/win_ce_semaphore.h>
+#include <libcc/thread/windows/win_ce_semaphore.h>
 
 _CC_API_PRIVATE(SYNCHHANDLE) CleanUp(SYNCHHANDLE hSynch, DWORD Flags);
 
@@ -42,7 +42,7 @@ SYNCHHANDLE CreateSemaphoreCE(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, /* po
            count ("CurCount") is greater than zero.
         3. The semaphore count is always >= 0 and <= the maximum count */
 
-    SYNCHHANDLE hSynch = NULL, result = NULL;
+    SYNCHHANDLE hSynch = nullptr, result = nullptr;
 
     __try {
         if (lInitialCount > lMaximumCount || lMaximumCount < 0 || lInitialCount < 0) {
@@ -52,7 +52,7 @@ SYNCHHANDLE CreateSemaphoreCE(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, /* po
         }
 
         hSynch = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, SYNCH_HANDLE_SIZE);
-        if (hSynch == NULL) {
+        if (hSynch == nullptr) {
             __leave;
         }
 
@@ -60,17 +60,17 @@ SYNCHHANDLE CreateSemaphoreCE(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, /* po
         hSynch->CurCount = lInitialCount;
         hSynch->lpName = lpName;
 
-        hSynch->hMutex = CreateMutex(lpSemaphoreAttributes, false, NULL);
+        hSynch->hMutex = CreateMutex(lpSemaphoreAttributes, false, nullptr);
 
         WaitForSingleObject(hSynch->hMutex, INFINITE);
         /*  Create the event. It is initially signaled if and only if the
           initial count is > 0 */
-        hSynch->hEvent = CreateEvent(lpSemaphoreAttributes, false, lInitialCount > 0, NULL);
+        hSynch->hEvent = CreateEvent(lpSemaphoreAttributes, false, lInitialCount > 0, nullptr);
         ReleaseMutex(hSynch->hMutex);
-        hSynch->hSemph = NULL;
+        hSynch->hSemph = nullptr;
     } __finally {
         /* Return with the handle, or, if there was any error, return
-           a null after closing any open handles and freeing any allocated
+           a nullptr after closing any open handles and freeing any allocated
            memory. */
         result = CleanUp(hSynch, 6 /* An event and a mutex, but no semaphore. */);
     }
@@ -89,7 +89,7 @@ BOOL ReleaseSemaphoreCE(SYNCHHANDLE hSemCE, LONG cReleaseCount, LPLONG lpPreviou
     __try {
         WaitForSingleObject(hSemCE->hMutex, INFINITE);
         /* reply only if asked to */
-        if (lpPreviousCount != NULL) {
+        if (lpPreviousCount != nullptr) {
             *lpPreviousCount = hSemCE->CurCount;
         }
 
@@ -173,13 +173,13 @@ DWORD WaitForSemaphoreCE(SYNCHHANDLE hSemCE, DWORD dwMilliseconds)
    Improvement: Test for a valid handle before dereferencing the handle. */
 BOOL CloseSynchHandle(SYNCHHANDLE hSynch) {
     BOOL Result = true;
-    if (hSynch->hEvent != NULL) {
+    if (hSynch->hEvent != nullptr) {
         Result = Result && CloseHandle(hSynch->hEvent);
     }
-    if (hSynch->hMutex != NULL) {
+    if (hSynch->hMutex != nullptr) {
         Result = Result && CloseHandle(hSynch->hMutex);
     }
-    if (hSynch->hSemph != NULL) {
+    if (hSynch->hSemph != nullptr) {
         Result = Result && CloseHandle(hSynch->hSemph);
     }
     HeapFree(GetProcessHeap(), 0, hSynch);
@@ -190,15 +190,15 @@ BOOL CloseSynchHandle(SYNCHHANDLE hSynch) {
     "Flags" indicates which Win32 objects are required in the
     synchronization handle. */
 _CC_API_PRIVATE(SYNCHHANDLE) CleanUp(SYNCHHANDLE hSynch, DWORD Flags) {
-    if (hSynch == NULL) {
-        return NULL;
+    if (hSynch == nullptr) {
+        return nullptr;
     }
 
-    if ( ((Flags & 4) == 1 && (hSynch->hEvent == NULL)) || 
-         ((Flags & 2) == 1 && (hSynch->hMutex == NULL)) ||
-         ((Flags & 1) == 1 && (hSynch->hEvent == NULL))) {
+    if ( ((Flags & 4) == 1 && (hSynch->hEvent == nullptr)) || 
+         ((Flags & 2) == 1 && (hSynch->hMutex == nullptr)) ||
+         ((Flags & 1) == 1 && (hSynch->hEvent == nullptr))) {
         CloseSynchHandle(hSynch);
-        return NULL;
+        return nullptr;
     }  
     /* Everything worked */
     return hSynch;

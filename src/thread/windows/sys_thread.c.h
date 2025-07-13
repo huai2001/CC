@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -21,10 +21,10 @@
 #ifndef _C_CC_SYS_WINDOWS_THREAD_C_H_INCLUDED_
 #define _C_CC_SYS_WINDOWS_THREAD_C_H_INCLUDED_
 
-#include <cc/alloc.h>
-#include <cc/core/windows.h>
-#include <cc/logger.h>
-#include <cc/thread.h>
+#include <libcc/alloc.h>
+#include <libcc/core/windows.h>
+#include <libcc/logger.h>
+#include <libcc/thread.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -68,8 +68,8 @@ typedef void (*pfnDestroyMutex)(_cc_mutex_t *);
 typedef enum {
     _CC_MUTEX_INVALID_ = 0,
     _CC_MUTEX_SRW_,
-    _CC_MUTEX_CS_,
-};
+    _CC_MUTEX_CS_
+} _enum_mutex_type_t;
 
 typedef struct _cc_mutex_impl {
     pfnCreateMutex Create;
@@ -78,7 +78,7 @@ typedef struct _cc_mutex_impl {
     pfnTryLockMutex TryLock;
     pfnUnlockMutex Unlock;
     /* */
-    byte_t Type;
+    _enum_mutex_type_t Type;
 } _cc_mutex_impl_t;
 
 struct _cc_mutex_cs {

@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include <cc/thread.h>
-#include <cc/alloc.h>
-#include <cc/time.h>
-#include <cc/atomic.h>
-#include <cc/list.h>
+#include <libcc/thread.h>
+#include <libcc/alloc.h>
+#include <libcc/time.h>
+#include <libcc/atomic.h>
+#include <libcc/list.h>
 
 char c = 0;
 
@@ -14,10 +14,10 @@ _cc_semaphore_t *sem;
     /**/
 void print_info(const tchar_t *fmt, ...) {
     tchar_t buff[1024];
-    time_t t = time(NULL);
+    time_t t = time(nullptr);
     struct tm* local_time = localtime(&t);
 
-    if ( NULL != _tcschr( fmt, _T('%')) ) {
+    if ( nullptr != _tcschr( fmt, _T('%')) ) {
         va_list args;
         va_start(args, fmt);
         _vsntprintf(buff, 1024, fmt, args);
@@ -56,12 +56,12 @@ int32_t fn_thread_print(_cc_thread_t *thrd, void* param) {
 #define MAX_THREAD_COUNT 5
 int main (int argc, char * const argv[]) {
     int i = 0;
-    srand((uint32_t)time(NULL));
+    srand((uint32_t)time(nullptr));
     //_cc_install_memory_tracked();
     sem = _cc_create_semaphore(0);
 
     for (i = 0; i < MAX_THREAD_COUNT; i++) {
-        _cc_thread_t *t = _cc_create_thread(fn_thread_print, "test print", NULL);
+        _cc_thread_t *t = _cc_create_thread(fn_thread_print, "test print", nullptr);
         if (t) {
             _cc_detach_thread(t);
         }

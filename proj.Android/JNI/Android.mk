@@ -19,6 +19,9 @@ else
     endif
 endif
 
+LOCAL_STATIC_LIBRARIES += cpufeatures
+APP_ALLOW_MISSING_DEPS := true
+
 #LOCAL_CFLAGS +=  -D_CC_JNI_BUILD_SHARED_LIBRARY_
 
 LOCAL_MODULE := libcc$(MODULE_NAME_EXT)
@@ -27,6 +30,8 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 
 LOCAL_SRC_FILES := \
         ../../src/aes.c \
+        ../../src/base16.c \
+        ../../src/base58.c \
         ../../src/base64.c \
         ../../src/md2.c \
         ../../src/md4.c \
@@ -40,7 +45,7 @@ LOCAL_SRC_FILES := \
         ../../src/list.c \
         ../../src/queue.c \
         ../../src/rbtree.c \
-        ../../src/hashtable.c \
+        ../../src/hmap.c \
         ../../src/array.c \
         ../../src/string.c \
         ../../src/UTF.c \
@@ -58,37 +63,37 @@ LOCAL_SRC_FILES := \
         ../../src/time/strptime.c \
         ../../src/time/linux/sys_time.c \
         ../../src/atomic/atomic.c \
-        ../../src/atomic/spinlock.c \
         ../../src/atomic/rwlock.c \
         ../../src/loadso/dlopen/sys_loadso.c \
-        ../../src/event/event.c \
-        ../../src/event/timeout.c \
-        ../../src/event/buffer.c \
-        ../../src/event/loop.c \
-        ../../src/event/tcp.c \
-        ../../src/event/select.c \
-        ../../src/event/linux/sys_epoll.c \
         ../../src/core/cpu_info.c \
         ../../src/core/generic.c \
         ../../src/core/file.c \
-        ../../src/core/android.c \
-        ../../src/core/android/sys_core.c \
+        ../../src/core/android/sys_android.c \
+        ../../src/core/android/sys_dirent.c \
         ../../src/core/android/sys_file.c \
+        ../../src/core/android/sys_clipboard.c \
         ../../src/core/android/sys_locale.c \
         ../../src/socket/linux/sys_socket.c \
         ../../src/thread/pthread/sys_thread.c \
         ../../src/thread/pthread/sys_cond.c \
         ../../src/thread/pthread/sys_mutex.c \
         ../../src/thread/pthread/sys_sem.c \
-        ../../src/ini/ini.c \
-        ../../src/ini/ini.parser.c \
-        ../../src/json/json.c \
-        ../../src/json/json.parser.c \
-        ../../src/xml/xml.c \
-        ../../src/xml/xml.parser.c \
+        ../../src/widgets/event/event.c \
+        ../../src/widgets/event/timeout.c \
+        ../../src/widgets/event/buffer.c \
+        ../../src/widgets/event/loop.c \
+        ../../src/widgets/event/tcp.c \
+        ../../src/widgets/event/select.c \
+        ../../src/widgets/event/linux/sys_epoll.c \
+        ../../src/widgets/ini/ini.c \
+        ../../src/widgets/ini/ini.parser.c \
+        ../../src/widgets/json/json.c \
+        ../../src/widgets/json/json.object.c \
+        ../../src/widgets/json/json.array.c \
+        ../../src/widgets/json/json.parser.c \
+        ../../src/widgets/xml/xml.c \
+        ../../src/widgets/xml/xml.parser.c \
         ./main.c
-
-LOCAL_STATIC_LIBRARIES := cpufeatures
 
 LOCAL_LDLIBS := -ldl -llog -landroid
 LOCAL_EXPORT_LDLIBS := $(LOCAL_LDLIBS)

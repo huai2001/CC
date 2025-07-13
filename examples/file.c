@@ -1,23 +1,25 @@
 /* System dependent filesystem routines */
-#include <cc/core.h>
-#include <cc/alloc.h>
-#include <cc/dirent.h>
+#include <libcc/core.h>
+#include <libcc/alloc.h>
+#include <libcc/dirent.h>
 
 
 int main(int argc, char const *argv[]) {
     tchar_t cwd[_CC_MAX_PATH_] = {0};
+    tchar_t file_path_name[_CC_MAX_PATH_ * 2] = {0};
     byte_t data[1024];
-    _cc_file_t *r = NULL, *w = NULL;
+    _cc_file_t *r = nullptr, *w = nullptr;
 
-    _cc_get_module_directory("test.c", cwd, _cc_countof(cwd));
+    _cc_get_base_path(cwd, _cc_countof(cwd));
+    _sntprintf(file_path_name, _cc_countof(file_path_name), _T("%s/test.c"), cwd);
     
-    w = _cc_open_file(cwd, "w");
+    w = _cc_open_file(file_path_name, "w");
     if(w){
         _cc_file_write(w, "testes\n", sizeof(char_t), 7);
         _cc_file_close(w);
     }
     
-    r = _cc_open_file(cwd, "r");
+    r = _cc_open_file(file_path_name, "r");
     if (r) {
         size_t byte_read = 0;
         printf("fileSize:%lld\n", _cc_file_size(r));
@@ -28,5 +30,6 @@ int main(int argc, char const *argv[]) {
         _cc_file_close(r);
     }
     
+    system("pause");
     return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,12 +18,12 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/sha.h>
-#include <cc/string.h>
+#include <libcc/sha.h>
+#include <libcc/string.h>
 
 #if !defined(_CC_SHA512_ALT_)
 
-#if defined(_MSC_VER) || defined(__WATCOMC__)
+#if defined(_CC_MSVC_) || defined(__WATCOMC__)
 #define UL64(x) x##ui64
 #else
 #define UL64(x) x##ULL
@@ -33,16 +33,16 @@
  */
 #ifndef GET_UINT64_BE
 #define GET_UINT64_BE(n, b, i)                                                                                         \
-    {                                                                                                                  \
+    do {                                                                                                               \
         (n) = ((uint64_t)(b)[(i)] << 56) | ((uint64_t)(b)[(i) + 1] << 48) | ((uint64_t)(b)[(i) + 2] << 40) |           \
               ((uint64_t)(b)[(i) + 3] << 32) | ((uint64_t)(b)[(i) + 4] << 24) | ((uint64_t)(b)[(i) + 5] << 16) |       \
               ((uint64_t)(b)[(i) + 6] << 8) | ((uint64_t)(b)[(i) + 7]);                                                \
-    }
+    } while(0)
 #endif /* GET_UINT64_BE */
 
 #ifndef PUT_UINT64_BE
 #define PUT_UINT64_BE(n, b, i)                                                                                         \
-    {                                                                                                                  \
+    do {                                                                                                               \
         (b)[(i)] = (byte_t)((n) >> 56);                                                                                \
         (b)[(i) + 1] = (byte_t)((n) >> 48);                                                                            \
         (b)[(i) + 2] = (byte_t)((n) >> 40);                                                                            \
@@ -51,7 +51,7 @@
         (b)[(i) + 5] = (byte_t)((n) >> 16);                                                                            \
         (b)[(i) + 6] = (byte_t)((n) >> 8);                                                                             \
         (b)[(i) + 7] = (byte_t)((n));                                                                                  \
-    }
+    } while(0)
 #endif /* PUT_UINT64_BE */
 
 /*
@@ -292,7 +292,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384) {
     _cc_sha512_t c;
     size_t digest_length = is384 ? _CC_SHA384_DIGEST_LENGTH_ : _CC_SHA512_DIGEST_LENGTH_;
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         return false;
     }
 

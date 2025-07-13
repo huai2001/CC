@@ -12,32 +12,12 @@
     ],
     "tasks": [
         {
-            "label": "test_mysql",
-            "args": [".bin","target=examples","build=test_mysql","debug=1"],
-        },
-        {
-            "label": "build-event",
-            "args": [".dylib","target=event","debug=1"],
-        },
-        {
-            "label": "build-json",
-            "args": [".dylib","target=json","debug=1"],
-        },
-        {
-            "label": "build-xml",
-            "args": [".dylib","target=xml","debug=1"],
-        },
-        {
-            "label": "build-ini",
-            "args": [".dylib","target=ini","debug=1"],
-        },
-        {
-            "label": "build-db",
-            "args": [".dylib","target=db","debug=1"],
+            "label": "test",
+            "args": [".bin","target=tests","build=test_url_request","debug=1"],
         },
         {
             "label": "build-widgets",
-            "args": [".dylib","target=widgets","debug=1"],
+            "args": [".dll","target=widgets","all=1","debug=1"],
         },
         {
             "label": "clean",

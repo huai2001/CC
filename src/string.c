@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/alloc.h>
+#include <libcc/alloc.h>
 #include <math.h>
 #include <string.h>
 
@@ -36,14 +36,6 @@ const wchar_t _w_upper_xdigits[] = L"0123456789ABCDEF";
 const char_t _a_lower_xdigits[] = "0123456789abcdef";
 const char_t _a_upper_xdigits[] = "0123456789ABCDEF";
 
-#define __CC_TO_BYTE(CH, XX, OP)                                                                                       \
-    do {                                                                                                               \
-        if (XX <= _T('9')) {                                                                                           \
-            CH OP(XX & 0x0F);                                                                                          \
-        } else {                                                                                                       \
-            CH OP((XX & 0x0F) + 0x09);                                                                                 \
-        }                                                                                                              \
-    } while (0)
 #if 0
 /*-----------------------------------------------------------------------------
  * Purpose: Returns the 4 bit nibble for a hex character
@@ -73,61 +65,61 @@ _CC_API_PUBLIC(uint64_t) _cc_hex16(const tchar_t *input) {
     uint64_t ch = 0;
     int i;
 
-    __CC_TO_BYTE(ch, input[0], =);
+    ch = _cc_char2hex(input[0]);
     for (i = 1; i < 16; i++) {
         ch <<= 4;
-        __CC_TO_BYTE(ch, input[i], +=);
+        ch += _cc_char2hex(input[i]);
     }
 
     return ch;
 }
 
 _CC_API_PUBLIC(uint32_t) _cc_hex8(const tchar_t *input) {
-    uint32_t ch = 0;
+    int ch = 0;
 
-    __CC_TO_BYTE(ch, input[0], =);
+    ch = _cc_char2hex(input[0]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[1], +=);
+    ch += _cc_char2hex(input[1]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[2], +=);
+    ch += _cc_char2hex(input[2]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[3], +=);
+    ch += _cc_char2hex(input[3]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[4], +=);
+    ch += _cc_char2hex(input[4]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[5], +=);
+    ch += _cc_char2hex(input[5]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[6], +=);
+    ch += _cc_char2hex(input[6]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[7], +=);
+    ch += _cc_char2hex(input[7]);
 
-    return ch;
+    return (uint32_t)ch;
 }
 
 /* parse hexadecimal number */
 _CC_API_PUBLIC(uint16_t) _cc_hex4(const tchar_t *input) {
-    uint16_t ch = 0;
+    int ch = 0;
 
-    __CC_TO_BYTE(ch, input[0], =);
+    ch = _cc_char2hex(input[0]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[1], +=);
+    ch += _cc_char2hex(input[1]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[2], +=);
+    ch += _cc_char2hex(input[2]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[3], +=);
+    ch += _cc_char2hex(input[3]);
 
-    return ch;
+    return (uint16_t)(ch & 0xffff);
 }
 
 /* parse hexadecimal number */
 _CC_API_PUBLIC(uint8_t) _cc_hex2(const tchar_t *input) {
-    uint8_t ch = 0;
+    int ch = 0;
 
-    __CC_TO_BYTE(ch, input[0], =);
+    ch = _cc_char2hex(input[0]);
     ch <<= 4;
-    __CC_TO_BYTE(ch, input[1], +=);
+    ch += _cc_char2hex(input[1]);
 
-    return ch;
+    return (uint8_t)(ch & 0xff);
 }
 
 _CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *in, size_t in_len, tchar_t *out, size_t out_max_len) {
@@ -135,7 +127,7 @@ _CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *in, size_t in_len, tchar_t *o
     size_t i = 0;
     byte_t ch = 0;
 
-    _cc_assert(in != NULL && out != NULL);
+    _cc_assert(in != nullptr && out != nullptr);
     out_max_len -= 1;
 
     while (i < in_len && k < out_max_len) {
@@ -152,10 +144,10 @@ _CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *in, size_t in_len, tchar_t *o
 
 /* ascii to bytes*/
 _CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *in, size_t in_len, byte_t *out, size_t out_max_len) {
-    byte_t ch = 0;
+    int ch = 0;
     size_t i = 0, k = 0;
 
-    _cc_assert(in != NULL && out != NULL);
+    _cc_assert(in != nullptr && out != nullptr);
 
     if (_cc_unlikely(!in || !out)) {
         return 0;
@@ -166,10 +158,11 @@ _CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *in, size_t in_len, byte_t *o
     }
 
     while (i < in_len && k <= out_max_len) {
-        __CC_TO_BYTE(ch, in[i], =);
+        ch = _cc_char2hex(in[i]);
         ch <<= 4;
-        __CC_TO_BYTE(ch, in[i + 1], +=);
-        out[k++] = ch;
+        ch += _cc_char2hex(in[i + 1]);
+
+        out[k++] = ch & 0xff;
 
         i += 2;
     }
@@ -177,58 +170,74 @@ _CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *in, size_t in_len, byte_t *o
     return k;
 }
 
-#undef __CC_TO_BYTE
-
-/* Returns a string converted to lower case */
-_CC_API_PUBLIC(char_t *) _cc_to_lowerA(char_t *s) {
-    char_t *_t = s;
-    _cc_assert(s != NULL);
-
-    for (; *_t && *_t != _T('\0'); _t++) {
-        *_t = tolower(*_t);
+_CC_API_PUBLIC(size_t)  _cc_trimA_copy(char_t *dst, size_t dst_capacity,  const char_t *src, size_t src_len) {
+    const char_t *end;
+    if (!dst || !src || dst_capacity == 0) {
+        return 0;
     }
-    return s;
+
+    end = src + src_len;
+    
+    // Trim right
+    while (end > src && _cc_isspace(*(end - 1))) {
+        end--;
+    }
+
+    // Trim left
+    while (src < end && _cc_isspace(*src)){
+        src++;
+    }
+
+    src_len = (end - src);
+    if (src_len > 0) {
+        dst_capacity = (src_len < dst_capacity) ? src_len : (dst_capacity - 1);
+        memcpy(dst, src, dst_capacity * sizeof(char_t));
+        dst[dst_capacity] = '\0';
+        return dst_capacity;
+    }
+    
+    dst[0] = '\0';
+    return 0;
 }
 
-/* Returns a string converted to upper case */
-_CC_API_PUBLIC(char_t *) _cc_to_upperA(char_t *s) {
-    char_t *_t = s;
-    _cc_assert(_t != NULL);
-
-    for (; *_t && *_t != _T('\0'); _t++) {
-        *_t = toupper(*_t);
+_CC_API_PUBLIC(size_t) _cc_trimW_copy(wchar_t *dst, size_t dst_capacity,  const wchar_t *src, size_t src_len) {
+    const wchar_t *end;
+    if (!dst || !src || dst_capacity == 0) {
+        return 0;
     }
-    return s;
+
+    end = src + src_len;
+    
+    // Trim right
+    while (end > src && _cc_isspace(*(end - 1))) {
+        end--;
+    }
+
+    // Trim left
+    while (src < end && _cc_isspace(*src)) {
+        src++;
+    }
+
+    src_len = (end - src);
+    if (src_len > 0) {
+        dst_capacity = (src_len < dst_capacity) ? src_len : (dst_capacity - 1);
+        memcpy(dst, src, dst_capacity * sizeof(wchar_t));
+        dst[dst_capacity] = '\0';
+        return dst_capacity;
+    }
+    
+    dst[0] = '\0';
+    return 0;
 }
 
-/* Returns a string converted to lower case */
-_CC_API_PUBLIC(wchar_t *) _cc_to_lowerW(wchar_t *s) {
-    wchar_t *_t = s;
-    _cc_assert(s != NULL);
-
-    for (; *_t && *_t != _T('\0'); _t++) {
-        *_t = towlower(*_t);
-    }
-    return s;
-}
-
-/* Returns a string converted to upper case */
-_CC_API_PUBLIC(wchar_t *) _cc_to_upperW(wchar_t *s) {
-    wchar_t *_t = s;
-    _cc_assert(_t != NULL);
-
-    for (; *_t && *_t != _T('\0'); _t++) {
-        *_t = towupper(*_t);
-    }
-    return s;
-}
 
 _CC_API_PUBLIC(int32_t)
-_cc_splitA(_cc_strA_t *dst, int32_t count, char_t *src, int32_t(separator_fn)(char_t *, int32_t)) {
+_cc_splitA(_cc_AString_t *dst, int32_t count, char_t *src, int32_t(separator_fn)(char_t *, int32_t)) {
     int32_t i = 0;
-    _cc_strA_t *r;
     char_t *p;
     char_t *tmp;
+    _cc_AString_t *r;
+
     if (!src || !dst) {
         return 0;
     }
@@ -265,11 +274,12 @@ _cc_splitA(_cc_strA_t *dst, int32_t count, char_t *src, int32_t(separator_fn)(ch
 }
 
 _CC_API_PUBLIC(int32_t)
-_cc_splitW(_cc_strW_t *dst, int32_t count, wchar_t *src, int32_t(separator_fn)(wchar_t *, int32_t)) {
+_cc_splitW(_cc_WString_t *dst, int32_t count, wchar_t *src, int32_t(separator_fn)(wchar_t *, int32_t)) {
     int32_t i = 0;
-    _cc_strW_t *r;
     wchar_t *p;
     wchar_t *tmp;
+    _cc_WString_t *r;
+
     if (!src || !dst) {
         return 0;
     }
@@ -307,10 +317,10 @@ _cc_splitW(_cc_strW_t *dst, int32_t count, wchar_t *src, int32_t(separator_fn)(w
 /**/
 _CC_API_PUBLIC(tchar_t *) _cc_substr(tchar_t *s1, const tchar_t *s2, uint32_t started, int32_t ended) {
     uint32_t len = 0;
-    _cc_assert(s1 != NULL && s2 != NULL);
+    _cc_assert(s1 != nullptr && s2 != nullptr);
 
     if (!s1 || !s2) {
-        return NULL;
+        return nullptr;
     }
 
     len = (uint32_t)_tcslen(s1);
@@ -318,10 +328,10 @@ _CC_API_PUBLIC(tchar_t *) _cc_substr(tchar_t *s1, const tchar_t *s2, uint32_t st
     ended = (int32_t)((ended <= 0) ? ((len - started) + ended) : ended);
     /* */
     if (len < started || len < (started + ended)) {
-        return NULL;
+        return nullptr;
     }
 
-    _tcsncpy(s1, (s2 + started), ended);
+    memcpy(s1, (s2 + started), ended * sizeof(tchar_t));
     s1[ended + 1] = _T('\0');
 
     return s1;

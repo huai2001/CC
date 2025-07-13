@@ -24,7 +24,7 @@ void wxapkg(tchar_t *file, const tchar_t *save_path, const tchar_t *source_file)
     tchar_t szFilePath[_CC_MAX_PATH_];
     FILE *wf;
     FILE *fp = _tfopen(file, _T("rb"));
-    if (fp == NULL) {
+    if (fp == nullptr) {
         return ;
     }
     //_ftprintf(flog,_T("[%s]\n"), file + positioning);
@@ -70,7 +70,6 @@ void wxapkg(tchar_t *file, const tchar_t *save_path, const tchar_t *source_file)
         curr_offset = ftell(fp);
 
         _sntprintf(szFilePath, _cc_countof(szFilePath), _T("%s//%s"), save_path, file);
-        _cc_realpath(szFilePath);
         _cc_mkdir(szFilePath);
         wf = _tfopen(szFilePath, _T("wb"));
         if (wf) {
@@ -110,11 +109,11 @@ void finder(const tchar_t* source_path, const tchar_t* save_path) {
     struct dirent* d;
 
     dir = opendir(source_path);
-    if (dir == NULL) {
+    if (dir == nullptr) {
         return;
     }
 
-    while ((d = readdir(dir)) != NULL) {
+    while ((d = readdir(dir)) != nullptr) {
         //
         if (d->d_type == DT_DIR &&
             ((d->d_name[0] == '.' && d->d_name[1] == 0) ||

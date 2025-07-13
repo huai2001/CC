@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -18,32 +18,37 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/event/event.h>
-#include <cc/loadso.h>
-#include <cc/logger.h>
+#include <libcc/atomic.h>
+#include <libcc/loadso.h>
+#include <libcc/logger.h>
 
-#include <cc/socket/socket.h>
+#include <libcc/socket/socket.h>
 
 #include <mstcpip.h>
+
+#ifdef _CC_MSVC_
+    #ifndef _WIN32_WCE
+        #pragma comment(lib, "ws2_32")
+    #else
+        #pragma comment(lib, "ws2")
+    #endif
+#endif
+
 typedef struct tcp_keepalive tcp_keepalive_t;
 
 static _cc_atomic32_t _socket_started = 0;
 
-#ifdef _CC_EVENT_USE_IOCP_
-
 static struct sockaddr_in _win_addr_ipv4_any = {0};
 static struct sockaddr_in6 _win_addr_ipv6_any = {0};
 
+static LPFN_ACCEPTEX _accept_func_ptr = nullptr;
+static LPFN_GETACCEPTEXSOCKADDRS _accept_sockaddrs_func_ptr = nullptr;
+static LPFN_DISCONNECTEX _disconnect_func_ptr = nullptr;
+static LPFN_CONNECTEX _connectex_func_ptr = nullptr;
 #if (_WIN32_WINNT < 0x0600)
-static pvoid_t _kernel32_handle = NULL;
+static LPFN_GETQUEUEDCOMPLETIONSTATUSEX _get_queued_completion_status_func_ptr = nullptr;
 #endif
-static LPFN_ACCEPTEX _accept_func_ptr = NULL;
-static LPFN_GETACCEPTEXSOCKADDRS _accept_sockaddrs_func_ptr = NULL;
-static LPFN_DISCONNECTEX _disconnect_func_ptr = NULL;
-static LPFN_CONNECTEX _connectex_func_ptr = NULL;
-static LPFN_GETQUEUEDCOMPLETIONSTATUSEX _get_queued_completion_status_func_ptr = NULL;
-static LPFN_TRANSMITFILE _transmit_file_func_ptr = NULL;
-#endif
+static LPFN_TRANSMITFILE _transmit_file_func_ptr = nullptr;
 
 _CC_API_PUBLIC(_cc_sockaddr_t*) _cc_win_get_ipv4_any_addr(void) {
     return (_cc_sockaddr_t *)&_win_addr_ipv4_any;
@@ -148,7 +153,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay
     klive.keepalivetime = delay;
     klive.keepaliveinterval = delay;
 
-    WSAIoctl(fd, SIO_KEEPALIVE_VALS, &klive, sizeof(tcp_keepalive_t), NULL, 0, (unsigned long *)&opt, 0, NULL);
+    WSAIoctl(fd, SIO_KEEPALIVE_VALS, &klive, sizeof(tcp_keepalive_t), nullptr, 0, (unsigned long *)&opt, 0, nullptr);
 
     return 0;
 }
@@ -156,12 +161,12 @@ _CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay
 /**/
 void *get_extension_func_ptr(SOCKET sock, GUID guid) {
     DWORD dwBytes;
-    PVOID pfn = NULL;
+    PVOID pfn = nullptr;
 
     if (SOCKET_ERROR == WSAIoctl(sock, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &pfn, sizeof(pfn),
-                                 &dwBytes, NULL, NULL)) {
+                                 &dwBytes, nullptr, nullptr)) {
         _cc_logger_error(_T("fd:%d, WSAIoctl Error:%s"), sock, _cc_last_error(_cc_last_errno()));
-        return NULL;
+        return nullptr;
     }
 
     return pfn;
@@ -169,7 +174,7 @@ void *get_extension_func_ptr(SOCKET sock, GUID guid) {
 
 /**/
 LPFN_ACCEPTEX get_accept_func_ptr(SOCKET sock) {
-    if (_cc_unlikely(_accept_func_ptr == NULL)) {
+    if (_cc_unlikely(_accept_func_ptr == nullptr)) {
         GUID guid = WSAID_ACCEPTEX;
         _accept_func_ptr = (LPFN_ACCEPTEX)get_extension_func_ptr(sock, guid);
     }
@@ -179,7 +184,7 @@ LPFN_ACCEPTEX get_accept_func_ptr(SOCKET sock) {
 
 /**/
 LPFN_GETACCEPTEXSOCKADDRS get_accept_sockaddrs_func_ptr(SOCKET sock) {
-    if (_cc_unlikely(_accept_sockaddrs_func_ptr == NULL)) {
+    if (_cc_unlikely(_accept_sockaddrs_func_ptr == nullptr)) {
         GUID guid = WSAID_GETACCEPTEXSOCKADDRS;
         _accept_sockaddrs_func_ptr = (LPFN_GETACCEPTEXSOCKADDRS)get_extension_func_ptr(sock, guid);
     }
@@ -189,7 +194,7 @@ LPFN_GETACCEPTEXSOCKADDRS get_accept_sockaddrs_func_ptr(SOCKET sock) {
 
 /**/
 LPFN_TRANSMITFILE get_transmitfile_func_ptr(SOCKET sock) {
-    if (_cc_unlikely(_transmit_file_func_ptr == NULL)) {
+    if (_cc_unlikely(_transmit_file_func_ptr == nullptr)) {
         GUID guid = WSAID_TRANSMITFILE;
         _transmit_file_func_ptr = (LPFN_TRANSMITFILE)get_extension_func_ptr(sock, guid);
     }
@@ -199,7 +204,7 @@ LPFN_TRANSMITFILE get_transmitfile_func_ptr(SOCKET sock) {
 /**/
 LPFN_CONNECTEX get_connectex_func_ptr(SOCKET sock) {
     GUID guid = WSAID_CONNECTEX;
-    if (_cc_unlikely(_connectex_func_ptr == NULL)) {
+    if (_cc_unlikely(_connectex_func_ptr == nullptr)) {
         _connectex_func_ptr = (LPFN_CONNECTEX)get_extension_func_ptr(sock, guid);
     }
 
@@ -209,7 +214,7 @@ LPFN_CONNECTEX get_connectex_func_ptr(SOCKET sock) {
 /**/
 LPFN_DISCONNECTEX get_disconnect_func_ptr(SOCKET sock) {
     GUID guid = WSAID_DISCONNECTEX;
-    if (_cc_unlikely(_disconnect_func_ptr == NULL)) {
+    if (_cc_unlikely(_disconnect_func_ptr == nullptr)) {
         _disconnect_func_ptr = (LPFN_DISCONNECTEX)get_extension_func_ptr(sock, guid);
     }
 
@@ -225,12 +230,8 @@ LPFN_GETQUEUEDCOMPLETIONSTATUSEX get_queued_completion_status_func_ptr() {
         return _get_queued_completion_status_func_ptr;
     }
 
-    if (_cc_unlikely(!_kernel32_handle)) {
-        _kernel32_handle = (pvoid_t)_cc_load_windows_kernel32();
-    }
-
     _get_queued_completion_status_func_ptr =
-        (LPFN_GETQUEUEDCOMPLETIONSTATUSEX)_cc_load_function(_kernel32_handle, "GetQueuedCompletionStatusEx");
+        (LPFN_GETQUEUEDCOMPLETIONSTATUSEX)_cc_load_function(_cc_load_windows_kernel32(), "GetQueuedCompletionStatusEx");
 
     return _get_queued_completion_status_func_ptr;
 #endif
@@ -241,7 +242,7 @@ int _udp_reset_connect(SOCKET sock, BOOL bNewBehavior) {
     int result = NO_ERROR;
     DWORD dwBytes;
 
-    if (WSAIoctl(sock, SIO_UDP_CONNRESET, (LPVOID)&bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytes, NULL, NULL) ==
+    if (WSAIoctl(sock, SIO_UDP_CONNRESET, (LPVOID)&bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytes, nullptr, nullptr) ==
         SOCKET_ERROR) {
         result = WSAGetLastError();
         if (result == WSAEWOULDBLOCK)

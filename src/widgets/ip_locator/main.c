@@ -1,16 +1,16 @@
 #include <libcc.h>
-#include <cc/widgets/ip_locator.h>
+#include <libcc/widgets/ip_locator.h>
 
 
 uint32_t str2ip(const char_t *cs) {
-    char_t *result = NULL;
+    char_t *result = nullptr;
     uint32_t res = 0;
     char_t *s = strdup(cs);
     result = strtok( s, "." );
     while( result ) {
         res <<= 8;
         res |= (uint32_t)atoi(result);
-        result = strtok( NULL, "." );
+        result = strtok( nullptr, "." );
     }
     free(s);
     return res;
@@ -41,7 +41,7 @@ void ListenUDP(uint16_t port) {
         return ;
     }
 
-    _cc_inet_ipv4_addr(&sin, NULL, port);
+    _cc_inet_ipv4_addr(&sin, nullptr, port);
     if(bind(io_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1){
         fprintf(stderr, "%s\n", "bing port error\n");
         return ;
@@ -54,9 +54,9 @@ void ListenUDP(uint16_t port) {
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
 #ifndef __CC_WINDOWS__
-        res = select((int)(io_fd+1), &read_set, NULL, NULL, &tv);
+        res = select((int)(io_fd+1), &read_set, nullptr, nullptr, &tv);
 #else
-        res = select(0, &read_set, NULL, NULL, &tv);
+        res = select(0, &read_set, nullptr, nullptr, &tv);
 #endif
         if (res == 0) {
             continue;
@@ -92,15 +92,18 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     uint16_t port = 8600;
     int len;
-    tchar_t path[_CC_MAX_PATH_];// = "/Users/QIU/Github/CC/widgets/libIPLocator/qqwry.dat";
+    tchar_t path[_CC_MAX_PATH_];// = "/Users/Github/CC/widgets/libIPLocator/qqwry.dat";
+    tchar_t qqwry[_CC_MAX_PATH_ * 2];
 
     _cc_install_socket();
 
     if (argc == 2) {
         port = atoi(argv[1]);
     }
-    _cc_get_module_directory("qqwry.dat", path, _CC_MAX_PATH_);
-    _cc_init_ip_locator(&locator, path);
+    _cc_get_base_path(path,_CC_MAX_PATH_);
+    
+    _sntprintf(,_cc_countof(qqwry),_T("%s/qqwry.dat"),path);
+    _cc_init_ip_locator(&locator, qqwry);
     
     len = locator.get_version(&locator, addr_gbk, 256);
     _cc_gbk_to_utf8(addr_gbk, addr_gbk + len, addr, &addr[256]);

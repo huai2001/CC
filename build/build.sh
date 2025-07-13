@@ -36,28 +36,17 @@ case $KERNEL_NAME in
 esac
 
 if [ "$1" == "debug" ]; then
-debug="debug=1"
+DEBUG=debug=1
+else
+DEBUG=
 fi
 
-path=$(cd `dirname $0`; pwd)
-cd $path
+current_path=$(cd `dirname $0`; pwd)
+cd $current_path
 
 cd ..
-$MAKE_TOOL .a platform=$PLATFORM
-$MAKE_TOOL .a platform=$PLATFORM debug=1
+$MAKE_TOOL .a platform=$PLATFORM $DEBUG
 
 cd ./build
 
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='event'
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='db'
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='xml'
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='json'
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='ini'
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='widgets'
-
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='event' debug=1
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='db' debug=1
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='xml' debug=1
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='json' debug=1
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='ini' debug=1
-$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target='widgets' debug=1
+$MAKE_TOOL $TARGET_NAME platform=$PLATFORM target=widgets all=1 $DEBUG

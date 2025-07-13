@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libCC contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -18,11 +18,8 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <cc/core.h>
-#include <cc/string.h>
-#if defined(__WIN32__)
-#include <cc/core/windows/windows.h>
-#endif
+#include <libcc/core.h>
+#include <libcc/string.h>
 
 #ifdef _CC_HAVE_SYSCONF_
 #include <unistd.h>
@@ -89,7 +86,7 @@ _CC_API_PRIVATE(int) CPU_haveCPUID(void) {
     :
     : "%rax", "%rcx"
     );
-#elif (defined(_MSC_VER) && defined(_M_IX86)) || defined(__WATCOMC__)
+#elif (defined(_CC_MSVC_) && defined(_M_IX86)) || defined(__WATCOMC__)
     __asm {
         pushfd                      ; Get original EFLAGS
         pop     eax
@@ -104,7 +101,7 @@ _CC_API_PRIVATE(int) CPU_haveCPUID(void) {
         mov     has_CPUID,1         ; We have CPUID support
 done:
     }
-#elif defined(_MSC_VER) && defined(_M_X64)
+#elif defined(_CC_MSVC_) && defined(_M_X64)
     has_CPUID = 1;
 #elif defined(__sun) && defined(__i386)
     __asm (
@@ -202,7 +199,7 @@ _CC_API_PUBLIC(int) _cc_cpu_count(void) {
 #ifdef _CC_HAVE_SYSCTLBYNAME_
     if (_cc_cpu_number_processors <= 0) {
         size_t size = sizeof(_cc_cpu_number_processors);
-        sysctlbyname("hw.ncpu", &_cc_cpu_number_processors, &size, NULL, 0);
+        sysctlbyname("hw.ncpu", &_cc_cpu_number_processors, &size, nullptr, 0);
     }
 #endif
 #ifdef __CC_OS2__

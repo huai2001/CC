@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include <cc/thread.h>
-#include <cc/alloc.h>
-#include <cc/time.h>
-#include <cc/list.h>
-#include <cc/atomic.h>
+#include <libcc/thread.h>
+#include <libcc/alloc.h>
+#include <libcc/time.h>
+#include <libcc/list.h>
+#include <libcc/atomic.h>
 
 char c = 0;
 _cc_atomic32_t g_int = 0;
@@ -30,7 +30,7 @@ int main (int argc, char * const argv[]) {
     _cc_atomic64_t r64 = 0;
     
     for (i = 0; i < THREAD_COUNT; i++) {
-        _cc_thread_start(fn_thread,NULL,NULL);
+        _cc_thread_start(fn_thread,nullptr,nullptr);
     }
 
     printf("platform name:%s\n", _CC_PLATFORM_NAME_);

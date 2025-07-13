@@ -1,0 +1,68 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\240216\\01\\proj.Win\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\core\\generic.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\core\\windows.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\core\\windows\\sys_dirent.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "sys_dirent.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\core\\windows\\sys_dirent.c",
+              "RelativeDocumentMoniker": "..\\src\\core\\windows\\sys_dirent.c",
+              "ToolTip": "D:\\240216\\01\\src\\core\\windows\\sys_dirent.c",
+              "RelativeToolTip": "..\\src\\core\\windows\\sys_dirent.c",
+              "ViewState": "AgIAAE0BAAAAAAAAAAAAAOkBAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-09T23:44:41.227Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "windows.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\core\\windows.c",
+              "RelativeDocumentMoniker": "..\\src\\core\\windows.c",
+              "ToolTip": "D:\\240216\\01\\src\\core\\windows.c",
+              "RelativeToolTip": "..\\src\\core\\windows.c",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-09T23:44:37.56Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "generic.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\core\\generic.c",
+              "RelativeDocumentMoniker": "..\\src\\core\\generic.c",
+              "ToolTip": "D:\\240216\\01\\src\\core\\generic.c",
+              "RelativeToolTip": "..\\src\\core\\generic.c",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABQAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-09T23:44:34.182Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

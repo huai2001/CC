@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <cc/core/cpu_info.h>
+#include <libcc/core/cpu_info.h>
 
 
 int main (int argc, char * const argv[]) {

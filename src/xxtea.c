@@ -1,6 +1,6 @@
-#include <cc/alloc.h>
-#include <cc/endian.h>
-#include <cc/xxtea.h>
+#include <libcc/alloc.h>
+#include <libcc/endian.h>
+#include <libcc/xxtea.h>
 
 #define MX (((z >> 5) ^ (y << 2)) + ((y >> 3) ^ (z << 4))) ^ ((sum ^ y) + (key[(p & 3) ^ e] ^ z))
 
@@ -17,7 +17,7 @@ xxtea_to_uint_array(const uint8_t *data, size_t len, int input_length, size_t *o
     n = (((len & 3) == 0) ? (len >> 2) : ((len >> 2) + 1));
     out = (uint32_t *)_cc_calloc(n + 1, sizeof(uint32_t));
     if (!out) {
-        return NULL;
+        return nullptr;
     }
 
     if (input_length) {
@@ -49,7 +49,7 @@ xxtea_to_bytes_array(const uint32_t *data, size_t len, int input_length, size_t 
         m = data[len - 1];
         n -= 4;
         if ((m < n - 3) || (m > n)) {
-            return NULL;
+            return nullptr;
         }
         n = m;
     }
@@ -130,7 +130,7 @@ xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t 
     size_t data_len, key_len;
 
     if (!len) {
-        return NULL;
+        return nullptr;
     }
 
     data_array = xxtea_to_uint_array(data, len, 1, &data_len);
@@ -141,7 +141,7 @@ xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t 
     key_array = xxtea_to_uint_array(key, 16, 0, &key_len);
     if (!key_array) {
         _cc_free(data_array);
-        return NULL;
+        return nullptr;
     }
 
     out = xxtea_to_bytes_array(xxtea_uint_encrypt(data_array, data_len, key_array), data_len, 0, output_length);
@@ -159,7 +159,7 @@ xxtea_bytes_decrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t 
     size_t data_len, key_len;
 
     if (!len) {
-        return NULL;
+        return nullptr;
     }
 
     data_array = xxtea_to_uint_array(data, len, 0, &data_len);
@@ -170,7 +170,7 @@ xxtea_bytes_decrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t 
     key_array = xxtea_to_uint_array(key, 16, 0, &key_len);
     if (!key_array) {
         _cc_free(data_array);
-        return NULL;
+        return nullptr;
     }
 
     out = xxtea_to_bytes_array(xxtea_uint_decrypt(data_array, data_len, key_array), data_len, 1, output_length);
