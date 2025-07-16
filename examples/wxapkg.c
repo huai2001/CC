@@ -268,54 +268,137 @@ void finder(const tchar_t* source_path, size_t offset) {
     }
     closedir(dir);
 }
-_cc_json_t *root;
-int _tmain (int argc, tchar_t * const argv[]) {
+/*Print the usage message.*/
+static int print_usage(void) {
+    return fprintf(stdout,
+                   _T("Usage:wxapkg [-e,-d]... [-f[File],-r[dir]]...-o[File]\n"));
+}
+
+int main(int argc, char* const argv[]) {
     int i;
+    const char* src = nullptr;
+    const char* dest = nullptr;
+    int m = 0,r = 0;
+
     tchar_t path[_CC_MAX_PATH_];
     const tchar_t *file_name;
     const _cc_json_t *files;
     _cc_buf_t *buf;
+    _cc_json_t *root;
     _cc_json_t *item;
-    //_cc_String_t src = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\wx745f0f407ef0858b\\381"));
-    //_cc_String_t src = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\new"));
-    _cc_String_t dest = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\wxapkg"));
-    _cc_String_t new_dest = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\new"));
-    //_cc_String_t dest = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\wxapkg2"));
-/*
-    file_count = 0;
 
-    finder(src.data, src.length);
-
-    root = _cc_json_alloc_array(nullptr, 32);
-    for (i = 0; i < file_count; i++) {
-        file_entry_t *entry = &entries[i];
-        item = _cc_json_alloc_object(_CC_JSON_OBJECT_,nullptr);
-        de_wxapkg(entry->full_name, entry->name, dest.data, item);
-        _cc_json_array_push(root, item);
+    if (argc <= 3) {
+        print_usage();
+        return 0;
     }
 
-    buf = _cc_json_dump(root);
-    if (buf) {
-        FILE *fp;
-        _cc_fpath(path, _cc_countof(path), _T("%s\\wxapkg.json"), dest.data);
-        fp = _tfopen(path,"w");
-        if (fp) {
-            fwrite(buf->bytes, sizeof(byte_t), buf->length, fp);
-            fclose(fp);
+    for (i = 0; i < argc; i++) {
+        if (argv[i][0] == '-') {
+            switch (argv[i][1]) {
+                case 'e':
+                case 'E':
+                    m = 1;
+                    break;
+                case 'd':
+                case 'D':
+                    m = 2;
+                    break;
+                case 'f':
+                case 'F':
+                    if (argv[i][2] == 0) {
+                        if ((i + 1) < argc) {
+                            src = argv[i + 1];
+                        }
+                    } else {
+                        src = &argv[i][2];
+                    }
+                    r = 0;
+                    break;
+                case 'r':
+                case 'R':
+                    if (argv[i][2] == 0) {
+                        if ((i + 1) < argc) {
+                            src = argv[++i];
+                        }
+                    } else {
+                        src = &argv[i][2];
+                    }
+                    r = 1;
+                    break;
+                case 'o':
+                case 'O':
+                    if (argv[i][2] == 0) {
+                        if ((i + 1) < argc) {
+                            dest = argv[++i];
+                        }
+                    } else {
+                        dest = &argv[i][2];
+                    }
+                    break;
+            }
         }
     }
-*/
-    root = _cc_json_from_file(_T("D:\\240216\\01\\bin\\x86_64\\release\\wxapkg\\wxapkg.json"));
-    for (i = 0; i < root->length; i++) {
-        item = root->element.uni_array[i];
-        file_name = _cc_json_object_find_string(item, "file_name");
-        files = _cc_json_object_find_array(item,"files");
-        if (files) {
-            _cc_fpath(path, _cc_countof(path), _T("%s%s"), new_dest.data, file_name);
-            _cc_mkdir(path);
-            en_wxapkg(dest.data, path, files);
+
+    if (m == 0 || src == nullptr || dest == nullptr) {
+        print_usage();
+        return 1;
+    }
+
+    if (m == 1) {
+        _cc_fpath(path, _cc_countof(path), _T("%s\\wxapkg.json"), src);
+        root = _cc_json_from_file(path);
+        if (root == nullptr) {
+            return 0;
+        }
+        for (i = 0; i < root->length; i++) {
+            item = root->element.uni_array[i];
+            file_name = _cc_json_object_find_string(item, "file_name");
+            files = _cc_json_object_find_array(item,"files");
+            if (files) {
+                _cc_fpath(path, _cc_countof(path), _T("%s%s"), dest, file_name);
+                _cc_mkdir(path);
+                en_wxapkg(src, path, files);
+            }
+        }
+    } else if (m == 2) {
+        file_count = 0;
+        if (r) {
+            finder(src, _tcslen(src));
+        } else {
+            const tchar_t *p = _tcsrchr(src,'\\');
+            if (p == nullptr) {
+                p = _tcsrchr(src,'/');
+            }
+
+            if (p == nullptr) {
+                p = src;
+            }
+
+            file_entry_t *entry = &entries[file_count++];
+            _tcsncpy(entry->name, p, _cc_countof(entry->name));
+            _tcsncpy(entry->full_name, src, _cc_countof(entry->full_name));
+            entry->name[_cc_countof(entry->name) - 1] = 0;
+            entry->full_name[_cc_countof(entry->full_name) - 1] = 0;
+        }
+
+        root = _cc_json_alloc_array(nullptr, 32);
+        for (i = 0; i < file_count; i++) {
+            file_entry_t *entry = &entries[i];
+            item = _cc_json_alloc_object(_CC_JSON_OBJECT_,nullptr);
+            de_wxapkg(entry->full_name, entry->name, dest, item);
+            _cc_json_array_push(root, item);
+        }
+
+        buf = _cc_json_dump(root);
+        if (buf) {
+            FILE *fp;
+            _cc_fpath(path, _cc_countof(path), _T("%s\\wxapkg.json"), dest);
+            fp = _tfopen(path,"w");
+            if (fp) {
+                fwrite(buf->bytes, sizeof(byte_t), buf->length, fp);
+                fclose(fp);
+            }
         }
     }
-    system("pause");
     return 0;
 }
