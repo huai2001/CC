@@ -45,7 +45,7 @@ int main (int argc, char * const argv[]) {
         _cc_add_event_timeout(_cc_get_event_cycle(), 1000 * (i + 1), _timeout_callback, &timerlist[i]);
     }
     while (_cc_event_loop_is_running()) {
-        //timers.delegator.wait(&timers, 100);
+        //timers.wait(&timers, 100);
         _cc_sleep(100);
     }
 }

@@ -97,18 +97,22 @@ _CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path) {
 
     dp = _CC_MALLOC(DIR);
     dir_len = _tcslen(dir_path);
-    dirs = _cc_tcsndup(dir_path, dir_len);
+    dp->dir = (tchar_t *)_cc_malloc(sizeof(tchar_t) * (dir_len + 3));
+
+    memcpy(dp->dir, dir_path, dir_len * sizeof(tchar_t));
+    dp->dir[dir_len] = 0;
+
     if (dir_len > 0) {
         index = dir_len - 1;
     } else {
         index = 0;
     }
-
+    dirs = dp->dir;
     if ((dirs[index] == _T('/') || dirs[index] == _T('\\')) && (index == 0 || !IsDBCSLeadByte((BYTE)dirs[index - 1]))) {
         dirs[index + 1] = _T('*');
         dirs[index + 2] = 0;
     } else {
-        dirs[dir_len] = _T('\\');
+        dirs[dir_len] = _CC_SLASH_C_;
         dirs[dir_len + 1] = _T('*');
         dirs[dir_len + 2] = 0;
     }

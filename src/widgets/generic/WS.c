@@ -77,7 +77,6 @@ _CC_API_PUBLIC(int) _WSRead(_WSHeader_t *header) {
     header->payload = 0;
     header->mask = nullptr;
 
-    //(buf[0] & 0x80) == 0x80
     header->fin = (buf[0] >> 7) & 0x1;
     header->rsv = (buf[0] >> 4) & 0x07;
     header->opc = (buf[0] & 0x0F);

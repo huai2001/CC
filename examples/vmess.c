@@ -399,7 +399,7 @@ int main (int argc, char * const argv[]) {
     }
     
     _cc_wait_thread(network_thread, nullptr);
-    network_event.delegator.quit(&network_event);
+    network_event.quit(&network_event);
     _cc_uninstall_socket();
 
     return 0;

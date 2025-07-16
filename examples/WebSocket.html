@@ -1,77 +1,82 @@
 <!DOCTYPE HTML>
 <html>
-   <head>
-   <meta charset="utf-8">
-   <title>WebSocket</title>
-    
-      <script type="text/javascript">
-         let index = 0;
-         let ws = nullptr;
-         function WebSocketTest() {
-            let text = document.getElementById('text');
-            if ("WebSocket" in window) {
-               
-               // 打开一个 web socket
-               ws = new WebSocket("ws://127.0.0.1:8088/abc");
-                
-               ws.onopen = function() {
-                  // Web Socket 已连接上，使用 send() 方法发送数据
-                  index = 0;
-                  if (text) {
-                     text.innerHTML = "Web Socket 已连接上...";
-                  }
-               };
-                
-               ws.onmessage = function (evt) { 
-                  var received_msg = evt.data;
-                  if (text) {
-                     text.innerHTML = "Web Socket 数据已接收: "+received_msg
-                  }
-               };
-                
-               ws.onclose = function() { 
-                  // 关闭 websocket
-                  if (text) {
-                     text.innerHTML = "Web Socket 连接已关闭...";
-                  }
-                  ws = nullptr;
-               };
-            }
-            
-            else
-            {
-               // 浏览器不支持 WebSocket
-               alert("您的浏览器不支持 WebSocket!");
-            }
-         }
 
-         function WebSocketSend() {
-            if (ws) {
-               ws.send("testes:"+(index++));
+<head>
+    <meta charset="utf-8">
+    <title>WebSocket</title>
+    <script type="text/javascript">
+    function CreateWebSocket() {
+        var _ = {
+            ws: null
+        };
+        if ("WebSocket" in window) {
+            _.ws = new WebSocket("ws://127.0.0.1:8080/abc");
+            _.ws.onopen = function() {
+                // Web Socket 已连接上，使用 send() 方法发送数据
+                console.log("Web Socket 已连接上...");
+            };
+            _.ws.onmessage = function(e) {
+                var received_text = e.data;
+                console.log("Web Socket 数据已接收: " + received_text);
+            };
+            _.ws.onclose = function() {
+                // 关闭 websocket
+                console.log("Web Socket 连接已关闭...");
+                _.ws = null;
+            };
+            _.ws.onerror = function() {
+                console.log("Web Socket Error...");
+                _.ws = null;
             }
-         }
+        }
+        _.close = function() {
+            if (_.ws) {
+                _.ws.close();
+                _.ws = null;
+            }
+        }
+        _.send = function() {
+            if (_.ws) {
+                _.ws.send(JSON.stringify(arguments));
+            }
+        }
+        return _;
+    }
+    var ws;
+    var index = 0;
+    function WebSocketTest() {
+        ws = CreateWebSocket();
+    }
 
-         function WebSocketClose() {
-            if (ws) {
-               ws.close();
-               ws = nullptr;
-               if (text) {
-                  text.innerHTML = "Web Socket 连接已关闭...";
-               }
+    function WebSocketSend() {
+        if (ws) {
+            console.log("Web Socket send...");
+            ws.send("testes:", (index++),{a:1,b:[1,2,3],c:{a:"a",b:"c"}});
+        }
+    }
+
+    function WebSocketClose() {
+        if (ws) {
+            ws.close();
+            ws = null;
+            if (text) {
+                text.innerHTML = "Web Socket 连接已关闭...";
             }
-         }
-      </script>
-        
-   </head>
-   <body>
-      <div id="text"></div>
-      <div id="sse">
-         <a href="javascript:WebSocketTest()">运行 WebSocket</a>
-         <br/>
-         <a href="javascript:WebSocketSend()">发送 WebSocket</a>
-         <br/>
-         <a href="javascript:WebSocketClose()">关闭 WebSocket</a>
-      </div>
-      
-   </body>
+            console.log("Web Socket 连接已关闭...");
+        }
+    }
+    </script>
+</head>
+
+<body>
+    <div id="text"></div>
+    <div id="sse">
+        <a href="javascript:WebSocketTest()">运行 WebSocket</a>
+        <br />
+        <a href="javascript:WebSocketSend()">发送 WebSocket</a>
+        <br />
+        <a href="javascript:WebSocketClose()">关闭 WebSocket</a>
+    </div>
+</body>
+
 </html>

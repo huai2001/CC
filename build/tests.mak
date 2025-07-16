@@ -2,7 +2,7 @@ ifdef build
 	LOCAL_SRC_FILES = $(SRCROOT)/examples/$(build).o
 endif
 
-TARGET_NAME = tests#$(build)
+TARGET_NAME = $(build)
 
 LIBS	+= cc cc.widgets
 

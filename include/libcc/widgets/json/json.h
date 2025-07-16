@@ -88,14 +88,22 @@ _cc_json_alloc_object(byte_t type, const tchar_t *keyword);
 /**
  * @brief Create a JSON object
  *
- * @param type JSON Type =_CC_JSON_TYPES_
+ * @param keyword The keyword of the object
  * @param size JSON array size
  *
  * @return  JSON Array
  */
 _CC_WIDGETS_API(_cc_json_t*) 
-_cc_json_alloc_array(byte_t type, size_t size);
-
+_cc_json_alloc_array(const tchar_t *keyword, size_t size);
+/**
+ * @brief Add an object to JSON
+ *
+ * @param ctx JSON object
+ * @param j JSON object
+ *
+ * @return true if successful or false on error.
+ */
+_CC_WIDGETS_API(bool_t) _cc_json_array_push(_cc_json_t *ctx, _cc_json_t *j);
 /**
  * @brief Add an object to JSON
  *
@@ -106,7 +114,7 @@ _cc_json_alloc_array(byte_t type, size_t size);
  * @return true if successful or false on error.
  */
 _CC_WIDGETS_API(bool_t)
-_cc_json_object_append(_cc_json_t *ctx, _cc_json_t *j, bool_t replacement);
+_cc_json_object_push(_cc_json_t *ctx, _cc_json_t *j, bool_t replacement);
 
 /**
  * @brief Add an boolen to JSON

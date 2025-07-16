@@ -34,7 +34,7 @@ void json_P() {
     _cc_json_t *json2;
     _cc_json_t *json = _cc_json_parse((const tchar_t*)json_string, -1);//
     _cc_buf_t *buf = nullptr;
-    //json = _cc_json_add_object(_CC_JSON_OBJECT_, nullptr);
+    //json = _cc_json_alloc_object(_CC_JSON_OBJECT_, nullptr);
     if (json) {
         _cc_json_add_string(json, _T("nickname"), _T("abc中文\""), true);
         _cc_json_add_string(json, _T("nickname1"), _T("abc中文1\""), true);

@@ -1,5 +1,10 @@
 #include <stdio.h>
 #include <libcc.h>
+#include <libcc/widgets/json/json.h>
+
+#define MAGIC_FIRST 0xBE
+#define MAGIC_LAST 0xED
+#define CHUNK _CC_16K_BUFFER_SIZE_
 
 #pragma pack(1)
 typedef struct wxapkg_header {
@@ -8,103 +13,228 @@ typedef struct wxapkg_header {
     uint32_t index_length;
     uint32_t body_length;
     byte_t last_mark;
-    uint32_t file_count;
 } wxapkg_header_t;
+
+typedef struct {
+    tchar_t name[_CC_MAX_PATH_];
+    tchar_t full_name[_CC_MAX_PATH_];
+    uint32_t name_length;
+    uint32_t offset;
+    uint32_t size;
+} file_entry_t;
 
 #pragma pack()
 
-#define CHUNK 1024 * 16
-FILE *flog;
-static int32_t positioning = 0;
+static uint32_t file_count = 0;
+static file_entry_t entries[100];
 
-void wxapkg(tchar_t *file, const tchar_t *save_path, const tchar_t *source_file) {
+void en_wxapkg(const tchar_t *source_path, const tchar_t *dest_file, const _cc_json_t *files) {
+    uint32_t i,big_endian;
+    struct stat st;
+    uint32_t body_length;
+    uint32_t index_length;
     wxapkg_header_t header;
-    uint32_t i ;
-    char_t file_name[_CC_MAX_PATH_];
-    tchar_t szFilePath[_CC_MAX_PATH_];
-    FILE *wf;
-    FILE *fp = _tfopen(file, _T("rb"));
+    file_entry_t *_entries;
+
+    FILE *fp = _tfopen(dest_file, _T("wb"));
     if (fp == nullptr) {
-        return ;
+        return;
     }
-    //_ftprintf(flog,_T("[%s]\n"), file + positioning);
-    _ftprintf(flog,_T("pc_wxapkg_decrypt.exe -wxid wx745f0f407ef0858b -in %s  -out %s\\%s\n"), file, save_path, file + positioning);
+
+    _entries = _cc_calloc(files->length, sizeof(file_entry_t));
+    body_length = 0;
+    index_length = sizeof(uint32_t);
+    for (i = 0; i < files->length; i++) {
+        _cc_json_t *item = files->element.uni_array[i];
+        file_entry_t *entry = _entries + i;
+        entry->name_length = (int32_t)_cc_json_object_find_number(item,"file_name_length");
+        memcpy(entry->name,_cc_json_object_find_string(item,"file_name"),entry->name_length * sizeof(tchar_t));
+        entry->name[entry->name_length] = 0;
+        _cc_fpath(entry->full_name, _cc_countof(entry->full_name), _T("%s%s"), source_path, entry->name);
+    
+        stat(entry->full_name, &st);
+        entry->size = (uint32_t)st.st_size;
+        entry->offset = body_length;
+        body_length += entry->size;
+        index_length += entry->name_length;
+        index_length += 12;
+    }
+
+    // _cc_logger_debug(_T("open %s"), dest_file);
+    // printf("index:%0.4x\n",_cc_swap32(index_length));
+    // printf("body:%0.4x\n",_cc_swap32(body_length));
+
+    header.first_mark = MAGIC_FIRST;
+    header.info = 0;
+    header.index_length = _cc_swap32(index_length);
+    header.body_length = _cc_swap32(body_length);
+    header.last_mark = MAGIC_LAST;
+    
+    fwrite(&header, sizeof(header), 1, fp);
+
+    big_endian = _cc_swap32(files->length);
+    fwrite(&big_endian, sizeof(uint32_t), 1, fp);
+
+    index_length = index_length + sizeof(wxapkg_header_t);
+
+    for (i = 0; i < files->length; i++) {
+        file_entry_t *entry = _entries + i;
+        big_endian = _cc_swap32(entry->name_length);
+        fwrite(&big_endian,sizeof(uint32_t),1,fp);
+        fwrite(&entry->name,sizeof(tchar_t),entry->name_length,fp);
+        big_endian = _cc_swap32(entry->offset + index_length);
+        fwrite(&big_endian,sizeof(uint32_t),1,fp);
+        big_endian = _cc_swap32(entry->size);
+        fwrite(&big_endian,sizeof(uint32_t),1,fp);
+    }
+
+    for (i = 0; i < files->length; i++) {
+        file_entry_t *entry = _entries + i;
+        size_t size = entry->size;
+        FILE *rfp = _tfopen(entry->full_name, _T("rb"));
+
+        if (rfp == nullptr) {
+            _cc_logger_debug(_T("Couldn't open %s"), entry->name);
+            continue;
+        }
+
+        fseek(fp, index_length + entry->offset, SEEK_SET);
+
+        while (!feof(rfp) && size > 0) {
+            byte_t out[CHUNK];
+            size_t w;
+            size_t l = 0;
+            size_t r = size > CHUNK ? CHUNK : size;
+            size_t rs = fread(out, sizeof(byte_t), r, rfp);
+            if (rs < 0) {
+                _cc_logger_debug(_T("error: %s read file fail!"), entry->name);
+                break;
+            }
+
+            size -= rs;
+            while ((w = fwrite(out + l, sizeof(byte_t), rs - l, fp)) > 0) {
+                l += w;
+                if (l == rs) {
+                    break;
+                }
+            }
+        }
+        fclose(rfp);
+    }
+    _cc_free(_entries);
+    fclose(fp);
+}
+
+void de_wxapkg(const tchar_t *full_name, const tchar_t *name, const tchar_t *save_path, _cc_json_t *json) {
+    wxapkg_header_t header;
+    file_entry_t *_entries;
+    uint32_t i ;
+    uint32_t file_count;
+#ifdef _CC_UNICODE_
+    char_t file_name[_CC_MAX_PATH_];
+#endif
+    _cc_json_t *item, *files;
+    FILE *wf;
+    FILE *fp = _tfopen(full_name, _T("rb"));
+    if (fp == nullptr) {
+        return;
+    }
 
     fread(&header, sizeof(wxapkg_header_t), 1, fp);
-    if (header.first_mark != 0xBE || header.last_mark != 0xED) {
+
+    if (header.first_mark != MAGIC_FIRST || header.last_mark != MAGIC_LAST) {
         byte_t vimmwx[] = {'V','1','M','M','W','X'};
         if (memcmp(&header.first_mark, vimmwx, sizeof(vimmwx)) == 0) {
-            _cc_logger_debug(_T("error: %s It is an encrypted wxapkg file!"), source_file);
-            return ;
+            _cc_logger_debug(_T("error: %s It is an encrypted wxapkg file!"), name);
+            return;
         }
-        _cc_logger_debug(_T("error: %s its not a wxapkg file!"), source_file);
-        return ;
+        _cc_logger_debug(_T("error: %s its not a wxapkg file!"), name);
+        return;
     }
-    header.file_count = _cc_swap32(header.file_count);
 
-    for (i = 0; i < header.file_count; i++) {
-        uint32_t name_length;
-        uint32_t offset;
-        uint32_t curr_offset;
-        size_t size;
+    header.index_length = _cc_swap32(header.index_length);
+    header.body_length = _cc_swap32(header.body_length);
+
+    fread(&file_count, sizeof(uint32_t), 1, fp);
+    file_count = _cc_swap32(file_count);
+
+    // _cc_logger_debug(_T("open %s"), name);
+    // printf("index:%0.4x\n",_cc_swap32(header.index_length));
+    // printf("body:%0.4x\n",_cc_swap32(header.body_length));
+    
+    _cc_json_add_string(json, "file_name", name,true);
+    files = _cc_json_alloc_array("files",file_count);
+    _cc_json_object_push(json, files, true);
+
+    _entries = _cc_calloc(file_count, sizeof(file_entry_t));
+
+    for (i = 0; i < file_count; i++) {
+        uint32_t big_endian;
+        file_entry_t *entry = _entries + i;
+        fread(&big_endian, sizeof(uint32_t), 1, fp);
+        entry->name_length = _cc_swap32(big_endian);
+
 #ifdef _CC_UNICODE_
-        wchar_t wfile_name[_CC_MAX_PATH_];
-#endif
-        fread(&name_length, sizeof(uint32_t), 1, fp);
-        name_length = _cc_swap32(name_length);
-           
-        fread(file_name, sizeof(char_t), name_length, fp);
-        file_name[name_length] = 0;
-#ifdef _CC_UNICODE_
-        _cc_utf8_to_utf16((uint8_t*)file_name, (uint8_t*)&file_name[name_length], (uint16_t*)wfile_name, (uint16_t*)&wfile_name[_CC_MAX_PATH_], FALSE);
-        file = wfile_name;
+        fread(file_name, sizeof(char_t), entry->name_length, fp);
+        _cc_utf8_to_utf16((uint8_t*)file_name, (uint8_t*)&file_name[entry->name_length], (uint16_t*)entry->name, (uint16_t*)&entry->name[_cc_countof(entry->name)], FALSE);
 #else
-        file = file_name;
+        fread(entry->name, sizeof(char_t), entry->name_length, fp);;
 #endif
-        fread(&offset, sizeof(uint32_t), 1, fp);
-        fread(&size, sizeof(uint32_t), 1, fp);
-        offset = _cc_swap32(offset);
-        size = _cc_swap32(size);
-        _tprintf(_T("{name:%s, offset:%ld, size:%ld\n"), file, offset, size);
-        _ftprintf(flog,_T("{name:%s, offset:%ld, size:%ld\n"), file, offset, size);
-        curr_offset = ftell(fp);
+        entry->name[entry->name_length] = 0;
 
-        _sntprintf(szFilePath, _cc_countof(szFilePath), _T("%s//%s"), save_path, file);
-        _cc_mkdir(szFilePath);
-        wf = _tfopen(szFilePath, _T("wb"));
+        fread(&big_endian, sizeof(uint32_t), 1, fp);
+        entry->offset = _cc_swap32(big_endian);
+        fread(&big_endian, sizeof(uint32_t), 1, fp);
+        entry->size = _cc_swap32(big_endian);
+
+        item = _cc_json_alloc_object(_CC_JSON_OBJECT_,nullptr);
+        _cc_json_add_string(item, "file_name", entry->name, true);
+        _cc_json_add_number(item, "file_name_length", entry->name_length, true);
+        _cc_json_array_push(files, item);
+
+        _tprintf(_T("name:%s, offset:%d, size:%d\n"), entry->name, entry->offset, entry->size);
+
+        _cc_fpath(entry->full_name, _cc_countof(entry->full_name), _T("%s%s"), save_path, entry->name);
+        _cc_mkdir(entry->full_name);
+    }
+
+    for (i = 0; i < file_count; i++) {
+        size_t size;
+        file_entry_t *entry = _entries + i;
+        wf = _tfopen(entry->full_name, _T("wb"));
         if (wf) {
             byte_t out[CHUNK];
-            fseek(fp, offset, SEEK_SET);
+            fseek(fp, entry->offset, SEEK_SET);
+            size = entry->size;
             while (!feof(fp) && size > 0) {
-                size_t writeSize;
-                size_t left = 0;
-                size_t readSize;
+                size_t w;
+                size_t l = 0;
+                size_t rs;
                 size_t r = size > CHUNK ? CHUNK : size;
-                readSize = fread(out, sizeof(byte_t), r, fp);
-                size -= readSize;
+                rs = fread(out, sizeof(byte_t), r, fp);
+                if (rs < 0) {
+                    _cc_logger_debug(_T("error: %s read file fail!"), entry->name);
+                    return;
+                }
 
-                while ((writeSize = fwrite(out + left, sizeof(byte_t), readSize - left, wf)) > 0) {
-                    left += writeSize;
-                    if (left == readSize) {
+                size -= rs;
+                while ((w = fwrite(out + l, sizeof(byte_t), rs - l, wf)) > 0) {
+                    l += w;
+                    if (l == rs) {
                         break;
                     }
-                }
-                
-                if (readSize != left) {
-                    break;
                 }
             }
             fclose(wf);
         }
-        fseek(fp, curr_offset, SEEK_SET);
     }
-
-
     fclose(fp);
+    _cc_free(_entries);
 }
 
-void finder(const tchar_t* source_path, const tchar_t* save_path) {
+void finder(const tchar_t* source_path, size_t offset) {
     tchar_t fpath[_CC_MAX_PATH_];
+    size_t length;
     DIR* dir;
     struct dirent* d;
 
@@ -122,23 +252,70 @@ void finder(const tchar_t* source_path, const tchar_t* save_path) {
             continue;
         }
 
-        _sntprintf(fpath, _cc_countof(fpath), _T("%s\\%s"), source_path, d->d_name);
+        length = _sntprintf(fpath, _cc_countof(fpath), _T("%s\\%s"), source_path, d->d_name);
 
         if (d->d_type == DT_DIR) {
-            //finder(fpath, save_path);
+            finder(fpath,offset);
         } else {
-            _tprintf(_T("decoding:%s, %s\n"), fpath, fpath + positioning);
-			wxapkg(fpath, save_path, fpath + positioning);
+            file_entry_t *entry = &entries[file_count++];
+            memcpy(entry->name, fpath + offset, (length - offset)  * sizeof(tchar_t));
+            memcpy(entry->full_name, fpath, length  * sizeof(tchar_t));
+        }
+
+        if (file_count >= _cc_countof(entries)) {
+            break;
         }
     }
     closedir(dir);
 }
-
+_cc_json_t *root;
 int _tmain (int argc, tchar_t * const argv[]) {
-    flog = _tfopen(_T("D:\\wx\\317\\wxapkg.log"), _T("w"));
-    positioning = _tcslen(_T("D:\\wx\\wx745f0f407ef0858b\\316"));
+    int i;
+    tchar_t path[_CC_MAX_PATH_];
+    const tchar_t *file_name;
+    const _cc_json_t *files;
+    _cc_buf_t *buf;
+    _cc_json_t *item;
+    //_cc_String_t src = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\wx745f0f407ef0858b\\381"));
+    //_cc_String_t src = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\new"));
+    _cc_String_t dest = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\wxapkg"));
+    _cc_String_t new_dest = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\new"));
+    //_cc_String_t dest = _cc_String(_T("D:\\240216\\01\\bin\\x86_64\\release\\wxapkg2"));
+/*
+    file_count = 0;
 
-    finder(_T("D:\\wx\\wx745f0f407ef0858b\\318"), _T("D:\\wx\\wx745f0f407ef0858b\\316"));
+    finder(src.data, src.length);
 
+    root = _cc_json_alloc_array(nullptr, 32);
+    for (i = 0; i < file_count; i++) {
+        file_entry_t *entry = &entries[i];
+        item = _cc_json_alloc_object(_CC_JSON_OBJECT_,nullptr);
+        de_wxapkg(entry->full_name, entry->name, dest.data, item);
+        _cc_json_array_push(root, item);
+    }
+
+    buf = _cc_json_dump(root);
+    if (buf) {
+        FILE *fp;
+        _cc_fpath(path, _cc_countof(path), _T("%s\\wxapkg.json"), dest.data);
+        fp = _tfopen(path,"w");
+        if (fp) {
+            fwrite(buf->bytes, sizeof(byte_t), buf->length, fp);
+            fclose(fp);
+        }
+    }
+*/
+    root = _cc_json_from_file(_T("D:\\240216\\01\\bin\\x86_64\\release\\wxapkg\\wxapkg.json"));
+    for (i = 0; i < root->length; i++) {
+        item = root->element.uni_array[i];
+        file_name = _cc_json_object_find_string(item, "file_name");
+        files = _cc_json_object_find_array(item,"files");
+        if (files) {
+            _cc_fpath(path, _cc_countof(path), _T("%s%s"), new_dest.data, file_name);
+            _cc_mkdir(path);
+            en_wxapkg(dest.data, path, files);
+        }
+    }
+    system("pause");
     return 0;
 }

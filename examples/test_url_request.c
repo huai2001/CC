@@ -148,19 +148,19 @@ static bool_t _handler(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t 
         }
 
         if (rw->r.length > 0) {
-            if (request->status == _CC_HTTP_RESPONSE_HEADER_) {
+            if (request->status == _CC_HTTP_STATUS_HEADER_) {
                 //printf("response header\n");
                 if (!_cc_url_request_response_header(request, &rw->r)) {
                     return false;
                 }
                 //Response header completed.
-                if (request->status == _CC_HTTP_RESPONSE_BODY_) {
+                if (request->status == _CC_HTTP_STATUS_BODY_) {
                     url_response_header(request);
                 }
             }
         }
 
-        if (request->status == _CC_HTTP_RESPONSE_BODY_) {
+        if (request->status == _CC_HTTP_STATUS_BODY_) {
             //printf("response body\n");
             if (!_cc_url_request_response_body(request, &rw->r)) {
                 return false;
@@ -168,7 +168,7 @@ static bool_t _handler(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t 
 
             url_request_read(request);
 
-            if (request->status == _CC_HTTP_RESPONSE_SUCCESS_) {
+            if (request->status == _CC_HTTP_STATUS_SUCCESS_) {
                 //printf("response successful\n");
                 url_request_success(request);
                 return request->response->keep_alive;

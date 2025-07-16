@@ -29,13 +29,9 @@ void _json_array_alloc(_cc_json_t* ctx, size_t size) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_array(byte_t type, size_t size) {
-    _cc_json_t *ctx = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-    bzero(ctx, sizeof(_cc_json_t));
-    ctx->type = type;
-
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_array(const tchar_t *keyword, size_t size) {
+    _cc_json_t *ctx = _cc_json_alloc_object(_CC_JSON_ARRAY_, keyword);
     _json_array_alloc(ctx, size);
-
     return ctx;
 }
 
@@ -60,9 +56,7 @@ _CC_API_PUBLIC(bool_t) _json_array_realloc(_cc_json_t *ctx, size_t size) {
 _CC_API_PUBLIC(size_t) _json_array_push(_cc_json_t *ctx, _cc_json_t *data) {
     _cc_assert(ctx != nullptr && data != nullptr);
     size_t index;
-    if (_cc_unlikely(data == nullptr)) {
-        return -1;
-    }
+
     index = ctx->length;
     /*if not enough space,expand first*/
     if (ctx->size <= 0x80000000 && index >= ctx->size) {
@@ -110,4 +104,11 @@ _CC_API_PUBLIC(bool_t) _cc_json_array_remove(_cc_json_t *ctx, const uint32_t ind
     _json_free_node(item);
 
     return true;
+}
+/**/
+_CC_API_PUBLIC(bool_t) _cc_json_array_push(_cc_json_t *ctx, _cc_json_t *data) {
+    if (ctx->type != _CC_JSON_ARRAY_) {
+        return false;
+    }
+    return _json_array_push(ctx, data) != -1;
 }

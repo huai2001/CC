@@ -73,30 +73,6 @@ _CC_FORCE_INLINE_ uint64_t fileCheck(const tchar_t* fileName, tchar_t* output) {
     return fileSize;
 }
 
-_CC_FORCE_INLINE_ bool_t _mk(const tchar_t* path) {
-    int32_t i = 0;
-    const tchar_t* cp = nullptr;
-    tchar_t cpath[_CC_MAX_PATH_];
-
-    //
-    cp = path;
-    /* Skip the first / */
-    if (*cp == _CC_T_SLASH_C_) {
-        cpath[i++] = *cp++;
-    }
-
-    /**/
-    while (*cp) {
-        if (*cp == _CC_T_SLASH_C_) {
-            cpath[i] = 0;
-            if (_taccess(cpath, 0) != 0) {
-                _tmkdir(cpath);
-            }
-        }
-        cpath[i++] = *cp++;
-    }
-    return true;
-}
 
 #define CHUNK_SOURCE 1024
 #define CHUNK_DEST 16384
@@ -350,7 +326,7 @@ void finder(const tchar_t* source_path, const tchar_t* save_path) {
         } else {
             ext = _tcsrchr(spath, '.');
             if (ext && _tcsicmp(".jsc", ext) == 0) {
-                _mk(spath);
+                _cc_mkdir(spath);
                 *(ext + 3) = 0;
                 _xxtea_decrypt_file(fpath, spath);
             }

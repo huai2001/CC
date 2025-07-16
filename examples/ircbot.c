@@ -194,7 +194,7 @@ int main (int argc, char * const argv[]) {
     /*等待线程退出*/
     _cc_wait_thread(network_thread, nullptr);
     /*释放事件资源*/
-    network_event.delegator.quit(&network_event);
+    network_event.quit(&network_event);
     /*卸载系统网络*/
     _cc_uninstall_socket();
     

@@ -251,7 +251,7 @@ static _cc_event_t *connect_server(const tchar_t* addr, uint16_t port) {
     
     _cc_inet_ipv4_addr(&dest, addr, port);
     
-    return network_event.delegator.connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_, fd,
+    return network_event.connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_, fd,
                                         120000, network_event_callback, nullptr,
                                         (const _cc_sockaddr_t*)&dest, sizeof(struct sockaddr_in));
 }
@@ -287,7 +287,7 @@ int main (int argc, char * const argv[]) {
     /*等待线程退出*/
     _cc_wait_thread(network_thread, nullptr);
     /*释放事件资源*/
-    network_event.delegator.quit(&network_event);
+    network_event.quit(&network_event);
     /*卸载系统网络*/
     _cc_uninstall_socket();
     

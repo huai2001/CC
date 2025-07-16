@@ -40,7 +40,7 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 	char szTableType[255];
 
 
-	_sntprintf(strConnect,_cc_countof(strConnect),"DBQ=%s;delegator={Microsoft Excel delegator (*.xls)};",
+	_sntprintf(strConnect,_cc_countof(strConnect),"DBQ=%s;Driver={Microsoft Excel Driver (*.xls)};",
 		sExcelFile);
 	//分配环境句柄
 	if(SQLAllocEnv(&m_henv) != SQL_SUCCESS)
@@ -96,11 +96,11 @@ int main(int argc, char *const arvg[])
 
 	/*
         Microsoft Excel 3.0 or 4.0  
-        Examples: delegator={Microsoft Excel delegator (*.xls)}; DBQ=c:\temp; delegateID=278
+        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp; delegateID=278
         Microsoft Excel 5.0/7.0 
-        Examples: delegator={Microsoft Excel delegator (*.xls)}; DBQ=c:\temp\sample.xls; delegateID=22
+        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp\sample.xls; delegateID=22
     */
-	_sntprintf(strConnect,_cc_countof(strConnect),"delegator=Microsoft Excel delegator (*.xls);CREATE_DB=%s;DBQ=%s;READONLY=false;EXCLUSIVE=Yes;",
+	_sntprintf(strConnect,_cc_countof(strConnect),"Driver=Microsoft Excel Driver (*.xls);CREATE_DB=%s;DBQ=%s;READONLY=false;EXCLUSIVE=Yes;",
 			file_name,file_name);
 
 	GetSQLdelegateList();

@@ -18,8 +18,9 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
+#include <libcc/widgets/http.h>
 
-_CC_API_PRIVATE(bool_t) __http_header_line(_cc_map_t *headers, tchar_t *line, int length) {
+_CC_API_PUBLIC(bool_t) _cc_http_header_line(_cc_map_t *headers, tchar_t *line, int length) {
     int first = 0, last = 0, i = 0;
     _cc_map_element_t *m = (_cc_map_element_t*)_cc_malloc(sizeof(_cc_map_element_t));
 
@@ -70,14 +71,14 @@ _CC_API_PRIVATE(bool_t) __http_header_line(_cc_map_t *headers, tchar_t *line, in
 }
 
 /**/
-_CC_API_PRIVATE(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg, _cc_event_rbuf_t* r) {
+_CC_API_PUBLIC(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg, _cc_event_rbuf_t* r) {
     int i = 0;
     byte_t *n;
     byte_t *start = (byte_t*)r->bytes;
 #ifdef _CC_UNICODE_
     wchar_t buf[1024];
 #endif
-    int result = _CC_HTTP_RESPONSE_HEADER_;
+    int result = _CC_HTTP_STATUS_HEADER_;
     while (true) {
         n = memchr(start, '\n', r->length - (start - r->bytes));
         if (n == nullptr) {
@@ -92,7 +93,7 @@ _CC_API_PRIVATE(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *ar
             /*If we received just a CR LF on a line, the headers are finished*/
             if ((n - 1) == start) {
                 start = n + 1;
-                result = _CC_HTTP_RESPONSE_BODY_;
+                result = _CC_HTTP_STATUS_BODY_;
                 break;
             }
 #ifdef _CC_UNICODE_

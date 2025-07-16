@@ -56,7 +56,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *ke
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_json_object_append(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
+_CC_API_PUBLIC(bool_t) _cc_json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
     _cc_rbtree_t *root;
     int32_t result;
     _cc_rbtree_iterator_t **node;

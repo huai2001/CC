@@ -20,7 +20,6 @@
 */
 #include <libcc/widgets/url_request.h>
 #include <libcc/widgets/gzip.h>
-#include "../../generic/http.response.parser.c"
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_url_response_body(_cc_url_request_t *request, byte_t *source, size_t length);
@@ -29,7 +28,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_response_chunked(_cc_url_request_t *, _cc_event_r
 /**/
 _CC_WIDGETS_API(void) _cc_reset_url_request(_cc_url_request_t *request) {
     _cc_assert(request != nullptr);
-    request->status = _CC_HTTP_RESPONSE_HEADER_;
+    request->status = _CC_HTTP_STATUS_HEADER_;
     request->handshaking = (request->url.scheme.ident == _CC_SCHEME_HTTPS_);
 
 #ifdef _CC_ENABLE_OPENSSL_
@@ -39,7 +38,7 @@ _CC_WIDGETS_API(void) _cc_reset_url_request(_cc_url_request_t *request) {
     }
 #endif
     if (request->response) {
-        _free_response_header(&request->response);
+        _cc_http_free_response_header(&request->response);
     }
 }
 
@@ -60,7 +59,7 @@ _CC_API_PUBLIC(void) _cc_free_url_request(_cc_url_request_t *request) {
     }
 
     if (request->response) {
-        _free_response_header(&request->response);
+        _cc_http_free_response_header(&request->response);
     }
 
     _cc_buf_free(&request->buffer);
@@ -71,9 +70,9 @@ _CC_API_PUBLIC(void) _cc_free_url_request(_cc_url_request_t *request) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
     _cc_assert(request != nullptr);
-    request->status = _CC_HTTP_RESPONSE_HEADER_;
+    request->status = _CC_HTTP_STATUS_HEADER_;
     if (request->response) {
-        _free_response_header(&request->response);
+        _cc_http_free_response_header(&request->response);
     }
 
 #ifdef _CC_UNICODE_
@@ -137,14 +136,14 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_header(_cc_url_request_t *reques
     _cc_http_response_header_t *response;
     _cc_assert(request != nullptr);
     _cc_assert(r != nullptr);
-    _cc_assert(request->status == _CC_HTTP_RESPONSE_HEADER_);
+    _cc_assert(request->status == _CC_HTTP_STATUS_HEADER_);
 
-    request->status = _cc_http_header_parser((_cc_http_header_fn_t)_alloc_response_header, (pvoid_t *)&request->response, r);
+    request->status = _cc_http_header_parser((_cc_http_header_fn_t)_cc_http_alloc_response_header, (pvoid_t *)&request->response, r);
     /**/
     switch (request->status) {
-    case _CC_HTTP_RESPONSE_HEADER_:
+    case _CC_HTTP_STATUS_HEADER_:
         return true;
-    case _CC_HTTP_RESPONSE_BODY_:
+    case _CC_HTTP_STATUS_BODY_:
         _cc_buf_cleanup(&request->buffer);
         break;
     default:
@@ -171,7 +170,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_body(_cc_url_request_t *request,
     _cc_http_response_header_t *response;
     _cc_assert(request != nullptr);
     _cc_assert(r != nullptr);
-    _cc_assert(request->status == _CC_HTTP_RESPONSE_BODY_);
+    _cc_assert(request->status == _CC_HTTP_STATUS_BODY_);
 
     /**/
     response = request->response;
@@ -189,11 +188,11 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_body(_cc_url_request_t *request,
             response->download_length += r->length;
             r->length = 0;
             if (response->length > 0 && response->download_length >= response->length) {
-                request->status = _CC_HTTP_RESPONSE_SUCCESS_;
+                request->status = _CC_HTTP_STATUS_SUCCESS_;
             }
         }
     } else if (response->length == 0 && response->transfer_encoding != _CC_URL_TRANSFER_ENCODING_CHUNKED_) {
-        request->status = _CC_HTTP_RESPONSE_SUCCESS_;
+        request->status = _CC_HTTP_STATUS_SUCCESS_;
     }
 
     return true;
@@ -237,7 +236,7 @@ _CC_API_PUBLIC(_cc_url_request_t*) _cc_url_request(const tchar_t *url, pvoid_t a
         return nullptr;
     }
 
-    request->status = _CC_HTTP_RESPONSE_HEADER_;
+    request->status = _CC_HTTP_STATUS_HEADER_;
     request->response = nullptr;
     request->args = args;
     request->ssl = nullptr;

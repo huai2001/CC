@@ -45,9 +45,9 @@ enum {
 };
 
 enum {
-    _CC_HTTP_RESPONSE_HEADER_ = 0,
-    _CC_HTTP_RESPONSE_BODY_ = 1,
-    _CC_HTTP_RESPONSE_SUCCESS_ = 2,
+    _CC_HTTP_STATUS_HEADER_ = 0,
+    _CC_HTTP_STATUS_BODY_ = 1,
+    _CC_HTTP_STATUS_SUCCESS_ = 2,
     _CC_HTTP_ERROR_UNIMPLEMENTED_,
     _CC_HTTP_ERROR_NOFOUND_,
     _CC_HTTP_ERROR_BADREQUEST_,
@@ -87,15 +87,19 @@ typedef struct _cc_http_response_header {
     _cc_map_t headers;
 } _cc_http_response_header_t;
 
-
-typedef struct _cc_http_method {
-    int32_t method;
-    int32_t method_length;
-    tchar_t* value;
-} _cc_http_method_t;
-
 typedef bool_t (*_cc_http_header_fn_t)(pvoid_t *arg, tchar_t *line, int length);
 
+_CC_API_PUBLIC(bool_t) _cc_http_header_line(_cc_map_t *headers, tchar_t *line, int length);
+/**/
+_CC_WIDGETS_API(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg, _cc_event_rbuf_t* r);
+/**/
+_CC_WIDGETS_API(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t **http_header, tchar_t *line, int length);
+/**/
+_CC_WIDGETS_API(void) _cc_http_free_request_header(_cc_http_request_header_t **http_header);
+/**/
+_CC_WIDGETS_API(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t **url_response, tchar_t *line, int length);
+/**/
+_CC_WIDGETS_API(void) _cc_http_free_response_header(_cc_http_response_header_t **response_header);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

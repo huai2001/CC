@@ -76,7 +76,7 @@ int main(int argc, char *const argv[]) {
     }
     e = _cc_event_alloc(&cycle, _CC_EVENT_ACCEPT_);
     if (e == nullptr) {
-        cycle.delegator.quit(&cycle);
+        cycle.quit(&cycle);
         return -1;
     }
     e->callback = network_event_callback;
@@ -90,6 +90,6 @@ int main(int argc, char *const argv[]) {
         _cc_event_wait(&cycle, 100);
     }
 
-    // cycle.delegator.quit(&cycle);
+    // cycle.quit(&cycle);
     return 0;
 }

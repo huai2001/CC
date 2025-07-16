@@ -54,7 +54,7 @@ Opcode _WS_OPCODE_
 -------------------*/
 
 #define _WS_MASK_SIZE_          4
-#define _WS_MAX_HEADER_         14
+#define _WS_MAX_HEADER_         10
 
 enum _WS_STATUS_ {
     WS_DATA_OK = 0,
@@ -63,25 +63,25 @@ enum _WS_STATUS_ {
 };
 
 enum _WS_OPCODE_ {
-    WS_MIN          = 0x00,     // continuation
-    WS_TXT          = 0x01,     // text
-    WS_BINARY       = 0x02,     // binary
-    WS_JSON         = 0x03,     // JSON
-    WS_XML          = 0x04,     // XML
-    //WS_?          = 0x05,     //
-    //WS_?          = 0x06,     //
-    //WS_?          = 0x07,     //
-    WS_DISCONNECT   = 0x08,     // disconnected
-    WS_PING         = 0x09,     // ping
-    WS_PONG         = 0x0A,     // pong
-    //WS_?          = 0x0B,     //
-    //WS_?          = 0x0C,     //
-    //WS_?          = 0x0D,     //
-    //WS_?          = 0x0E,     //
-    //WS_?          = 0x0F,     //
+    WS_OP_MIN          = 0x00,     // continuation
+    WS_OP_TXT          = 0x01,     // text
+    WS_OP_BINARY       = 0x02,     // binary
+    WS_OP_JSON         = 0x03,     // JSON
+    WS_OP_XML          = 0x04,     // XML
+    //WS_OP_?          = 0x05,     //
+    //WS_OP_?          = 0x06,     //
+    //WS_OP_?          = 0x07,     //
+    WS_OP_DISCONNECT   = 0x08,     // disconnected
+    WS_OP_PING         = 0x09,     // ping
+    WS_OP_PONG         = 0x0A,     // pong
+    //WS_OP_?          = 0x0B,     //
+    //WS_OP_?          = 0x0C,     //
+    //WS_OP_?          = 0x0D,     //
+    //WS_OP_?          = 0x0E,     //
+    //WS_OP_?          = 0x0F,     //
     //.....................
     //RSV1-3 Unless the extension agreement is activated
-    //WS_?          = 0x7F
+    //WS_OP_?          = 0x7F
 
 };
 

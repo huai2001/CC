@@ -21,7 +21,6 @@
 #ifndef _C_CC_WIDGETS_URL_REQUEST_H_INCLUDED_
 #define _C_CC_WIDGETS_URL_REQUEST_H_INCLUDED_
 
-#include "dylib.h"
 #include "http.h"
 
 /* Set up for C function definitions, even when using C++ */

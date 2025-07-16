@@ -126,7 +126,7 @@ int main (int argc, char * const argv[]) {
         _cc_sleep(100);
     }
 
-    cycle.delegator.quit(&cycle);
+    cycle.quit(&cycle);
 
     _cc_uninstall_socket();
 

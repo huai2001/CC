@@ -18,9 +18,9 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include "./http.header.c"
+#include <libcc/widgets/http.h>
 /**/
-_CC_API_PRIVATE(bool_t) _alloc_response_header(_cc_http_response_header_t **url_response, tchar_t *line, int length) {
+_CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t **url_response, tchar_t *line, int length) {
     int first = 0, last = 0;
     _cc_http_response_header_t *response = *url_response;
     //_tprintf(_T("%.*s\n"), length, line);
@@ -76,10 +76,10 @@ _CC_API_PRIVATE(bool_t) _alloc_response_header(_cc_http_response_header_t **url_
         }
         return true;
     }
-    return __http_header_line(&response->headers, line, length);
+    return _cc_http_header_line(&response->headers, line, length);
 }
 
-_CC_API_PRIVATE(void) _free_response_header(_cc_http_response_header_t **response_header) {
+_CC_API_PUBLIC(void) _cc_http_free_response_header(_cc_http_response_header_t **response_header) {
     _cc_http_response_header_t *res = *response_header;
     _cc_assert(response_header != nullptr && res != nullptr);
     if (response_header == nullptr || res == nullptr) {

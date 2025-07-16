@@ -190,7 +190,7 @@ _CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback) {
     }
 
     for (i = rc - 1; i >= 0; i--) {
-        if (_minidump_module_path[i] == _CC_T_SLASH_C_) {
+        if (_minidump_module_path[i] == _CC_SLASH_C_) {
             _minidump_module_path[i] = 0;
             i++;
             break;

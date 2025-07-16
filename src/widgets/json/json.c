@@ -157,7 +157,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_boolean(_cc_json_t *ctx, const tchar_t 
 
     item->element.uni_boolean = value;
 
-    if (!_cc_json_object_append(ctx, item, replacement)) {
+    if (!_cc_json_object_push(ctx, item, replacement)) {
         _cc_free(item->name);
         _cc_free(item);
         return nullptr;
@@ -175,7 +175,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_number(_cc_json_t *ctx, const tchar_t *
 
     item->element.uni_int = value;
 
-    if (!_cc_json_object_append(ctx, item, replacement)) {
+    if (!_cc_json_object_push(ctx, item, replacement)) {
         _cc_free(item->name);
         _cc_free(item);
         return nullptr;
@@ -193,7 +193,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_float(_cc_json_t *ctx, const tchar_t *k
 
     item->element.uni_float = value;
 
-    if (!_cc_json_object_append(ctx, item, replacement)) {
+    if (!_cc_json_object_push(ctx, item, replacement)) {
         _cc_free(item->name);
         _cc_free(item);
         return nullptr;
@@ -211,7 +211,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_string(_cc_json_t *ctx, const tchar_t *
 
     item->element.uni_string = _cc_tcsdup(value);
 
-    if (!_cc_json_object_append(ctx, item, replacement)) {
+    if (!_cc_json_object_push(ctx, item, replacement)) {
         _cc_free(item->element.uni_string);
         _cc_free(item->name);
         _cc_free(item);
@@ -400,7 +400,7 @@ _CC_API_PUBLIC(_cc_buf_t*) _cc_json_dump(_cc_json_t *item) {
         return nullptr;
     }
 
-    buf = _cc_create_buf(16*1024);
+    buf = _cc_create_buf(_CC_16K_BUFFER_SIZE_);
     if (_cc_likely(buf)) {
         _cc_json_dump_value(item, buf, 0);
     }

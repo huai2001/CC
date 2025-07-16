@@ -110,9 +110,6 @@
     #define _CC_SLASH_S_ "/"
 #endif
 
-#define _CC_T_SLASH_C_ _T(_CC_SLASH_C_)
-#define _CC_T_SLASH_S_ _T(_CC_SLASH_S_)
-
 #define _CC_IS_SLASH(x) ((x) == _T('\\') || (x) == _T('/'))
  
 #define _CC_UNUSED(_x) ( (void)(_x) )

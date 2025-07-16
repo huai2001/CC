@@ -329,7 +329,7 @@ int createUpdateFile(const tchar_t *saveFile, _cc_sql_t *sql) {
             _cc_json_add_number(json, "Compress", sqldelegate.get_int(resultSQL, 3), true);
             _cc_json_add_number(json, "CompressSize", sqldelegate.get_int64(resultSQL, 4), true);
             _cc_json_add_number(json, "Size", sqldelegate.get_int64(resultSQL, 5), true);
-            _cc_json_object_append(rootJSON, json, true);
+            _cc_json_object_push(rootJSON, json, true);
         }
     }
     

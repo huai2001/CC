@@ -110,6 +110,9 @@ LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/generic/gzip.o \
 					$(WIDGET_FILES)/generic/map.o \
 					$(WIDGET_FILES)/generic/WS.o \
+					$(WIDGET_FILES)/generic/http.header.o \
+					$(WIDGET_FILES)/generic/http.request.parser.o \
+					$(WIDGET_FILES)/generic/http.response.parser.o \
 					$(WIDGET_FILES)/generic/OpenSSL.o \
 					$(WIDGET_FILES)/url_request/http/url_request.o \
 					$(WIDGET_FILES)/url_request/http/url_response.o

@@ -94,9 +94,9 @@ int main(int argc, char *const arvg[]) {
         }
     }
     
-    _sntprintf(strConnect,_cc_countof(strConnect),_T("delegator={SQL Server};SERVER=%s,%d;UID=%s;PWD=%s;DATABASE=%s"), _T("127.0.0.1"), 1433, _T("sa"), _T("123456"), _T("test"));
+    _sntprintf(strConnect,_cc_countof(strConnect),_T("Driver={SQL Server};SERVER=%s,%d;UID=%s;PWD=%s;DATABASE=%s"), _T("127.0.0.1"), 1433, _T("sa"), _T("123456"), _T("test"));
     
-     //_sntprintf(strConnect,_cc_countof(strConnect),_T("delegator={%s};DSN='';FIRSTROWHASNAMES=1;READONLY=false;CREATE_DB=\"%s\";DBQ=%s"), _T("MICROSOFT EXCEL delegator (*.XLS)"),_T("c:\\table.xls"),_T("c:\\table.xls"));
+     //_sntprintf(strConnect,_cc_countof(strConnect),_T("Driver={%s};DSN='';FIRSTROWHASNAMES=1;READONLY=false;CREATE_DB=\"%s\";DBQ=%s"), _T("MICROSOFT EXCEL delegator (*.XLS)"),_T("c:\\table.xls"),_T("c:\\table.xls"));
     _cc_init_sqlsvr(&sql_delegate);
 
     conn_ptr = sql_delegate.connect(strConnect);
