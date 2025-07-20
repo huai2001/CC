@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -245,8 +245,8 @@ _CC_API_PUBLIC(bool_t) _cc_map_push(_cc_map_t *ctx, _cc_map_element_t *data) {
         } else if (result > 0) {
             node = &((*node)->right);
         } else {
-            _cc_map_element_free(m);
-            return true;
+            _cc_map_element_free(data);
+            return false;
         }
     }
     _cc_rbtree_insert(ctx, &data->lnk, parent, node);

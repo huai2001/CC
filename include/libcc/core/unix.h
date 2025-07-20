@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -61,7 +61,7 @@ typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info
  */
 #define _cc_uninstall_dumper() ((void)0)
 
-_CC_API_PUBLIC(void) _cc_dump_stack_trace(FILE *fp, int i);
+_CC_API_PUBLIC(tchar_t**) _cc_get_stack_trace(int *nptr);
     
 #ifndef _access
 #define _access access

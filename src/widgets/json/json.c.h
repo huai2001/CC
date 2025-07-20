@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -21,12 +21,8 @@
 #ifndef _C_CC_JSON_C_H_INCLUDED_
 #define _C_CC_JSON_C_H_INCLUDED_
 
-#include <libcc/alloc.h>
-#include <libcc/buf.h>
-#include <libcc/string.h>
 #include <libcc/widgets/json/json.h>
-#include <math.h>
-#include <wchar.h>
+#include "../generic/generic.c.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -44,17 +40,17 @@ extern "C" {
 #define _JSON_OBJECT_END_ _T('}')
 
 #define _JSON_NEXT_TOKEN_ _T(',')
-int32_t _json_push_object(_cc_rbtree_iterator_t *left, _cc_rbtree_iterator_t *right);
+
 int32_t _json_get_object(_cc_rbtree_iterator_t*, pvoid_t);
 
 void _json_free_object_rb_node(_cc_rbtree_iterator_t *node);
 void _json_free_node(_cc_json_t *item);
 
-
-
 void _json_array_alloc(_cc_json_t* ctx, size_t size);
 bool_t _json_array_realloc(_cc_json_t *ctx, size_t size);
+
 size_t _json_array_push(_cc_json_t *ctx, _cc_json_t *data);
+_cc_json_t* _json_object_push(_cc_json_t *ctx, const tchar_t *keyword);
 
 void _destroy_json_array(_cc_json_t*);
 void _destroy_json_object(_cc_json_t*);

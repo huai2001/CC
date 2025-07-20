@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -77,6 +77,8 @@
     #include <windows.h>
 #endif
 
+#include "../buf.h"
+
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -132,7 +134,7 @@ _CC_API_PUBLIC(void) _cc_uninstall_dumper(void);
 
 #endif /*ndef _CC_DISABLED_DUMPER_ */
 
-_CC_API_PUBLIC(void) _cc_dump_stack_trace(FILE *fp, int skip_frames);
+_CC_API_PUBLIC(tchar_t**) _cc_get_stack_trace(int *nptr);
 /**
  * @brief Multi Byte To Wide Char
  *

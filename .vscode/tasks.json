@@ -13,7 +13,7 @@
     "tasks": [
         {
             "label": "test",
-            "args": [".bin","target=tests","build=wxapkg","debug=1"],
+            "args": [".bin","target=tests","build=json5","debug=1"],
         },
         {
             "label": "build-widgets",

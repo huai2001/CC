@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright .Qiu<huai2011@163.com>. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -27,7 +27,40 @@ _CC_API_PUBLIC(void) _WSMask(byte_t *data, int64_t length, byte_t *mask) {
         *(data + i) ^= *(mask + (i & 0x03));
     }
 }
+/**/
+_CC_WIDGETS_API(int32_t) _WSReverseHeader(byte_t *header, byte_t operation, int64_t length, byte_t *mask) {
+    int32_t offset = 0;
+    byte_t m = (mask != nullptr) ? 0x80 : 0x00;
+   
+    if (m) {
+        header[--offset] = mask[3] = (byte_t)(rand() & 0xff);
+        header[--offset] = mask[2] = (byte_t)(rand() & 0xff);
+        header[--offset] = mask[1] = (byte_t)(rand() & 0xff);
+        header[--offset] = mask[0] = (byte_t)(rand() & 0xff);
+    }
 
+    if (length < 126) {
+        header[--offset] = (length & 0xFF) | m;
+    } else if (length < 0xFFFF) {
+        header[--offset] = (byte_t)(length & 0xFF);
+        header[--offset] = (byte_t)(length >> 8 & 0xFF);
+        header[--offset] = (byte_t)(0x7E | m);
+    } else {
+        header[--offset] = (byte_t)(length & 0xFF);
+        header[--offset] = (byte_t)(length >> 8);
+        header[--offset] = (byte_t)(length >> 16);
+        header[--offset] = (byte_t)(length >> 24);
+        header[--offset] = (byte_t)(length >> 32);
+        header[--offset] = (byte_t)(length >> 40);
+        header[--offset] = (byte_t)(length >> 48);
+        header[--offset] = (byte_t)(length >> 56);
+        header[--offset] = (byte_t)(0x7E | m);
+    }
+
+    header[--offset] = (operation == 0) ? 0x00 : (0x80 | operation);
+
+    return (_WS_MAX_HEADER_ - offset);
+}
 /**/
 _CC_API_PUBLIC(int32_t) _WSHeader(byte_t *header, byte_t operation, int64_t length, byte_t *mask) {
     int32_t offset = 1;
@@ -38,12 +71,12 @@ _CC_API_PUBLIC(int32_t) _WSHeader(byte_t *header, byte_t operation, int64_t leng
         header[1] = (length & 0xFF) | m;
         offset = 2;
     } else if (length < 0xFFFF) {
-        header[1] = 0x7E | m;
-        header[2] = (length >> 8 & 0xFF);
-        header[3] = (length & 0xFF);
+        header[1] = (byte_t)(0x7E | m);
+        header[2] = (byte_t)(length >> 8 & 0xFF);
+        header[3] = (byte_t)(length & 0xFF);
         offset = 4;
     } else {
-        header[1] = 0x7F | m;
+        header[1] = (byte_t)(0x7E | m);
         header[2] = (byte_t)(length >> 56);
         header[3] = (byte_t)(length >> 48);
         header[4] = (byte_t)(length >> 40);
@@ -95,13 +128,13 @@ _CC_API_PUBLIC(int) _WSRead(_WSHeader_t *header) {
         if (length < offset) {
             return WS_DATA_PARTIAL;
         }
-        payload = ((uint64_t)buf[2] << 56) | 
+        payload = ((uint64_t)buf[2] << 56) |
                   ((uint64_t)buf[3] << 48) |
-                  ((uint64_t)buf[4] << 40) | 
+                  ((uint64_t)buf[4] << 40) |
                   ((uint64_t)buf[5] << 32) |
-                  ((uint64_t)buf[6] << 24) | 
+                  ((uint64_t)buf[6] << 24) |
                   ((uint64_t)buf[7] << 16) |
-                  ((uint64_t)buf[8] << 8)  | 
+                  ((uint64_t)buf[8] << 8)  |
                   (uint64_t)buf[9];
     }
 

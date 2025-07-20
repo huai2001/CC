@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <locale.h>
 #include <libcc.h>
-#include <libcc/xml/xml.h>
+#include <libcc/widgets/xml/xml.h>
 
 const tchar_t *xml_test = _T("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")\
     _T("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")\
     _T("<Configuration status = \"debug\" strict=true name=\"XMLConfigTest\" packages=\"org.apache.logging.log4j.test\">")\
     _T("    <Properties>")\
-    _T("        <Property name=\"filename\" name=\"filename1\" name=\"filename2\" name=\"filename3\">target/ÖÐabcÎÄxt.log</Property>")\
+    _T("        <Property name=\"filename\" name=\"filename1\" name=\"filename2\" name=\"filename3\">target/中文.log</Property>")\
     _T("    </Properties>")\
     _T("    <Filter type=\"ThresholdFilter\" level=\"trace\" />")\
     _T("    <Appenders>")\
@@ -54,7 +54,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
     _cc_xml_t* xml;
 
     if (argc < 2) {
-        xml = _cc_xml_parse(xml_test);//
+        xml = _cc_xml_parse(xml_test,-1);//
     } else {
         xml = _cc_xml_from_file(argv[1]);
     }
@@ -85,7 +85,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
         {
         _cc_buf_t* buf = _cc_dump_xml(xml);
         if (buf) {
-            fflush(stdout);
+            //fflush(stdout);
             //fwrite(buf->bytes, sizeof(byte_t), buf->length, stdout);
             _tprintf(_T("%s"), (tchar_t*)buf->bytes);
             _cc_destroy_buf(&buf);
@@ -96,6 +96,6 @@ int _tmain (int argc, tchar_t * const argv[]) {
         _tprintf(_T("XML parse Fail:%s\n"), _cc_xml_error());
     }
     
-    //_cc_uninstall_memory_tracked();
+    system("pause");
     return 0;
 }

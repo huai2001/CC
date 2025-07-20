@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -20,31 +20,16 @@
 */
 #include "json.c.h"
 
-typedef struct {
-    const tchar_t *content;
-    size_t position;
-} _cc_json_error_t;
-
-static _cc_json_error_t _cc_global_json_error = {nullptr, 0};
-
-_CC_API_PUBLIC(const tchar_t*) _cc_json_error(void) {
-    if (_cc_unlikely(_cc_global_json_error.content == nullptr)) {
-        return nullptr;
-    }
-    return (_cc_global_json_error.content + _cc_global_json_error.position);
-}
-
 _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item);
 
-_CC_API_PRIVATE(tchar_t*) _json_parser_string(_cc_sbuf_t *const buffer, size_t *length) {
+_CC_API_PUBLIC(tchar_t*) _sbuf_parser_string(_cc_sbuf_t *const buffer, size_t *length) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = nullptr;
+    const tchar_t *endpos;
     size_t alloc_length = 0;
     size_t skipped_bytes = 0;
     tchar_t *output = nullptr;
-    tchar_t *cps = nullptr;
     tchar_t quotes = *p;
-    int32_t convert_bytes = 0;
 
     if (_cc_likely(quotes == _T('"') || quotes == _T('\''))) {
         start = ++p;
@@ -52,12 +37,13 @@ _CC_API_PRIVATE(tchar_t*) _json_parser_string(_cc_sbuf_t *const buffer, size_t *
         return nullptr;
     }
 
+    endpos = buffer->content + buffer->length;
     /* calculate approximate size of the output (overestimate) */
-    while (*p && ((size_t)(p - buffer->content) < buffer->length) && (*p) != quotes) {
-        /* is escape sequence */
+    while (p < endpos && (*p != quotes)) {
         if (*p == _T('\\')) {
-            if ((size_t)((p + 1) - buffer->content) >= buffer->length) {
-                goto JSON_FAIL;
+            /* prevent buffer overflow when last input character is a backslash */
+            if ((p + 1) >= endpos) {
+                return nullptr;
             }
             skipped_bytes++;
             p++;
@@ -65,82 +51,25 @@ _CC_API_PRIVATE(tchar_t*) _json_parser_string(_cc_sbuf_t *const buffer, size_t *
         p++;
     }
 
-    if (_cc_unlikely(((size_t)(p - buffer->content) >= buffer->length) || (*p) != quotes)) {
-        goto JSON_FAIL;
+    if (p >= endpos || *p != quotes) {
+        return nullptr;
     }
 
     /* This is at most how much we need for the output */
     alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
-    cps = output = (tchar_t *)_cc_malloc(alloc_length);
-
-    while (start < p) {
-        if (*start != _T('\\')) {
-            *cps++ = *start++;
-            continue;
+    output = (tchar_t *)_cc_malloc(alloc_length);
+    endpos = _convert_text(output, alloc_length, start, p);
+    if (endpos) {
+        if (length) {
+            *length = (endpos - output);
         }
+        /* +1 skip \" or \' */
+        buffer->offset = (size_t)(p - buffer->content) + 1;
 
-        start++;
-        switch (*start) {
-        case _T('b'):
-            *cps++ = _T('\b');
-            start++;
-            break;
-        case _T('f'):
-            *cps++ = _T('\f');
-            start++;
-            break;
-        case _T('n'):
-            *cps++ = _T('\n');
-            start++;
-            break;
-        case _T('r'):
-            *cps++ = _T('\r');
-            start++;
-            break;
-        case _T('t'):
-            *cps++ = _T('\t');
-            start++;
-            break;
-        case _T('\"'):
-        case _T('\\'):
-        case _T('/'): {
-            *cps++ = *start++;
-        } break;
-        /* UTF-16 literal */
-        case _T('u'): {
-            /* failed to convert UTF16-literal to UTF-8 */
-            start++;
-            convert_bytes = _cc_convert_utf16_literal_to_utf8(&start, p, cps, alloc_length);
-            if (_cc_unlikely(convert_bytes == 0)) {
-                goto JSON_FAIL;
-            }
-            cps += convert_bytes;
-            break;
-        }
-        default:
-            goto JSON_FAIL;
-            break;
-        }
+        return output;
     }
-    /* zero terminate the output */
-    *cps = 0;
-    if (length) {
-        *length = (cps - output);
-    }
-    buffer->offset = (size_t)(p - buffer->content);
-    /* skip \" or \' */
-    buffer->offset++;
 
-    if (!_cc_buf_jump_comment(buffer)) {
-        goto JSON_FAIL;
-    }
-    return output;
-
-JSON_FAIL:
-    if (output) {
-        buffer->offset = (size_t)(start - buffer->content);
-        _cc_free(output);
-    }
+    _cc_free(output);
     return nullptr;
 }
 
@@ -166,24 +95,31 @@ _CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_t *const buffer, _cc_json_t
     return _cc_buf_jump_comment(buffer);
 }
 
-_CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_t *const buffer, _cc_json_t *item) {
+_CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_t *const buffer, _cc_json_t *root) {
+    _cc_json_t *item;
     /*parse the name of the key*/
-    item->name = _json_parser_string(buffer,nullptr);
-    if (_cc_unlikely(!item->name)) {
+    tchar_t *name = _sbuf_parser_string(buffer,nullptr);
+    if (_cc_unlikely(!name)) {
         return false;
     }
 
+    if (!_cc_buf_jump_comment(buffer)) {
+        _cc_free(name);
+        return false;
+    }
+    
     if (_cc_unlikely(!_cc_sbuf_access(buffer) || _cc_sbuf_offset_unequal(buffer, _T(':')))) {
-        _cc_free(item->name);
+        _cc_free(name);
         return false;
     }
     /* skip : */
     buffer->offset++;
     _cc_buf_jump_comment(buffer);
+    item = _json_object_push(root, name);
+    _cc_free(name);
 
     /*parse the value*/
     if (_cc_unlikely(!_json_read(buffer, item))) {
-        _cc_free(item->name);
         /*failed to parse value*/
         return false;
     }
@@ -192,10 +128,10 @@ _CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_t *const buffer, _cc
 }
 
 static bool_t _json_parser_object(_cc_sbuf_t *const buffer, _cc_json_t *item) {
-    _cc_json_t *curr_item = nullptr;
     _CC_RB_INIT_ROOT(&item->element.uni_object);
+    item->type = _CC_JSON_OBJECT_;
 
-    if (_cc_unlikely(buffer->depth >= _JSON_NESTING_LIMIT_)) {
+    if (buffer->depth >= _JSON_NESTING_LIMIT_) {
         /* to deeply nested */
         return false;
     }
@@ -203,39 +139,29 @@ static bool_t _json_parser_object(_cc_sbuf_t *const buffer, _cc_json_t *item) {
     /*skip { */
     buffer->offset++;
 
-    /* check if we skipped to the end of the buffer */
     if (!_cc_buf_jump_comment(buffer)) {
         buffer->offset--;
         goto JSON_FAIL;
     }
 
-    if (_cc_unlikely(_cc_sbuf_offset_equal(buffer, _JSON_OBJECT_END_))) {
+    if (_cc_sbuf_offset_equal(buffer, _JSON_OBJECT_END_)) {
+        /* empty object */
         goto JSON_SUCCESS;
     }
 
     /* step back to character in front of the first element */
     buffer->offset--;
+    /* loop through the comma separated array elements */
     do {
         /*parse next value */
         buffer->offset++;
         if (_cc_buf_jump_comment(buffer) && _cc_sbuf_offset_equal(buffer,_JSON_OBJECT_END_))
             break;
 
-        curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-        bzero(curr_item, sizeof(_cc_json_t));
-        curr_item->type = _CC_JSON_NULL_;
-        curr_item->size = 0;
-        curr_item->length = 0;
-
-        if (_cc_unlikely(!_json_parser_key_and_value(buffer, curr_item))) {
-            _cc_destroy_json(&curr_item);
+        if (!_json_parser_key_and_value(buffer, item)) {
             goto JSON_FAIL;
         }
 
-        if (_cc_unlikely(!_cc_rbtree_push(&item->element.uni_object, &curr_item->lnk, _json_push_object))) {
-            _cc_destroy_json(&curr_item);
-            goto JSON_FAIL;
-        }
         item->length++;
     } while (_cc_sbuf_access(buffer) && _cc_sbuf_offset_equal(buffer,_JSON_NEXT_TOKEN_));
 
@@ -245,16 +171,15 @@ static bool_t _json_parser_object(_cc_sbuf_t *const buffer, _cc_json_t *item) {
     }
 
 JSON_SUCCESS:
-    item->type = _CC_JSON_OBJECT_;
+    /* skip _JSON_OBJECT_END_ */
     buffer->offset++;
     buffer->depth--;
-
+    /**/
     _cc_buf_jump_comment(buffer);
 
     return true;
 
 JSON_FAIL:
-    item->type = _CC_JSON_OBJECT_;
     _destroy_json_object(item);
     return false;
 }
@@ -263,7 +188,7 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *item) {
     _cc_json_t *curr_item = nullptr;
     _json_array_alloc(item,32);
 
-    if (_cc_unlikely(buffer->depth >= _JSON_NESTING_LIMIT_)) {
+    if (buffer->depth >= _JSON_NESTING_LIMIT_) {
         /* to deeply nested */
         return false;
     }
@@ -272,13 +197,13 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *item) {
     /*skip [ */
     buffer->offset++;
 
-    /* check if we skipped to the end of the buffer */
-    if (_cc_unlikely(!_cc_buf_jump_comment(buffer))) {
+    if (!_cc_buf_jump_comment(buffer)) {
         buffer->offset--;
         goto JSON_FAIL;
     }
 
-    if (_cc_unlikely(_cc_sbuf_offset_equal(buffer,_JSON_ARRAY_END_))) {
+    if (_cc_sbuf_offset_equal(buffer,_JSON_ARRAY_END_)) {
+        /* not an array */
         goto JSON_SUCCESS;
     }
 
@@ -286,7 +211,7 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *item) {
     buffer->offset--;
     /*loop through the comma separated array elements*/
     do {
-        /*parse next value */
+        /* parse next value */
         buffer->offset++;
         if (_cc_buf_jump_comment(buffer) && _cc_sbuf_offset_equal(buffer,_JSON_ARRAY_END_)) {
             break;
@@ -309,16 +234,19 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *item) {
         }
     } while (_cc_sbuf_access(buffer) && _cc_sbuf_offset_equal(buffer,_JSON_NEXT_TOKEN_));
 
-    /*expected end of object*/
+    /*expected end of array*/
     if (!_cc_sbuf_access(buffer) || _cc_sbuf_offset_unequal(buffer,_JSON_ARRAY_END_)) {
+        /* invalid array */
         goto JSON_FAIL;
     }
 
 JSON_SUCCESS:
     item->type = _CC_JSON_ARRAY_;
+    /* skip _JSON_ARRAY_END_ */
     buffer->offset++;
     buffer->depth--;
 
+    /**/
     _cc_buf_jump_comment(buffer);
 
     return true;
@@ -330,53 +258,47 @@ JSON_FAIL:
 }
 
 _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item) {
-    if (buffer == nullptr || buffer->content == nullptr) {
-        return false;
+    register const tchar_t *p = _cc_sbuf_offset(buffer);
+
+    if (*p == _T('-') || _CC_ISDIGIT(*p)) {
+        return _json_parser_number(buffer, item);
+    }
+    if (*p == _JSON_OBJECT_START_) {
+        return _json_parser_object(buffer, item);
+    }
+    if (*p == _JSON_ARRAY_START_) {
+        return _json_parser_array(buffer, item);
     }
 
-    if (_cc_sbuf_access(buffer)) {
-        register const tchar_t *p = _cc_sbuf_offset(buffer);
-        if (*p == _T('-') || _CC_ISDIGIT(*p)) {
-            return _json_parser_number(buffer, item);
-        }
-        if (*p == _JSON_OBJECT_START_) {
-            return _json_parser_object(buffer, item);
-        }
-        if (*p == _JSON_ARRAY_START_) {
-            return _json_parser_array(buffer, item);
+    if (_cc_sbuf_can_read(buffer, 4)) {
+        if (_tcsncmp(p, _T("true"), 4) == 0) {
+            item->type = _CC_JSON_BOOLEAN_;
+            item->element.uni_boolean = true;
+            buffer->offset += 4;
+            return _cc_buf_jump_comment(buffer);
         }
 
-        if (_cc_sbuf_can_read(buffer, 4)) {
-            if (_tcsncmp(p, _T("true"), 4) == 0) {
-                item->type = _CC_JSON_BOOLEAN_;
-                item->element.uni_boolean = true;
-                buffer->offset += 4;
-                return _cc_buf_jump_comment(buffer);
-            }
-
-            if (_tcsncmp(p, _T("null"), 4) == 0) {
-                item->type = _CC_JSON_NULL_;
-                item->element.uni_string = nullptr;
-                buffer->offset += 4;
-                return _cc_buf_jump_comment(buffer);
-            }
+        if (_tcsncmp(p, _T("null"), 4) == 0) {
+            item->type = _CC_JSON_NULL_;
+            item->element.uni_string = nullptr;
+            buffer->offset += 4;
+            return _cc_buf_jump_comment(buffer);
         }
+    }
 
-        if (_cc_sbuf_can_read(buffer, 5)) {
-            if (_tcsncmp(p, _T("false"), 5) == 0) {
-                item->type = _CC_JSON_BOOLEAN_;
-                item->element.uni_boolean = false;
-                buffer->offset += 5;
-                return _cc_buf_jump_comment(buffer);
-                ;
-            }
+    if (_cc_sbuf_can_read(buffer, 5)) {
+        if (_tcsncmp(p, _T("false"), 5) == 0) {
+            item->type = _CC_JSON_BOOLEAN_;
+            item->element.uni_boolean = false;
+            buffer->offset += 5;
+            return _cc_buf_jump_comment(buffer);
         }
+    }
 
-        item->element.uni_string = _json_parser_string(buffer,&item->length);
-        if (item->element.uni_string) {
-            item->type = _CC_JSON_STRING_;
-            return true;
-        }
+    item->element.uni_string = _sbuf_parser_string(buffer,&item->length);
+    if (item->element.uni_string) {
+        item->type = _CC_JSON_STRING_;
+        return _cc_buf_jump_comment(buffer);
     }
 
     return false;
@@ -384,7 +306,7 @@ _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item) {
 
 _CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_t *const buffer) {
     _cc_json_t *item = nullptr;
-    _cc_json_error_t local_error;
+    _cc_syntax_error_t local_error;
 
     local_error.content = nullptr;
     local_error.position = 0;
@@ -406,7 +328,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_t *const buffer) {
     }
 
     /*reset error position*/
-    _cc_global_json_error = local_error;
+    _cc_syntax_error(&local_error);
 
     _cc_destroy_json(&item);
     return nullptr;
@@ -472,4 +394,8 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_parse(const tchar_t *src, size_t length) {
     buffer.depth = 0;
 
     return _cc_josn_parser(&buffer);
+}
+
+_CC_API_PUBLIC(const tchar_t*) _cc_json_error(void) {
+    return _cc_get_syntax_error();
 }

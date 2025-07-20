@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -21,15 +21,17 @@
 #ifndef _C_CC_INI_C_H_INCLUDED_
 #define _C_CC_INI_C_H_INCLUDED_
 
-#include <libcc/alloc.h>
-#include <libcc/buf.h>
 #include <libcc/widgets/ini/ini.h>
+#include "../generic/generic.c.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+_CC_API_PUBLIC(_cc_ini_t*) _INI_alloc(int type);
+_CC_API_PUBLIC(void) _ini_free(_cc_ini_t* p);
+_CC_API_PUBLIC(_cc_ini_t*) _INI_push(_cc_rbtree_t* root, tchar_t *name, int type);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

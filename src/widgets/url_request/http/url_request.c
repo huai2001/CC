@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -143,7 +143,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_header(_cc_url_request_t *reques
     switch (request->status) {
     case _CC_HTTP_STATUS_HEADER_:
         return true;
-    case _CC_HTTP_STATUS_BODY_:
+    case _CC_HTTP_STATUS_PAYLOAD_:
         _cc_buf_cleanup(&request->buffer);
         break;
     default:
@@ -170,7 +170,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_body(_cc_url_request_t *request,
     _cc_http_response_header_t *response;
     _cc_assert(request != nullptr);
     _cc_assert(r != nullptr);
-    _cc_assert(request->status == _CC_HTTP_STATUS_BODY_);
+    _cc_assert(request->status == _CC_HTTP_STATUS_PAYLOAD_);
 
     /**/
     response = request->response;
@@ -188,11 +188,11 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_body(_cc_url_request_t *request,
             response->download_length += r->length;
             r->length = 0;
             if (response->length > 0 && response->download_length >= response->length) {
-                request->status = _CC_HTTP_STATUS_SUCCESS_;
+                request->status = _CC_HTTP_STATUS_FINISHED_;
             }
         }
     } else if (response->length == 0 && response->transfer_encoding != _CC_URL_TRANSFER_ENCODING_CHUNKED_) {
-        request->status = _CC_HTTP_STATUS_SUCCESS_;
+        request->status = _CC_HTTP_STATUS_FINISHED_;
     }
 
     return true;

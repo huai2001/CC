@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -29,118 +29,55 @@
 #include <dlfcn.h>
 #endif
 
+static tchar_t *mem_types[4] = {"unknown","_cc_malloc","_cc_calloc","_cc_realloc"};
+
 /* Explicitly override malloc/free etc when using tcmalloc. */
 #if defined(__CC_USE_TCMALLOC__)
-#define malloc(size) tc_malloc(size)
-#define calloc(count, size) tc_calloc(count, size)
-#define realloc(ptr, size) tc_realloc(ptr, size)
-#define free(ptr) tc_free(ptr)
+    #define malloc(size) tc_malloc(size)
+    #define calloc(count, size) tc_calloc(count, size)
+    #define realloc(ptr, size) tc_realloc(ptr, size)
+    #define free(ptr) tc_free(ptr)
 #elif defined(__CC_USE_JEMALLOC__)
-#define malloc(size) je_malloc(size)
-#define calloc(count, size) je_calloc(count, size)
-#define realloc(ptr, size) je_realloc(ptr, size)
-#define free(ptr) je_free(ptr)
+    #define malloc(size) je_malloc(size)
+    #define calloc(count, size) je_calloc(count, size)
+    #define realloc(ptr, size) je_realloc(ptr, size)
+    #define free(ptr) je_free(ptr)
 #endif
 
-#ifdef _CC_ENABLE_MEMORY_TRACKED_
-static struct {
-    _cc_atomic32_t ref;
-    tchar_t current_process_path[_CC_MAX_PATH_];
-} g = {0};
+/*
+ * Remove a pointer to the rbtree with some key
+ */
+_CC_API_PUBLIC(void) __cc_tracked_memory_unlink(uintptr_t ptr) {
 
-_CC_API_PRIVATE(void) remove_memory_directory(const tchar_t *directory) {
-    tchar_t source_file[_CC_MAX_PATH_ * 2] = {0};
-    DIR *dpath = nullptr;
-    struct dirent *d;
-    struct _stat stat_buf;
-    
-    if( (dpath = opendir(directory)) == nullptr) {
-        return;
-    }
-    
-    while ((d = readdir(dpath)) != nullptr) {
-        source_file[0] = 0;
-        _tcscat(source_file, directory);
-        _tcscat(source_file,_T("/"));
-        _tcscat(source_file,d->d_name);
-        
-        _tstat( source_file, &stat_buf);
-
-        if (S_ISDIR(stat_buf.st_mode) == 0) {
-            _cc_unlink(source_file);
-        } else {
-            remove_memory_directory(source_file);
-        }
-    }
-    closedir(dpath);
 }
 
-_CC_API_PUBLIC(void) _cc_enable_tracked_memory(void) {
-    if (_cc_atomic32_cas(&g.ref, 0, 1)) {
+/*
+ * Add a pointer to the rbtree with some key
+ */
+_CC_API_PUBLIC(void) __cc_tracked_memory(uintptr_t ptr, size_t size, const int _type) {
 
-        tchar_t path[_CC_MAX_PATH_];
-
-        _cc_get_executable_path(path,_CC_MAX_PATH_);
-        _sntprintf(g.current_process_path, _cc_countof(g.current_process_path), _T("%s/memory"), path);
-        
-        _cc_create_directory(g.current_process_path, true);
-
-        remove_memory_directory(g.current_process_path);
-    }
 }
-
-_CC_API_PRIVATE(void) _write_timestamp(FILE *wfp) {
-    time_t now_time = time(nullptr);
-    struct tm *t = localtime(&now_time);
-
-    _ftprintf(wfp, _T("%4d-%02d-%02d %02d:%02d:%02d\n"), t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour,
-            t->tm_min, t->tm_sec);
-}
-
-_CC_API_PRIVATE(void) __cc_tracked_memory_unlink(pvoid_t ptr) {
-    tchar_t _memory_file[_CC_MAX_PATH_];
-    _sntprintf(_memory_file, _cc_countof(_memory_file), _T("%s/%p.mem"), g.current_process_path,ptr);
-    _cc_unlink(_memory_file);
-}
-
-_CC_API_PRIVATE(void) __cc_tracked_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
-    tchar_t _memory_file[_CC_MAX_PATH_];
-    FILE *fp;
-    _sntprintf(_memory_file, _cc_countof(_memory_file), _T("%s/%p.mem"), g.current_process_path,ptr);
-    fp = _tfopen(_memory_file, _T("a"));
-    if (fp == nullptr) {
-        return;
-    }
-    
-    _write_timestamp(fp);
-    _ftprintf(fp, _T("%p %s %lld\n"), ptr, msg, (int64_t)size);
-	_cc_dump_stack_trace(fp, 3);
-    fclose(fp);
-}
-#endif
 
 /**/
-_CC_API_PRIVATE(pvoid_t) __cc_check_memory(pvoid_t ptr, size_t size, const tchar_t *msg) {
+_CC_API_PRIVATE(pvoid_t) __cc_check_memory(pvoid_t ptr, size_t size, const int _type) {
     if (_cc_unlikely(nullptr == ptr)) {
-        _cc_logger_error(_T("%s: Out of memory trying to allocate %zu bytes"), msg, size);
+        _cc_logger_error(_T("%s: Out of memory trying to allocate %zu bytes"), mem_types[_type], size);
         _cc_abort();
     }
 #ifdef _CC_ENABLE_MEMORY_TRACKED_
-    if (g.ref == 1) {
-        __cc_tracked_memory(ptr, size, msg);
-    }
+    __cc_tracked_memory((uintptr_t)ptr, size, _type);
 #endif
     return ptr;
 }
 
 /**/
 _CC_API_PUBLIC(pvoid_t) _cc_malloc(size_t n) {
-    return __cc_check_memory(malloc(n), n, _T("_cc_malloc"));
+    return __cc_check_memory(malloc(n), n, _CC_MEM_MALLOC_);
 }
 
 /**/
 _CC_API_PUBLIC(pvoid_t) _cc_calloc(size_t c, size_t n) {
-    return __cc_check_memory(calloc(c, n), c * n, _T("_cc_calloc"));
+    return __cc_check_memory(calloc(c, n), c * n, _CC_MEM_CALLOC_);
 }
 
 /**/
@@ -155,17 +92,17 @@ _CC_API_PUBLIC(pvoid_t) _cc_realloc(pvoid_t d, size_t n) {
     }
     
 #ifdef _CC_ENABLE_MEMORY_TRACKED_
-    __cc_tracked_memory_unlink(d);
+    __cc_tracked_memory_unlink((uintptr_t)d);
 #endif
 
-    return __cc_check_memory(realloc(d, n), n, _T("realloc"));
+    return __cc_check_memory(realloc(d, n), n, _CC_MEM_REALLOC_);
 }
 
 /**/
 _CC_API_PUBLIC(void) _cc_free(pvoid_t p) {
     _cc_assert(p != nullptr);
 #ifdef _CC_ENABLE_MEMORY_TRACKED_
-    __cc_tracked_memory_unlink(p);
+    __cc_tracked_memory_unlink((uintptr_t)p);
 #endif
     free(p);
 }

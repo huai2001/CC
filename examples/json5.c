@@ -12,7 +12,7 @@ _T("\"c2\"  : \"HY\\ud83c\\udf0a\", ")
 _T("\"e3\": \"f3\"},7,8,9,0],")
 _T("\"string1\": \"Hello\tWorld1\"  ,  ")
 _T("\"boolean\": true       ,")
-_T("\"nullptr\" : nullptr,")
+_T("\"nullptr\" : null,")
 _T("\"number\" : 123.087  ,  ")
 _T("\"object\" : {")
 _T("\"a\": \"b\",")
@@ -34,14 +34,17 @@ void json_P() {
     _cc_json_t *json2;
     _cc_json_t *json = _cc_json_parse((const tchar_t*)json_string, -1);//
     _cc_buf_t *buf = nullptr;
+
     //json = _cc_json_alloc_object(_CC_JSON_OBJECT_, nullptr);
+    _cc_logger_error("test");
+
     if (json) {
-        _cc_json_add_string(json, _T("nickname"), _T("abc中文\""), true);
-        _cc_json_add_string(json, _T("nickname1"), _T("abc中文1\""), true);
-        _cc_json_add_string(json, _T("nickname2"), _T("abc中文2\""), true);
-        _cc_json_add_number(json, _T("sex"), 2, true);
-        _cc_json_add_string(json, _T("language"), _T("zh_CN2"), true);
-        _cc_json_add_boolean(json, _T("status"), true, true);
+        _cc_json_add_string(json, _T("nickname"), _T("abc中文\""));
+        _cc_json_add_string(json, _T("nickname1"), _T("abc中文1\""));
+        _cc_json_add_string(json, _T("nickname2"), _T("abc中文2\""));
+        _cc_json_add_number(json, _T("sex"), 2);
+        _cc_json_add_string(json, _T("language"), _T("zh_CN2"));
+        _cc_json_add_boolean(json, _T("status"), true);
         
         _cc_json_object_remove(json, _T("nickname1"));
         json2 = _cc_json_object_find(json, _T("array"));
@@ -58,18 +61,18 @@ void json_P() {
     
 }
 
-#define LOOP_MAX 10
+#define LOOP_MAX 1
 /* Parse text to JSON, then render back to text, and print! */
 int main(int argc, char* argv[]) {
     /*, */
-    int32_t i = 0, j = 0;
+    int32_t i = 0;
     clock_t start, end;
     _cc_json_t *json = nullptr;
     
-    //_cc_enable_tracked_memory();
+    _cc_install_memory_tracked();
     setlocale(LC_ALL, "chs");
     SetConsoleOutputCP(65001);
-    
+
     _tprintf(_T("%s\n"),_T(_CC_COMPILER_NAME_));
     
     start = clock();
@@ -82,7 +85,6 @@ int main(int argc, char* argv[]) {
         //printf("json:%s\n",_cc_json_object_find_string(json, "nickname"));
         //for (j = 0; j <LOOP_MAX; j++)
         //   _cc_json_object_find_string(json, _T("nickname"));
-		//_cc_save_json_file(json, stdout);
         _cc_destroy_json(&json);
     }
     end = clock();
@@ -90,6 +92,7 @@ int main(int argc, char* argv[]) {
     
     json_P();
 
+    _cc_uninstall_memory_tracked();
     system("pause");
     
     return 0; 

@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -19,26 +19,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include "xml.c.h"
-
-typedef struct {
-    const tchar_t *content;
-    size_t position;
-} _cc_XML_error_t;
-
-struct _XML_entity {
-    const tchar_t *pattern;
-    byte_t length;
-    tchar_t value;
-};
-
-#define _XML_NUM_ENTITIES_ 5
-static const struct _XML_entity XML_entities[_XML_NUM_ENTITIES_] = {{_T("quot"), 4, _T('\"')},
-                                                                    {_T("apos"), 4, _T('\'')},
-                                                                    {_T("amp"), 3, _T('&')},
-                                                                    {_T("lt"), 2, _T('<')},
-                                                                    {_T("gt"), 2, _T('>')}};
-
-static _cc_XML_error_t _cc_global_XML_error = {nullptr, 0};
 
 _CC_API_PRIVATE(bool_t) _XML_is_name_start_char(int ch) {
     if (ch >= 128) {
@@ -111,146 +91,82 @@ _CC_API_PRIVATE(bool_t) _XML_parser_doctype(_cc_sbuf_t *const buffer, tchar_t **
         return true;
     }
 
-    if (*output) {
-        _cc_free(*output);
-        *output = nullptr;
-    }
+    _cc_free(*output);
+    *output = nullptr;
     return false;
-}
-
-_CC_API_PRIVATE(bool_t) _XML_convert_text(tchar_t *cps, size_t alloc_length, const tchar_t *src, const tchar_t *p) {
-    size_t i = 0;
-    int32_t convert_bytes = 0;
-    while (src < p) {
-        if (*src == _T('\\')) {
-            switch (*(src + 1)) {
-            case _T('b'):
-                *cps++ = _T('\b');
-                src += 2;
-                break;
-            case _T('f'):
-                *cps++ = _T('\f');
-                src += 2;
-                break;
-            case _T('n'):
-                *cps++ = _T('\n');
-                src += 2;
-                break;
-            case _T('r'):
-                *cps++ = _T('\r');
-                src += 2;
-                break;
-            case _T('t'):
-                *cps++ = _T('\t');
-                src += 2;
-                break;
-            case _T('\"'):
-            case _T('\\'):
-            case _T('/'): {
-                *cps++ = *src;
-                src += 2;
-            } break;
-                /* UTF-16 literal */
-            case _T('u'): {
-                /* failed to convert UTF16-literal to UTF-8 */
-                src += 2;
-                convert_bytes = _cc_convert_utf16_literal_to_utf8(&src, p, cps, alloc_length);
-                if (_cc_unlikely(convert_bytes == 0)) {
-                    return false;
-                }
-                cps += convert_bytes;
-                break;
-            }
-            default:
-                return false;
-                break;
-            }
-        } else if (*src == _T('&')) {
-            const struct _XML_entity *entity = nullptr;
-            for (i = 0; i < _XML_NUM_ENTITIES_; i++) {
-                const struct _XML_entity *tmp = &XML_entities[i];
-                if (*tmp->pattern == *(src + 1) && _tcsnicmp(tmp->pattern, src + 1, tmp->length) == 0) {
-                    entity = tmp;
-                    break;
-                }
-            }
-
-            if (entity) {
-                *cps++ = entity->value;
-                /* +1 skip & */
-                src += entity->length + 1;
-                continue;
-            }
-        }
-        *cps++ = *src++;
-    }
-    *cps = 0;
-    return true;
 }
 
 _CC_API_PRIVATE(bool_t) _XML_parser_comments(_cc_sbuf_t *const buffer, tchar_t **output) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = p;
+    const tchar_t *endpos = nullptr;
     size_t alloc_length = 0;
     size_t skipped_bytes = 0;
 
-    while (*p && ((size_t)(p - buffer->content) < buffer->length)) {
+    endpos = buffer->content + buffer->length;
+    /* calculate approximate size of the output (overestimate) */
+    while (p < endpos) {
         /* <![CDATA[Unparsed Character Data]]> */
         if (*p == '-' && *(p + 1) == '-' && *(p + 2) == '>') {
             break;
         }
+
         if (*p == _T(_CC_LF_)) {
             buffer->line++;
         }
 
-        if (*p == _T('\\') && ((size_t)((p + 1) - buffer->content) < buffer->length)) {
+        if (*p == _T('\\')) {
+            /* is escape sequence */
+            if ((p + 1) >= endpos) {
+                return false;
+            }
             skipped_bytes++;
             p++;
         }
-
         p++;
     }
 
-    if (((size_t)(p - buffer->content) >= buffer->length)) {
-        goto XML_FAIL;
+    if (p >= endpos) {
+        return false;
     }
 
     /* This is at most how much we need for the output */
     alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
-
-    if (alloc_length <= 1) {
-        buffer->offset = (size_t)(p - buffer->content) + 3;
-        return true;
-    }
-
     *output = (tchar_t *)_cc_malloc(alloc_length);
-    if (_XML_convert_text(*output, alloc_length, start, p)) {
+    if (_convert_text(*output, alloc_length, start, p)) {
         buffer->offset = (size_t)(p - buffer->content) + 3;
         return true;
     }
 
-XML_FAIL:
-    if (*output) {
-        _cc_free(*output);
-        *output = nullptr;
-    }
+    _cc_free(*output);
+    *output = nullptr;
+
     return false;
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _XML_parser_text(_cc_sbuf_t *const buffer, _cc_xml_context_t *context) {
+_CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_context_t *context) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     _cc_buf_t buf;
 
     size_t alloc_length = 0;
     byte_t cdata = context->cdata;
 
-    _cc_buf_alloc(&buf, 1024);
+    const tchar_t *start = p;
+    const tchar_t *endpos = nullptr;
 
-    while (*p && ((size_t)(p - buffer->content) < buffer->length)) {
+    _cc_buf_alloc(&buf, 1024);
+    endpos = buffer->content + buffer->length;
+
+    while (p < endpos) {
         if (cdata == 0 && *p == _XML_ELEMENT_START_) {
+            if (start != p) {
+                _cc_buf_append(&buf, (byte_t *)start, sizeof(tchar_t) * (p - start));
+            }
+
             if (*(p + 1) == '!' && _tcsncmp(_T("[CDATA["), p + 2, 7) == 0) {
                 p += 9;
+                start = p;
                 cdata = true;
                 context->cdata = true;
                 continue;
@@ -261,11 +177,14 @@ _CC_API_PRIVATE(bool_t) _XML_parser_text(_cc_sbuf_t *const buffer, _cc_xml_conte
 
         /* <![CDATA[ Unparsed Character Data]]> */
         if (cdata && *p == ']' && *(p + 1) == ']' && *(p + 2) == '>') {
+            if (start != (p - 1)) {
+                _cc_buf_append(&buf, (byte_t *)start, sizeof(tchar_t) * (p - start - 1));
+            }
             p += 3;
+            start = p;
             cdata = 0;
             continue;
         }
-        _cc_buf_append(&buf, (byte_t *)p, sizeof(tchar_t));
         p++;
     }
 
@@ -279,18 +198,19 @@ _CC_API_PRIVATE(bool_t) _XML_parser_text(_cc_sbuf_t *const buffer, _cc_xml_conte
     /* This is at most how much we need for the output */
     alloc_length = _cc_buf_length(&buf) + 1;
     context->text = (tchar_t *)_cc_malloc(alloc_length * sizeof(tchar_t));
-    if (!_XML_convert_text(context->text, alloc_length, (const tchar_t *)buf.bytes, (const tchar_t *)buf.bytes + buf.length)) {
-        _cc_free(context->text);
+    if (_convert_text(context->text, alloc_length, (const tchar_t *)buf.bytes, (const tchar_t *)buf.bytes + buf.length)) {
         _cc_buf_free(&buf);
-        context->text = nullptr;
-        return false;
+        return true;
     }
 
+    _cc_free(context->text);
+    context->text = nullptr;
+
     _cc_buf_free(&buf);
-    return true;
+    return false;
 }
 
-_CC_API_PRIVATE(int32_t) _XML_is_attr_value_end_tag(const tchar_t *p, const tchar_t isquoted) {
+_CC_API_PRIVATE(int32_t) _XML_is_attr_value_end_tag(const tchar_t *p, const tchar_t quotes) {
     if (*p == _XML_ELEMENT_END_) {
         return 1;
     }
@@ -299,56 +219,72 @@ _CC_API_PRIVATE(int32_t) _XML_is_attr_value_end_tag(const tchar_t *p, const tcha
         return 2;
     }
 
-    if (isquoted == 0x20 && _cc_isspace(*p)) {
-        return 1;
+    if (quotes == 0) {
+        int32_t i = 0;
+        while (_cc_isspace(*(p + i))) {
+            i++;
+        }
+        return i;
     }
 
-    return isquoted == *p ? 1 : 0;
+    return quotes == *p ? 1 : 0;
 }
 
 _CC_API_PRIVATE(tchar_t*) _XML_parser_attr_value(_cc_sbuf_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = nullptr;
+    const tchar_t *endpos = nullptr;
     size_t alloc_length = 0;
     size_t skipped_bytes = 0;
     tchar_t *output = nullptr;
-    tchar_t isquoted = *p;
-    int32_t end_tag_len = 0;
+    tchar_t quotes = *p;
+    int32_t endflag = 0;
 
-    if (_cc_likely(isquoted == _T('"') || isquoted == _T('\''))) {
+    endpos = buffer->content + buffer->length;
+    if (_cc_likely(quotes == _T('"') || quotes == _T('\''))) {
         start = ++p;
     } else {
-        isquoted = 0x20;
+        quotes = 0;
+        while (p < endpos && _CC_ISSPACE(*p)) {
+            p++;
+        }
         start = p;
     }
 
-    while (*p && ((size_t)(p - buffer->content) < buffer->length) &&
-           (end_tag_len = _XML_is_attr_value_end_tag(p, isquoted)) == 0) {
-        if (*p == _T('\\') && ((size_t)((p + 1) - buffer->content) < buffer->length)) {
+    /* calculate approximate size of the output (overestimate) */
+    while (p < endpos && (endflag = _XML_is_attr_value_end_tag(p, quotes)) == 0) {
+        if (*p == _T('\\')) {
+            /* is escape sequence */
+            if ((p + 1) >= endpos) {
+                return nullptr;
+            }
             skipped_bytes++;
             p++;
         }
         p++;
     }
 
-    if (((size_t)(p - buffer->content) >= buffer->length) || end_tag_len == 0) {
-        goto XML_FAIL;
+    if (p >= endpos || endflag == 0) {
+        return nullptr;
     }
 
+    endpos = p;
+    if (quotes) {
+        while (start < endpos && _CC_ISSPACE(*(endpos - 1))) {
+            endpos--;
+        }
+    }
+    
     /* This is at most how much we need for the output */
-    alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
+    alloc_length = sizeof(tchar_t) * ((size_t)(endpos - start) - skipped_bytes + 1);
     output = (tchar_t *)_cc_malloc(alloc_length);
 
-    if (_XML_convert_text(output, alloc_length, start, p)) {
-        buffer->offset = (size_t)(p - buffer->content);
-        buffer->offset += end_tag_len;
+    if (_convert_text(output, alloc_length, start, endpos)) {
+        buffer->offset = (size_t)(p - buffer->content) + endflag;
         return output;
     }
 
-XML_FAIL:
-    if (output) {
-        _cc_free(output);
-    }
+    _cc_free(output);
     return nullptr;
 }
 
@@ -358,8 +294,6 @@ _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_t *const buffer)
     do {
         tchar_t *name = nullptr;
         tchar_t *value = nullptr;
-
-        /* check if we skipped to the end of the buffer */
         if (!_XML_jump_whitespace(buffer)) {
             return false;
         }
@@ -392,7 +326,6 @@ _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_t *const buffer)
             break;
         }
 
-        /* check if we skipped to the end of the buffer */
         if (!_XML_jump_whitespace(buffer)) {
             return false;
         }
@@ -402,7 +335,6 @@ _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_t *const buffer)
             ** ! skip =
             */
             buffer->offset++;
-            /* check if we skipped to the end of the buffer */
             if (!_XML_jump_whitespace(buffer)) {
                 return false;
             }
@@ -460,13 +392,12 @@ static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer, int32_t 
                 } else if (_tcsncmp(_T("[CDATA["), p + 2, 7) == 0) {
                     buffer->offset += 9;
                     item->element.uni_context.cdata = 1;
-                    if (!_XML_parser_text(buffer, &item->element.uni_context)) {
+                    if (!_XML_text_parser(buffer, &item->element.uni_context)) {
                         return false;
                     }
                     item->type = _CC_XML_CONTEXT_;
                 } else if (_tcsncmp(_T("DOCTYPE"), p + 2, 7) == 0) {
                     buffer->offset += 9;
-                    /* check if we skipped to the end of the buffer */
                     if (!_XML_jump_whitespace(buffer)) {
                         return false;
                     }
@@ -532,7 +463,7 @@ static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer, int32_t 
         } else {
             item->type = _CC_XML_CONTEXT_;
             item->element.uni_context.cdata = 0;
-            if (!_XML_parser_text(buffer, &item->element.uni_context)) {
+            if (!_XML_text_parser(buffer, &item->element.uni_context)) {
                 return false;
             }
         }
@@ -564,7 +495,7 @@ _CC_API_PRIVATE(bool_t) _XML_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer) {
 
 _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer) {
     _cc_xml_t *item = nullptr;
-    _cc_XML_error_t local_error;
+    _cc_syntax_error_t local_error;
 
     local_error.content = nullptr;
     local_error.position = 0;
@@ -584,14 +515,10 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer) {
     }
 
     /*reset error position*/
-    _cc_global_XML_error = local_error;
+    _cc_syntax_error(&local_error);
 
     _cc_destroy_xml(&item);
     return nullptr;
-}
-
-_CC_API_PUBLIC(const tchar_t*) _cc_xml_error(void) {
-    return (_cc_global_XML_error.content + _cc_global_XML_error.position);
 }
 
 _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_from_file(const tchar_t *file_name) {

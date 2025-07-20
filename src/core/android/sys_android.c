@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -99,7 +99,7 @@ static JNINativeMethod CCWidgets_tab[] = {
 // #define DEBUG_JNI
 
 /*******************************************************************************
- This file links the Java side of Android with libCC
+ This file links the Java side of Android with libcc
 *******************************************************************************/
 #include <jni.h>
 

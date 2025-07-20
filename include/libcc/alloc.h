@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -52,6 +52,11 @@ extern "C" {
 #define _CC_ENABLE_MEMORY_TRACKED_ 1
 #endif
 
+#define _CC_MEM_MALLOC_  0x01
+#define _CC_MEM_CALLOC_  0x02
+#define _CC_MEM_REALLOC_ 0x03
+#define _CC_MEM_FREE_    0x04
+
 /**/
 _CC_API_PUBLIC(pvoid_t) _cc_malloc(size_t);
 /**/
@@ -69,13 +74,6 @@ _CC_API_PUBLIC(wchar_t*) _cc_strdupW(const wchar_t*);
 _CC_API_PUBLIC(char_t*) _cc_strndupA(const char_t*,size_t);
 /**/
 _CC_API_PUBLIC(wchar_t*) _cc_strndupW(const wchar_t*,size_t);
-
-#ifdef _CC_ENABLE_MEMORY_TRACKED_
-/**/
-_CC_API_PUBLIC(void) _cc_enable_tracked_memory(void);
-#else
-#define _cc_enable_tracked_memory()
-#endif
 
 /**/
 #define _CC_MALLOCX(T,C) ((T*)_cc_malloc(sizeof(T) * (C)))

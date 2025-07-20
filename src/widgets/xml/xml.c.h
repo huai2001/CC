@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -21,9 +21,8 @@
 #ifndef _C_CC_XML_C_H_INCLUDED_
 #define _C_CC_XML_C_H_INCLUDED_
 
-#include <libcc/alloc.h>
-#include <libcc/buf.h>
 #include <libcc/widgets/xml/xml.h>
+#include "../generic/generic.c.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

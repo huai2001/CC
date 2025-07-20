@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -19,13 +19,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include "json.c.h"
-
-int32_t _json_push_object(_cc_rbtree_iterator_t *left, _cc_rbtree_iterator_t *right) {
-    _cc_json_t *_left = _cc_upcast(left, _cc_json_t, lnk);
-    _cc_json_t *_right = _cc_upcast(right, _cc_json_t, lnk);
-
-    return _tcscmp(_right->name, _left->name);
-}
 
 int32_t _json_get_object(_cc_rbtree_iterator_t *left, pvoid_t args) {
     _cc_json_t *_left = _cc_upcast(left, _cc_json_t, lnk);
@@ -54,11 +47,40 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *ke
 
     return item;
 }
+_CC_API_PUBLIC(_cc_json_t*) _json_object_push(_cc_json_t *ctx, const tchar_t *keyword) {
+    _cc_rbtree_t *root;
+    _cc_rbtree_iterator_t **node;
+    _cc_rbtree_iterator_t *parent = nullptr;
+    _cc_json_t *curr;
+    int32_t result;
 
+    _cc_assert(ctx != nullptr);
+    _cc_assert(keyword != nullptr);
+    
+    root = &ctx->element.uni_object;
+    node = &(root->rb_node);
+
+    while (*node) {
+        curr = _cc_upcast((*node), _cc_json_t, lnk);
+        result = _tcscmp(curr->name, keyword);
+
+        parent = *node;
+
+        if (result < 0) {
+            node = &((*node)->left);
+        } else if (result > 0) {
+            node = &((*node)->right);
+        } else {
+            return curr;
+        }
+    }
+    curr = _cc_json_alloc_object(_CC_JSON_NULL_, keyword);
+    _cc_rbtree_insert(root, &curr->lnk, parent, node);
+    return curr;
+}
 /**/
 _CC_API_PUBLIC(bool_t) _cc_json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
     _cc_rbtree_t *root;
-    int32_t result;
     _cc_rbtree_iterator_t **node;
     _cc_rbtree_iterator_t *parent = nullptr;
 
@@ -82,7 +104,8 @@ _CC_API_PUBLIC(bool_t) _cc_json_object_push(_cc_json_t *ctx, _cc_json_t *item, b
     node = &(root->rb_node);
 
     while (*node) {
-        result = _json_push_object(*node, &item->lnk);
+        _cc_json_t *curr = _cc_upcast((*node), _cc_json_t, lnk);
+        int32_t result = _tcscmp(curr->name, item->name);
 
         parent = *node;
 

@@ -361,7 +361,7 @@ public class CCWidgets  {
     }
 
     /**
-     * This method is called by libCC using JNI.
+     * This method is called by libcc using JNI.
      */
     public static String getPreferredLocales() {
         String result = "";

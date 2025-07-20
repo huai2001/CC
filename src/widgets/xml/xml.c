@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -267,11 +267,14 @@ static void _xml_free(_cc_xml_t *ctx) {
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_destroy_xml(_cc_xml_t **ctx) {
+_CC_API_PUBLIC(void) _cc_destroy_xml(_cc_xml_t **ctx) {
     _xml_free(*ctx);
     *ctx = nullptr;
+}
 
-    return true;
+/**/
+_CC_API_PUBLIC(const tchar_t*) _cc_xml_error(void) {
+    return _cc_get_syntax_error();
 }
 
 /**/
@@ -328,7 +331,7 @@ static void _dump_xml_buffer(_cc_xml_t *XML, int32_t depth, _cc_buf_t *buf) {
 /**/
 _CC_API_PUBLIC(_cc_buf_t*) _cc_dump_xml(_cc_xml_t *XML) {
     _cc_list_iterator_t *v;
-    _cc_buf_t *buf = _cc_create_buf(16*1024);
+    _cc_buf_t *buf = _cc_create_buf(_CC_16K_BUFFER_SIZE_);
     if (_cc_likely(buf)) {
         _cc_buf_puts(buf, _T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
         _cc_list_iterator_for(v, &XML->element.uni_child) {

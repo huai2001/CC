@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -27,7 +27,7 @@ static const tchar_t* char2escape[256] = {
     _T("\\f"),     _T("\\r"),     _T("\\u000e"), _T("\\u000f"), _T("\\u0010"), _T("\\u0011"),
     _T("\\u0012"), _T("\\u0013"), _T("\\u0014"), _T("\\u0015"), _T("\\u0016"), _T("\\u0017"),
     _T("\\u0018"), _T("\\u0019"), _T("\\u001a"), _T("\\u001b"), _T("\\u001c"), _T("\\u001d"),
-    _T("\\u001e"), _T("\\u001f"), nullptr,          nullptr,          _T("\\\""),    nullptr,
+    _T("\\u001e"), _T("\\u001f"),       nullptr,          nullptr,          _T("\\\""),       nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          /*_T("\\/")*/ nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
@@ -37,13 +37,13 @@ static const tchar_t* char2escape[256] = {
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          _T("\\\\"),    nullptr,          nullptr,          nullptr,
+    nullptr,          nullptr,          _T("\\\\"),       nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          _T("\\u007f"), nullptr,          nullptr,          nullptr,          nullptr,
+    nullptr,          _T("\\u007f"),    nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
     nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
@@ -103,7 +103,9 @@ _CC_API_PUBLIC(void) _json_free_node(_cc_json_t *item) {
         _cc_rbtree_destroy(&item->element.uni_object, _json_free_object_rb_node);
         break;
     case _CC_JSON_STRING_:
-        _cc_free(item->element.uni_string);
+        if (item->element.uni_string) {
+            _cc_free(item->element.uni_string);
+        }
         break;
     case _CC_JSON_ARRAY_:
         _destroy_json_array(item);
@@ -126,105 +128,84 @@ void _destroy_json_object(_cc_json_t *root) {
     _cc_rbtree_destroy(&root->element.uni_object, _json_free_object_rb_node);
 }
 
-_CC_API_PUBLIC(bool_t) _cc_destroy_json(_cc_json_t **item) {
+_CC_API_PUBLIC(void) _cc_destroy_json(_cc_json_t **item) {
     if (_cc_unlikely(item == nullptr || *item == nullptr)) {
-        return false;
+        return;
     }
 
-    if ((*item)->element.uni_object.rb_node) {
-        switch ((*item)->type) {
-        case _CC_JSON_OBJECT_:
-            _cc_rbtree_destroy(&(*item)->element.uni_object, _json_free_object_rb_node);
-            break;
-        case _CC_JSON_ARRAY_:
-            _destroy_json_array(*item);
-            break;
-        }
+    switch ((*item)->type) {
+    case _CC_JSON_OBJECT_:
+        _cc_rbtree_destroy(&(*item)->element.uni_object, _json_free_object_rb_node);
+        break;
+    case _CC_JSON_ARRAY_:
+        _destroy_json_array(*item);
+        break;
     }
 
     _cc_free(*item);
     *item = nullptr;
-
-    return true;
 }
 
 /**/
-_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t value, bool_t replacement) {
-    _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_BOOLEAN_, keyword);
-    if (_cc_unlikely(item == nullptr)) {
-        return nullptr;
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t value) {
+    _cc_json_t *item = nullptr;
+    if (ctx->type == _CC_JSON_ARRAY_) {
+        item = _cc_json_alloc_object(_CC_JSON_BOOLEAN_, keyword);
+        item->element.uni_boolean = value;
+        _json_array_push(ctx, item);
+    } else {
+        item = _json_object_push(ctx, keyword);
+        item->element.uni_boolean = value;
+        item->type = _CC_JSON_BOOLEAN_;
     }
-
-    item->element.uni_boolean = value;
-
-    if (!_cc_json_object_push(ctx, item, replacement)) {
-        _cc_free(item->name);
-        _cc_free(item);
-        return nullptr;
-    }
-
     return item;
 }
 
 /**/
-_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t value, bool_t replacement) {
-    _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_INT_, keyword);
-    if (_cc_unlikely(item == nullptr)) {
-        return nullptr;
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t value) {
+    _cc_json_t *item = nullptr;
+    if (ctx->type == _CC_JSON_ARRAY_) {
+        item = _cc_json_alloc_object(_CC_JSON_FLOAT_, keyword);
+        item->element.uni_int = value;
+        _json_array_push(ctx, item);
+    } else {
+        item = _json_object_push(ctx, keyword);
+        item->element.uni_int = value;
+        item->type = _CC_JSON_INT_;
     }
-
-    item->element.uni_int = value;
-
-    if (!_cc_json_object_push(ctx, item, replacement)) {
-        _cc_free(item->name);
-        _cc_free(item);
-        return nullptr;
-    }
-
     return item;
 }
 
 /**/
-_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_t value, bool_t replacement) {
-    _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_FLOAT_, keyword);
-    if (_cc_unlikely(item == nullptr)) {
-        return nullptr;
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_t value) {
+    _cc_json_t *item = nullptr;
+    if (ctx->type == _CC_JSON_ARRAY_) {
+        item = _cc_json_alloc_object(_CC_JSON_FLOAT_, keyword);
+        item->element.uni_float = value;
+        _json_array_push(ctx, item);
+    } else {
+        item = _json_object_push(ctx, keyword);
+        item->element.uni_float = value;
+        item->type = _CC_JSON_FLOAT_;
     }
-
-    item->element.uni_float = value;
-
-    if (!_cc_json_object_push(ctx, item, replacement)) {
-        _cc_free(item->name);
-        _cc_free(item);
-        return nullptr;
-    }
-
     return item;
 }
 
 /**/
-_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const tchar_t *value, bool_t replacement) {
-    _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_STRING_, keyword);
-    if (_cc_unlikely(item == nullptr)) {
-        return nullptr;
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const tchar_t *value) {
+    _cc_json_t *item = nullptr;
+    if (ctx->type == _CC_JSON_ARRAY_) {
+        item = _cc_json_alloc_object(_CC_JSON_STRING_, keyword);
+        item->element.uni_string = _cc_tcsdup(value);
+        _json_array_push(ctx, item);
+    } else {
+        item = _json_object_push(ctx, keyword);
+        item->element.uni_string = _cc_tcsdup(value);
+        item->type = _CC_JSON_STRING_;
     }
-
-    item->element.uni_string = _cc_tcsdup(value);
-
-    if (!_cc_json_object_push(ctx, item, replacement)) {
-        _cc_free(item->element.uni_string);
-        _cc_free(item->name);
-        _cc_free(item);
-        return nullptr;
-    }
-
     return item;
 }
 
-/**/
-_CC_API_PRIVATE(bool_t) _buf_char_put(_cc_buf_t *ctx, const tchar_t data) {
-    return _cc_buf_append(ctx, (pvoid_t)&data, sizeof(tchar_t));
-}
 /**/
 _CC_API_PRIVATE(void) _cc_json_dump_array(_cc_json_t *item, _cc_buf_t *buf, int32_t depth);
 /**/

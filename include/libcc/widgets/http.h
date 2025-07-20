@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -46,8 +46,8 @@ enum {
 
 enum {
     _CC_HTTP_STATUS_HEADER_ = 0,
-    _CC_HTTP_STATUS_BODY_ = 1,
-    _CC_HTTP_STATUS_SUCCESS_ = 2,
+    _CC_HTTP_STATUS_PAYLOAD_ = 1,
+    _CC_HTTP_STATUS_FINISHED_ = 2,
     _CC_HTTP_ERROR_UNIMPLEMENTED_,
     _CC_HTTP_ERROR_NOFOUND_,
     _CC_HTTP_ERROR_BADREQUEST_,

@@ -1,5 +1,5 @@
 /*
- * Copyright .Qiu<huai2011@163.com>. and other libCC contributors.
+ * Copyright .Qiu<huai2011@163.com>. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -28,10 +28,11 @@
 extern "C" {
 #endif
 
-/*-------------------------------------------------------------------
-0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-------+-+-------------+-------------------------------+
+/*
++---------------+---------------+---------------+---------------+
+         0               1               2               3
+ 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 
++-+-+-+-+-------+-+-------------+---------------+---------------+
 |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
 |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
 |N|V|V|V|       |S|             |   (if payload len==126/127)   |
@@ -54,7 +55,7 @@ Opcode _WS_OPCODE_
 -------------------*/
 
 #define _WS_MASK_SIZE_          4
-#define _WS_MAX_HEADER_         10
+#define _WS_MAX_HEADER_         14
 
 enum _WS_STATUS_ {
     WS_DATA_OK = 0,
@@ -81,7 +82,7 @@ enum _WS_OPCODE_ {
     //WS_OP_?          = 0x0F,     //
     //.....................
     //RSV1-3 Unless the extension agreement is activated
-    //WS_OP_?          = 0x7F
+    //WS_OP_?          = 0x7F      //0x10 ... 0x7F
 
 };
 
@@ -100,6 +101,8 @@ typedef struct _WSHeader {
 _CC_WIDGETS_API(void) _WSMask(byte_t *data, int64_t length, byte_t *mask);
 /**/
 _CC_WIDGETS_API(int32_t) _WSHeader(byte_t *header, byte_t operation, int64_t length, byte_t *mask);
+/**/
+_CC_WIDGETS_API(int32_t) _WSReverseHeader(byte_t *header, byte_t operation, int64_t length, byte_t *mask);
 /**/
 _CC_WIDGETS_API(int) _WSRead(_WSHeader_t *header);
 

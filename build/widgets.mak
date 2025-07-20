@@ -96,9 +96,9 @@ LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/json/json.object.o \
 					$(WIDGET_FILES)/json/json.parser.o
 
-# LOCAL_SRC_FILES += \
-# 					$(WIDGET_FILES)/ini/ini.o \
-# 					$(WIDGET_FILES)/ini/ini.parser.o
+ LOCAL_SRC_FILES += \
+ 					$(WIDGET_FILES)/ini/ini.o \
+ 					$(WIDGET_FILES)/ini/ini.parser.o
 
 LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/xml/xml.o \
@@ -145,4 +145,5 @@ endif # --end url_request --
 					$(WIDGET_FILES)/dns/dnss.o
 
 LOCAL_SRC_FILES += \
+					$(WIDGET_FILES)/generic/generic.o \
 					$(WIDGET_FILES)/widgets.o

@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -39,6 +39,7 @@ enum _CC_INI_TYPES_ {
     _CC_INI_INT_,
     _CC_INI_STRING_
 };
+
 typedef struct _cc_ini {
     byte_t type;    
     /**/
@@ -47,15 +48,30 @@ typedef struct _cc_ini {
 
     union {
         bool_t uni_boolean;
-        float64_t uni_float;
         int64_t uni_int;
+        float64_t uni_float;
         tchar_t *uni_string;
-        _cc_rbtree_t uni_section;
+        _cc_rbtree_t uni_object;
     } element;
     _cc_rbtree_iterator_t lnk;
 } _cc_ini_t;
 
-
+/**/
+_CC_WIDGETS_API(_cc_ini_t*) _cc_parse_ini(const tchar_t* src);
+/**/
+_CC_WIDGETS_API(_cc_ini_t*) _cc_ini_from_file(const tchar_t* file_name);
+/**/
+_CC_WIDGETS_API(_cc_ini_t*) _cc_ini_parser(_cc_sbuf_t* const buffer);
+/**/
+_CC_WIDGETS_API(_cc_ini_t*) _cc_ini_find(_cc_ini_t* item, const tchar_t* name);
+/**/
+_CC_WIDGETS_API(const tchar_t*) _cc_ini_find_string(_cc_ini_t* item, const tchar_t* name);
+/**/
+_CC_WIDGETS_API(void) _cc_destroy_ini(_cc_ini_t** ctx);
+/**/
+_CC_WIDGETS_API(const tchar_t*) _cc_ini_error(void);
+/**/
+_CC_WIDGETS_API(_cc_buf_t*) _cc_dump_ini(_cc_ini_t* item);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

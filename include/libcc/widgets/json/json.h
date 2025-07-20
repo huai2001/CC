@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -122,12 +122,11 @@ _cc_json_object_push(_cc_json_t *ctx, _cc_json_t *j, bool_t replacement);
  * @param ctx JSON object
  * @param keyword The keyword of the object
  * @param value object value
- * @param replacement Replace with a new one if it is 'true'
  *
  * @return JSON object
  */
 _CC_WIDGETS_API(_cc_json_t *)
-_cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t value, bool_t replacement);
+_cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t value);
 
 /**
  * @brief Add an number to JSON
@@ -135,12 +134,11 @@ _cc_json_add_boolean(_cc_json_t *ctx, const tchar_t *keyword, bool_t value, bool
  * @param ctx JSON object
  * @param keyword The keyword of the object
  * @param value object value
- * @param replacement Replace with a new one if it is 'true'
  *
  * @return JSON object
  */
 _CC_WIDGETS_API(_cc_json_t *)
-_cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t value, bool_t replacement);
+_cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t value);
 
 /**
  * @brief Add an double to JSON
@@ -153,7 +151,7 @@ _cc_json_add_number(_cc_json_t *ctx, const tchar_t *keyword, int64_t value, bool
  * @return JSON object
  */
 _CC_WIDGETS_API(_cc_json_t *)
-_cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_t value, bool_t replacement);
+_cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_t value);
 
 /**
  * @brief Add an string to JSON
@@ -166,7 +164,7 @@ _cc_json_add_float(_cc_json_t *ctx, const tchar_t *keyword, float64_t value, boo
  * @return JSON object
  */
 _CC_WIDGETS_API(_cc_json_t *)
-_cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const tchar_t *value, bool_t replacement);
+_cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const tchar_t *value);
 /**
  * @brief remove  JSON
  *
@@ -222,9 +220,8 @@ _CC_WIDGETS_API(_cc_json_t *) _cc_josn_parser(_cc_sbuf_t *const buffer);
  *
  * @param ctx _cc_json_t structure
  *
- * @return true if successful or false on error.
  */
-_CC_WIDGETS_API(bool_t) _cc_destroy_json(_cc_json_t **ctx);
+_CC_WIDGETS_API(void) _cc_destroy_json(_cc_json_t **ctx);
 /**
  * @brief Get JSON Parse error message
  *

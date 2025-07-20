@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -80,7 +80,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_response_chunked(_cc_url_request_t *request, _cc_
             }
 
             if (length_of_data == 0) {
-                request->status = _CC_HTTP_STATUS_SUCCESS_;
+                request->status = _CC_HTTP_STATUS_FINISHED_;
                 break;
             }
             request->response->download_length = length_of_data;

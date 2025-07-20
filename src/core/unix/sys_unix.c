@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -39,22 +39,14 @@ _CC_API_PUBLIC(bool_t) _cc_isdir(const tchar_t *dir_path) {
     return false;
 }
 
-_CC_API_PUBLIC(void) _cc_dump_stack_trace(FILE *fp, int i) {
-    int nptrs;
+_CC_API_PUBLIC(tchar_t**) _cc_get_stack_trace(int *nptr) {
+    int n;
     pvoid_t buffer[64];
-    char **strings;
+    char **symbols;
     
-    nptrs = backtrace(buffer, _cc_countof(buffer));
-    strings = backtrace_symbols(buffer, nptrs);
-
-    if (strings == nullptr) {
-        fclose(fp);
-        return;
+    n = backtrace(buffer, _cc_countof(buffer));
+    if (nptr) {
+        *nptr = n;
     }
-
-    for (; i < nptrs; i++) {
-        fprintf(fp, "%s\n", strings[i]);
-    }
-
-    free(strings);
+    return backtrace_symbols(buffer, n);
 }

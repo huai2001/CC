@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  * 
  * This software is provided 'as-is', without any express or implied
@@ -305,7 +305,7 @@
     #endif
 #endif /* _cc_align not defined */
 
-/* By default libCC uses the C calling convention */
+/* By default libcc uses the C calling convention */
 #ifndef _CC_CALL_
     #if defined(__CC_WINDOWS__) && !defined(__GNUC__)
         #define _CC_CALL_ __cdecl

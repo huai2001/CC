@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -33,6 +33,7 @@ extern "C" {
 #define _CC_LOGGER_FLAGS_ERROR_          0x0004
 #define _CC_LOGGER_FLAGS_WARNING_        0x0008
 #define _CC_LOGGER_FLAGS_INFO_           0x0010
+#define _CC_LOGGER_FLAGS_MEMORY_         0x0100
 
 #define _CC_LOGGER_FLAGS_ASIC_           0x1000
 #define _CC_LOGGER_FLAGS_UTF8_           0x2000

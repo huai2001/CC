@@ -18,28 +18,36 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/core/android.h>
-#include <libcc/power.h>
+#ifndef _C_CC_GENERIC_C_H_INCLUDED_
+#define _C_CC_GENERIC_C_H_INCLUDED_
 
-_CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int32_t *seconds, byte_t *percent) {
-    int battery;
-    int plugged;
-    int charged;
-    
-    Android_JNI_GetPowerInfo(&plugged, &charged, &battery, seconds, percent);
+#include <libcc/alloc.h>
+#include <libcc/buf.h>
+#include <libcc/string.h>
+#include <math.h>
+#include <wchar.h>
 
-    if (plugged) {
-        if (charged) {
-            *state = _CC_POWERSTATE_CHARGED_;
-        } else if (battery) {
-            *state = _CC_POWERSTATE_CHARGING_;
-        } else {
-            *state = _CC_POWERSTATE_NO_BATTERY_;
-        }
-    } else {
-        *state = _CC_POWERSTATE_ON_BATTERY_;
-    }
+/* Set up for C function definitions, even when using C++ */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+typedef struct {
+    const tchar_t* content;
+    size_t position;
+} _cc_syntax_error_t;
 
-    return true;
+/**/
+_CC_FORCE_INLINE_ bool_t _buf_char_put(_cc_buf_t *ctx, const tchar_t data) {
+    return _cc_buf_append(ctx, (pvoid_t)&data, sizeof(tchar_t));
 }
+
+_CC_API_PUBLIC(tchar_t *) _convert_text(tchar_t *alloc_bytes, size_t alloc_length, const tchar_t *src, const tchar_t *endpos);
+_CC_API_PUBLIC(void) _cc_syntax_error(_cc_syntax_error_t *error);
+_CC_API_PUBLIC(const tchar_t*) _cc_get_syntax_error(void);
+/* Ends C function definitions when using C++ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /*_C_CC_GENERIC_C_H_INCLUDED_*/

@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -134,6 +134,12 @@ _CC_API_PUBLIC(int32_t)
 _cc_splitW(_cc_WString_t *dst, int32_t count, wchar_t *src, int32_t(separator)(wchar_t *, int32_t));
 /**/
 _CC_API_PUBLIC(tchar_t *) _cc_substr(tchar_t *, const tchar_t *, uint32_t, int32_t);
+/**/
+_CC_API_PUBLIC(size_t) 
+_cc_trimW_copy(wchar_t *dst, size_t dst_capacity,  const wchar_t *src, size_t src_len);
+/**/
+_CC_API_PUBLIC(size_t)
+_cc_trimA_copy(char_t *dst, size_t dst_capacity,  const char_t *src, size_t src_len);
 
 typedef enum _CC_NUMBER_TYPES_ {
     _CC_NUMBER_INT_ = 1,

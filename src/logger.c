@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -92,7 +92,14 @@ _CC_API_PRIVATE(void) _print_loggerA_callback(uint16_t flags, const char_t *logs
     }
 
     if (flags & _CC_LOGGER_FLAGS_ERROR_) {
-        _cc_dump_stack_trace(stderr, 4);
+        int length = 0, i;
+        tchar_t **symbols = _cc_get_stack_trace(&length);
+        if (symbols) {
+            for (i = 0; i < length; i++) {
+                fputs(symbols[i], stderr);
+            }
+            free(symbols);
+        }
     }
 
 #ifdef _CC_MSVC_
@@ -110,7 +117,14 @@ _CC_API_PRIVATE(void) _print_loggerW_callback(uint16_t flags, const wchar_t *log
     }
 
     if (flags & _CC_LOGGER_FLAGS_ERROR_) {
-        _cc_dump_stack_trace(stderr, 4);
+        int length = 0, i;
+        tchar_t **symbols = _cc_get_stack_trace(&length);
+        if (symbols) {
+            for (i = 0; i < length; i++) {
+                fputs(symbols[i], stderr);
+            }
+            free(symbols);
+        }
     }
 
 #ifdef _CC_MSVC_

@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -93,7 +93,7 @@ _CC_API_PUBLIC(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg
             /*If we received just a CR LF on a line, the headers are finished*/
             if ((n - 1) == start) {
                 start = n + 1;
-                result = _CC_HTTP_STATUS_BODY_;
+                result = _CC_HTTP_STATUS_PAYLOAD_;
                 break;
             }
 #ifdef _CC_UNICODE_

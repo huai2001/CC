@@ -64,6 +64,7 @@ _CC_API_PRIVATE(void) _WebSocketFree(_WebSocket_t *ws) {
 
 /**/
 _CC_API_PRIVATE(bool_t) _WebSocketData(_cc_event_t *e) {
+    bool_t contice
     _WSHeader_t header = {0};
     _cc_event_rbuf_t *r = &e->buffer->r;
 
@@ -72,47 +73,42 @@ _CC_API_PRIVATE(bool_t) _WebSocketData(_cc_event_t *e) {
     header.offset = 0;
 
     do {
-        switch(_WSRead(&header)) {
-            case WS_DATA_OK: {
-                if (header.payload > 0 && header.mask) {
-                    //Get the complete packet
-                    _WSMask(header.bytes + header.offset, header.payload, header.mask);
-                }
-                //You can handle the packet
-                //fn(header, header.bytes + header.offset, header.payload);
-                switch (header.opc) {
-                    case WS_OP_PING:
-                        _Heartbeat(e, WS_OP_PONG);
-                        break;
-                    case WS_OP_PONG:
-                        break;
-                    case WS_OP_BINARY:
-                    case WS_OP_JSON:
-                    case WS_OP_XML:
-                    case WS_OP_TXT:
-                        _tprintf("WS:%.*s\n",(int)header.payload, header.bytes + header.offset);
-                        break;
-                    case WS_OP_DISCONNECT:
-                        return false;
-                }
-
-                header.offset += header.payload;
-                break;
+        if (_WSRead(&header) == WS_DATA_OK) {
+            if (header.payload > 0 && header.mask) {
+                //Get the complete packet
+                _WSMask(header.bytes + header.offset, header.payload, header.mask);
             }
-            case WS_DATA_PARTIAL: {
-                if (header.payload > r->limit) {
-                    _tprintf("big data fail\n");
+            //You can handle the packet
+            //fn(header, header.bytes + header.offset, header.payload);
+            switch (header.opc) {
+                case WS_OP_PING:
+                    _Heartbeat(e, WS_OP_PONG);
+                    break;
+                case WS_OP_PONG:
+                    break;
+                case WS_OP_BINARY:
+                case WS_OP_JSON:
+                case WS_OP_XML:
+                case WS_OP_TXT:
+                    _tprintf("WS:%.*s\n",(int)header.payload, header.bytes + header.offset);
+                    break;
+                case WS_OP_DISCONNECT:
                     return false;
-                    /*
-                    //If you want big data.
-                    //This is just a simple example, you can optimize it
-                    _cc_alloc_event_rbuf(r,header.payload + _WS_MAX_HEADER_)
-                    header.bytes = r->bytes;
-                    header.length = r->length;
-                    */
-                }
-                break;
             }
+            header.offset += header.payload;
+        } else {
+            if (header.payload > r->limit) {
+                _tprintf("big data fail\n");
+                return false;
+                /*
+                //If you want big data.
+                //This is just a simple example, you can optimize it
+                _cc_alloc_event_rbuf(r,header.payload + _WS_MAX_HEADER_)
+                header.bytes = r->bytes;
+                header.length = r->length;
+                */
+            }
+            break;
         }
     } while(header.length > header.offset);
 
@@ -194,7 +190,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
 
         ws = (_WebSocket_t*)e->args;
 
-        if (ws->status == _CC_HTTP_STATUS_SUCCESS_) {
+        if (ws->status == _CC_HTTP_STATUS_FINISHED_) {
             if(_WebSocketData(e)) {
                 return true;
             }
@@ -208,7 +204,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
             switch (ws->status) {
             case _CC_HTTP_STATUS_HEADER_:
                 return true;
-            case _CC_HTTP_STATUS_BODY_:
+            case _CC_HTTP_STATUS_PAYLOAD_:
                 _cc_buf_cleanup(&ws->buffer);
                 break;
             default:
@@ -229,20 +225,20 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
             }
             ws->content_length = _WebSocketGetContentLength(&ws->request->headers);
             if (ws->content_length == 0) {
-                ws->status = _CC_HTTP_STATUS_SUCCESS_;
+                ws->status = _CC_HTTP_STATUS_FINISHED_;
             }
             _WebSocketSecKey(sec_websocket_key->element.uni_string, ws);
         } 
 
-        if (ws->status == _CC_HTTP_STATUS_BODY_) {
+        if (ws->status == _CC_HTTP_STATUS_PAYLOAD_) {
             _cc_buf_append(&ws->buffer, rw->r.bytes, rw->r.length);
             if (ws->buffer.length >= ws->content_length) {
-                ws->status = _CC_HTTP_STATUS_SUCCESS_;
+                ws->status = _CC_HTTP_STATUS_FINISHED_;
             }
             rw->r.length = 0;
         }
 
-        if (ws->status == _CC_HTTP_STATUS_SUCCESS_) {
+        if (ws->status == _CC_HTTP_STATUS_FINISHED_) {
             return _WebSocketResponseHeader(e,ws);
         }
 

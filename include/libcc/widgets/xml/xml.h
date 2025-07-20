@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -95,9 +95,8 @@ _CC_WIDGETS_API(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer);
  *
  * @param ctx _cc_xml_t structure
  *
- * @return true if successful or false on error.
  */
-_CC_WIDGETS_API(bool_t) _cc_destroy_xml(_cc_xml_t** ctx);
+_CC_WIDGETS_API(void) _cc_destroy_xml(_cc_xml_t** ctx);
 
 /**
  * @brief Print XML Object to buffer

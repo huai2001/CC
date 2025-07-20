@@ -1,5 +1,5 @@
 /*
- * Copyright libcc.cn@gmail.com. and other libCC contributors.
+ * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
  *
  * This software is provided 'as-is', without any express or implied
@@ -154,13 +154,13 @@ static bool_t _handler(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t 
                     return false;
                 }
                 //Response header completed.
-                if (request->status == _CC_HTTP_STATUS_BODY_) {
+                if (request->status == _CC_HTTP_STATUS_PAYLOAD_) {
                     url_response_header(request);
                 }
             }
         }
 
-        if (request->status == _CC_HTTP_STATUS_BODY_) {
+        if (request->status == _CC_HTTP_STATUS_PAYLOAD_) {
             //printf("response body\n");
             if (!_cc_url_request_response_body(request, &rw->r)) {
                 return false;
@@ -168,7 +168,7 @@ static bool_t _handler(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t 
 
             url_request_read(request);
 
-            if (request->status == _CC_HTTP_STATUS_SUCCESS_) {
+            if (request->status == _CC_HTTP_STATUS_FINISHED_) {
                 //printf("response successful\n");
                 url_request_success(request);
                 return request->response->keep_alive;
