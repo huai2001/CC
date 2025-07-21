@@ -51,16 +51,7 @@ tchar_t* get_rfc822_date(time_t t);
 */
 time_t get_rfc822_time(const tchar_t* rfc822_date);
 
-/**/
-_CC_WIDGETS_API(bool_t) _cc_event_writef(_cc_event_t *e, const char_t *fmt, ...);
-/**/
-_CC_WIDGETS_API(void) __cc_tracked_memory(uintptr_t ptr, size_t size, const int _type);
-/**/
-_CC_WIDGETS_API(void) __cc_tracked_memory_unlink(uintptr_t ptr);
-/**/
-_CC_WIDGETS_API(void) _cc_install_memory_tracked(void);
-/**/
-_CC_WIDGETS_API(void) _cc_uninstall_memory_tracked(void);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }
