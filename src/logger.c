@@ -319,7 +319,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t le
 
 /**/
 _CC_API_PUBLIC(void) _cc_syslog(const byte_t* msg, size_t length) {
-    if (syslog.enabled == false || syslog.fd == INVALID_SOCKET) {
+    if (syslog.enabled == false || syslog.fd == _CC_INVALID_SOCKET_) {
         return;
     }
     _cc_logger_lock();
@@ -334,7 +334,7 @@ _CC_API_PUBLIC(void) _cc_logger_open_syslog(tchar_t *app_name, const tchar_t *ip
     }
 
     syslog.fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (syslog.fd == INVALID_SOCKET) {
+    if (syslog.fd == _CC_INVALID_SOCKET_) {
         _cc_logger_error(_T("Failed to create UDP socket: %d"), _cc_last_errno());
         return;
     }
