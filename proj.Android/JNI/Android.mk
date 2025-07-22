@@ -85,6 +85,8 @@ LOCAL_SRC_FILES := \
         ../../src/widgets/event/tcp.c \
         ../../src/widgets/event/select.c \
         ../../src/widgets/event/linux/sys_epoll.c \
+        ../../src/widgets/generic/generic.c \
+        ../../src/widgets/generic/WS.c \
         ../../src/widgets/ini/ini.c \
         ../../src/widgets/ini/ini.parser.c \
         ../../src/widgets/json/json.c \

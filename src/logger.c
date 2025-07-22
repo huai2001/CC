@@ -242,7 +242,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t l
     if ((pri & 0x7) == _CC_LOG_LEVEL_ERROR_) {
         #ifdef _CC_MSVC_
         _cc_getW_resolve_symbol(&buffer);
-        #elif defined(_CC_GCC_) && !defined(__CC_MINGW__)
+        #elif defined(_CC_GCC_) && !defined(__CC_MINGW__) && !defined(__CC_ANDROID__)
         _cc_get_resolve_symbol(&buffer);
         #endif
     }
@@ -251,6 +251,8 @@ _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t l
 #ifdef __CC_WINDOWS__
     OutputDebugStringW((const wchar_t *)buffer.bytes);
     OutputDebugStringW(L"\n");
+#elif defined(__CC_ANDROID__)
+    _output_android((pri & 0x7), (const char_t *)buffer.bytes, buffer.length);
 #else
     fputws((const wchar_t *)buffer.bytes, stdout);
     fputs("\n", stdout);
@@ -299,7 +301,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t le
     if ((pri & 0x7) == _CC_LOG_LEVEL_ERROR_) {
         #ifdef _CC_MSVC_
         _cc_getA_resolve_symbol(&buffer);
-        #elif defined(_CC_GCC_) && !defined(__CC_MINGW__)
+        #elif defined(_CC_GCC_) && !defined(__CC_MINGW__) && !defined(__CC_ANDROID__)
         _cc_get_resolve_symbol(&buffer);
         #endif
     }
@@ -308,6 +310,8 @@ _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t le
 #ifdef __CC_WINDOWS__
     OutputDebugStringA((const char_t *)buffer.bytes);
     OutputDebugStringW(L"\n");
+#elif defined(__CC_ANDROID__)
+    _output_android((pri & 0x7),(const char_t *)buffer.bytes, buffer.length);
 #else
     fputs((const char_t *)buffer.bytes, stdout);
     fputs("\n", stdout);
