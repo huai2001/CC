@@ -90,7 +90,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_update(_cc_event_cycle_priv_t *priv, _cc_e
 /**/
 _CC_API_PRIVATE(bool_t) _kqueue_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_assert(cycle != nullptr && e != nullptr);
-    e->descriptor |= _CC_EVENT_DESC_POLL_KQUEUE_;
+    e->descriptor = _CC_EVENT_DESC_POLL_KQUEUE_ | (e->descriptor & 0xff);
     return _reset_event(cycle, e);
 }
 
@@ -248,7 +248,10 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_wait(_cc_event_cycle_t *cycle, uint32_t ti
         } else if (what == EVFILT_READ) {
             which = _CC_ISSET_BIT(_CC_EVENT_ACCEPT_ | _CC_EVENT_READABLE_, e->flags);
         } else if (what == EVFILT_WRITE) {
-            which = _valid_connected(e, _CC_ISSET_BIT(_CC_EVENT_CONNECT_ | _CC_EVENT_WRITABLE_, e->flags));
+            which = _CC_ISSET_BIT(_CC_EVENT_CONNECT_ | _CC_EVENT_WRITABLE_, e->flags);
+            if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
+                which = _valid_connected(e, which);
+            }
         }
 
         if (which) {

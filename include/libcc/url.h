@@ -46,6 +46,7 @@ extern "C" {
 #define _CC_PORT_SMBS_      445
 #define _CC_PORT_SMTP_      25
 #define _CC_PORT_SMTPS_     465 /* sometimes called SSMTP */
+#define _CC_PORT_SYSLOG_    514
 #define _CC_PORT_RTSP_      554
 #define _CC_PORT_RTMP_      1935
 #define _CC_PORT_RTMPT_     _CC_PORT_HTTP_
@@ -56,7 +57,7 @@ extern "C" {
 #define _CC_PORT_NNTP_      119
 #define _CC_PORT_NEWS_      119
 #define _CC_PORT_MYSQL_     3306
-#define _CC_PORT_SQLSERVER_  1433
+#define _CC_PORT_SQLSERVER_ 1433
 #define _CC_PORT_ORACLE_    1521
 #define _CC_PORT_SQLITE_    0
 #define _CC_PORT_EXCEL_     0

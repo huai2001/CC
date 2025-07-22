@@ -104,7 +104,7 @@ _CC_API_PRIVATE(bool_t) _epoll_event_update(int efd, _cc_event_t *e, bool_t rm) 
 /**/
 _CC_API_PRIVATE(bool_t) _epoll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_assert(cycle != nullptr && e != nullptr);
-    e->descriptor |= _CC_EVENT_DESC_POLL_EPOLL_;
+    e->descriptor = _CC_EVENT_DESC_POLL_EPOLL_ | (e->descriptor & 0xff);
     return _reset_event(cycle, e);
 }
 
@@ -199,6 +199,9 @@ _CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_event_cycle_t *cycle, uint32_t tim
             }
             if (what & EPOLLOUT) {
                 which |= _CC_ISSET_BIT(_CC_EVENT_CONNECT_ | _CC_EVENT_WRITABLE_, e->flags);
+                if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
+                    which = _valid_connected(e, which);
+                }
             }
             if (what & EPOLLRDHUP) {
                 which = _CC_EVENT_DISCONNECT_;

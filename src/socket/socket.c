@@ -164,9 +164,6 @@ _CC_API_PUBLIC(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *
             err = _cc_last_errno();
             if (err == _CC_EINTR_) {
                 continue;
-            } else {
-                _cc_logger_error(_T("accept: %s(%d)"), _cc_last_error(err), err);
-                break;
             }
         }
         break;
@@ -199,29 +196,29 @@ _CC_API_PUBLIC(int) _cc_set_socket_timeout(_cc_socket_t fd, long ms) {
 }
 
 /**/
-_CC_API_PUBLIC(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len) {
-    int32_t sent;
+_CC_API_PUBLIC(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t length) {
+    int32_t result;
 #ifdef __CC_WINDOWS__
-    sent = send(fd, (char *)buf, len, 0);
+    result = send(fd, (char *)buf, length, 0);
 #else
-    sent = (int32_t)write(fd, (char *)buf, len);
+    result = (int32_t)write(fd, (char *)buf, length);
 #endif
-    if (_cc_unlikely(sent <= 0)) {
+    if (result <= 0) {
         int err = _cc_last_errno();
-        if ((sent == 0 && err == 0) || err == _CC_EINTR_ || err == _CC_EAGAIN_) {
+        if ((result == 0 && err == 0) || err == _CC_EINTR_ || err == _CC_EAGAIN_) {
             return 0;
         }
-        _cc_logger_error(_T("socketfd:%d, send failed, error code:%d,%s"), fd, err, _cc_last_error(err));
         return _CC_SOCKET_ERROR_;
     }
 
-    return sent;
+    return result;
 }
 
 /**/
-_CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t len, const _cc_sockaddr_t *sa, _cc_socklen_t sa_len) {
+_CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t length, const _cc_sockaddr_t *sa, _cc_socklen_t sa_len) {
     int32_t sent = 0;
-    int32_t left = 0;
+    int32_t result = 0;
+    
     unsigned int flags = 0;
 #ifdef __CC_ANDROID__
     flags = MSG_NOSIGNAL;
@@ -229,44 +226,41 @@ _CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t l
 
     _cc_set_last_errno(0);
     do {
-        sent = (int32_t)sendto(fd, ((const char *)buf) + left, (len - left), flags, (struct sockaddr *)sa, sa_len);
-        if (_cc_unlikely(sent <= 0)) {
+        result = (int32_t)sendto(fd, ((const char *)buf) + sent, (length - sent), flags, (struct sockaddr *)sa, sa_len);
+        if (result <= 0) {
             int err = _cc_last_errno();
-            if (sent == 0 && err == 0) {
-                return left;
+            if (result == 0 && err == 0) {
+                return sent;
             } else if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
                 continue;
             }
-            _cc_logger_error(_T("socketfd:%d, sendto(%d) failed, error code:%d,%s"), fd, sent, err, _cc_last_error(err));
-            sent = _CC_SOCKET_ERROR_;
-            return sent;
+            return _CC_SOCKET_ERROR_;
         }
 
-        left += sent;
-    } while (left != len);
+        sent += result;
+    } while (sent != length);
 
-    return left;
+    return sent;
 }
 
 /**/
-_CC_API_PUBLIC(int32_t) _cc_recv(_cc_socket_t fd, byte_t* buf, int32_t len) {
-    int32_t left = 0;
+_CC_API_PUBLIC(int32_t) _cc_recv(_cc_socket_t fd, byte_t* buf, int32_t length) {
+    int32_t result = 0;
 
 GOTO_SRECV_CONTINUE:
     _cc_set_last_errno(0);
 
 #ifdef __CC_ANDROID__
-    left = (int32_t)recv(fd, (char *)buf, len, MSG_NOSIGNAL);
+    result = (int32_t)recv(fd, (char *)buf, length, MSG_NOSIGNAL);
 #else
-    left = (int32_t)recv(fd, (char *)buf, len, 0);
+    result = (int32_t)recv(fd, (char *)buf, length, 0);
 #endif
 
-    if (_cc_unlikely(left < 0)) {
+    if (result < 0) {
         int err = _cc_last_errno();
         if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
             goto GOTO_SRECV_CONTINUE;
         }
     }
-
-    return left;
+    return result;
 }

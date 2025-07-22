@@ -36,7 +36,7 @@ _CC_API_PUBLIC(_cc_semaphore_t*) _cc_create_semaphore(int32_t initial_value) {
 
 /* Free the semaphore */
 _CC_API_PUBLIC(void) _cc_destroy_semaphore(_cc_semaphore_t **sem) {
-    if (*sem) {
+    if (sem) {
         _cc_safe_free((*sem));
     }
 }

@@ -68,7 +68,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *event_base, _cc_event_t 
             return false;
 
         }
-        _cc_logger_errorA("test", "test");
+        _cc_loggerA_error("test", "test");
         ConvertTime(ntohl(ulTime));
         return true;//send_data(event_base, ev);;
     }

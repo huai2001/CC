@@ -54,8 +54,17 @@ _CC_API_PRIVATE(bool_t) _select_event_attach(_cc_event_cycle_t *cycle, _cc_event
         return false;
     }
 
-    e->descriptor |= _CC_EVENT_DESC_POLL_SELECT_;
-    return _reset_event(cycle, e);
+    if(!_reset_event(cycle, e)) {
+        return false;
+    }
+
+    e->descriptor = _CC_EVENT_DESC_POLL_SELECT_ | (e->descriptor & 0xff);
+
+    _event_lock(cycle);
+    fset->list[fset->nfds++] = e;
+    _event_unlock(cycle);
+
+    return true;
 }
 
 /**/
@@ -93,8 +102,6 @@ _CC_API_PRIVATE(void) _select_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_
 
 /**/
 _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    _cc_event_cycle_priv_t *fset = cycle->priv;
-
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         /*delete*/
         _cleanup_event(cycle, e);
@@ -106,15 +113,11 @@ _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
         return;
     }
 
-    if (_cc_list_iterator_empty(&e->lnk)) {
-        fset->list[fset->nfds++] = e;
-    }
-
     _reset_event_timeout(cycle, e);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _init_fd_event(_cc_event_t *e, struct _fd_list *fds) {
+_CC_API_PRIVATE(bool_t) _set_fd_event(_cc_event_t *e, struct _fd_list *fds) {
     if (_CC_ISSET_BIT(_CC_EVENT_PENDING_, e->flags)) {
         return false;
     }
@@ -172,7 +175,7 @@ _CC_API_PRIVATE(bool_t) _select_event_wait(_cc_event_cycle_t *cycle, uint32_t ti
     FD_ZERO(&fds.wfds);
 
     for (i = 0; i < priv->nfds; i++) {
-        _init_fd_event(priv->list[i], &fds);
+        _set_fd_event(priv->list[i], &fds);
     }
 
     tv.tv_sec = timeout / 1000;
@@ -195,7 +198,10 @@ _CC_API_PRIVATE(bool_t) _select_event_wait(_cc_event_cycle_t *cycle, uint32_t ti
 
             what = _CC_ISSET_BIT(_CC_EVENT_CONNECT_ | _CC_EVENT_WRITABLE_, e->flags);
             if (what && FD_ISSET(e->fd, &fds.wfds)) {
-                which |= _valid_connected(e, what);
+                which |= what;
+                if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
+                    which = _valid_connected(e, which);
+                }
             }
 
             if (which) {

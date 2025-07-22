@@ -44,7 +44,7 @@ struct _cc_OpenSSL {
 };
 
 #define _SSL_error(prefix) do {\
-    _cc_logger_errorA("%s failed: %s", prefix, ERR_reason_error_string(ERR_get_error()));\
+    _cc_loggerA_error("%s failed: %s", prefix, ERR_reason_error_string(ERR_get_error()));\
 } while(0)
 
 /*

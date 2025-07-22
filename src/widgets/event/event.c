@@ -170,8 +170,6 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_event_alloc(_cc_event_cycle_t *cycle, const uin
 
     if (_CC_EVENT_IS_SOCKET(flags)) {
         e->descriptor |= _CC_EVENT_DESC_SOCKET_;
-    } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, flags)) {
-        e->descriptor |= _CC_EVENT_DESC_TIMER_;
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_BUFFER_, flags)) {
@@ -366,14 +364,12 @@ _CC_API_PUBLIC(bool_t) _valid_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 
 /**/
 _CC_API_PUBLIC(uint16_t) _valid_connected(_cc_event_t *e, uint16_t which) {
-    if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which) == _CC_EVENT_CONNECT_) {
-        if (_valid_event_fd(e)) {
-            _CC_MODIFY_BIT(_CC_EVENT_READABLE_, _CC_EVENT_CONNECT_, e->flags);
-        } else {
-            which = _CC_EVENT_DISCONNECT_;
-        }
+    if (_valid_event_fd(e)) {
+        _CC_MODIFY_BIT(_CC_EVENT_READABLE_, _CC_EVENT_CONNECT_, e->flags);
+        return which;
     }
-    return which;
+    
+    return _CC_EVENT_DISCONNECT_;
 }
 
 /**/

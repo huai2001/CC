@@ -135,6 +135,21 @@
     <ClCompile Include="..\src\widgets\generic\gzip.c">
       <Filter>源文件\generic</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\generic.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\http.header.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\http.request.parser.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\http.response.parser.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\generic\WS.c">
+      <Filter>源文件\generic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libcc\widgets\event\timeout.h">
@@ -202,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="..\include\libcc\widgets\map.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\widgets\generic\generic.c.h">
+      <Filter>源文件\generic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

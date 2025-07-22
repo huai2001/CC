@@ -21,61 +21,65 @@
 #include <libcc/alloc.h>
 #include "sys_socket_c.h"
 
-_CC_API_PUBLIC(void) _cc_iocp_overlapped_init(_cc_event_cycle_priv_t *ed) {
-    _cc_list_iterator_cleanup(&ed->overlapped_active);
-    _cc_list_iterator_cleanup(&ed->overlapped_idle);
-    _cc_lock_init(&ed->lock);
-    ed->idle_count = 0;
+_CC_API_PUBLIC(void) _cc_iocp_overlapped_init(_cc_event_cycle_priv_t *priv) {
+    _cc_list_iterator_cleanup(&priv->overlapped_active);
+    _cc_list_iterator_cleanup(&priv->overlapped_idle);
+    _cc_lock_init(&priv->lock);
+    priv->idle_count = 0;
 }
 
-_CC_API_PUBLIC(void) _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *ed) {
-    _cc_spin_lock(&ed->lock);
-    _cc_list_iterator_for_each(it, &ed->overlapped_active, {
+_CC_API_PUBLIC(void) _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *priv) {
+    _cc_spin_lock(&priv->lock);
+    _cc_list_iterator_for_each(it, &priv->overlapped_active, {
         _cc_free(_cc_upcast(it, _iocp_overlapped_t, lnk));
     });
-    _cc_list_iterator_for_each(it, &ed->overlapped_idle, {
+    _cc_list_iterator_for_each(it, &priv->overlapped_idle, {
         _cc_free(_cc_upcast(it, _iocp_overlapped_t, lnk));
     });
-    _cc_list_iterator_cleanup(&ed->overlapped_active);
-    _cc_list_iterator_cleanup(&ed->overlapped_idle);
-    _cc_unlock(&ed->lock);
+    _cc_list_iterator_cleanup(&priv->overlapped_active);
+    _cc_list_iterator_cleanup(&priv->overlapped_idle);
+    _cc_unlock(&priv->lock);
 }
 
-_CC_API_PUBLIC(_iocp_overlapped_t*) _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *ed) {
+_CC_API_PUBLIC(_iocp_overlapped_t*) _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv, _cc_event_t *e) {
     _iocp_overlapped_t *iocp_overlapped;
     _cc_list_iterator_t *lnk;
 
-    _cc_spin_lock(&ed->lock);
-    lnk = _cc_list_iterator_pop(&ed->overlapped_idle);
-    _cc_unlock(&ed->lock);
+    _cc_spin_lock(&priv->lock);
+    lnk = _cc_list_iterator_pop(&priv->overlapped_idle);
+    _cc_unlock(&priv->lock);
 
-    if (lnk == &ed->overlapped_idle) {
+    if (lnk == &priv->overlapped_idle) {
         iocp_overlapped = (_iocp_overlapped_t *)_cc_malloc(sizeof(_iocp_overlapped_t));
         bzero(iocp_overlapped, sizeof(_iocp_overlapped_t));
         lnk = &(iocp_overlapped->lnk);
     } else {
         iocp_overlapped = _cc_upcast(lnk, _iocp_overlapped_t, lnk);
-        ed->idle_count--;
+        priv->idle_count--;
     }
 
-    _cc_spin_lock(&ed->lock);
-    _cc_list_iterator_push(&ed->overlapped_active, &(iocp_overlapped->lnk));
-    _cc_unlock(&ed->lock);
+    iocp_overlapped->fd = _CC_INVALID_SOCKET_;
+    iocp_overlapped->e = e;
+    iocp_overlapped->round = e->round;
+    
+    _cc_spin_lock(&priv->lock);
+    _cc_list_iterator_push(&priv->overlapped_active, &(iocp_overlapped->lnk));
+    _cc_unlock(&priv->lock);
 
     return iocp_overlapped;
 }
 
-_CC_API_PUBLIC(void) _cc_iocp_overlapped_free(_cc_event_cycle_priv_t *ed, _iocp_overlapped_t *iocp_overlapped) {
-    if (ed->idle_count >= 64) {
-        _cc_spin_lock(&ed->lock);
+_CC_API_PUBLIC(void) _cc_iocp_overlapped_free(_cc_event_cycle_priv_t *priv, _iocp_overlapped_t *iocp_overlapped) {
+    if (priv->idle_count >= 64) {
+        _cc_spin_lock(&priv->lock);
         _cc_list_iterator_remove(&iocp_overlapped->lnk);
-        _cc_unlock(&ed->lock);
+        _cc_unlock(&priv->lock);
         _cc_free(iocp_overlapped);
         return;
     }
-    _cc_spin_lock(&ed->lock);
-    _cc_list_iterator_swap(&ed->overlapped_idle, &iocp_overlapped->lnk);
-    ed->idle_count++;
-    _cc_unlock(&ed->lock);
+    _cc_spin_lock(&priv->lock);
+    _cc_list_iterator_swap(&priv->overlapped_idle, &iocp_overlapped->lnk);
+    priv->idle_count++;
+    _cc_unlock(&priv->lock);
     return;
 }

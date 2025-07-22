@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     clock_t start, end;
     _cc_json_t *json = nullptr;
     
-    _cc_install_memory_tracked();
+    _cc_install_socket();
     setlocale(LC_ALL, "chs");
     SetConsoleOutputCP(65001);
 
@@ -89,10 +89,9 @@ int main(int argc, char* argv[]) {
     }
     end = clock();
     printf("CC JSON Parse: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
-    
     json_P();
 
-    _cc_uninstall_memory_tracked();
+    _cc_uninstall_socket();
     system("pause");
     
     return 0; 

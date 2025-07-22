@@ -155,8 +155,6 @@ uint64_t - [0 : 18446744073709551615]
 typedef uint16_t us2_t;
 typedef uint32_t us4_t;
 
-typedef int32_t _cc_results_t;
-
 #define _CC_RC_ERROR_    0
 #define _CC_RC_OK_       1
 #define _CC_YES_         _CC_RC_OK_

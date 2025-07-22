@@ -72,8 +72,7 @@
 #endif
 
 #define _cc_abort() do {\
-    _cc_loggerA_format(_CC_LOGGER_FLAGS_ERROR_, "[%s(%d)%s] abort"_CC_FILE_, _CC_LINE_, _CC_FUNC_);\
-    fflush(stderr);\
+    _cc_loggerA_format(_CC_LOG_LEVEL_ERROR_, "[%s(%d)%s] abort", _CC_FILE_, _CC_LINE_, _CC_FUNC_);\
     abort();\
 } while (0)
 

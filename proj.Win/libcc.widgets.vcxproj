@@ -163,11 +163,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\widgets\generic\generic.c" />
     <ClCompile Include="..\src\widgets\generic\gzip.c" />
+    <ClCompile Include="..\src\widgets\generic\http.header.c" />
+    <ClCompile Include="..\src\widgets\generic\http.request.parser.c" />
+    <ClCompile Include="..\src\widgets\generic\http.response.parser.c" />
     <ClCompile Include="..\src\widgets\generic\map.c" />
     <ClCompile Include="..\src\widgets\generic\OpenSSL.c" />
     <ClCompile Include="..\src\widgets\db\mysql.c" />
     <ClCompile Include="..\src\widgets\db\sqlite.c" />
+    <ClCompile Include="..\src\widgets\generic\WS.c" />
     <ClCompile Include="..\src\widgets\ini\ini.c" />
     <ClCompile Include="..\src\widgets\ini\ini.parser.c" />
     <ClCompile Include="..\src\widgets\json\json.array.c" />
@@ -210,6 +215,7 @@
     <ClInclude Include="..\include\libcc\widgets\gzip.h" />
     <ClInclude Include="..\include\libcc\widgets\url_request.h" />
     <ClInclude Include="..\include\libcc\widgets\widgets.h" />
+    <ClInclude Include="..\src\widgets\generic\generic.c.h" />
     <ClInclude Include="..\src\widgets\ini\ini.c.h" />
     <ClInclude Include="..\src\widgets\json\json.c.h" />
     <ClInclude Include="..\src\widgets\xml\xml.c.h" />

@@ -38,7 +38,7 @@
 #endif
 
 #if defined(_arch_dreamcast)
-#define __DREAMCAST__   1
+#define __CC_DREAMCAST__   1
 #endif
 
 #if defined(hpux) || defined(__hpux) || defined(__hpux__)
@@ -57,10 +57,9 @@
 #endif
 
 #if defined(__QNX__) || defined(__QNXNTO__)
-#define __CC_QNXNTO__  1
+#define __CC_QNX__  1
 #define _CC_PLATFORM_NAME_ "QNX"
 #endif
-
 
 #if defined(__sun) && defined(__SVR4)
     #define __CC_SOLARIS__ 1
@@ -68,14 +67,17 @@
 #endif
 
 #ifdef __MINGW32__
-    #define __CC_MINGW__ __MINGW32__
+    #define __CC_MINGW__ 1
+    #define __CC_MINGW32__ 1
 #elif defined(__MINGW64__)
-    #define __CC_MINGW__ __MINGW64__
+    #define __CC_MINGW__ 1
+    #define __CC_MINGW64__ 1
 #endif/* defined(__MINGW32__) || defined(__MINGW64__) */
 
 /* Define operating platform*/
 #if defined(WIN32) || defined(_WIN32) || \
 	defined(WIN64) || defined(_WIN64) || \
+    defined(__NT__)|| \
 	defined(_WIN32_WCE) || defined(__CC_MINGW__)
 
 #define __CC_WINDOWS__ 1
@@ -162,7 +164,7 @@
 #endif
 
 #if defined(linux) || defined(__linux) || \
-    defined(__linux__) || defined(__GLIBC__)
+    defined(__linux__) || defined(__gnu_linux__)
 
     #define __CC_LINUX__ 1
     #define _CC_PLATFORM_NAME_ "linux"
@@ -177,14 +179,12 @@
 #endif
 
 #if defined(ANDROID) || defined(__ANDROID__)
-    //#undef __CC_LINUX__ /*do we need to do this?*/
     #undef _CC_PLATFORM_NAME_
     
     #define __CC_ANDROID__ 1
     #define _CC_PLATFORM_NAME_ "Google Android"
     
     #define _CC_THREAD_PTHREAD_RECURSIVE_MUTEX_ 1
-    #define _CC_HAVE_CLOCK_GETTIME_ 1
 #endif
 
 #if defined(__APPLE__)
@@ -193,20 +193,27 @@
     #include <AvailabilityMacros.h>
     #include <TargetConditionals.h>
     /* if compiling for iPhone */
-    #if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+    #if TARGET_OS_IPHONE
+        /* iOS, tvOS, or watchOS device */
         #define __CC_IPHONEOS__ 1
         #define _CC_PLATFORM_NAME_ "iOS"
-    #elif defined(TARGET_IPHONE_SIMULATOR) && TARGET_IPHONE_SIMULATOR
+    #elif TARGET_IPHONE_SIMULATOR
+        /* iOS, tvOS, or watchOS Simulator */
         #define __CC_IPHONEOS__ 1
         #define __CC_IPHONEOS_SIMULATOR__ 1
         #define _CC_PLATFORM_NAME_ "iOS Simulator"
-    #elif defined(TARGET_OS_TV) && TARGET_OS_TV
+    #elif TARGET_OS_TV
+        /* tvOS device */
         #define __CC_APPLE_TVOS__ 1
         #define _CC_PLATFORM_NAME_ "TV OS"
-    #else
-        /* if not compiling for iPhone */
+    #elif TARGET_OS_MAC
+        /* Other kinds of Apple platforms */
         #define __CC_MACOSX__ 1
-        #define _CC_PLATFORM_NAME_ "macOS" 
+        #define _CC_PLATFORM_NAME_ "OSX"
+    #elif TARGET_OS_MACCATALYST
+         // Mac's Catalyst (ports iOS API into Mac, like UIKit).
+    #else
+        #error "Unknown Apple platform"
     #endif
 
     #define _CC_THREAD_PTHREAD_RECURSIVE_MUTEX_ 1

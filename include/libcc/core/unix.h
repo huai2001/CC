@@ -39,7 +39,7 @@ extern "C" {
  *
  * @return id
  */
-#define _cc_getpid() ((int32_t)getpid())
+#define _cc_getpid() ((uint32_t)getpid())
 
 #ifndef _CC_DISABLED_DUMPER_
     
@@ -61,7 +61,7 @@ typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info
  */
 #define _cc_uninstall_dumper() ((void)0)
 
-_CC_API_PUBLIC(tchar_t**) _cc_get_stack_trace(int *nptr);
+_CC_API_PUBLIC(void) _cc_get_resolve_symbol(_cc_buf_t *buf);
     
 #ifndef _access
 #define _access access

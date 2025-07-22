@@ -131,9 +131,6 @@
     <ClCompile Include="..\src\loadso\windows\sys_loadso.c">
       <Filter>src\loadso\windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\core\windows.c">
-      <Filter>src\core</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\atomic\atomic.c">
       <Filter>src\atomic</Filter>
     </ClCompile>
@@ -230,6 +227,7 @@
     <ClCompile Include="..\src\hmac.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\core\windows\sys_windows.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libcc\thread\windows\sys_thread.h">
@@ -379,11 +377,11 @@
     <ClInclude Include="..\include\libcc\base58.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libcc\core\windows\sys_windows.h">
-      <Filter>include\libcc\core\windows</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libcc\buf.h">
       <Filter>include\libcc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\core\windows.h">
+      <Filter>include\libcc\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

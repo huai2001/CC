@@ -7,8 +7,7 @@ tchar_t* get_rfc822_date(time_t t) {
     struct tm* ptm;
     static tchar_t str_date[128];
     ptm = gmtime(&t);
-    _tcsftime(str_date, _cc_countof(str_date), _T("%a, %d %b %Y %H:%M:%S GMT"),
-              ptm);
+    _tcsftime(str_date, _cc_countof(str_date), _T("%a, %d %b %Y %H:%M:%S GMT"), ptm);
     return str_date;
 }
 /*
@@ -31,7 +30,7 @@ time_t get_rfc822_time(const tchar_t* rfc822_date) {
 _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...) {
     _cc_event_wbuf_t *wbuf;
     bool_t rs = false;
-    size_t fmt_length, empty_length;;
+    int32_t fmt_length, empty_length;
     tchar_t *ptr;
     va_list arg;
 
@@ -42,8 +41,10 @@ _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...)
     if (e->buffer == nullptr) {
         return false;
     }
+
     va_start(arg, fmt);
     wbuf = &e->buffer->w;
+
     _cc_spin_lock(&wbuf->lock);
     if (wbuf->w == wbuf->r) {
         ptr = (tchar_t*)wbuf->bytes;
@@ -77,7 +78,7 @@ _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...)
             break;
         }
         
-        empty_length = _cc_aligned_alloc_opt(fmt_length + 10, 32);
+        empty_length = (int32_t)_cc_aligned_alloc_opt(fmt_length + 10, 32);
         _cc_alloc_event_wbuf(wbuf, empty_length);
         ptr = (tchar_t*)&(wbuf->bytes[wbuf->w]);
     }

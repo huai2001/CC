@@ -59,7 +59,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_accept_event(_iocp_overlapped_t *iocp_overla
     int result;
 
     iocp_overlapped->flag = _CC_EVENT_ACCEPT_;
-    result = _WSA_socket_accept(iocp_overlapped->e, iocp_overlapped->fd, &iocp_overlapped->overlapped);
+    result = _WSA_socket_accept(iocp_overlapped);
     if (_cc_unlikely(NO_ERROR != result)) {
         _CC_UNSET_BIT(_CC_EVENT_ACCEPT_, iocp_overlapped->e->marks);
         _cc_logger_warin(_T("_WSA_socket_accept:%d, %s\n"), result, _cc_last_error(result));
@@ -78,7 +78,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_write_event(_iocp_overlapped_t *iocp_overlap
     }
 
     iocp_overlapped->flag = _CC_EVENT_WRITABLE_;
-    result = _WSA_socket_send(iocp_overlapped->e, &iocp_overlapped->overlapped);
+    result = _WSA_socket_send(iocp_overlapped);
     if (_cc_unlikely(result != NO_ERROR)) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, iocp_overlapped->e->marks);
         _cc_logger_error(_T("WSASend fail:%d, %s\n"), result, _cc_last_error(result));
@@ -96,7 +96,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_receive_event(_iocp_overlapped_t *iocp_overl
         return false;
     }
     iocp_overlapped->flag = _CC_EVENT_READABLE_;
-    result = _WSA_socket_receive(iocp_overlapped->e, &iocp_overlapped->overlapped);
+    result = _WSA_socket_receive(iocp_overlapped);
     if (_cc_unlikely(result != NO_ERROR)) {
         _CC_UNSET_BIT(_CC_EVENT_READABLE_, iocp_overlapped->e->marks);
         _cc_logger_error(_T("_WSAReceive fail:%d, %s\n"), result, _cc_last_error(result));
@@ -128,10 +128,8 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
             return false;
         }
 
-        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv);
+        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
         iocp_overlapped->fd = fd;
-        iocp_overlapped->e = e;
-        iocp_overlapped->round = e->round;
 
         if (_iocp_event_accept_event(iocp_overlapped)) {
             return true;
@@ -143,10 +141,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, addevents)) {
-        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv);
-        iocp_overlapped->fd = 0;
-        iocp_overlapped->e = e;
-        iocp_overlapped->round = e->round;
+        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
 
         if (!_iocp_event_write_event(iocp_overlapped)) {
             _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
@@ -155,10 +150,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_READABLE_, addevents)) {
-        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv);
-        iocp_overlapped->fd = 0;
-        iocp_overlapped->e = e;
-        iocp_overlapped->round = e->round;
+        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
 
         if (!_iocp_event_receive_event(iocp_overlapped)) {
             _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
@@ -172,10 +164,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
 _CC_API_PRIVATE(bool_t) _iocp_event_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _iocp_overlapped_t *iocp_overlapped = nullptr;
 
-    iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv);
-    iocp_overlapped->fd = 0;
-    iocp_overlapped->e = e;
-    iocp_overlapped->round = e->round;
+    iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
     iocp_overlapped->flag = _CC_EVENT_PENDING_;
 
     if (PostQueuedCompletionStatus(IOCPPort, 0, _CC_IOCP_PENDING_, &iocp_overlapped->overlapped)) {
@@ -194,14 +183,14 @@ _CC_API_PRIVATE(bool_t) _iocp_event_attach(_cc_event_cycle_t *cycle, _cc_event_t
         return false;
     }
 
-    e->descriptor |= _CC_EVENT_DESC_POLL_IOCP_;
+    e->descriptor = _CC_EVENT_DESC_POLL_IOCP_ | (e->descriptor & 0xff);
 
     if (_CC_ISSET_BIT(_CC_EVENT_DESC_SOCKET_, e->descriptor)) {
         if (CreateIoCompletionPort((HANDLE)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == nullptr) {
             _cc_logger_error(_T("CreateIoCompletionPort Error Code:%d.\n"), _cc_last_errno());
             return false;
         }
-    } else if (_CC_ISSET_BIT(_CC_EVENT_DESC_TIMER_, e->descriptor) == 0) {
+    } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, e->flags) == 0) {
         return false;
     }
 
@@ -254,10 +243,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_event_cycle_t *cycle, _cc_event_
         return false;
     }
 
-    iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv);
-    iocp_overlapped->fd = 0;
-    iocp_overlapped->e = e;
-    iocp_overlapped->round = e->round;
+    iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
     iocp_overlapped->flag = _CC_EVENT_CONNECT_;
 
     if (!connect_fn(e->fd, (struct sockaddr *)sa, sa_len, nullptr, 0, nullptr, &iocp_overlapped->overlapped)) {

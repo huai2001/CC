@@ -56,13 +56,12 @@ typedef struct _iocp_overlapped {
 /**
  * @brief IOCP Socket TCP Accept
  *
- * @param e event structure
- * @param fd Socket handle
  * @param overlapped IOCP OVERLAPPED structure
+ * @param fd Socket handle
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_accept(_cc_event_t* e, _cc_socket_t fd, LPOVERLAPPED overlapped);
+int _WSA_socket_accept(_iocp_overlapped_t* overlapped);
 /**
  * @brief IOCP Socket TCP Send
  *
@@ -71,27 +70,25 @@ int _WSA_socket_accept(_cc_event_t* e, _cc_socket_t fd, LPOVERLAPPED overlapped)
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_send(_cc_event_t *e, LPOVERLAPPED overlapped);
+int _WSA_socket_send(_iocp_overlapped_t *overlapped);
 /**
  * @brief IOCP Socket TCP Read
  *
- * @param e event structure
  * @param overlapped IOCP OVERLAPPED structure
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_receive(_cc_event_t *e, LPOVERLAPPED overlapped);
+int _WSA_socket_receive(_iocp_overlapped_t *overlapped);
 /**
  * @brief IOCP Socket UDP Send
  *
- * @param e event structure
  * @param overlapped IOCP OVERLAPPED structure
  * @param sa _cc_sockaddr_t structure
  * @param sa_len Length of send byte buffer
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_sendto(_cc_event_t *e, LPOVERLAPPED overlapped, _cc_sockaddr_t *sa, _cc_socklen_t sa_len);
+int _WSA_socket_sendto(_iocp_overlapped_t *overlapped, _cc_sockaddr_t *sa, _cc_socklen_t sa_len);
 /**
  * @brief IOCP Socket UDP Read
  *
@@ -102,7 +99,7 @@ int _WSA_socket_sendto(_cc_event_t *e, LPOVERLAPPED overlapped, _cc_sockaddr_t *
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_receivefrom(_cc_event_t *fd, LPOVERLAPPED overlapped, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len);
+int _WSA_socket_receivefrom(_iocp_overlapped_t *overlapped, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len);
 
 /**
  * @brief IOCP Initialize Overlapped 
@@ -125,7 +122,7 @@ void _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *priv);
  *
  * @return 
  */
-_iocp_overlapped_t* _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv);
+_iocp_overlapped_t* _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv, _cc_event_t *e);
 /**
  * @brief IOCP Free Overlapped
  *
@@ -133,7 +130,7 @@ _iocp_overlapped_t* _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv);
  * @param iocp_overlapped _iocp_overlapped_t
  *
  */
-void _cc_iocp_overlapped_free(_cc_event_cycle_priv_t *priv,_iocp_overlapped_t *iocp_overlapped);
+void _cc_iocp_overlapped_free(_cc_event_cycle_priv_t *priv, _iocp_overlapped_t *overlapped);
 
 #endif
 

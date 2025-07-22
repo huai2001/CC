@@ -115,12 +115,16 @@ struct timespec {
     time_t tv_sec; /* seconds */
     long tv_nsec;  /* nanoseconds */
 };
-#endif
+#endif /* _CC_MSVC_ < 1900 */
 
-#endif
+#endif /* _CC_MSVC_ */
 
 _CC_API_PUBLIC(int) gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info);
-#endif
+
+#define _cc_gmtime(t, result) gmtime_s((result), (t))
+#else
+#define _cc_gmtime(t, result) gmtime_r((t), (result))
+#endif /* __CC_WINDOWS__ */
 
 _CC_API_PUBLIC(const tchar_t *)
 _cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *tm);

@@ -21,101 +21,139 @@
 #ifndef _C_CC_LOGGER_H_INCLUDED_
 #define _C_CC_LOGGER_H_INCLUDED_
 
-#include "core.h"
+#include "endian.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-#define _CC_LOGGER_FLAGS_NORMAL_         0x0001
-#define _CC_LOGGER_FLAGS_DEBUG_          0x0002
-#define _CC_LOGGER_FLAGS_ERROR_          0x0004
-#define _CC_LOGGER_FLAGS_WARNING_        0x0008
-#define _CC_LOGGER_FLAGS_INFO_           0x0010
-#define _CC_LOGGER_FLAGS_MEMORY_         0x0100
 
-#define _CC_LOGGER_FLAGS_ASIC_           0x1000
-#define _CC_LOGGER_FLAGS_UTF8_           0x2000
-#define _CC_LOGGER_FLAGS_UTF16_          0x4000
+//Facility
+enum {
+    _CC_LOG_FACILITY_KERN_        = 0,  //Kernel messages
+    _CC_LOG_FACILITY_USER_        = 1,  //User-level messages
+    _CC_LOG_FACILITY_MAIL_        = 2,  //Mail system
+    _CC_LOG_FACILITY_DAEMON_      = 3,  //System daemons
+    _CC_LOG_FACILITY_AUTH_        = 4,  //Security/authentication messages
+    _CC_LOG_FACILITY_SYSLOG_      = 5,  //Messages generated internally by syslogd
+    _CC_LOG_FACILITY_LPR_         = 6,  //Line printer subsystem
+    _CC_LOG_FACILITY_NEWS_        = 7,  //Network news subsystem
+    _CC_LOG_FACILITY_UUCP_        = 8,  //UUCP subsystem
+    _CC_LOG_FACILITY_CRON_        = 9,  //Clock daemon
+    _CC_LOG_FACILITY_AUTHPRIV_    = 10, //Security/authentication messages
+    _CC_LOG_FACILITY_FTP_         = 11, //FTP daemon
+    _CC_LOG_FACILITY_NTP_         = 12, //NTP subsystem
+    _CC_LOG_FACILITY_SECURITY_    = 13, //Log audit
+    _CC_LOG_FACILITY_ALERT_       = 14, //Log alert
+    //SOLARIS - CRON,                   //Scheduling daemon
+    //LOCAL0 - LOCAL7,                  //Locally-used facilities
+    _CC_LOG_FACILITY_LOCAL7_      = 23  //Memory tracking
+};
+//Severity Level
+enum {
+    _CC_LOG_LEVEL_EMERG_      = 0,      //System is unusable
+    _CC_LOG_LEVEL_ALERT_      = 1,      //Action must be taken immediately
+    _CC_LOG_LEVEL_CRIT_       = 2,      //Critical
+    _CC_LOG_LEVEL_ERROR_      = 3,      //Error
+    _CC_LOG_LEVEL_WARNING_    = 4,      //Warning 
+    _CC_LOG_LEVEL_NOTICE_     = 5,      //Normal but significant condition
+    _CC_LOG_LEVEL_INFO_       = 6,      //Informational messages
+    _CC_LOG_LEVEL_DEBUG_      = 7       //Debug-level messages
+};
 
-typedef void (*_cc_loggerA_callback_t)(uint16_t flags, const char_t *log, size_t len, pvoid_t userdata);
-typedef void (*_cc_loggerW_callback_t)(uint16_t flags, const wchar_t *log, size_t len, pvoid_t userdata);
+#define _CC_SYSLOG_PORT_        514
+#define _CC_SYSLOG_VERSIOV_     1
+//RFC 3164
+//<PRI>TIMESTAMP HOSTNAME TAG MSG
+
+//RFC 5424
+//TIMESTAMP ISO 8601  2023-12-12T12:34:56Z
+//<PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID STRUCTURED-DATA MSG
+
+//PRI = Facility * 8 + Severity
+#define _CC_LOGGER_PRI(FACILITY,LEVEL) (((FACILITY) << 3) | ((LEVEL) & 0x7))
+/**/
+_CC_API_PUBLIC(void) _cc_logger_open_syslog(tchar_t *app_name, const tchar_t *ip, const uint16_t port);
+/**/
+_CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t length);
+/**/
+_CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t length);
+/**/
+_CC_API_PUBLIC(void) _cc_syslog(const byte_t* msg, size_t length);
 
 /**/
-_CC_API_PUBLIC(void)
-_cc_loggerA_set_output_callback(_cc_loggerA_callback_t callback, pvoid_t userdata);
+_CC_API_PUBLIC(void) _cc_loggerA_vformat(byte_t level, const char_t* fmt, va_list arg);
 /**/
-_CC_API_PUBLIC(void)
-_cc_loggerW_set_output_callback(_cc_loggerW_callback_t callback, pvoid_t userdata);
+_CC_API_PUBLIC(void) _cc_loggerA_format(byte_t level, const char_t* fmt, ...);
 /**/
-_CC_API_PUBLIC(void)
-_cc_logger_set_output_callback(_cc_loggerA_callback_t callbackA, _cc_loggerW_callback_t callbackW, pvoid_t userdata);
-
+_CC_API_PUBLIC(void) _cc_loggerA(byte_t level, const char_t* str);
 /**/
-_CC_API_PUBLIC(void)
-_cc_loggerA_vformat(uint16_t flags, const char_t* fmt, va_list arg);
+_CC_API_PUBLIC(void) _cc_loggerW_format_args(byte_t level, const wchar_t* fmt, va_list arg);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA_format(uint16_t flags, const char_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerW_format(byte_t level, const wchar_t* fmt, ...);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA(uint16_t flags, const char_t* str);
-/**/
-_CC_API_PUBLIC(void)
-_cc_loggerW_format_args(uint16_t flags, const wchar_t* fmt, va_list arg);
-/**/
-_CC_API_PUBLIC(void) _cc_loggerW_format(uint16_t flags, const wchar_t* fmt, ...);
-/**/
-_CC_API_PUBLIC(void) _cc_loggerW(uint16_t flags, const wchar_t* str);
+_CC_API_PUBLIC(void) _cc_loggerW(byte_t level, const wchar_t* str);
 
 #ifdef _CC_MSVC_
-/**/
-#ifndef _L
-    #define _L(x) __L(x)
-    #define __L(x) L##x
-#endif
+    /**/
+    #define _cc_loggerW_debug(FMT, ...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##__VA_ARGS__)
+    #define _cc_loggerA_debug(FMT, ...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##__VA_ARGS__)
 
-#define _cc_logger_debugW(FMT, ...) \
-    _cc_loggerW_format(_CC_LOGGER_FLAGS_DEBUG_, FMT, ##__VA_ARGS__)
-#define _cc_logger_debugA(FMT, ...) \
-    _cc_loggerA_format(_CC_LOGGER_FLAGS_DEBUG_, FMT, ##__VA_ARGS__)
-#define _cc_logger_warinW(FMT, ...) \
-    _cc_loggerW_format(_CC_LOGGER_FLAGS_WARNING_, FMT, ##__VA_ARGS__)
-#define _cc_logger_warinA(FMT, ...) \
-    _cc_loggerA_format(_CC_LOGGER_FLAGS_WARNING_, FMT, ##__VA_ARGS__)
-#define _cc_logger_errorW(FMT, ...)                                \
-    _cc_loggerW_format(_CC_LOGGER_FLAGS_ERROR_, L"[%s(%d)%s]" FMT, \
-                       _L(_CC_FILE_), _CC_LINE_, _L(_CC_FUNC_), ##__VA_ARGS__)
-#define _cc_logger_errorA(FMT, ...)                                          \
-    _cc_loggerA_format(_CC_LOGGER_FLAGS_ERROR_, "[%s(%d)%s]" FMT, _CC_FILE_, \
-                       _CC_LINE_, _CC_FUNC_, ##__VA_ARGS__)
+    #define _cc_loggerW_info(FMT, ...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_INFO_, FMT, ##__VA_ARGS__)
+    #define _cc_loggerA_info(FMT, ...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_INFO_, FMT, ##__VA_ARGS__)
+
+    #define _cc_loggerW_warin(FMT, ...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_WARNING_, FMT, ##__VA_ARGS__)
+    #define _cc_loggerA_warin(FMT, ...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_WARNING_, FMT, ##__VA_ARGS__)
+
+    #define _cc_loggerW_error(FMT, ...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_ERROR_, FMT, ##__VA_ARGS__)
+    #define _cc_loggerA_error(FMT, ...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_ERROR_, FMT, ##__VA_ARGS__)
 #else
-#define _cc_logger_debugW(FMT, ARGS...) \
-    _cc_loggerW_format(_CC_LOGGER_FLAGS_DEBUG_, FMT, ##ARGS)
-#define _cc_logger_debugA(FMT, ARGS...) \
-    _cc_loggerA_format(_CC_LOGGER_FLAGS_DEBUG_, FMT, ##ARGS)
-#define _cc_logger_warinW(FMT, ARGS...) \
-    _cc_loggerW_format(_CC_LOGGER_FLAGS_WARNING_, FMT, ##ARGS)
-#define _cc_logger_warinA(FMT, ARGS...) \
-    _cc_loggerA_format(_CC_LOGGER_FLAGS_WARNING_, FMT, ##ARGS)
-#define _cc_logger_errorW(FMT, ARGS...)                            \
-    _cc_loggerW_format(_CC_LOGGER_FLAGS_ERROR_, L"[%s(%d)%s]" FMT, _CC_FILE_, _CC_LINE_, _CC_FUNC_, ##ARGS)
-#define _cc_logger_errorA(FMT, ARGS...)                                      \
-    _cc_loggerA_format(_CC_LOGGER_FLAGS_ERROR_, "[%s(%d)%s]" FMT, _CC_FILE_, _CC_LINE_, _CC_FUNC_, ##ARGS)
+    #define _cc_loggerW_debug(FMT, ARGS...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##ARGS)
+    #define _cc_loggerA_debug(FMT, ARGS...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##ARGS)
+
+    #define _cc_loggerW_info(FMT, ARGS...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_INFO_, FMT, ##ARGS)
+    #define _cc_loggerA_info(FMT, ARGS...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_INFO_, FMT, ##ARGS)
+
+    #define _cc_loggerW_warin(FMT, ARGS...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_WARNING_, FMT, ##ARGS)
+    #define _cc_loggerA_warin(FMT, ARGS...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_WARNING_, FMT, ##ARGS)
+
+    #define _cc_loggerW_error(FMT, ARGS...) \
+        _cc_loggerW_format(_CC_LOG_LEVEL_ERROR_, FMT, ##ARGS)
+    #define _cc_loggerA_error(FMT, ARGS...) \
+        _cc_loggerA_format(_CC_LOG_LEVEL_ERROR_, FMT, ##ARGS)
 #endif
 
 /**/
 #ifdef _CC_UNICODE_
 #define _cc_logger_format _cc_loggerW_format
 #define _cc_logger _cc_loggerW
-#define _cc_logger_warin _cc_logger_warinW
-#define _cc_logger_debug _cc_logger_debugW
-#define _cc_logger_error _cc_logger_errorW
+#define _cc_logger_warin _cc_loggerW_warin
+#define _cc_logger_debug _cc_loggerW_debug
+#define _cc_logger_info _cc_loggerW_info
+#define _cc_logger_error _cc_loggerW_error
+#define _cc_logger_syslog _cc_loggerW_syslog
 #else
 #define _cc_logger_format _cc_loggerA_format
 #define _cc_logger _cc_loggerA
-#define _cc_logger_warin _cc_logger_warinA
-#define _cc_logger_debug _cc_logger_debugA
-#define _cc_logger_error _cc_logger_errorA
+#define _cc_logger_warin _cc_loggerA_warin
+#define _cc_logger_debug _cc_loggerA_debug
+#define _cc_logger_info _cc_loggerA_info
+#define _cc_logger_error _cc_loggerA_error
+#define _cc_logger_syslog _cc_loggerA_syslog
 #endif
 
 /* Ends C function definitions when using C++ */

@@ -149,7 +149,6 @@ _CC_API_PRIVATE(bool_t) _delegate_timeout_reset(_cc_event_cycle_t *cycle, _cc_ev
 /**/
 _CC_API_PRIVATE(bool_t) _delegate_timeout_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_assert(cycle != nullptr);
-    e->descriptor |= _CC_EVENT_DESC_TIMER_;
     return _reset_event(cycle, e);
 }
 

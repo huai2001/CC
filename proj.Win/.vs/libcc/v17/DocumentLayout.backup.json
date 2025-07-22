@@ -3,13 +3,37 @@
   "WorkspaceRootPath": "D:\\240216\\01\\proj.Win\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A639159E-608E-43BC-8C30-FAC68BAC6AAC}|libcc.widgets.vcxproj|D:\\240216\\01\\src\\widgets\\generic\\WS.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\include\\libcc\\core.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\include\\libcc\\core\\platform.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\include\\libcc\\core\\windows.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A639159E-608E-43BC-8C30-FAC68BAC6AAC}|libcc.widgets.vcxproj|D:\\240216\\01\\src\\widgets\\event\\windows\\sys_iocp.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\logger.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A639159E-608E-43BC-8C30-FAC68BAC6AAC}|libcc.widgets.vcxproj|D:\\240216\\01\\src\\widgets\\event\\windows\\sys_WSA.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A639159E-608E-43BC-8C30-FAC68BAC6AAC}|libcc.widgets.vcxproj|D:\\240216\\01\\src\\widgets\\event\\windows\\sys_iocp.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\core\\generic.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\core\\windows.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{A639159E-608E-43BC-8C30-FAC68BAC6AAC}|libcc.widgets.vcxproj|D:\\240216\\01\\src\\widgets\\widgets.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\core\\windows\\sys_dirent.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{06F89FEB-2550-49E1-9AA3-08DD4D1D4370}|libcc.vcxproj|D:\\240216\\01\\src\\alloc.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,45 +43,150 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "sys_dirent.c",
-              "DocumentMoniker": "D:\\240216\\01\\src\\core\\windows\\sys_dirent.c",
-              "RelativeDocumentMoniker": "..\\src\\core\\windows\\sys_dirent.c",
-              "ToolTip": "D:\\240216\\01\\src\\core\\windows\\sys_dirent.c",
-              "RelativeToolTip": "..\\src\\core\\windows\\sys_dirent.c",
-              "ViewState": "AgIAAE0BAAAAAAAAAAAAAOkBAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-07-09T23:44:41.227Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "windows.c",
-              "DocumentMoniker": "D:\\240216\\01\\src\\core\\windows.c",
-              "RelativeDocumentMoniker": "..\\src\\core\\windows.c",
-              "ToolTip": "D:\\240216\\01\\src\\core\\windows.c",
-              "RelativeToolTip": "..\\src\\core\\windows.c",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-07-09T23:44:37.56Z",
+              "Title": "core.h",
+              "DocumentMoniker": "D:\\240216\\01\\include\\libcc\\core.h",
+              "RelativeDocumentMoniker": "..\\include\\libcc\\core.h",
+              "ToolTip": "D:\\240216\\01\\include\\libcc\\core.h",
+              "RelativeToolTip": "..\\include\\libcc\\core.h",
+              "ViewState": "AgIAAFIBAAAAAAAAAAAAAGQBAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-21T13:58:29.6Z",
+              "IsPinned": true,
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "WS.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\widgets\\generic\\WS.c",
+              "RelativeDocumentMoniker": "..\\src\\widgets\\generic\\WS.c",
+              "ToolTip": "D:\\240216\\01\\src\\widgets\\generic\\WS.c",
+              "RelativeToolTip": "..\\src\\widgets\\generic\\WS.c",
+              "ViewState": "AgIAABYAAAAAAAAAAAAAABwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-21T14:14:04.907Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "platform.h",
+              "DocumentMoniker": "D:\\240216\\01\\include\\libcc\\core\\platform.h",
+              "RelativeDocumentMoniker": "..\\include\\libcc\\core\\platform.h",
+              "ToolTip": "D:\\240216\\01\\include\\libcc\\core\\platform.h",
+              "RelativeToolTip": "..\\include\\libcc\\core\\platform.h",
+              "ViewState": "AgIAALcAAAAAAAAAAAAAAMQAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-21T14:10:47.977Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "sys_iocp.h",
+              "DocumentMoniker": "D:\\240216\\01\\src\\widgets\\event\\windows\\sys_iocp.h",
+              "RelativeDocumentMoniker": "..\\src\\widgets\\event\\windows\\sys_iocp.h",
+              "ToolTip": "D:\\240216\\01\\src\\widgets\\event\\windows\\sys_iocp.h",
+              "RelativeToolTip": "..\\src\\widgets\\event\\windows\\sys_iocp.h",
+              "ViewState": "AgIAADkAAAAAAAAAAAD4v0gAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-21T14:08:12.248Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "widgets.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\widgets\\widgets.c",
+              "RelativeDocumentMoniker": "..\\src\\widgets\\widgets.c",
+              "ToolTip": "D:\\240216\\01\\src\\widgets\\widgets.c",
+              "RelativeToolTip": "..\\src\\widgets\\widgets.c",
+              "ViewState": "AgIAAEMAAAAAAAAAAAAAAFQAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-21T14:04:39.109Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "sys_WSA.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\widgets\\event\\windows\\sys_WSA.c",
+              "RelativeDocumentMoniker": "..\\src\\widgets\\event\\windows\\sys_WSA.c",
+              "ToolTip": "D:\\240216\\01\\src\\widgets\\event\\windows\\sys_WSA.c",
+              "RelativeToolTip": "..\\src\\widgets\\event\\windows\\sys_WSA.c",
+              "ViewState": "AgIAAB4AAAAAAAAAAAD4vy0AAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-21T14:03:09.52Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "sys_iocp.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\widgets\\event\\windows\\sys_iocp.c",
+              "RelativeDocumentMoniker": "..\\src\\widgets\\event\\windows\\sys_iocp.c",
+              "ToolTip": "D:\\240216\\01\\src\\widgets\\event\\windows\\sys_iocp.c",
+              "RelativeToolTip": "..\\src\\widgets\\event\\windows\\sys_iocp.c",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAwFAAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-21T14:01:45.032Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "generic.c",
               "DocumentMoniker": "D:\\240216\\01\\src\\core\\generic.c",
               "RelativeDocumentMoniker": "..\\src\\core\\generic.c",
               "ToolTip": "D:\\240216\\01\\src\\core\\generic.c",
               "RelativeToolTip": "..\\src\\core\\generic.c",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABQAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAE8AAAAAAAAAAAAkwF4AAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-07-09T23:44:34.182Z",
+              "WhenOpened": "2025-07-21T14:00:34.823Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "logger.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\logger.c",
+              "RelativeDocumentMoniker": "..\\src\\logger.c",
+              "ToolTip": "D:\\240216\\01\\src\\logger.c",
+              "RelativeToolTip": "..\\src\\logger.c",
+              "ViewState": "AgIAAFUBAAAAAAAAAAD4v2IBAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-21T13:55:40.566Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "alloc.c",
+              "DocumentMoniker": "D:\\240216\\01\\src\\alloc.c",
+              "RelativeDocumentMoniker": "..\\src\\alloc.c",
+              "ToolTip": "D:\\240216\\01\\src\\alloc.c",
+              "RelativeToolTip": "..\\src\\alloc.c",
+              "ViewState": "AgIAADEAAAAAAAAAAAAAAEAAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-07-21T13:55:23.132Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "windows.h",
+              "DocumentMoniker": "D:\\240216\\01\\include\\libcc\\core\\windows.h",
+              "RelativeDocumentMoniker": "..\\include\\libcc\\core\\windows.h",
+              "ToolTip": "D:\\240216\\01\\include\\libcc\\core\\windows.h",
+              "RelativeToolTip": "..\\include\\libcc\\core\\windows.h",
+              "ViewState": "AgIAAFwAAAAAAAAAAAD4v2sAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-21T13:54:20.557Z",
               "EditorCaption": ""
             }
           ]

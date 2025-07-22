@@ -245,8 +245,9 @@ int _udp_reset_connect(SOCKET sock, BOOL bNewBehavior) {
     if (WSAIoctl(sock, SIO_UDP_CONNRESET, (LPVOID)&bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytes, nullptr, nullptr) ==
         SOCKET_ERROR) {
         result = WSAGetLastError();
-        if (result == WSAEWOULDBLOCK)
+        if (result == WSAEWOULDBLOCK) {
             result = NO_ERROR;
+        }
     }
 
     return result;

@@ -47,8 +47,17 @@ _CC_API_PRIVATE(bool_t) _poll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t
         return false;
     }
 
-    e->descriptor |= _CC_EVENT_DESC_POLL_POLLFD_;
-    return _reset_event(cycle, e);
+    if(!_reset_event(cycle, e)) {
+        return false;
+    }
+
+    e->descriptor = _CC_EVENT_DESC_POLL_POLLFD_ | (e->descriptor & 0xff);
+
+    _event_lock(cycle);
+    fset->list[fset->nfds++] = e;
+    _event_unlock(cycle);
+    
+    return true;
 }
 
 /**/
@@ -83,7 +92,7 @@ _CC_API_PRIVATE(void) _poll_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t 
     }
 }
 /**/
-_CC_API_PRIVATE(bool_t) _init_fd_event(_cc_event_t *e, struct pollfd *p) {
+_CC_API_PRIVATE(bool_t) _set_fd_event(_cc_event_t *e, struct pollfd *p) {
     if (_CC_ISSET_BIT(_CC_EVENT_PENDING_, e->flags)) {
         return false;
     }
@@ -112,7 +121,6 @@ _CC_API_PRIVATE(bool_t) _init_fd_event(_cc_event_t *e, struct pollfd *p) {
 
 /**/
 _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    _cc_event_cycle_priv_t *priv = cycle->priv;
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         /*delete*/
         _cleanup_event(cycle, e);
@@ -122,10 +130,6 @@ _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_PENDING_, e->flags)) {
         _cc_list_iterator_swap(&cycle->pending, &e->lnk);
         return;
-    }
-
-    if (_cc_list_iterator_empty(&e->lnk)) {
-        priv->list[priv->nfds++] = e;
     }
 
     _reset_event_timeout(cycle, e);
@@ -157,7 +161,7 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t time
 
     for (i = 0, nfds = 0; i < priv->nfds; i++) {
         e = priv->list[i];
-        if (_init_fd_event(e, &fds[nfds])) {
+        if (_set_fd_event(e, &fds[nfds])) {
             priv->fds[nfds++] = e;
         }
     }
@@ -165,7 +169,7 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t time
     /**/
     ready = poll(fds, nfds, timeout);
     if (_cc_likely(ready)) {
-        for (i = 0; i < priv->nfds && ready; i++) {
+        for (i = 0; i < nfds && ready; i++) {
             e = priv->fds[i];
             which = 0;
             what = fds[i].events;
@@ -182,7 +186,10 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t time
             }
 
             if (what & POLLOUT) {
-                which |= _valid_connected(e, _CC_ISSET_BIT(_CC_EVENT_CONNECT_ | _CC_EVENT_WRITABLE_, e->flags));
+                which |= _CC_ISSET_BIT(_CC_EVENT_CONNECT_ | _CC_EVENT_WRITABLE_, e->flags);
+                if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
+                    which = _valid_connected(e, which);
+                }
             }
 
             if (which) {

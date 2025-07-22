@@ -56,27 +56,27 @@ extern "C" {
 
 #define _CC_EVENT_NO_DESC_                    0x0000 /**< nothing here */
 #define _CC_EVENT_DESC_SOCKET_                0x0001 /**< descriptor refers to a socket */
-#define _CC_EVENT_DESC_FILE_                  0x0002 /**< descriptor refers to a file */
-#define _CC_EVENT_DESC_TIMER_                 0x0004 /**< descriptor refers to a timer */
-#define _CC_EVENT_DESC_IPV6_                  0x0008
+#define _CC_EVENT_DESC_UDP_                   0x0002 /**< descriptor refers to a timer */
+#define _CC_EVENT_DESC_IPV6_                  0x0004
+#define _CC_EVENT_DESC_FILE_                  0x0008 /**< descriptor refers to a file */
 
-#define _CC_EVENT_DESC_POLL_EPOLL_            0x0010 /**< Poll uses epoll method */
-#define _CC_EVENT_DESC_POLL_KQUEUE_           0x0020 /**< Poll uses kqueue method */
-#define _CC_EVENT_DESC_POLL_IOCP_             0x0040 /**< Poll uses iocp method */
-#define _CC_EVENT_DESC_POLL_SELECT_           0x0080 /**< Poll uses select method */
-#define _CC_EVENT_DESC_POLL_POLLFD_           0x0100 /**< Poll uses poll method */
-#define _CC_EVENT_DESC_POLL_DEVPOLL_          0x0200 /**< Poll uses devpoll method */
+#define _CC_EVENT_DESC_POLL_EPOLL_            0x0100 /**< Poll uses epoll method */
+#define _CC_EVENT_DESC_POLL_KQUEUE_           0x0200 /**< Poll uses kqueue method */
+#define _CC_EVENT_DESC_POLL_IOCP_             0x0300 /**< Poll uses iocp method */
+#define _CC_EVENT_DESC_POLL_SELECT_           0x0400 /**< Poll uses select method */
+#define _CC_EVENT_DESC_POLL_POLLFD_           0x0700 /**< Poll uses poll method */
+#define _CC_EVENT_DESC_POLL_DEVPOLL_          0x0800 /**< Poll uses devpoll method */
 
 #define _CC_EVENT_WBUF_HAS_DATA(rw) ((rw)->w.r != (rw)->w.w)
 #define _CC_EVENT_WBUF_NO_DATA(rw) ((rw)->w.r == (rw)->w.w)
 
-#define _CC_TIMEOUT_MAX_LEVEL_                  4
-#define _CC_TIMEOUT_NEAR_SHIFT_                 8
-#define _CC_TIMEOUT_NEAR_                       (1 << _CC_TIMEOUT_NEAR_SHIFT_)
-#define _CC_TIMEOUT_LEVEL_SHIFT_                6
-#define _CC_TIMEOUT_LEVEL_                      (1 << _CC_TIMEOUT_LEVEL_SHIFT_)
-#define _CC_TIMEOUT_NEAR_MASK_                  (_CC_TIMEOUT_NEAR_ - 1)
-#define _CC_TIMEOUT_LEVEL_MASK_                 (_CC_TIMEOUT_LEVEL_ - 1)
+#define _CC_TIMEOUT_MAX_LEVEL_                4
+#define _CC_TIMEOUT_NEAR_SHIFT_               8
+#define _CC_TIMEOUT_NEAR_                     (1 << _CC_TIMEOUT_NEAR_SHIFT_)
+#define _CC_TIMEOUT_LEVEL_SHIFT_              6
+#define _CC_TIMEOUT_LEVEL_                    (1 << _CC_TIMEOUT_LEVEL_SHIFT_)
+#define _CC_TIMEOUT_NEAR_MASK_                (_CC_TIMEOUT_NEAR_ - 1)
+#define _CC_TIMEOUT_LEVEL_MASK_               (_CC_TIMEOUT_LEVEL_ - 1)
 
 typedef struct _cc_event _cc_event_t;
 typedef struct _cc_event_buffer _cc_event_buffer_t;

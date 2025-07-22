@@ -224,9 +224,9 @@ _CC_API_PUBLIC(bool_t) _cc_bufA_appendf(_cc_buf_t *ctx, const char_t *fmt, ...) 
 
     _cc_assert(ctx != nullptr && fmt != nullptr);
 
-    if (_cc_unlikely(nullptr == strchr(fmt, '%'))) {
-        return _cc_bufA_puts(ctx, fmt);
-    }
+    //if (nullptr == strchr(fmt, '%')) {
+    //    return _cc_bufA_puts(ctx, fmt);
+    //}
 
     va_start(arg, fmt);
     result = _cc_bufA_appendvf(ctx, fmt, arg);
@@ -285,9 +285,9 @@ _CC_API_PUBLIC(bool_t) _cc_bufW_appendf(_cc_buf_t *ctx, const wchar_t *fmt, ...)
 
     _cc_assert(ctx != nullptr && fmt != nullptr);
 
-    if (_cc_unlikely(nullptr == wcschr(fmt, L'%'))) {
-        return _cc_bufW_puts(ctx, fmt);
-    }
+    //if (nullptr == wcschr(fmt, L'%')) {
+    //    return _cc_bufW_puts(ctx, fmt);
+    //}
 
     va_start(arg, fmt);
     result = _cc_bufW_appendvf(ctx, fmt, arg);
@@ -327,7 +327,7 @@ _CC_API_PUBLIC(_cc_buf_t*) _cc_buf_from_file(const tchar_t *file_name) {
 
 _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
     _cc_buf_t b;
-    size_t len;
+    size_t length;
 
     if (ctx == nullptr || ctx->length <= 0 || ctx->length <= offset) {
         return false;
@@ -337,15 +337,15 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
         return false;
     }
 
-    len = _cc_utf8_to_utf16((const uint8_t *)(ctx->bytes + offset), 
+    length = _cc_utf8_to_utf16((const uint8_t *)(ctx->bytes + offset), 
                             (const uint8_t *)(ctx->bytes + ctx->length + 1),
                             (uint16_t *)b.bytes, (uint16_t *)(b.bytes + b.limit), false);
 
-    if (len > 0) {
+    if (length > 0) {
         _cc_free(ctx->bytes);
         ctx->bytes = b.bytes;
         ctx->limit = b.limit;
-        ctx->length = len * sizeof(wchar_t);
+        ctx->length = length * sizeof(wchar_t);
         return true;
     }
 
@@ -355,7 +355,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
 
 _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset) {
     _cc_buf_t b;
-    size_t len;
+    size_t length;
 
     if (ctx == nullptr || ctx->length <= 0 || ctx->length <= offset) {
         return false;
@@ -365,15 +365,15 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset) {
         return false;
     }
 
-    len = _cc_utf16_to_utf8((const uint16_t *)(ctx->bytes + offset), 
+    length = _cc_utf16_to_utf8((const uint16_t *)(ctx->bytes + offset), 
                             (const uint16_t *)(ctx->bytes + ctx->length + 1),
                             (uint8_t *)b.bytes, (uint8_t *)(b.bytes + b.limit), false);
 
-    if (_cc_likely(len > 0)) {
+    if (_cc_likely(length > 0)) {
         _cc_free(ctx->bytes);
         ctx->bytes = b.bytes;
         ctx->limit = b.limit;
-        ctx->length = len * sizeof(char_t);
+        ctx->length = length * sizeof(char_t);
         return true;
     }
 

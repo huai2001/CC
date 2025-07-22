@@ -76,20 +76,20 @@ extern "C" {
 #define _CC_SHUT_WR_          SHUT_WR
 #define _CC_SHUT_RD_WR_       SHUT_RDWR
 
-#define _cc_getaddrinfo      getaddrinfo
-#define _cc_freeaddrinfo     freeaddrinfo
+#define _cc_getaddrinfo       getaddrinfo
+#define _cc_freeaddrinfo      freeaddrinfo
+
+/* This is the system-independent socket info structure */
+typedef int                    _cc_socket_t;
+typedef struct addrinfo        _cc_addrinfo_t;
+typedef struct sockaddr        _cc_sockaddr_t;
+typedef socklen_t              _cc_socklen_t;
 
 #define _cc_getsockopt(__sock, __level, __optname, __optval , __optlen)\
     getsockopt(__sock, __level, __optname, (pvoid_t)__optval , (socklen_t*)__optlen)
 
 #define _cc_setsockopt(__sock, __level, __optname, __optval , __optlen) \
     setsockopt( __sock , __level , __optname , (pvoid_t)__optval , __optlen )
-
-/* This is the system-independent socket info structure */
-typedef int                     _cc_socket_t;
-typedef struct addrinfo         _cc_addrinfo_t;
-typedef struct sockaddr         _cc_sockaddr_t;
-typedef socklen_t               _cc_socklen_t;
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

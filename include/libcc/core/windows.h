@@ -114,7 +114,6 @@ _CC_API_PUBLIC(void) _cc_unload_windows_kernel32(void);
 #define _CC_DUMPER_DBGHELP_DLL_NOT_FOUND_              3
 #define _CC_DUMPER_DBGHELP_DLL_TOO_OLD_                4
 
-
 typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info);
 
 /**
@@ -134,7 +133,8 @@ _CC_API_PUBLIC(void) _cc_uninstall_dumper(void);
 
 #endif /*ndef _CC_DISABLED_DUMPER_ */
 
-_CC_API_PUBLIC(tchar_t**) _cc_get_stack_trace(int *nptr);
+_CC_API_PUBLIC(void) _cc_getW_resolve_symbol(_cc_buf_t *buf);
+_CC_API_PUBLIC(void) _cc_getA_resolve_symbol(_cc_buf_t *buf);
 /**
  * @brief Multi Byte To Wide Char
  *
@@ -168,7 +168,7 @@ _CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1,
  *
  * @return id
  */
-#define _cc_getpid() ((int32_t)GetCurrentProcessId())
+#define _cc_getpid() ((uint32_t)(DWORD)GetCurrentProcessId())
 
 
 #define _CC_CLOSE_HANDLE(handle)\

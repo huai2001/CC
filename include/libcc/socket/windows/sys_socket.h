@@ -21,7 +21,7 @@
 #ifndef _C_CC_SYS_WINDOWS_SOCKET_H_INCLUDED_
 #define _C_CC_SYS_WINDOWS_SOCKET_H_INCLUDED_
 
-#include "../../core.h"
+#include "../../core/windows.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -56,7 +56,7 @@ extern "C" {
 */
 #define _CC_SHUT_RD_          SD_RECEIVE
 #define _CC_SHUT_WR_          SD_SEND
-#define _CC_SHUT_RD_WR_        SD_BOTH
+#define _CC_SHUT_RD_WR_       SD_BOTH
 
 /* This is the system-independent socket info structure */
 typedef SOCKET                  _cc_socket_t;

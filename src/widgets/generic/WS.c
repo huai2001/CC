@@ -22,7 +22,7 @@
 
 /**/
 _CC_API_PUBLIC(void) _WSMask(byte_t *data, int64_t length, byte_t *mask) {
-    uint64_t i;
+    int64_t i;
     for (i = 0; i < length; ++i) {
         *(data + i) ^= *(mask + (i & 0x03));
     }

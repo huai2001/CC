@@ -49,7 +49,8 @@ extern "C" {
 /* Socket constants */
 #define _CC_INVALID_SOCKET_     (-1)
 #define _CC_SOCKET_ERROR_       (-1)
- /* errno define */
+
+/* errno define */
 #define _CC_ETIMEDOUT_        ETIMEDOUT
 #define _CC_ENOMEM_           ENOMEM
 #define _CC_EINVAL_           EINVAL
@@ -72,15 +73,14 @@ extern "C" {
 #define _CC_SHUT_WR_          SHUT_WR
 #define _CC_SHUT_RD_WR_       SHUT_RDWR
 
-#define _cc_getaddrinfo          getaddrinfo
-#define _cc_freeaddrinfo         freeaddrinfo
-
+#define _cc_getaddrinfo       getaddrinfo
+#define _cc_freeaddrinfo      freeaddrinfo
 
 /* This is the system-independent socket info structure */
-typedef int                     _cc_socket_t;
-typedef struct addrinfo         _cc_addrinfo_t;
-typedef struct sockaddr         _cc_sockaddr_t;
-typedef socklen_t               _cc_socklen_t;
+typedef int                    _cc_socket_t;
+typedef struct addrinfo        _cc_addrinfo_t;
+typedef struct sockaddr        _cc_sockaddr_t;
+typedef socklen_t              _cc_socklen_t;
 
 #define _cc_getsockopt(__sock, __level, __optname, __optval , __optlen)\
     getsockopt(__sock, __level, __optname, (pvoid_t)__optval , __optlen)

@@ -39,14 +39,18 @@ _CC_API_PUBLIC(bool_t) _cc_isdir(const tchar_t *dir_path) {
     return false;
 }
 
-_CC_API_PUBLIC(tchar_t**) _cc_get_stack_trace(int *nptr) {
-    int n;
+_CC_API_PUBLIC(void) _cc_get_resolve_symbol(_cc_buf_t *buf) {
+    int n,i;
     pvoid_t buffer[64];
     char **symbols;
     
     n = backtrace(buffer, _cc_countof(buffer));
-    if (nptr) {
-        *nptr = n;
+    symbols = backtrace_symbols(buffer, n);
+    _cc_buf_append(buf, " ResolveSymbol: ", sizeof(" ResolveSymbol: ") - 1);
+    for (i = 1; i < n; i++) {
+        _cc_bufA_puts(buf, symbols[i]);
+        if (i < n) {
+            _cc_bufA_puts(buf, ", ");
+        }
     }
-    return backtrace_symbols(buffer, n);
 }

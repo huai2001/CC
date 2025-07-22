@@ -127,13 +127,12 @@ _CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int enable, int de
         return 0;
     }
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(__CC_APPLE__)
     err = setsockopt(fd, IPPROTO_TCP, TCP_KEEPALIVE, &delay, sizeof(delay));
     if (err < 0) {
         return err;
     }
-#else
-#if defined(__GLIBC__) && !defined(__FreeBSD_kernel__)
+#elif defined(__GLIBC__) && !defined(__FreeBSD_kernel__)
     err = setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &delay, sizeof(delay));
     if (err < 0) {
         return err;
@@ -153,7 +152,6 @@ _CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int enable, int de
     if (err < 0) {
         return err;
     }
-#endif
 #endif
 
     return 0;

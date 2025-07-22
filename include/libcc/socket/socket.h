@@ -24,10 +24,6 @@
 #include "../core.h"
 #include "../mutex.h"
 
-#ifndef _cc_socket_t
-#define _cc_socket_t _cc_socket_t
-#endif
-
 #ifdef __CC_WINDOWS__
     #include "windows/sys_socket.h"
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__) \

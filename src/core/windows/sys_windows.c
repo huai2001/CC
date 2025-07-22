@@ -61,90 +61,71 @@ _CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32() {
     return _kernel32_handle;
 }
 
-_CC_API_PRIVATE(size_t) ResolveSymbol(tchar_t *symbols,size_t size, DWORD64 address) {
-    char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+_CC_API_PUBLIC(void) _cc_getW_resolve_symbol(_cc_buf_t *buf) {
+    DWORD64 displacement = 0;
+    PVOID frames[64];
+    USHORT i, n;
+    CHAR buffer[sizeof(SYMBOL_INFOW) + MAX_SYM_NAME * sizeof(WCHAR)];
+    PSYMBOL_INFOW symbol = (PSYMBOL_INFOW)buffer;
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
+    symbol->MaxNameLen = MAX_SYM_NAME;
+
+    if (_current_process == nullptr) {
+        _current_process = GetCurrentProcess();
+    }
+
+    if(!SymInitialize(_current_process, nullptr, TRUE)) {
+        return;
+    }
+
+    n = CaptureStackBackTrace(0, _cc_countof(frames), frames, nullptr);
+    if (n) {
+        _cc_buf_append(buf, " ResolveSymbol: ", sizeof(" ResolveSymbol: ") - 1);
+        for (i = 1; i < n; i++) {
+            if (SymFromAddrW(_current_process, (DWORD64)(uintptr_t)frames[i], &displacement, symbol)) {
+                _cc_bufW_puts(buf, symbol->Name);
+                if (i < n) {
+                    _cc_bufW_puts(buf, L", ");
+                }
+            }
+        }
+    }
+    SymCleanup(_current_process);
+}
+
+_CC_API_PUBLIC(void) _cc_getA_resolve_symbol(_cc_buf_t *buf) {
+    DWORD64 displacement = 0;
+    PVOID frames[64];
+    USHORT i, n;
+    CHAR buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(CHAR)];
     PSYMBOL_INFO symbol = (PSYMBOL_INFO)buffer;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
     symbol->MaxNameLen = MAX_SYM_NAME;
 
-    DWORD64 displacement = 0;
-    if (SymFromAddr(_current_process, address, &displacement, symbol)) {
-        IMAGEHLP_LINE64 line;
-        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-        DWORD lineDisplacement;
-        
-        if (SymGetLineFromAddr64(_current_process, address, &lineDisplacement, &line)) {
-            return _sntprintf(symbols, size, _T("0x%08lX: %s (File: %s Line: %ld)\n"), (DWORD)address, symbol->Name, line.FileName, line.LineNumber);
-        } else {
-            return _sntprintf(symbols, size, _T("0x%08lX: %s (Source info unavailable)\n"), (DWORD)address, symbol->Name);
-        }
-    }
-    return 0;
-}
-
-_CC_API_PUBLIC(tchar_t**) _cc_get_stack_trace(int *nptr) {
-    PVOID frames[64];
-    USHORT i,n, frame_count;
-    tchar_t **symbols;
-    tchar_t *symbols_ptr;
-    size_t ptr_array_size;
-    size_t ptr_buffer_used = 0;
-    size_t limit;
-    size_t length;
-    static _cc_atomic32_t ref = 0;
-
-    //DWORD options = SymGetOptions();
-    //SymSetOptions(options | SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS);
-
-    if (_cc_atomic32_inc_ref(&ref)) {
-        if (_current_process == nullptr) {
-            _current_process = GetCurrentProcess();
-        }
-
-        if(!SymInitialize(_current_process, nullptr, TRUE)) {
-            _cc_atomic32_dec(&ref);
-            fprintf(stderr, "SymInitialize failed: %lu\n", GetLastError());
-            return nullptr;
-        }
+    if (_current_process == nullptr) {
+        _current_process = GetCurrentProcess();
     }
 
-    frame_count = CaptureStackBackTrace(0, _cc_countof(frames), frames, nullptr);
-    ptr_array_size = sizeof(tchar_t*) * frame_count;
-    limit = _CC_16K_BUFFER_SIZE_;
-
-    symbols = (tchar_t**)malloc(ptr_array_size + _CC_16K_BUFFER_SIZE_);
-
-    symbols_ptr = (tchar_t*)((byte_t*)symbols + ptr_array_size);
-    n = 0;
-    for ( i = 0; i < frame_count; i++) {
-        if ((limit - ptr_buffer_used) < 1024) {
-            limit = ptr_buffer_used + _CC_16K_BUFFER_SIZE_;
-            symbols = (tchar_t**)realloc(symbols, ptr_array_size + limit);
-            symbols_ptr = (tchar_t*)((byte_t*)symbols + ptr_array_size);
-        }
-
-        length = ResolveSymbol(symbols_ptr + ptr_buffer_used,
-                    limit - ptr_buffer_used, (DWORD64)(uintptr_t)frames[i]);
-
-        if (length > 0) {
-            //*(symbols_ptr + ptr_buffer_used + length) = 0;
-            symbols[n++] = symbols_ptr + ptr_buffer_used;
-            ptr_buffer_used += length;
+    if(!SymInitialize(_current_process, nullptr, TRUE)) {
+        return;
+    }
+    n = CaptureStackBackTrace(0, _cc_countof(frames), frames, nullptr);
+    if (n) {
+        _cc_buf_append(buf, " ResolveSymbol: ", sizeof(" ResolveSymbol: ") - 1);
+        for (i = 1; i < n; i++) {
+            if (SymFromAddr(_current_process, (DWORD64)(uintptr_t)frames[i], &displacement, symbol)) {
+                _cc_bufA_puts(buf, symbol->Name);
+                if (i < n) {
+                    _cc_bufA_puts(buf, ", ");
+                }
+            }
         }
     }
-
-    if (nptr) {
-        *nptr = n;
-    }
-
-    if (_cc_atomic32_dec_ref(&ref)) {
-        SymCleanup(_current_process);
-    }
-    return symbols;
+    SymCleanup(_current_process);
 }
 
 /**/
-_CC_API_PRIVATE(LONG) _exit_proccess(LONG retval) {
+_CC_API_PRIVATE(LONG) _exit_process(LONG retval) {
     TerminateProcess(_current_process, 0);
     /*
     // MLM Note: ExitThread will work, and it allows the MiniDumper to kill a crashed thread
@@ -182,7 +163,7 @@ _CC_API_PRIVATE(LONG WINAPI) _mini_dumper_handler(PEXCEPTION_POINTERS info) {
             _dumper_callback(_CC_DUMPER_FAILED_TO_CREATE_DUMP_FILE_, info);
         }
 
-        return _exit_proccess(retval);
+        return _exit_process(retval);
     }
 
     /* write the dump */
@@ -202,7 +183,7 @@ _CC_API_PRIVATE(LONG WINAPI) _mini_dumper_handler(PEXCEPTION_POINTERS info) {
 
     CloseHandle(bugreport_file_handle);
 
-    return _exit_proccess(retval);
+    return _exit_process(retval);
 }
 
 /**/
