@@ -9,16 +9,14 @@ make .a platform=linux debug=1
 #Release
 make .a platform=linux
 
-make .a platfrom=linux target=json
-make .a platfrom=linux target=db
-make .so platfrom=linux target=url_request
+make .dylib platfrom=linux target=widgets all=1 debug=1
 
 #dynamiclib
 make .dylib platform=osx
 make .so platform=linux
 
 #$ Windows
-proj.Win/lib_cc_vs2010.vcxproj
+proj.Win/libcc.vcxproj
 
 #$ Android
 cd /CC/proj.Android/JNI

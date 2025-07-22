@@ -76,7 +76,7 @@ list
 print (缩写 p)
 print variable_name
 
-‌跳过循环 
+跳过循环 
 在循环体内使用 until 直接执行到循环结束
 until 20  # 跳转到第20行
 
