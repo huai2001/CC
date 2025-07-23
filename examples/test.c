@@ -22,38 +22,76 @@
 #include <stdarg.h>
 #include <locale.h>
 #include <time.h>
-
+#include <sys/un.h>
 #include <libcc.h>
 #include <libcc/widgets/widgets.h>
 
 #define LOOP_MAX 10000000
+#define SYSLOG_PATH "/dev/log"  // Ubuntu syslog默认套接字路径
 
 int main(int argc, char *argv[]) {
-    int32_t i = 0;
-    clock_t start, end;
-    _cc_buf_t buf;
+    // int32_t i = 0;
+    // clock_t start, end;
+    // _cc_buf_t buf;
     _cc_install_socket();
-    SetConsoleOutputCP(65001);
+    // SetConsoleOutputCP(65001);
     _cc_logger_open_syslog("test",_T("127.0.0.1"), _CC_PORT_SYSLOG_);
 
-    _cc_buf_alloc(&buf, 1024);
-    start = clock();
-    for (i = 0; i < LOOP_MAX; i++) {
-        _cc_buf_cleanup(&buf);
-        _cc_buf_appendf(&buf, "%s,%d,%s", "cc;", 100, "ghhgfhfdghfdhgfhfgdhgfdh");
-    }
-    end = clock()
-        ;
-    printf("Buf: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
-    start = clock();
-    for (i = 0; i < LOOP_MAX; i++) {
-        _cc_buf_cleanup(&buf);
-        _cc_buf_appendf(&buf, "%s,", "cName);");
-    }
-    end = clock();
-    printf("Buf: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
+    // _cc_buf_alloc(&buf, 1024);
+    // start = clock();
+    // for (i = 0; i < LOOP_MAX; i++) {
+    //     _cc_buf_cleanup(&buf);
+    //     _cc_buf_appendf(&buf, "%s,%d,%s", "cc;", 100, "ghhgfhfdghfdhgfhfgdhgfdh");
+    // }
+    // end = clock()
+    //     ;
+    // printf("Buf: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
+    // start = clock();
+    // for (i = 0; i < LOOP_MAX; i++) {
+    //     _cc_buf_cleanup(&buf);
+    //     _cc_buf_appendf(&buf, "%s,", "cName);");
+    // }
+    // end = clock();
+    // printf("Buf: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
     _cc_logger_error("test");
     _cc_loggerA(_CC_LOG_LEVEL_ERROR_,"test");
-    system("pause");
+
+    // struct in6_addr bin;
+    // _cc_inet_pton(AF_INET6, "fe80::20c:29ff:fe86:152c", (byte_t*)&bin);  // 字符串→二进制
+    // char str[INET6_ADDRSTRLEN];
+    // _cc_inet_ntop(AF_INET6, (byte_t*)&bin, str, sizeof(str));  // 二进制→字符串
+
+    // _tprintf("IPv6:%s\n", str);
+    //system("pause");
+// 1. 创建UDP套接字
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        perror("socket creation failed");
+        return 1;
+    }
+
+    // 2. 配置目标地址结构
+    struct sockaddr_in servaddr;
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(_CC_PORT_SYSLOG_);
+    inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr);
+
+    // 3. 构造RFC 3164格式日志（优先级14=LOG_USER|LOG_NOTICE）
+    time_t now = time(NULL);
+    char timestamp[64];
+    strftime(timestamp, sizeof(timestamp), "%b %d %H:%M:%S", localtime(&now));
+    
+    char message[256];
+    snprintf(message, sizeof(message), "<14>%s %s udp_sender[%d]: Test log via UDP", 
+             timestamp, "ubuntu-host", getpid());
+
+    // 4. 发送UDP数据包
+    if (sendto(sockfd, message, strlen(message), 0, 
+              (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
+        perror("sendto failed");
+    }
+
+    close(sockfd);
     return 0;
 }

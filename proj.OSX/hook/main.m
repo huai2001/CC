@@ -19,13 +19,13 @@ void *hookConnect(int socket, const struct sockaddr *address, socklen_t length) 
         case AF_INET: {
             struct sockaddr_in *addr = (struct sockaddr_in*)address;
             port = htons(addr->sin_port);
-            _cc_inet_ntop4((byte_t*)&addr->sin_addr, buf, _cc_countof(buf));
+            _cc_inet_ntop(AF_INET, (byte_t*)&addr->sin_addr, buf, _cc_countof(buf));
         }
             break;
         case AF_INET6: {
             struct sockaddr_in6 *addr = (struct sockaddr_in6*)address;
             port = htons(addr->sin6_port);
-            _cc_inet_ntop6((byte_t*)&addr->sin6_addr, buf, _cc_countof(buf));
+            _cc_inet_ntop(AF_INET6, (byte_t*)&addr->sin6_addr, buf, _cc_countof(buf));
         }
             break;
     }

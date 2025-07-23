@@ -56,11 +56,12 @@
 
 #endif /* defined(__linux__) || defined(__GNU__) || defined(GNU_KFREEBSD) */
 
-#if defined(__unix__) || (defined(__CC_APPLE__) && defined(__MACH__)) || defined(__CC_BSD__)
+#if (defined(__CC_APPLE__) && defined(__MACH__)) || defined(__CC_BSD__)
     /* Dragonfly, FreeBSD, NetBSD, OpenBSD (has arc4random) */
     #include <sys/param.h>
     #if defined(__CC_BSD__)
         #include <stdlib.h>
+        #include <bsd/stdlib.h>
     #endif
     /* GNU/Hurd defines BSD in sys/param.h which causes problems later */
     #ifndef __GNU__
@@ -197,13 +198,13 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 #endif /* defined(_WIN32) */
 
 #if (defined(__CC_LINUX__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom))
-# if defined(USE_GLIBC)
+#if defined(USE_GLIBC)
 // getrandom is declared in glibc.
-# elif defined(SYS_getrandom)
+#elif defined(SYS_getrandom)
 _CC_API_PRIVATE(ssize_t) getrandom(void *buf, size_t nbytes, unsigned int flags) {
 	return syscall(SYS_getrandom, buf, buflen, flags);
 }
-# endif
+#endif
 
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 	/* I have thought about using a separate PRF, seeded by getrandom, but
@@ -228,46 +229,45 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 
 	return;
 }
-#endif /* (defined(__linux__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom)) */
+/* (defined(__linux__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom)) */
+#elif defined(__CC_LINUX__) && !defined(__CC_ANDROID__)
+_CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
+    int fd;
+    size_t offset = 0, count;
+    ssize_t tmp;
+    do {
+        fd = open("/dev/urandom", O_RDONLY);
+    } while (fd == -1 && errno == EINTR);
 
+    if (fd == -1) {
+        generic_random_bytes(buf,nbytes);
+        return;
+    }
+
+    while (nbytes > 0) {
+        count = nbytes <= SSIZE_MAX ? nbytes : SSIZE_MAX;
+        tmp = read(fd, (char *)buf + offset, count);
+        if (tmp == -1 && (errno == EAGAIN || errno == EINTR)) {
+            continue;
+        }
+        /* Unrecoverable IO error */
+        if (tmp == -1) {
+            generic_random_bytes(buf,nbytes);
+            break;
+        }
+        offset += tmp;
+        nbytes -= tmp;
+    }
+
+    close(fd);
+}
+#endif /* defined(__linux__) */
 #ifdef ARC4RANDOM
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 	arc4random_buf(buf, nbytes);
 }
 #endif /* defined(ARC4RANDOM) */
 
-# if defined(__CC_LINUX__) && !defined(__CC_ANDROID__)
-_CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
-    int fd;
-	size_t offset = 0, count;
-	ssize_t tmp;
-	do {
-		fd = open("/dev/urandom", O_RDONLY);
-	} while (fd == -1 && errno == EINTR);
-
-	if (fd == -1) {
-        generic_random_bytes(buf,nbytes);
-        return;
-    }
-
-	while (nbytes > 0) {
-		count = nbytes <= SSIZE_MAX ? nbytes : SSIZE_MAX;
-		tmp = read(fd, (char *)buf + offset, count);
-		if (tmp == -1 && (errno == EAGAIN || errno == EINTR)) {
-			continue;
-		}
-        /* Unrecoverable IO error */
-		if (tmp == -1) {
-            generic_random_bytes(buf,nbytes);
-            break;
-        }
-		offset += tmp;
-		nbytes -= tmp;
-	}
-
-	close(fd);
-}
-#endif /* defined(__linux__) */
 
 /**/
 _CC_API_PUBLIC(float32_t) _cc_randomf32(float32_t from, float32_t to) {

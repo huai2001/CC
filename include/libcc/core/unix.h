@@ -21,7 +21,7 @@
 #ifndef _C_CC_SYS_UNIX_HEAD_FILE_
 #define _C_CC_SYS_UNIX_HEAD_FILE_
 
-#include "../types.h"
+#include "../buf.h"
 #include <string.h>
 
 /* Set up for C function definitions, even when using C++ */

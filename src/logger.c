@@ -24,6 +24,7 @@
 #include <libcc/string.h>
 #include <libcc/socket/socket.h>
 #include <time.h>
+#include <sys/un.h>
 
 #ifdef __CC_ANDROID__
 #include <libcc/core/android.h>
@@ -38,7 +39,8 @@
 static struct {
     bool_t enabled;
     _cc_socket_t fd;
-    _cc_sockaddr_t sockaddr;
+    struct sockaddr_un sockaddr;
+    _cc_socklen_t socklen;
     _cc_atomic_lock_t lock;
 
     uint32_t pid;
@@ -208,7 +210,9 @@ _CC_API_PUBLIC(void) _cc_logger_set_app_name(const tchar_t *app_name) {
 }
 
 _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t length) {
-    //wchar_t str_date[128];
+#ifdef _RFC_3164_
+    wchar_t str_date[128];
+#endif
     _cc_buf_t buffer;
     struct tm tm_now;
     time_t now = time(nullptr);
@@ -220,8 +224,8 @@ _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t l
 
 #ifdef _RFC_3164_
     // RFC 3164
-    result = wcsftime(str_date, _cc_countof(str_date), L"%b %d %H:%M:%S", tm_now);
-    _cc_bufW_appendf(&buffer, L"<%d>%s %s[%d] ",
+    wcsftime(str_date, _cc_countof(str_date), L"%b %d %H:%M:%S", &tm_now);
+    _cc_bufW_appendf(&buffer, L"<%d>%s %s[%d]: ",
                     pri, str_date, syslog.hostname, syslog.pid);
 #else
     // RFC 5424
@@ -266,7 +270,9 @@ _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t l
 
 /**/
 _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t length) {
-    //char_t str_date[128];
+#ifdef _RFC_3164_
+    char_t str_date[128];
+#endif
     _cc_buf_t buffer;
     struct tm tm_now;
     time_t now = time(nullptr);
@@ -278,8 +284,8 @@ _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t le
 
 #ifdef _RFC_3164_
     // RFC 3164
-    result = strftime(str_date, _cc_countof(str_date), "%b %d %H:%M:%S", tm_now);
-    _cc_bufA_appendf(&buffer, "<%d>%s %s[%d] ",
+    strftime(str_date, _cc_countof(str_date), "%b %d %H:%M:%S", &tm_now);
+    _cc_bufA_appendf(&buffer, "<%d>%s %s[%d]: ",
                     pri, str_date, syslog.hostname, syslog.pid);
 #else
     // RFC 5424
@@ -291,7 +297,6 @@ _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t le
 #endif
 
     if (msg) {
-        size_t i = 0;
         if (length <= 0) {
             length = strlen(msg);
         }
@@ -327,7 +332,7 @@ _CC_API_PUBLIC(void) _cc_syslog(const byte_t* msg, size_t length) {
         return;
     }
     _cc_logger_lock();
-    _cc_sendto(syslog.fd, msg, (int32_t)length, &syslog.sockaddr, sizeof(struct sockaddr_in));
+    _cc_sendto(syslog.fd, msg, (int32_t)length, (_cc_sockaddr_t*)&syslog.sockaddr, syslog.socklen);
     _cc_logger_unlock();
 }
 
@@ -337,14 +342,19 @@ _CC_API_PUBLIC(void) _cc_logger_open_syslog(tchar_t *app_name, const tchar_t *ip
         return;
     }
 
-    syslog.fd = socket(AF_INET, SOCK_DGRAM, 0);
+    syslog.fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (syslog.fd == _CC_INVALID_SOCKET_) {
         _cc_logger_error(_T("Failed to create UDP socket: %d"), _cc_last_errno());
         return;
     }
 
     _cc_lock_init(&syslog.lock);
-    _cc_inet_ipv4_addr((struct sockaddr_in*) & syslog.sockaddr, ip, port);
+    //_cc_inet_ipv4_addr((struct sockaddr_in*) & syslog.sockaddr, ip, port);
+    struct sockaddr_un *addr = (struct sockaddr_un *)&syslog.sockaddr;
+    syslog.socklen = sizeof(struct sockaddr_un);
+    memset(addr, 0, syslog.socklen);
+    addr->sun_family = AF_UNIX;
+    strncpy(addr->sun_path, "/dev/log", sizeof(addr->sun_path) - 1);
 
     syslog.pid = _cc_getpid();
     syslog.enabled = true;

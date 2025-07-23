@@ -243,8 +243,9 @@ _CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t l
  *
  * @return true if successful or false on error.
  */
-_CC_API_PUBLIC(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst);
-
+_CC_FORCE_INLINE_ bool_t _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) {
+    return inet_pton(af, src, dst) == 1;
+}
 /**
  * @brief 
  *
@@ -255,46 +256,9 @@ _CC_API_PUBLIC(bool_t) _cc_inet_pton(int af, const tchar_t *src, byte_t *dst);
  *
  * @return true if successful or false on error.
  */
-_CC_API_PUBLIC(bool_t) _cc_inet_ntop(int af,  const byte_t *src, tchar_t *dst, int32_t size);
-
-/**
- * @brief
- *
- * @param src in_addr structure
- * @param dst IP Address
- * @param size Maximum length of dst buffer
- *
- * @return true if successful or false on error.
- */
-_CC_API_PUBLIC(bool_t) _cc_inet_ntop4(const byte_t *src, tchar_t *dst, int32_t size);
-/**
- * @brief
- *
- * @param src in6_addr structure
- * @param dst IP Address
- * @param size Maximum length of dst buffer
- *
- * @return true if successful or false on error.
- */
-_CC_API_PUBLIC(bool_t) _cc_inet_ntop6(const byte_t *src, tchar_t *dst, int32_t size);
-/**
- * @brief
- *
- * @param dst IP Address
- * @param src in_addr structure
- *
- * @return true if successful or false on error.
- */
-_CC_API_PUBLIC(bool_t) _cc_inet_pton4(const tchar_t *src, byte_t *dst);
-/**
- * @brief
- *
- * @param dst IP Address
- * @param src in6_addr structure
- *
- * @return true if successful or false on error.
- */
-_CC_API_PUBLIC(bool_t) _cc_inet_pton6(const tchar_t *src, byte_t *dst);
+_CC_FORCE_INLINE_ bool_t _cc_inet_ntop(int af,  const byte_t *src, tchar_t *dst, int32_t size){
+    return inet_ntop(af, src, dst, size) != nullptr;
+}
 /**
  * @brief 
  *

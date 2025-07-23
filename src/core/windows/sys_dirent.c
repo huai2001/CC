@@ -300,13 +300,13 @@ _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
     }
 
     for (i = len - 1; i > 0; i--) {
-        if (path[i] == '\\') {
+        if (path[i] == _CC_SLASH_C_) {
             break;
         }
     }
 
     _cc_assert(i > 0);  // Should have been an absolute path.
-    path[i + 1] = '\0'; // chop off filename.
+    path[i] = '\0'; // chop off filename.
 
     return i;
 }

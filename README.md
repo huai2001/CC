@@ -4,7 +4,7 @@
 ![platform](https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-blue)
 <br>
 
-`libcc`是跨平台，多线程，轻量级的C语言库，提供了更简单的接口和更丰富的协议。提供的函数功能包括：字符串、日志、双向/单向链表、哈希表、网络通信、JSON、XML、INI配置文件读取、AES、DES、MD2、MD4、MD5、base16/base64编码/解码、url编码/解码、时间轮计时器等等。详细信息请参阅C文件
+`libcc`是跨平台，多线程，轻量级的C语言库，提供了更简单的接口和更丰富的协议。提供的函数功能包括：字符串、日志、双向/单向链表、哈希表、网络通信、JSON、XML、INI配置文件读取、AES、DES、MD2、MD4、MD5、base16/base58/base64编码/解码、url编码/解码、时间轮计时器等等。详细信息请参阅C文件
 ```C
 //跨平台，超轻量，易扩展，框架代码如下：
 #define CALL(fn, ...) fn(__VA_ARGS__)
@@ -35,10 +35,13 @@ libcc提供了以下构建方式:
 #1、通过Makefile:编译 (Linux,freeBSD,macOS)
 cd yourdirname/CC/build
 make path
-./build.sh
 
-#2、通过VS2010编译 (Windows)
-proj.Win/libcc_vs2010.vcxproj
+./build.sh debug=1
+# Windows 下MSYS2环境 执行
+./build.cmd debug=1
+
+#2、通过Visual Studio编译 (Windows)
+proj.Win/libcc.vcxproj
 
 #3、通过Android JNI编译
 #打开 .bash_profile 配置 $NDK_ROOT = (Android NDK目录)
@@ -56,6 +59,8 @@ sudo apt-get install libsqlite3-dev
 sudo apt-get install libjpeg-dev
 sudo apt-get install libpng-dev
 
+#6、FreeBSD 安装
+pkg install mysql80-client sqlite3
 ```
 
 ## ⚡️ 入门与体验
@@ -77,7 +82,6 @@ Email: [libcc.cn@gmail.com](mailto:libcc.cn@gmail.com)
 #define MAX_MSG_LENGTH 1024
 
 static bool_t keep_active = true;
-static _cc_event_t *curr_event;
 
 static void onLine(_cc_event_t *e, const char_t* data, uint16_t length) {
     tchar_t buf[1024];
@@ -113,7 +117,6 @@ static bool_t send_message(_cc_event_t *e) {
 static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_CONNECT_) {
         _tprintf(_T(" connect to server!\n"));
-        curr_event = e;
     }
     
     if (which & _CC_EVENT_DISCONNECT_) {
@@ -169,7 +172,7 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
 int _tmain (int argc, tchar_t * const argv[]) {
     _cc_event_cycle_t cycle;
     struct sockaddr_in sa;
-    curr_event = nullptr;
+    _cc_event_t *curr_event = nullptr;
 
     _cc_install_socket();
 

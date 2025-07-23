@@ -154,10 +154,11 @@ _CC_API_PUBLIC(size_t) _cc_fpath(tchar_t *buf, size_t size, const tchar_t *fmt, 
 #else
     if (realpath(ptr, buf) == nullptr) {
 #endif
-        fmt_length = _min(size, fmt_length);
-        memcpy(buf, ptr, fmt_length);
-        buf[fmt_length - 1] = 0;
+        fmt_length = _tcslen(ptr);
+        _tcsncpy(buf, ptr, size);
+        buf[size - 1] = 0;
     } else {
+        buf[size - 1] = 0;
         fmt_length = _tcslen(buf);
     }
 

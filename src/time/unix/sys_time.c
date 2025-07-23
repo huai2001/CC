@@ -40,7 +40,6 @@ static mach_timebase_info_data_t mach_base_info;
 #endif
 
 #endif
-static struct timeval start_tv;
 
 static bool_t has_monotonic_time = false;
 static bool_t checked_monotonic_time = false;

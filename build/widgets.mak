@@ -17,14 +17,16 @@ ifdef shared
 		MACROS += _CC_ENABLE_OPENSSL_=1 
 	endif
 
-	ifeq ($(PLATFORM), osx)
+	ifeq ($(PLATFORM), windows)
+		LIBS += ssl-3-x64 crypto-3-x64 mysql
+	else ifeq ($(PLATFORM), osx)
 		LIBS += ssl.3 crypto.3
 	else
-		LIBS += ssl-3-x64 crypto-3-x64
+		LIBS += ssl crypto mysqlclient
 	endif
 
 	ifdef db
-		LIBS += sqlite3 mysql
+		LIBS += sqlite3 
 	endif
 
 endif
@@ -35,8 +37,11 @@ endif
 # MSYS2 build sqlite3
 # gcc -shared -o sqlite3.dll sqlite3.c -Wl,--out-implib,libsqlite3.a
 # gcc -DSQLITE_ENABLE_COLUMN_METADATA sqlite3.c -shared -o sqlite3.dll -Wl,--out-implib,libsqlite3.a
+
 # Linux Ubuntu/Debian
-# bash sudo apt install libsqlite3-dev
+# sudo apt install libsqlite3-dev
+# MySQL
+# sudo apt-get install libmysqlclient-dev
 
 #macOS Homebrew
 # bash brew install sqlite
@@ -84,7 +89,7 @@ ifeq ($(PLATFORM), windows)
 LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/event/windows/sys_WSA.o \
 					$(WIDGET_FILES)/event/windows/sys_iocp.o \
-	 				$(WIDGET_FILES)/event/windows/sys_iocp_overlapped.o
+					$(WIDGET_FILES)/event/windows/sys_iocp_overlapped.o
 endif
 
 endif # --end event--
@@ -97,8 +102,8 @@ LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/json/json.parser.o
 
  LOCAL_SRC_FILES += \
- 					$(WIDGET_FILES)/ini/ini.o \
- 					$(WIDGET_FILES)/ini/ini.parser.o
+					$(WIDGET_FILES)/ini/ini.o \
+					$(WIDGET_FILES)/ini/ini.parser.o
 
 LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/xml/xml.o \

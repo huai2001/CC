@@ -8,31 +8,31 @@ KERNEL_VERSION="$(uname -r)"
 ARCHITECTURE="$(uname -m)"
 #MINGW64
 if [[ $KERNEL_NAME == MINGW64* ]];then
-    KERNEL_NAME="Windows"
+	KERNEL_NAME="Windows"
 fi
 
 case $KERNEL_NAME in
 "FreeBSD")
-    PLATFORM="freebsd"
-    MAKE_TOOL=gmake
-    ;;
+	PLATFORM="freebsd"
+	MAKE_TOOL=gmake
+	;;
 "Linux")
-    PLATFORM="linux"
-    ;;
+	PLATFORM="linux"
+	;;
 "Darwin")
-    PLATFORM="osx"
-    TARGET_NAME=.dylib
-    ;;
+	PLATFORM="osx"
+	TARGET_NAME=.dylib
+	;;
 "SunOS")
-    PLATFORM="solaris"
-    ;;
+	PLATFORM="solaris"
+	;;
 "Windows")
-    PLATFORM="Windows"
-    TARGET_NAME=.dll
-    ;;
+	PLATFORM="Windows"
+	TARGET_NAME=.dll
+	;;
 *)
-    echo "Unknown platform" >&2
-    exit 1
+	echo "Unknown platform" >&2
+	exit 1
 esac
 
 if [ "$1" == "debug" ]; then

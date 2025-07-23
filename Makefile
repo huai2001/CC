@@ -55,7 +55,7 @@ LOCAL_SRC_FILES = src/aes.o \
 ifneq ($(filter $(PLATFORM), freebsd unix),)
 	LOCAL_SRC_FILES += src/time/unix/sys_time.o \
 		src/core/file.o \
-		src/core/unix/unix.o \
+		src/core/unix/sys_unix.o \
 		src/core/unix/sys_dirent.o \
 		src/core/unix/sys_locale.o \
 		src/socket/unix/sys_socket.o \
@@ -72,7 +72,7 @@ ifneq ($(filter $(PLATFORM), osx),)
 		src/core/OSX/sys_dirent.o \
 		src/core/OSX/sys_locale.o \
 		src/core/OSX/sys_ios.o \
-		src/core/unix/unix.o \
+		src/core/unix/sys_unix.o \
 		src/power/macosx/sys_power.o \
 		src/socket/unix/sys_socket.o \
 		src/thread/pthread/sys_thread.o \
@@ -87,7 +87,7 @@ ifneq ($(filter $(PLATFORM), ios),)
 		src/core/IOS/sys_file.o \
 		src/core/IOS/sys_dirent.o \
 		src/core/IOS/sys_ios.o \
-		src/core/unix/unix.o \
+		src/core/unix/sys_unix.o \
 		src/socket/unix/sys_socket.o \
 		src/thread/pthread/sys_thread.o \
 		src/thread/pthread/sys_mutex.o \
@@ -99,7 +99,7 @@ endif
 ifeq ($(PLATFORM), linux)
 		LOCAL_SRC_FILES += src/time/linux/sys_time.o \
 		src/core/file.o \
-		src/core/unix/unix.o \
+		src/core/unix/sys_unix.o \
 		src/core/unix/sys_dirent.o \
 		src/core/unix/sys_locale.o \
 		src/power/linux/sys_power.o \

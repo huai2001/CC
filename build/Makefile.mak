@@ -15,30 +15,47 @@ RANLIB  ?= ranlib
 
 #set 1 Debug or 0 Release
 #debug = 1
-VERSION 	:= $(shell git describe --tags 2>/dev/nullptr || echo 1.0.0)
+VERSION 	:= 1.0.0
 MIN_VERSION := 10.15
 
 INSTALL_DIR	?=	/usr/local
 
+#获取当前操作名称
+ifeq ($(platform),)
+	# Platform detections and overrides
+	PLATFORM ?= $(shell uname 2>/dev/null | tr A-Z a-z)
+	PLATFORM := $(patsubst msys%,windows,$(PLATFORM))
+	PLATFORM := $(patsubst mingw%,windows,$(PLATFORM))
+	PLATFORM := $(patsubst darwin,osx,$(PLATFORM))
+else
+	PLATFORM := $(platform)
+endif
+
+ifneq ($(filter $(PLATFORM), osx darwin),)
+	PLATFORM = osx
+endif
+
 # CUP
 # 改进后的架构检测逻辑（支持更多ARM变体）
 ifeq ($(arch),)
-	ARCH := $(shell uname -m 2>/dev/nullptr || echo unknown)
+	ARCH := $(shell uname -m 2>/dev/null || echo unknown)
 	ARCH := $(patsubst arm64,aarch64,$(ARCH))
 	ARCH := $(patsubst armv7l,arm,$(ARCH))
 	ARCH := $(patsubst armv6l,arm,$(ARCH))
 	ifeq ($(ARCH), x86_64)
-	    CFLAGS += -m64 -msse4.2
-	    ARCH_x64 = 1
+		CFLAGS += -m64 -msse4.2
+		ARCH_x64 = 1
 	else ifeq ($(ARCH), i686)
-	    CFLAGS += -m32 -msse2
+		CFLAGS += -m32 -msse2
 	else ifeq ($(ARCH), aarch64)
-	    CFLAGS += -march=armv8-a+crc+crypto
-	    ARCH_x64 = 1
+		CFLAGS += -march=armv8-a+crc+crypto
+		ARCH_x64 = 1
 	else ifeq ($(ARCH), arm)
-	    CFLAGS += -march=armv7-a+neon-vfpv4
+		CFLAGS += -march=armv7-a+neon-vfpv4
 	else
-	    $(warning Unknown architecture $(ARCH), using generic flags)
+		#$(warning Unknown architecture $(ARCH), using generic flags)
+		CFLAGS  += -m64
+		ARCH_x64 = 1
 	endif
 else ifeq ($(arch), x64)
 	CFLAGS  += -m64
@@ -47,58 +64,44 @@ else ifeq ($(arch), x32)
 	CFLAGS  += -m32
 endif
 
-#获取当前操作名称
-ifeq ($(platform),)
-    # Platform detections and overrides
-	PLATFORM ?= $(shell uname 2>/dev/nullptr | tr A-Z a-z)
-	PLATFORM := $(patsubst msys%,windows,$(PLATFORM))
-	PLATFORM := $(patsubst mingw%,windows,$(PLATFORM))
-	PLATFORM := $(patsubst darwin,osx,$(PLATFORM))
-else
-    PLATFORM := $(platform)
-endif
-
-ifneq ($(filter $(PLATFORM), osx darwin),)
-    PLATFORM = osx
-endif
-
 ##################################################
 ##				操作系统参数设置				  ##
 ##################################################
 
 ifeq ($(PLATFORM), ios)
-    CC		?= xcrun -sdk iphoneos clang
-    CPP		?= xcrun -sdk iphoneos clang
+	CC		?= xcrun -sdk iphoneos clang
+	CPP		?= xcrun -sdk iphoneos clang
 	ifdef ARCH_x64
 		CFLAGS  += -arch arm64 # x86_64
 	else
 		CFLAGS  += -arch armv7 # i386
 	endif
-    CFLAGS  += -mios-version-min=$(MIN_VERSION) -march=armv7-a -fmessage-length=0
-    LDFLAGS += -mios-version-min=$(MIN_VERSION) -march=armv7-a -Wl, -Bsymbolic-functions -read_only_relocs suppress
+	CFLAGS  += -mios-version-min=$(MIN_VERSION) -march=armv7-a -fmessage-length=0
+	LDFLAGS += -mios-version-min=$(MIN_VERSION) -march=armv7-a -Wl, -Bsymbolic-functions -read_only_relocs suppress
 else ifeq ($(PLATFORM), osx)
 	ifdef ARCH_x64
 		CFLAGS  += -arch x86_64
 	else
 		CFLAGS  += -arch i386
 	endif
-    CC		?= clang
-    CPP		?= clang
-    CFLAGS  += -mmacosx-version-min=$(MIN_VERSION)
-    LDFLAGS += -Wl,-rpath,./ -mmacosx-version-min=$(MIN_VERSION) -Bsymbolic-functions -framework Foundation -framework CoreLocation -framework Cocoa
-   	INSTALL_NAME = -install_name @loader_path/lib$(TARGET_NAME).dylib
+	CC		?= clang
+	CPP		?= clang
+	CFLAGS  += -mmacosx-version-min=$(MIN_VERSION)
+	LDFLAGS += -Wl,-rpath,./ -mmacosx-version-min=$(MIN_VERSION) -Bsymbolic-functions -framework Foundation -framework CoreLocation -framework Cocoa
+	INSTALL_NAME = -install_name @loader_path/lib$(TARGET_NAME).dylib
 else ifeq ($(PLATFORM), linux)
-    LDFLAGS += -Wl,--rpath=./
+	LDFLAGS += -Wl,--rpath=./
+	MACROS  += _RFC_3164_=1
 else ifeq ($(PLATFORM), freebsd)
-    MAKE 	?= gmake
-    CC		?= clang
-    LDFLAGS += -Wl,--rpath=./
+	MAKE 	?= gmake
+	CC		?= clang
+	LDFLAGS += -Wl,--rpath=./
 else ifeq ($(PLATFORM), windows)
 	INSTALL_DIR	?= c:\\libcc
 endif
 
 ifeq ($(CC), gcc)
-    CFLAGS  += -D_GNU_SOURCE=1 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+	CFLAGS  += -D_GNU_SOURCE=1 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 endif
 
 ifdef shared
@@ -149,9 +152,9 @@ CFLAGS+=-Wall
 #优化等级
 ifdef debug
 	#-O0禁止编译器进行优化
-    CFLAGS  += -g -O0 -DDEBUG
+	CFLAGS  += -g -O0 -DDEBUG
 else
-    CFLAGS  += -O3 -DNDEBUG
+	CFLAGS  += -O3 -DNDEBUG
 endif
 
 ifdef unicode

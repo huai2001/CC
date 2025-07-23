@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pwd.h>
 
 #ifdef __CC_BSD__
 #include <sys/sysctl.h>
@@ -105,7 +106,7 @@ _CC_API_PRIVATE(size_t) _sym_link(tchar_t *cwd, size_t maxlen) {
     #if defined(__CC_SOLARIS__)
     if (rc <= 0) {
         char *path = getexecname();
-        if ((path != nullptr) && (path[0] == '/')) { /* must be absolute path... */
+        if ((path != nullptr) && (path[0] == _CC_SLASH_C_)) { /* must be absolute path... */
             _tcsncpy(cwd, path, maxlen);
             cwd[maxlen - 1] = 0;
             rc = (size_t)strlen(cwd);
@@ -127,13 +128,13 @@ _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
         return 0;
     }
     for (i = rc - 1; i > 0; i--) {
-        if (path[i] == '\\') {
+        if (path[i] == _CC_SLASH_C_) {
             break;
         }
     }
 
     _cc_assert(i > 0);  // Should have been an absolute path.
-    path[i + 1] = '\0'; // chop off filename.
+    path[i] = '\0'; // chop off filename.
 
     return i;
 
@@ -145,74 +146,57 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
 
     switch(folder) {
     case _CC_FOLDER_HOME_:
-        param = nullptr;
-        result = pw->pw_dir;
         break;
-
     case _CC_FOLDER_DESKTOP_:
         param = _T("Desktop");
-        result = getenv("XDG_DESKTOP_DIR");
         break;
 
     case _CC_FOLDER_DOCUMENTS_:
         param = _T("Document");
-        result = getenv("XDG_DOCUMENTS_DIR");
         break;
 
     case _CC_FOLDER_DOWNLOADS_:
         param = _T("Download");
-        result = getenv("XDG_DOWNLOAD_DIR");
         break;
 
     case _CC_FOLDER_MUSIC_:
         param = _T("Music");
-        result = getenv("XDG_MUSIC_DIR");
         break;
 
     case _CC_FOLDER_PICTURES_:
         param = _T("Pictures");
-        result = getenv("XDG_PICTURES_DIR");
         break;
 
     case _CC_FOLDER_PUBLICSHARE_:
         param = _T("Publicshare");
-        result = getenv("XDG_PUBLICSHARE_DIR");
         break;
 
     case _CC_FOLDER_SAVEDGAMES_:
         param = _T("SavedGames");
-        result = getenv("XDG_SAVEDGAMES_DIR");
         break;
 
     case _CC_FOLDER_SCREENSHOTS_:
         param = _T("Screenshots");
-        result = getenv("XDG_SCREENSHOTS_DIR");
         break;
 
     case _CC_FOLDER_TEMPLATES_:
         param = _T("Templates");
-        result = getenv("XDG_TEMPLATES_DIR");
         break;
 
     case _CC_FOLDER_VIDEOS_:
         param = _T("Videos");
-        result = getenv("XDG_VIDEOS_DIR");
         break;
-
     default:
         _cc_logger_error(_T("Invalid _cc_folder_: %d"), (int) folder);
         return 0;
     }
 
-    result = getenv(result);
-    if (!result) {
+    if (param) {
         return _sntprintf(path, len, "%s/%s", pw->pw_dir, param);
     } else {
-        _tcsncpy(path, result, len);
+        _tcsncpy(path, pw->pw_dir, len);
         path[len - 1] = 0;
         return _tcslen(path);
     }
-
-append_slash:
     return 0;
 }

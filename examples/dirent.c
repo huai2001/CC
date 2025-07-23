@@ -51,16 +51,22 @@ void print_dir(tchar_t* dirString) {
 }
 
 int main(int argc, char* const argv[]) {
+    int i;
     tchar_t path[_CC_MAX_PATH_];
-    _cc_get_current_directory(path, _cc_countof(path));
-    printf("%s\n", path);
+    _cc_get_cwd(path, _cc_countof(path));
+    _tprintf(_T("CurrentPath: %s\n"), path);
+
+    if (argc == 2)
+        print_dir(argv[1]);
+    else
+        print_dir(path);
 
     _cc_get_base_path(path,_CC_MAX_PATH_);
     _tprintf(_T("BasePath: %s\n"), path);
     _cc_get_executable_path(path,_CC_MAX_PATH_);
     _tprintf(_T("ExecutablePath: %s\n"), path);
 
-    _cc_fpath(path,_CC_MAX_PATH_,"../path");
+    _cc_fpath(path,_CC_MAX_PATH_,"../examples");
     _tprintf(_T("fpath: %s\n"), path);
 
     for (i = 0; i < _cc_countof(folders);i++) {
@@ -68,11 +74,6 @@ int main(int argc, char* const argv[]) {
         _tprintf(_T("%s: %s\n"), folders[i].folder_title, path);
     }
 
-    if (argc == 2)
-        print_dir(argv[1]);
-    else
-        print_dir(path);
 
-    system("pause");
     return 0;
 }

@@ -41,7 +41,7 @@ int main (int argc, char * const argv[]) {
     int16_t port = _CC_SYSLOG_PORT_;
 
     setlocale( LC_CTYPE, "chs" );
-    SetConsoleOutputCP(65001);
+    //SetConsoleOutputCP(65001);
 
     _cc_install_socket();
 
@@ -85,7 +85,7 @@ int main (int argc, char * const argv[]) {
 
     while((c = getchar()) != 'q') {
         if (c == 'c') {
-            system("cls");
+            //system("cls");
         }
         _cc_sleep(1000);
     }
