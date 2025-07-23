@@ -12,6 +12,10 @@ ifdef target
 	include $(SRCROOT)/build/$(target).mak
 endif
 
+ifeq ($(PLATFORM), windows)
+	INSTALL_DIR	?= c:\\libcc
+endif
+
 install:
 	@$(MKDIR) -p -m 755 $(INSTALL_DIR)/lib
 	@$(MKDIR) -p -m 755 $(INSTALL_DIR)/bin

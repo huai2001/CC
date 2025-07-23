@@ -91,13 +91,12 @@ else ifeq ($(PLATFORM), osx)
 	INSTALL_NAME = -install_name @loader_path/lib$(TARGET_NAME).dylib
 else ifeq ($(PLATFORM), linux)
 	LDFLAGS += -Wl,--rpath=./
-	MACROS  += _RFC_3164_=1
 else ifeq ($(PLATFORM), freebsd)
 	MAKE 	?= gmake
 	CC		?= clang
 	LDFLAGS += -Wl,--rpath=./
 else ifeq ($(PLATFORM), windows)
-	INSTALL_DIR	?= c:\\libcc
+
 endif
 
 ifeq ($(CC), gcc)
@@ -109,6 +108,10 @@ ifdef shared
 		LIBS    += ws2_32 winmm dbghelp m z ucrt ole32
 	else
 		LIBS    += m dl pthread z
+	endif
+
+	ifeq ($(PLATFORM), freebsd)
+		LIBS	+= execinfo
 	endif
 endif
 ##################################################

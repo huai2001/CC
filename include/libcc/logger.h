@@ -28,6 +28,9 @@
 extern "C" {
 #endif
 
+#define _CC_SYSLOG_PORT_        514
+#define _CC_SYSLOG_VERSIOV_     1
+
 //Facility
 enum {
     _CC_LOG_FACILITY_KERN_        = 0,  //Kernel messages
@@ -61,8 +64,6 @@ enum {
     _CC_LOG_LEVEL_DEBUG_      = 7       //Debug-level messages
 };
 
-#define _CC_SYSLOG_PORT_        514
-#define _CC_SYSLOG_VERSIOV_     1
 //RFC 3164
 //<PRI>TIMESTAMP HOSTNAME TAG MSG
 
@@ -73,7 +74,7 @@ enum {
 //PRI = Facility * 8 + Severity
 #define _CC_LOGGER_PRI(FACILITY,LEVEL) (((FACILITY) << 3) | ((LEVEL) & 0x7))
 /**/
-_CC_API_PUBLIC(void) _cc_logger_open_syslog(tchar_t *app_name, const tchar_t *ip, const uint16_t port);
+_CC_API_PUBLIC(void) _cc_logger_open_syslog(byte_t facility, const tchar_t *app_name, const tchar_t *ip, const uint16_t port);
 /**/
 _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t length);
 /**/

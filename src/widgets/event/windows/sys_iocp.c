@@ -239,7 +239,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_event_cycle_t *cycle, _cc_event_
         return false;
     }
 
-    if (!_iocp_bind(cycle, e, sa->sa_family)) {
+    if (!_iocp_bind(cycle, e, sa->addr.sa_family)) {
         return false;
     }
 

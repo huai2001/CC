@@ -28,7 +28,6 @@ ifdef shared
 	ifdef db
 		LIBS += sqlite3 
 	endif
-
 endif
 
 #SQLite Download Page
@@ -50,7 +49,6 @@ endif
 # pacman -S mingw-w64-x86_64-mysql
 ifdef db
 ifeq ($(PLATFORM), osx)
-	LIBRARY_PATH	+= /usr/local/mysql/lib
 	MACROS	+= _CC_ENABLE_UNIXODBC_=1
 	INCLUDE_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/include
 	LIBRARY_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/lib
@@ -60,8 +58,10 @@ ifeq ($(PLATFORM), osx)
 	LIBS += odbc
 
 	LIBRARY_PATH	+= /usr/lib64/mysql
-	INCLUDE_PATH	+= /usr/include
 endif
+
+INCLUDE_PATH	+= /usr/local/include /usr/include
+LIBRARY_PATH	+= /usr/local/lib /usr/local/lib/mysql
 
 LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/db/sqlite.o \

@@ -35,22 +35,22 @@ for /r %d in (*.so) do strings -e S "%d" | grep "X509_REVOKED_add_ext" >> output
 adb pull /sdcard/Download/com.kdildcr.uzxmjo.txt D:\\
 adb push D:\wp.txt /sdcard/Download/
 
-1. ‌基础行号断点
+1. 基础行号断点
 break filename:linenumber
 break main.c:10  # 在main.c第10行设置断点
 
-2. ‌函数断点
+2. 函数断点
 break filename:functionname
 break utils.c:parse_data  # 在utils.c的parse_data函数入口设断点
 
-3. ‌条件断点
+3. 条件断点
 break filename:linenumber if condition
 break server.c:47 if len > 0  # 当len>0时触发断点
 
-列出所有断点‌：
+列出所有断点：
 info breakpoints
 
-删除文件断点‌：
+删除文件断点：
 delete breakpoint_number  # 根据info显示的编号删除
 delete filename:linenumber  # 直接指定文件行删除
 
@@ -66,7 +66,7 @@ stepi (缩写 si)
 continue (缩写 c)
 
 执行完当前函数并返回到调用点
-finish‌
+finish
 
 断点结合单步
 

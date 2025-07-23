@@ -60,8 +60,14 @@ extern "C" {
 
 /* This is the system-independent socket info structure */
 typedef SOCKET                  _cc_socket_t;
-typedef struct sockaddr         _cc_sockaddr_t;
 typedef int                     _cc_socklen_t;
+
+typedef union {
+    struct sockaddr addr;
+    struct sockaddr_in addr_in;
+    struct sockaddr_in6 addr_in6;
+} _cc_sockaddr_t;
+
 #ifdef _CC_UNICODE_
     #define _cc_getaddrinfo      GetAddrInfoW
     #define _cc_freeaddrinfo     FreeAddrInfoW

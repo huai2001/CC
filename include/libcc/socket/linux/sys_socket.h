@@ -29,6 +29,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <sys/un.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -79,9 +80,13 @@ extern "C" {
 /* This is the system-independent socket info structure */
 typedef int                    _cc_socket_t;
 typedef struct addrinfo        _cc_addrinfo_t;
-typedef struct sockaddr        _cc_sockaddr_t;
 typedef socklen_t              _cc_socklen_t;
-
+typedef union {
+    struct sockaddr addr;
+    struct sockaddr_in addr_in;
+    struct sockaddr_in6 addr_in6;
+    struct sockaddr_un addr_un;
+} _cc_sockaddr_t;
 #define _cc_getsockopt(__sock, __level, __optname, __optval , __optlen)\
     getsockopt(__sock, __level, __optname, (pvoid_t)__optval , __optlen)
 

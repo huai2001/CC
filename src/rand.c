@@ -61,7 +61,6 @@
     #include <sys/param.h>
     #if defined(__CC_BSD__)
         #include <stdlib.h>
-        #include <bsd/stdlib.h>
     #endif
     /* GNU/Hurd defines BSD in sys/param.h which causes problems later */
     #ifndef __GNU__
@@ -158,6 +157,7 @@ _CC_API_PUBLIC(float32_t) _cc_randf_r(uint64_t *state) {
                           ^ ((uint32_t) rand() << 8)                       \
                           ^ ((uint32_t) rand()) )))
 
+#if defined(__CC_WINDOWS__) || defined(__CC_LINUX__)
 _CC_API_PRIVATE(void) generic_random_bytes(byte_t *buf, size_t nbytes) {
     byte_t *cp = buf;
     size_t i;
@@ -166,6 +166,7 @@ _CC_API_PRIVATE(void) generic_random_bytes(byte_t *buf, size_t nbytes) {
         *cp++ ^= (_cc_rand(n) >> 7) & 0xFF;
     }
 }
+#endif
 
 #ifdef __CC_WINDOWS__
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
@@ -195,9 +196,9 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
         generic_random_bytes(buf,nbytes);
     }
 }
-#endif /* defined(_WIN32) */
 
-#if (defined(__CC_LINUX__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom))
+#elif (defined(__CC_LINUX__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom))
+
 #if defined(USE_GLIBC)
 // getrandom is declared in glibc.
 #elif defined(SYS_getrandom)
@@ -262,6 +263,7 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
     close(fd);
 }
 #endif /* defined(__linux__) */
+
 #ifdef ARC4RANDOM
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 	arc4random_buf(buf, nbytes);

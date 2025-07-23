@@ -24,13 +24,13 @@
 #include <libcc/string.h>
 #include <libcc/socket/socket.h>
 #include <time.h>
-#include <sys/un.h>
+
 
 #ifdef __CC_ANDROID__
 #include <libcc/core/android.h>
 #endif
 
-#ifdef _CC_MSVC_
+#ifdef __CC_WINDOWS__
 #include <libcc/core/windows.h>
 #endif
 
@@ -39,10 +39,11 @@
 static struct {
     bool_t enabled;
     _cc_socket_t fd;
-    struct sockaddr_un sockaddr;
+    _cc_sockaddr_t sockaddr;
     _cc_socklen_t socklen;
     _cc_atomic_lock_t lock;
 
+    byte_t facility;
     uint32_t pid;
 
     tchar_t hostname[64];
@@ -92,11 +93,11 @@ _CC_API_PUBLIC(void) _cc_logger_unlock() {
 }
 
 _CC_API_PUBLIC(void) _cc_loggerA(byte_t level, const char_t *msg) {
-    _cc_loggerA_syslog(_CC_LOGGER_PRI(_CC_LOG_FACILITY_USER_,level), msg, strlen(msg));
+    _cc_loggerA_syslog(_CC_LOGGER_PRI(syslog.facility,level), msg, strlen(msg));
 }
 
 _CC_API_PUBLIC(void) _cc_loggerW(byte_t level, const wchar_t *msg) {
-    _cc_loggerW_syslog(_CC_LOGGER_PRI(_CC_LOG_FACILITY_USER_,level), msg, wcslen(msg));
+    _cc_loggerW_syslog(_CC_LOGGER_PRI(syslog.facility,level), msg, wcslen(msg));
 }
 
 _CC_API_PUBLIC(void) _cc_loggerA_vformat(byte_t level, const char_t *fmt, va_list arg) {
@@ -128,7 +129,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(byte_t level, const char_t *fmt, va_lis
 
         /* SUCCESS */
         if (fmt_length < empty_len) {
-            _cc_loggerA_syslog(_CC_LOGGER_PRI(_CC_LOG_FACILITY_USER_,level), ptr, fmt_length);
+            _cc_loggerA_syslog(_CC_LOGGER_PRI(syslog.facility,level), ptr, fmt_length);
             break;
         }
         empty_len = _cc_aligned_alloc_opt(fmt_length + 10,32);
@@ -169,7 +170,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(byte_t level, const wchar_t *fmt, va_li
 
         /* SUCCESS */
         if (fmt_length < empty_len) {
-            _cc_loggerW_syslog(_CC_LOGGER_PRI(_CC_LOG_FACILITY_USER_,level), ptr, fmt_length);
+            _cc_loggerW_syslog(_CC_LOGGER_PRI(syslog.facility,level), ptr, fmt_length);
             break;
         }
 
@@ -210,8 +211,8 @@ _CC_API_PUBLIC(void) _cc_logger_set_app_name(const tchar_t *app_name) {
 }
 
 _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t length) {
-#ifdef _RFC_3164_
-    wchar_t str_date[128];
+#ifndef _CC_SYSLOG_RFC5424_
+    wchar_t syslog_timestamp[64];
 #endif
     _cc_buf_t buffer;
     struct tm tm_now;
@@ -222,18 +223,18 @@ _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t l
     //_cc_buf_cleanup(&syslog.buffer);
     _cc_buf_alloc(&buffer, _CC_16K_BUFFER_SIZE_);
 
-#ifdef _RFC_3164_
-    // RFC 3164
-    wcsftime(str_date, _cc_countof(str_date), L"%b %d %H:%M:%S", &tm_now);
-    _cc_bufW_appendf(&buffer, L"<%d>%s %s[%d]: ",
-                    pri, str_date, syslog.hostname, syslog.pid);
-#else
+#ifdef _CC_SYSLOG_RFC5424_
     // RFC 5424
     _cc_bufW_appendf(&buffer, L"<%d>%d %04d-%02d-%02dT%02d:%02d:%02dZ %s %s %d %d ",
                     pri, _CC_SYSLOG_VERSIOV_, 
                     tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday,
                     tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, 
                     syslog.hostname, syslog.app_name, syslog.pid, syslog.fd);
+#else
+    // RFC 3164
+    wcsftime(syslog_timestamp, _cc_countof(syslog_timestamp), L"%b %d %H:%M:%S", &tm_now);
+    _cc_bufW_appendf(&buffer, L"<%d>%s %s[%d]: ",
+                    pri, syslog_timestamp, syslog.hostname, syslog.pid);
 #endif
 
     if (msg) {
@@ -270,8 +271,8 @@ _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t l
 
 /**/
 _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t length) {
-#ifdef _RFC_3164_
-    char_t str_date[128];
+#ifndef _CC_SYSLOG_RFC5424_
+    char_t syslog_timestamp[64];
 #endif
     _cc_buf_t buffer;
     struct tm tm_now;
@@ -282,18 +283,18 @@ _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t le
     //_cc_buf_cleanup(&syslog.buffer);
     _cc_buf_alloc(&buffer, _CC_16K_BUFFER_SIZE_);
 
-#ifdef _RFC_3164_
-    // RFC 3164
-    strftime(str_date, _cc_countof(str_date), "%b %d %H:%M:%S", &tm_now);
-    _cc_bufA_appendf(&buffer, "<%d>%s %s[%d]: ",
-                    pri, str_date, syslog.hostname, syslog.pid);
-#else
+#ifdef _CC_SYSLOG_RFC5424_
     // RFC 5424
     _cc_bufA_appendf(&buffer, "<%d>%d %04d-%02d-%02dT%02d:%02d:%02dZ %s %s %d %d ",
                     pri, _CC_SYSLOG_VERSIOV_, 
                     tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday,
                     tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, 
                     syslog.hostname, syslog.app_name, syslog.pid, syslog.fd);
+#else
+    // RFC 3164
+    strftime(syslog_timestamp, _cc_countof(syslog_timestamp), "%b %d %H:%M:%S", &tm_now);
+    _cc_bufA_appendf(&buffer, "<%d>%s %s[%d]: ",
+                    pri, syslog_timestamp, syslog.hostname, syslog.pid);
 #endif
 
     if (msg) {
@@ -337,27 +338,33 @@ _CC_API_PUBLIC(void) _cc_syslog(const byte_t* msg, size_t length) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_logger_open_syslog(tchar_t *app_name, const tchar_t *ip, const uint16_t port) {
+_CC_API_PUBLIC(void) _cc_logger_open_syslog(byte_t facility, const tchar_t *app_name, const tchar_t *ip, const uint16_t port) {
     if (syslog.enabled) {
         return;
     }
-
-    syslog.fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    if (ip) {
+        syslog.fd = socket(AF_INET, SOCK_DGRAM, 0);
+        _cc_inet_ipv4_addr((struct sockaddr_in*) & syslog.sockaddr.addr_in, ip, port);
+#ifndef __CC_WINDOWS__
+    } else {
+        struct sockaddr_un *addr = &syslog.sockaddr.addr_un;
+        syslog.fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+        syslog.socklen = sizeof(struct sockaddr_un);
+        bzero(addr, syslog.socklen);
+        addr->sun_family = AF_UNIX;
+        _tcsncpy(addr->sun_path, _T("/dev/log"), _cc_countof(addr->sun_path));
+        addr->sun_path[_cc_countof(addr->sun_path) - 1] = 0;
+#endif
+    }
     if (syslog.fd == _CC_INVALID_SOCKET_) {
         _cc_logger_error(_T("Failed to create UDP socket: %d"), _cc_last_errno());
         return;
     }
 
     _cc_lock_init(&syslog.lock);
-    //_cc_inet_ipv4_addr((struct sockaddr_in*) & syslog.sockaddr, ip, port);
-    struct sockaddr_un *addr = (struct sockaddr_un *)&syslog.sockaddr;
-    syslog.socklen = sizeof(struct sockaddr_un);
-    memset(addr, 0, syslog.socklen);
-    addr->sun_family = AF_UNIX;
-    strncpy(addr->sun_path, "/dev/log", sizeof(addr->sun_path) - 1);
-
     syslog.pid = _cc_getpid();
     syslog.enabled = true;
+    syslog.facility = facility;
     
     _tcsncpy(syslog.app_name, app_name, _cc_countof(syslog.app_name));
     syslog.app_name[_cc_countof(syslog.app_name) - 1] = 0;

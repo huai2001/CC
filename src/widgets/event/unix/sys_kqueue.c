@@ -42,14 +42,6 @@ _CC_API_PRIVATE(bool_t) _update_kevent(_cc_event_cycle_priv_t *priv) {
     return true;
 }
 
-#define EV_UPDATE_KEVENT(_FILTER, _FLAGS)                                                                               \
-    do {                                                                                                                \
-        EV_SET(&priv->changelist[priv->nchanges++], e->fd, _FILTER, _FLAGS, 0, 0, e);                                   \
-        if (_cc_unlikely(priv->nchanges == _cc_countof(priv->changelist))) {                                            \
-            _update_kevent(priv);                                                                                       \                                                                                                           \
-        }                                                                                                               \
-    } while (0)
-
 /**/
 _CC_API_PRIVATE(bool_t) _kqueue_event_update(_cc_event_cycle_priv_t *priv, _cc_event_t *e, bool_t rm) {
     uint16_t addevents = e->flags & ~e->marks;
@@ -57,29 +49,37 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_update(_cc_event_cycle_priv_t *priv, _cc_e
 
     if (rm) {
         if (_CC_ISSET_BIT(_CC_EVENT_READABLE_ | _CC_EVENT_ACCEPT_, e->marks)) {
-            EV_UPDATE_KEVENT(EVFILT_READ, EV_DELETE);
+            EV_SET(&priv->changelist[priv->nchanges++], e->fd, EVFILT_READ, EV_DELETE, 0, 0, e);
         }
 
         if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_ | _CC_EVENT_CONNECT_, e->marks)) {
-            EV_UPDATE_KEVENT(EVFILT_WRITE, EV_DELETE);
+            EV_SET(&priv->changelist[priv->nchanges++], e->fd, EVFILT_WRITE, EV_DELETE, 0, 0, e);
         }
 
+        if (priv->nchanges >= (_CC_KQUEUE_EVENTS_ - 4)) {
+            _update_kevent(priv);
+        }
+        
         e->marks = _CC_EVENT_UNKNOWN_;
         return true;
     }
 
     /*Setting the readable event flag*/
     if (_CC_ISSET_BIT(_CC_EVENT_ACCEPT_ | _CC_EVENT_READABLE_, addevents)) {
-        EV_UPDATE_KEVENT(EVFILT_READ, EV_ADD | EV_ENABLE);
+        EV_SET(&priv->changelist[priv->nchanges++], e->fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, e);
     } else if (_CC_ISSET_BIT(_CC_EVENT_ACCEPT_ | _CC_EVENT_READABLE_, delevents)) {
-        EV_UPDATE_KEVENT(EVFILT_READ, EV_DELETE);
+        EV_SET(&priv->changelist[priv->nchanges++], e->fd, EVFILT_READ, EV_DELETE, 0, 0, e);
     }
 
     /*Setting the writable event flag*/
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_ | _CC_EVENT_CONNECT_, addevents)) {
-        EV_UPDATE_KEVENT(EVFILT_WRITE, EV_ADD | EV_ENABLE);
+        EV_SET(&priv->changelist[priv->nchanges++], e->fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, e);
     } else if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_ | _CC_EVENT_CONNECT_, delevents)) {
-        EV_UPDATE_KEVENT(EVFILT_WRITE, EV_ADD | EV_DELETE);
+        EV_SET(&priv->changelist[priv->nchanges++], e->fd, EVFILT_WRITE, EV_DELETE, 0, 0, e);
+    }
+
+    if (priv->nchanges >= (_CC_KQUEUE_EVENTS_ - 4)) {
+        _update_kevent(priv);
     }
 
     _CC_MODIFY_BIT(addevents, delevents, e->marks);

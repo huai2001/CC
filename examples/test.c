@@ -28,6 +28,8 @@
 
 #define LOOP_MAX 10000000
 #define SYSLOG_PATH "/dev/log"  // Ubuntu syslog默认套接字路径
+#include <syslog.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[]) {
     // int32_t i = 0;
@@ -35,7 +37,8 @@ int main(int argc, char *argv[]) {
     // _cc_buf_t buf;
     _cc_install_socket();
     // SetConsoleOutputCP(65001);
-    _cc_logger_open_syslog("test",_T("127.0.0.1"), _CC_PORT_SYSLOG_);
+    //_cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test",_T("127.0.0.1"), _CC_PORT_SYSLOG_);
+    _cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test", nullptr, _CC_PORT_SYSLOG_);
 
     // _cc_buf_alloc(&buf, 1024);
     // start = clock();
@@ -68,28 +71,6 @@ int main(int argc, char *argv[]) {
     if (sockfd < 0) {
         perror("socket creation failed");
         return 1;
-    }
-
-    // 2. 配置目标地址结构
-    struct sockaddr_in servaddr;
-    memset(&servaddr, 0, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(_CC_PORT_SYSLOG_);
-    inet_pton(AF_INET, "127.0.0.1", &servaddr.sin_addr);
-
-    // 3. 构造RFC 3164格式日志（优先级14=LOG_USER|LOG_NOTICE）
-    time_t now = time(NULL);
-    char timestamp[64];
-    strftime(timestamp, sizeof(timestamp), "%b %d %H:%M:%S", localtime(&now));
-    
-    char message[256];
-    snprintf(message, sizeof(message), "<14>%s %s udp_sender[%d]: Test log via UDP", 
-             timestamp, "ubuntu-host", getpid());
-
-    // 4. 发送UDP数据包
-    if (sendto(sockfd, message, strlen(message), 0, 
-              (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-        perror("sendto failed");
     }
 
     close(sockfd);

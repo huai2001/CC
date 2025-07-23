@@ -36,9 +36,9 @@ libcc提供了以下构建方式:
 cd yourdirname/CC/build
 make path
 
-./build.sh debug=1
+./build.sh debug
 # Windows 下MSYS2环境 执行
-./build.cmd debug=1
+./build.cmd debug
 
 #2、通过Visual Studio编译 (Windows)
 proj.Win/libcc.vcxproj
@@ -60,7 +60,7 @@ sudo apt-get install libjpeg-dev
 sudo apt-get install libpng-dev
 
 #6、FreeBSD 安装
-pkg install mysql80-client sqlite3
+
 ```
 
 ## ⚡️ 入门与体验

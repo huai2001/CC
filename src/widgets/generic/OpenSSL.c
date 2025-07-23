@@ -224,7 +224,7 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_event_cycle_t *c
     if (e->fd == -1) {
         _cc_logger_error(_T("socket fail:%s."), _cc_last_error(_cc_last_errno()));
         _cc_free(ssl);
-        return false;
+        return nullptr;
     }
     /* if we can't terminate nicely, at least allow the socket to be reused*/
     _cc_set_socket_reuseaddr(e->fd);
@@ -233,7 +233,7 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_event_cycle_t *c
     SSL_set_connect_state(ssl->handle);
 
     /* required to get parallel v4 + v6 working */
-    if (sockaddr->sa_family == AF_INET6) {
+    if (sockaddr->addr.sa_family == AF_INET6) {
         e->descriptor |= _CC_EVENT_DESC_IPV6_;
 #if defined(IPV6_V6ONLY)
         _cc_socket_ipv6only(e->fd);

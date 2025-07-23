@@ -59,7 +59,7 @@ _CC_WIDGETS_API(int32_t) _WSReverseHeader(byte_t *header, byte_t operation, int6
 
     header[--offset] = (operation == 0) ? 0x00 : (0x80 | operation);
 
-    return (_WS_MAX_HEADER_ - offset);
+    return (-1 * offset);
 }
 /**/
 _CC_API_PUBLIC(int32_t) _WSHeader(byte_t *header, byte_t operation, int64_t length, byte_t *mask) {
