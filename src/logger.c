@@ -344,7 +344,9 @@ _CC_API_PUBLIC(void) _cc_logger_open_syslog(byte_t facility, const tchar_t *app_
     }
     if (ip) {
         syslog.fd = socket(AF_INET, SOCK_DGRAM, 0);
-        _cc_inet_ipv4_addr((struct sockaddr_in*) & syslog.sockaddr.addr_in, ip, port);
+        syslog.socklen = sizeof(struct sockaddr_in);
+        bzero(&syslog.sockaddr, syslog.socklen);
+        _cc_inet_ipv4_addr((struct sockaddr_in*) &syslog.sockaddr.addr_in, ip, port);
 #ifndef __CC_WINDOWS__
     } else {
         struct sockaddr_un *addr = &syslog.sockaddr.addr_un;

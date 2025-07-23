@@ -22,7 +22,6 @@
 #include <stdarg.h>
 #include <locale.h>
 #include <time.h>
-#include <sys/un.h>
 #include <libcc.h>
 #include <libcc/widgets/widgets.h>
 
@@ -34,8 +33,8 @@ int main(int argc, char *argv[]) {
     // _cc_buf_t buf;
     _cc_install_socket();
     // SetConsoleOutputCP(65001);
-    //_cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test",_T("127.0.0.1"), _CC_PORT_SYSLOG_);
-    _cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test", nullptr, _CC_PORT_SYSLOG_);
+    _cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test",_T("127.0.0.1"), _CC_PORT_SYSLOG_);
+    //_cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test", nullptr, _CC_PORT_SYSLOG_);
 
     // _cc_buf_alloc(&buf, 1024);
     // start = clock();
