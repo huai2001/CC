@@ -20,10 +20,10 @@
 */
 #include "json.c.h"
 
-int32_t _json_get_object(_cc_rbtree_iterator_t *left, pvoid_t args) {
+int32_t _json_get_object(_cc_rbtree_iterator_t *left, pvoid_t keyword) {
     _cc_json_t *_left = _cc_upcast(left, _cc_json_t, lnk);
 
-    return _tcscmp((const tchar_t *)args, _left->name);
+    return _tcscmp(_left->name, (const tchar_t *)keyword);
 }
 
 void _json_free_object_rb_node(_cc_rbtree_iterator_t *node) {
@@ -47,6 +47,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *ke
 
     return item;
 }
+
 _CC_API_PUBLIC(_cc_json_t*) _json_object_push(_cc_json_t *ctx, const tchar_t *keyword) {
     _cc_rbtree_t *root;
     _cc_rbtree_iterator_t **node;

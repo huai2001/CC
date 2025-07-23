@@ -25,7 +25,9 @@
         "stdio.h": "c",
         "string.h": "c",
         "widgets.h": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "any": "c",
+        "complex": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     //"C_Cpp.clang_format_style": "{ BasedOnStyle: Microsoft, UseTab: Never, IndentWidth: 4, TabWidth: 4, }",

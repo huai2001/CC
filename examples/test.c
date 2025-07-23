@@ -27,9 +27,6 @@
 #include <libcc/widgets/widgets.h>
 
 #define LOOP_MAX 10000000
-#define SYSLOG_PATH "/dev/log"  // Ubuntu syslog默认套接字路径
-#include <syslog.h>
-#include <stdio.h>
 
 int main(int argc, char *argv[]) {
     // int32_t i = 0;
@@ -59,20 +56,5 @@ int main(int argc, char *argv[]) {
     _cc_logger_error("test");
     _cc_loggerA(_CC_LOG_LEVEL_ERROR_,"test");
 
-    // struct in6_addr bin;
-    // _cc_inet_pton(AF_INET6, "fe80::20c:29ff:fe86:152c", (byte_t*)&bin);  // 字符串→二进制
-    // char str[INET6_ADDRSTRLEN];
-    // _cc_inet_ntop(AF_INET6, (byte_t*)&bin, str, sizeof(str));  // 二进制→字符串
-
-    // _tprintf("IPv6:%s\n", str);
-    //system("pause");
-// 1. 创建UDP套接字
-    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) {
-        perror("socket creation failed");
-        return 1;
-    }
-
-    close(sockfd);
     return 0;
 }

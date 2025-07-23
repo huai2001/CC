@@ -253,7 +253,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_syslog(byte_t pri, const wchar_t* msg, size_t l
     }
 
     buffer.bytes[buffer.length] = 0;
-#ifdef __CC_WINDOWS__
+#ifdef _CC_MSVC_
     OutputDebugStringW((const wchar_t *)buffer.bytes);
     OutputDebugStringW(L"\n");
 #elif defined(__CC_ANDROID__)
@@ -313,7 +313,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_syslog(byte_t pri, const char_t* msg, size_t le
     }
 
     buffer.bytes[buffer.length] = 0;
-#ifdef __CC_WINDOWS__
+#ifdef _CC_MSVC_
     OutputDebugStringA((const char_t *)buffer.bytes);
     OutputDebugStringW(L"\n");
 #elif defined(__CC_ANDROID__)

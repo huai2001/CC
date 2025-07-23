@@ -184,9 +184,9 @@ JSON_FAIL:
     return false;
 }
 
-static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *item) {
+static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *root) {
     _cc_json_t *curr_item = nullptr;
-    _json_array_alloc(item,32);
+    _json_array_alloc(root,32);
 
     if (buffer->depth >= _JSON_NESTING_LIMIT_) {
         /* to deeply nested */
@@ -228,7 +228,7 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *item) {
             goto JSON_FAIL;
         }
 
-        if (_cc_unlikely(_json_array_push(item, curr_item) == -1)) {
+        if (_cc_unlikely(_json_array_push(root, curr_item) == -1)) {
             _cc_destroy_json(&curr_item);
             goto JSON_FAIL;
         }
@@ -241,7 +241,7 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *item) {
     }
 
 JSON_SUCCESS:
-    item->type = _CC_JSON_ARRAY_;
+    root->type = _CC_JSON_ARRAY_;
     /* skip _JSON_ARRAY_END_ */
     buffer->offset++;
     buffer->depth--;
@@ -252,7 +252,7 @@ JSON_SUCCESS:
     return true;
 
 JSON_FAIL:
-    _destroy_json_array(item);
+    _destroy_json_array(root);
 
     return false;
 }
