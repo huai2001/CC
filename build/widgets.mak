@@ -29,7 +29,9 @@ ifdef shared
 		LIBS += sqlite3 
 	endif
 endif
-
+ifeq ($(PLATFORM), windows)
+	LOCAL_SRC_FILES += $(SRCROOT)/proj.Win/dllmain.c
+endif
 #SQLite Download Page
 #https://www.sqlite.org/download.html
 # download：sqlite-amalgamation-3500100.zip sqlit3 header

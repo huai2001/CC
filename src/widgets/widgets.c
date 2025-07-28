@@ -29,7 +29,6 @@ time_t get_rfc822_time(const tchar_t* rfc822_date) {
 
 _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...) {
     _cc_event_wbuf_t *wbuf;
-    bool_t rs = false;
     int32_t fmt_length, empty_length;
     tchar_t *ptr;
     va_list arg;
@@ -46,15 +45,9 @@ _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...)
     wbuf = &e->buffer->w;
 
     _cc_spin_lock(&wbuf->lock);
-    if (wbuf->w == wbuf->r) {
-        ptr = (tchar_t*)wbuf->bytes;
-        wbuf->w = 0;
-        wbuf->r = 0;
-    } else {
-        ptr = (tchar_t*)&(wbuf->bytes[wbuf->w]);
-    }
+    ptr = (tchar_t*)&(wbuf->bytes[wbuf->length]);
 
-    empty_length = (wbuf->limit - wbuf->w);
+    empty_length = (wbuf->limit - wbuf->length);
 
     va_start(arg, fmt);
     /* If the first attempt to append fails, resize the buffer appropriately
@@ -69,7 +62,7 @@ _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...)
             fmt_length = _vsntprintf(nullptr, 0, fmt, arg);
         }
 #endif
-        if (_cc_unlikely(fmt_length <= 0)) {
+        if (fmt_length <= 0) {
             goto WRITE_FAIL;
         }
 
@@ -78,20 +71,30 @@ _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...)
             break;
         }
         
-        empty_length = (int32_t)_cc_aligned_alloc_opt(fmt_length + 10, 32);
-        _cc_alloc_event_wbuf(wbuf, empty_length);
-        ptr = (tchar_t*)&(wbuf->bytes[wbuf->w]);
+        _cc_alloc_event_wbuf(wbuf, fmt_length);
+        ptr = (tchar_t*)&(wbuf->bytes[wbuf->length]);
     }
     va_end(arg);
+    _cc_unlock(&wbuf->lock);
 
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags)) {
         _cc_event_cycle_t *cycle = _cc_get_event_cycle_by_id(e->round);
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         cycle->reset(cycle, e);
     }
-    rs = true;
+    return true;
+
 WRITE_FAIL:
     _cc_unlock(&wbuf->lock);
+    return false;
+}
 
-    return rs;
+/**/
+_CC_API_PUBLIC(void) _widget_open_syslog(byte_t facility, const tchar_t *ip, const uint16_t port) {
+    _cc_open_syslog(facility, "libcc.widgets.dll", ip, port);
+}
+
+/**/
+_CC_API_PUBLIC(void) _widget_close_syslog(void) {
+    _cc_close_syslog();
 }

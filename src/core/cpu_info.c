@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/string.h>
 
 #ifdef _CC_HAVE_SYSCONF_

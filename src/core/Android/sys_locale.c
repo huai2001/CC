@@ -19,10 +19,10 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/alloc.h>
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/core/android.h>
 #include <sys/errno.h>
 
-_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
-    Android_JNI_GetLocale(buf, buflen);
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t length) {
+    Android_JNI_GetLocale(buf, length);
 }

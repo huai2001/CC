@@ -19,8 +19,10 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/alloc.h>
+#include <libcc/UTF.h>
 #include <math.h>
 #include <string.h>
+
 
 #ifndef _CC_UNICODE_
 #include <wchar.h>
@@ -373,7 +375,7 @@ _CC_API_PUBLIC(const tchar_t *) _cc_to_number(const tchar_t *s, _cc_number_t *it
     }
 
     /* Fractional part? */
-    if (*s == decimal_point && _cc_isdigit(*(s + 1))) {
+    if (*s == decimal_point && _CC_ISDIGIT(*(s + 1))) {
         s++;
         do {
             n = (n * 10.0) + (*s++ - _T('0'));

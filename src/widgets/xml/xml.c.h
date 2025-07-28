@@ -21,7 +21,7 @@
 #ifndef _C_CC_XML_C_H_INCLUDED_
 #define _C_CC_XML_C_H_INCLUDED_
 
-#include <libcc/widgets/xml/xml.h>
+#include <libcc/widgets/xml.h>
 #include "../generic/generic.c.h"
 
 /* Set up for C function definitions, even when using C++ */

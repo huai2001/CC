@@ -20,7 +20,7 @@
 */
 #import <UIKit/UIKit.h>
 #include <libcc/power.h>
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/time.h>
 
 #ifndef __CC_APPLE_TVOS__

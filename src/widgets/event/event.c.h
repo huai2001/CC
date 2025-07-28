@@ -21,7 +21,7 @@
 #ifndef _C_CC_EVENT_C_H_INCLUDED_
 #define _C_CC_EVENT_C_H_INCLUDED_
 
-#include <libcc/widgets/event/event.h>
+#include <libcc/widgets/event.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

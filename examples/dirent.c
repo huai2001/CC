@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libcc/alloc.h>
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/atomic.h>
 #include <libcc/string.h>
 #include <libcc/dirent.h>

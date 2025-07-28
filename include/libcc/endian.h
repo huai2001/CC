@@ -21,7 +21,7 @@
 #ifndef _C_CC_ENDIAN_H_INCLUDED_
 #define _C_CC_ENDIAN_H_INCLUDED_
 
-#include "core.h"
+#include "generic.h"
 
 #ifdef __CC_LINUX__
     #include <endian.h>

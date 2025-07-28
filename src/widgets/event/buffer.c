@@ -20,7 +20,7 @@
 */
 #include <libcc/alloc.h>
 #include <libcc/math.h>
-#include <libcc/widgets/event/event.h>
+#include <libcc/widgets/event.h>
 
 /**/
 _CC_API_PUBLIC(_cc_event_buffer_t*) _cc_alloc_event_buffer(void) {
@@ -28,8 +28,7 @@ _CC_API_PUBLIC(_cc_event_buffer_t*) _cc_alloc_event_buffer(void) {
     //bzero(rw, sizeof(_cc_event_buffer_t));
     rw->r.length = 0;
     rw->r.limit = _CC_IO_BUFFER_SIZE_;
-    rw->w.r = 0;
-    rw->w.w = 0;
+    rw->w.length = 0;
     rw->w.limit = _CC_IO_BUFFER_SIZE_;
 
     rw->w.bytes = (byte_t *)_cc_malloc(_CC_IO_BUFFER_SIZE_);
@@ -57,44 +56,26 @@ _CC_API_PUBLIC(void) _cc_alloc_event_rbuf(_cc_event_rbuf_t *rbuf, int32_t length
 }
 
 _CC_API_PUBLIC(void) _cc_alloc_event_wbuf(_cc_event_wbuf_t *wbuf, int32_t length) {
-    if (wbuf->w == wbuf->r) {
-        if (wbuf->limit < length) {
-            wbuf->limit = (int32_t)_cc_aligned_alloc_opt(length, 64);
-            wbuf->bytes = (byte_t *)_cc_realloc(wbuf->bytes, wbuf->limit);
-        }
-        wbuf->w = 0;
-        wbuf->r = 0;
-    } else {
-        int32_t used_length = (wbuf->w - wbuf->r);
-        int32_t free_length = (wbuf->limit - wbuf->w) + wbuf->r;
-        if (free_length < length) {
-            wbuf->limit = (int32_t)_cc_aligned_alloc_opt(used_length + length, 64);
-            wbuf->bytes = (byte_t *)_cc_realloc(wbuf->bytes, wbuf->limit);
-            if (wbuf->r > 0) {
-                memmove(wbuf->bytes, wbuf->bytes + wbuf->r, used_length);
-                wbuf->w = used_length;
-                wbuf->r = 0;
-            }
-        } else if (wbuf->r > 0 && (wbuf->limit - wbuf->w) < length) {
-            memmove(wbuf->bytes, wbuf->bytes + wbuf->r, used_length);
-            wbuf->w = used_length;
-            wbuf->r = 0;
-        }
+    const int32_t free_length = wbuf->limit - wbuf->length;
+    if (free_length < length) {
+        wbuf->limit = (int32_t)_cc_aligned_alloc_opt(wbuf->length + length, 64);
+        wbuf->bytes = (byte_t *)_cc_realloc(wbuf->bytes, wbuf->limit);
     }
 }
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_copy_event_wbuf(_cc_event_wbuf_t *wbuf, const byte_t *data, int32_t length) {
-    if (_cc_unlikely(length <= 0 || wbuf->bytes == nullptr)) {
+    if (_cc_unlikely(length <= 0 || data == nullptr)) {
         return false;
     }
 
     _cc_spin_lock(&wbuf->lock);
+
     _cc_alloc_event_wbuf(wbuf, length);
-    if (data) {
-        memcpy(wbuf->bytes + wbuf->w, data, length);
-        wbuf->w += length;
-    }
+
+    memcpy(wbuf->bytes + wbuf->length, data, length);
+    wbuf->length += length;
+
     _cc_unlock(&wbuf->lock);
 
     return true;
@@ -102,83 +83,66 @@ _CC_API_PUBLIC(bool_t) _cc_copy_event_wbuf(_cc_event_wbuf_t *wbuf, const byte_t 
 
 /**/
 _CC_API_PUBLIC(int32_t) _cc_event_send(_cc_event_t *e, const byte_t *data, int32_t length) {
-    int32_t off = 0;
-    int32_t data_lenth = length;
-    if (_cc_unlikely(e->buffer == nullptr)) {
-        _cc_logger_error(_T("No write cache was created. e->buffer == nullptr"));
-        return -1;
+    int32_t bw = 0;
+    _cc_assert(e->buffer != nullptr);
+
+     // nothing queued? See if we can just send this without queueing.
+    if (e->buffer->w.length == 0) {
+        bw = _cc_send(e->fd, data, length);
+        if (bw < 0) {
+            return bw;
+        }
+        // sent the whole thing? We're good to go here.
+        if (bw == length) {
+            return length;
+        }
+        // partial write? We'll queue the rest.
+        length -= bw;
+        data += bw;
     }
 
-    if (_CC_EVENT_WBUF_NO_DATA(e->buffer)) {
-        off = _cc_send(e->fd, data, data_lenth);
-        if (off < 0) {
-            return off;
-        }
-
-        if (off == data_lenth) {
-            return data_lenth;
-        }
-
-        data_lenth -= off;
-        data += off;
-    }
-
-    /**/
-    if (_cc_copy_event_wbuf(&e->buffer->w, data, data_lenth)) {
+    /*queue this up for sending later.*/
+    if (_cc_copy_event_wbuf(&e->buffer->w, data, length)) {
         _cc_event_cycle_t *cycle = _cc_get_event_cycle_by_id(e->round);
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         cycle->reset(cycle, e);
-        return off;
+        return length;
     }
     return -1;
 }
 
 /**/
 _CC_API_PUBLIC(int32_t) _cc_event_sendbuf(_cc_event_t *e) {
+    int32_t bw;
     _cc_event_wbuf_t *wbuf;
-
-    int32_t off;
-    if (_cc_unlikely(e->buffer == nullptr)) {
-        _cc_logger_error(_T("No write cache was created. e->buffer == nullptr"));
-        return -1;
-    }
+    _cc_assert(e->buffer != nullptr);
 
     wbuf = &e->buffer->w;
-    if (wbuf->r >= wbuf->w) {
-        wbuf->r = wbuf->w = 0;
+    if (wbuf->length == 0) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         return 0;
     }
-
     _cc_spin_lock(&wbuf->lock);
-    off = _cc_send(e->fd, wbuf->bytes + wbuf->r, wbuf->w - wbuf->r);
-    if (off > 0) {
-        wbuf->r += off;
-
-        if (wbuf->r == wbuf->w) {
-            _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-        } else if (wbuf->r > wbuf->w) {
-            _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-            wbuf->r = wbuf->w = 0;
-        }
-    } else if (off < 0) {
+    bw = _cc_send(e->fd, wbuf->bytes, wbuf->length);
+    if (bw < 0) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+        return bw;
+    } else if (bw != 0 && bw < wbuf->length) {
+        memmove(wbuf->bytes, wbuf->bytes + bw, wbuf->length - bw);
+        wbuf->length -= bw;
+        if (wbuf->length == 0) {
+            _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+        }
     }
     _cc_unlock(&wbuf->lock);
-
-    return off;
+    return bw;
 }
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_event_recv(_cc_event_t *e) {
-    int32_t left = 0;
+    int32_t result = 0;
     _cc_event_buffer_t *rw;
-
     _cc_assert(e->buffer != nullptr);
-    if (_cc_unlikely(e->buffer == nullptr)) {
-        _cc_logger_error(_T("No read cache was created. e->buffer == nullptr"));
-        return false;
-    }
 
     rw = e->buffer;
     if (rw->r.length >= rw->r.limit) {
@@ -187,12 +151,14 @@ _CC_API_PUBLIC(bool_t) _cc_event_recv(_cc_event_t *e) {
     }
 
 #ifdef __CC_ANDROID__
-    left = (int32_t)recv(e->fd, (char *)rw->r.bytes + rw->r.length, rw->r.limit - rw->r.length, MSG_NOSIGNAL);
+    result = (int32_t)recv(e->fd, (char *)rw->r.bytes + rw->r.length, rw->r.limit - rw->r.length, MSG_NOSIGNAL);
+#elif defined(__CC_WINDOWS__)
+    result = (int32_t)_win_recv(e->fd, rw->r.bytes + rw->r.length, rw->r.limit - rw->r.length);
 #else
-    left = (int32_t)recv(e->fd, (char *)rw->r.bytes + rw->r.length, rw->r.limit - rw->r.length, 0);
+    result = (int32_t)recv(e->fd, (char *)rw->r.bytes + rw->r.length, rw->r.limit - rw->r.length, 0);
 #endif
 
-    if (left < 0) {
+    if (result < 0) {
         int err = _cc_last_errno();
         if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
             return true;
@@ -200,12 +166,10 @@ _CC_API_PUBLIC(bool_t) _cc_event_recv(_cc_event_t *e) {
 
         _cc_logger_warin(_T("fd:%d fail to recv (%d): %s"), e->fd, err, _cc_last_error(err));
         return false;
+    } else if (result == 0) {
+        return false;
     }
 
-    if (left > 0) {
-        rw->r.length += left;
-        return true;
-    }
-
-    return false;
+    rw->r.length += result;
+    return true;
 }

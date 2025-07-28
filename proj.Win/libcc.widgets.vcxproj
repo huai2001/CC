@@ -28,27 +28,27 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\widgets\db\sqlsvr.c" />
     <ClCompile Include="..\src\widgets\generic\generic.c" />
     <ClCompile Include="..\src\widgets\generic\gzip.c" />
     <ClCompile Include="..\src\widgets\generic\http.header.c" />
@@ -196,13 +197,16 @@
     <ClCompile Include="dllmain.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\libcc\widgets\db\sql.h" />
-    <ClInclude Include="..\include\libcc\widgets\event\event.h" />
-    <ClInclude Include="..\include\libcc\widgets\event\timeout.h" />
-    <ClInclude Include="..\include\libcc\widgets\ini\ini.h" />
-    <ClInclude Include="..\include\libcc\widgets\json\json.h" />
+    <ClInclude Include="..\include\libcc\widgets\event.h" />
+    <ClInclude Include="..\include\libcc\widgets\http.h" />
+    <ClInclude Include="..\include\libcc\widgets\ini.h" />
+    <ClInclude Include="..\include\libcc\widgets\json.h" />
     <ClInclude Include="..\include\libcc\widgets\map.h" />
-    <ClInclude Include="..\include\libcc\widgets\xml\xml.h" />
+    <ClInclude Include="..\include\libcc\widgets\socks5.h" />
+    <ClInclude Include="..\include\libcc\widgets\sql.h" />
+    <ClInclude Include="..\include\libcc\widgets\timeout.h" />
+    <ClInclude Include="..\include\libcc\widgets\WS.h" />
+    <ClInclude Include="..\include\libcc\widgets\xml.h" />
     <ClInclude Include="..\src\widgets\event\event.c.h" />
     <ClInclude Include="..\src\widgets\event\windows\sys_iocp.h" />
     <ClInclude Include="..\src\widgets\event\windows\sys_socket_c.h" />

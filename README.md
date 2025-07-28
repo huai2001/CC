@@ -237,8 +237,8 @@ static void onLine(_cc_event_t *e, const char_t* data, uint16_t length) {
 static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
-        _cc_sockaddr_t remote_addr = {0};
-        _cc_socklen_t remote_addr_len = sizeof(_cc_sockaddr_t);
+        _cc_union_sockaddr_t remote_addr = {0};
+        _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
         _cc_event_cycle_t *cycle = _cc_get_event_cycle();
         fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
@@ -254,7 +254,7 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
         }
 
         {
-            struct sockaddr_in* remote_ip = (struct sockaddr_in*)&remote_addr;
+            struct sockaddr_in* remote_ip = &remote_addr.addr_in;
             byte_t *ip_addr = (byte_t *)&remote_ip->sin_addr.s_addr;
             _cc_logger_debug(_T("TCP accept [%d,%d,%d,%d] fd:%d"), ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
         }

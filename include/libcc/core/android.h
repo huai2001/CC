@@ -21,7 +21,7 @@
 #ifndef _C_CC_ANDROID_H_INCLUDED_
 #define _C_CC_ANDROID_H_INCLUDED_
 
-#include "../types.h"
+#include "../string.h"
 
 #include <android/native_window_jni.h>
 
@@ -109,9 +109,9 @@ _CC_API_PUBLIC(int) GetAndroidSDKVersion(void);
 #define CC_ANDROID_EXTERNAL_STORAGE_WRITE  0x02
 
 _CC_API_PUBLIC(uint32_t) GetAndroidExternalStorageState(void);
-_CC_API_PUBLIC(const tchar_t *) GetAndroidInternalStoragePath(void);
-_CC_API_PUBLIC(const tchar_t *) GetAndroidExternalStoragePath(void);
-_CC_API_PUBLIC(const tchar_t *) GetAndroidCachePath(void);
+_CC_API_PUBLIC(const _cc_String_t *) GetAndroidInternalStoragePath(void);
+_CC_API_PUBLIC(const _cc_String_t *) GetAndroidExternalStoragePath(void);
+_CC_API_PUBLIC(const _cc_String_t *) GetAndroidCachePath(void);
 
 _CC_API_PUBLIC(bool_t) ShowAndroidToast(const tchar_t *message, int duration, int gravity, int xOffset, int yOffset);
 

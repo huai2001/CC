@@ -1,5 +1,5 @@
 /* System dependent filesystem routines */
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/alloc.h>
 #include <libcc/dirent.h>
 

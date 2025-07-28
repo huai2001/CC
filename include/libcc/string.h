@@ -18,12 +18,12 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef _C_CC_STRING_H_INCLUDED_
-#define _C_CC_STRING_H_INCLUDED_
+#ifndef _C_LIBCC_STRING_H_INCLUDED_
+#define _C_LIBCC_STRING_H_INCLUDED_
 
 #include <stdio.h>
 #include <string.h>
-#include "UTF.h"
+#include "types.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -40,7 +40,11 @@ typedef struct {
     wchar_t* data;
 } _cc_WString_t;
 
-#define _cc_String(_str) { sizeof(_str) - 1, _str }
+#define _cc_String(_str) {sizeof(_str) - 1, _str}
+#define _cc_String_Set(x, _str) do { \
+    (x).length = sizeof(_str) - 1;\
+    (x).data = _str;\
+} while (0)
 
 /*for porting from GCC compilers*/
 #ifndef _CC_MSVC_
@@ -81,18 +85,17 @@ extern const char_t _a_lower_xdigits[];
 extern const char_t _a_upper_xdigits[];
 
 #ifdef _CC_UNICODE_
-    #define _lower_xdigits _w_lower_xdigits
-    #define _upper_xdigits _w_upper_xdigits
-    #define _cc_trim_copy _cc_trimW_copy
-
-    #define _cc_split _cc_splitW
-    typedef _cc_WString_t _cc_String_t;
+    #define _lower_xdigits      _w_lower_xdigits
+    #define _upper_xdigits      _w_upper_xdigits
+    #define _cc_trim_copy       _cc_trimW_copy
+    #define _cc_split           _cc_splitW
+    typedef _cc_WString_t       _cc_String_t;
 #else
-    #define _lower_xdigits _a_lower_xdigits
-    #define _upper_xdigits _a_upper_xdigits
-    #define _cc_trim_copy _cc_trimA_copy
-    #define _cc_split _cc_splitA
-    typedef _cc_AString_t _cc_String_t;
+    #define _lower_xdigits      _a_lower_xdigits
+    #define _upper_xdigits      _a_upper_xdigits
+    #define _cc_trim_copy       _cc_trimA_copy
+    #define _cc_split           _cc_splitA
+    typedef _cc_AString_t       _cc_String_t;
 #endif
 
 #define _cc_first_index_of(FIRST, LAST, FN) do {\
@@ -179,4 +182,4 @@ _CC_FORCE_INLINE_ char_t *_cc_long2buf(char_t *buf, long num) {
 }
 #endif
 
-#endif /*_C_CC_STRING_H_INCLUDED_*/
+#endif /*_C_LIBCC_STRING_H_INCLUDED_*/

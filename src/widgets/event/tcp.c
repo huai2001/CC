@@ -33,7 +33,7 @@ _CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_event_cycle_t *cycle, _cc_event_t *e, 
     /* if we can't terminate nicely, at least allow the socket to be reused*/
     _cc_set_socket_reuseaddr(e->fd);
     /* required to get parallel v4 + v6 working */
-    if (sockaddr->addr.sa_family == AF_INET6) {
+    if (sockaddr->sa_family == AF_INET6) {
         e->descriptor |= _CC_EVENT_DESC_IPV6_;
 #if defined(IPV6_V6ONLY)
         _cc_socket_ipv6only(e->fd);
@@ -42,7 +42,7 @@ _CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_event_cycle_t *cycle, _cc_event_t *e, 
         e->flags = _CC_EVENT_ACCEPT_;
     }
     /* Bind the socket for listening */
-    if (bind(e->fd, &sockaddr->addr, socklen) < 0) {
+    if (bind(e->fd, sockaddr, socklen) < 0) {
         _cc_logger_error(_T("Couldn't bind to local port: %s"), _cc_last_error(_cc_last_errno()));
         return false;
     }
@@ -65,7 +65,7 @@ _CC_API_PUBLIC(bool_t) _cc_tcp_connect(_cc_event_cycle_t *cycle, _cc_event_t *e,
     /* if we can't terminate nicely, at least allow the socket to be reused*/
     _cc_set_socket_reuseaddr(e->fd);
     /* required to get parallel v4 + v6 working */
-    if (sockaddr->addr.sa_family == AF_INET6) {
+    if (sockaddr->sa_family == AF_INET6) {
         e->descriptor |= _CC_EVENT_DESC_IPV6_;
 #if defined(IPV6_V6ONLY)
         _cc_socket_ipv6only(e->fd);

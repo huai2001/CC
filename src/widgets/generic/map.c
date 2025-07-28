@@ -19,6 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/widgets/map.h>
+#include <libcc/UTF.h>
 
 _CC_API_PUBLIC(_cc_map_element_t*) _cc_map_element_alloc(byte_t type) {
     _cc_map_element_t *m = (_cc_map_element_t *)_cc_malloc(sizeof(_cc_map_element_t));

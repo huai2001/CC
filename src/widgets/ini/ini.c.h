@@ -21,7 +21,7 @@
 #ifndef _C_CC_INI_C_H_INCLUDED_
 #define _C_CC_INI_C_H_INCLUDED_
 
-#include <libcc/widgets/ini/ini.h>
+#include <libcc/widgets/ini.h>
 #include "../generic/generic.c.h"
 
 /* Set up for C function definitions, even when using C++ */

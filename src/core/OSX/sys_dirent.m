@@ -29,20 +29,23 @@
 #include <libcc/dirent.h>
 #include <mach-o/dyld.h>
 
-_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t len) {
-    char_t epath[_CC_MAX_PATH_];
+_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
+    char_t cwd[_CC_MAX_PATH_];
+    uint32_t *cwd_length = _cc_countof(cwd);
+    _CC_UNUSED(length);
 
-    if (_NSGetExecutablePath(epath, (uint32_t*)&maxlen) != 0) {
+    if (_NSGetExecutablePath(cwd, (uint32_t*)&cwd_length) != 0) {
         return 0;
     }
-    if (!realpath(epath, cwd)) {
+
+    if (!realpath(cwd, path)) {
         return 0;
     }
 
-    return _tcslen(cwd);
+    return _tcslen(path);
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
+_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length) {
     @autoreleasepool {
         NSBundle *bundle = [NSBundle mainBundle];
         const char *baseType = [[[bundle infoDictionary] objectForKey:@"CC_FILESYSTEM_BASE_DIR_TYPE"] UTF8String];
@@ -51,6 +54,7 @@ _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
         if (baseType == nullptr) {
             baseType = "resource";
         }
+        
         if (_tcsicmp(baseType, "bundle") == 0) {
             bundlePath = [[bundle bundlePath] fileSystemRepresentation];
         } else if (_tcsicmp(baseType, "parent") == 0) {
@@ -59,16 +63,15 @@ _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
             // this returns the exedir for non-bundled  and the resourceDir for bundled apps
             bundlePath = [[bundle resourcePath] fileSystemRepresentation];
         }
+
         if (bundlePath) {
-            // const size_t len = (size_t)[bundlePath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
-            // len = _min(len, maxlen);
-            // _tcsncpy(cwd, [bundlePath UTF8String], len);
-            // cwd[len - 1] = 0;
-            const size_t len = _tcslen(bundlePath) + 1;
-            _tcsncpy(cwd, bundlePath, len);
-            cwd[len - 1] = 0;
-            return len;
+            const size_t rc = _tcslen(bundlePath) + 1;
+            length = _min(length, rc);
+            memcpy(path, bundlePath, length);
+            path[length - 1] = 0;
+            return length;
         }
+
         return 0;
     }
 }

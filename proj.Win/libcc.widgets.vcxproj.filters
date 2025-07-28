@@ -9,9 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="头文件\event">
-      <UniqueIdentifier>{0eb9d825-27fd-4c23-9205-a550f876c4c1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -24,18 +21,6 @@
     </Filter>
     <Filter Include="源文件\generic">
       <UniqueIdentifier>{355c5ae9-a725-412e-87f7-422c93c4bf28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\json">
-      <UniqueIdentifier>{dec980fd-f582-447d-ac36-d5d61f485a4f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\db">
-      <UniqueIdentifier>{e0ad716c-7f50-4024-bc2b-6183a510a1f0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\xml">
-      <UniqueIdentifier>{76ec8525-c0ad-407c-8383-4ef42f037000}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\ini">
-      <UniqueIdentifier>{cc1787e7-b75f-4975-9606-49e9230abc0e}</UniqueIdentifier>
     </Filter>
     <Filter Include="源文件\event">
       <UniqueIdentifier>{666a89a4-57bd-4d2c-a475-a966864a5d5b}</UniqueIdentifier>
@@ -99,13 +84,7 @@
     <ClCompile Include="..\src\widgets\event\windows\sys_iocp_overlapped.c">
       <Filter>源文件\event\windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\widgets\json\json.array.c">
-      <Filter>源文件\json</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\widgets\json\json.c">
-      <Filter>源文件\json</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\widgets\json\json.object.c">
       <Filter>源文件\json</Filter>
     </ClCompile>
     <ClCompile Include="..\src\widgets\json\json.parser.c">
@@ -150,14 +129,17 @@
     <ClCompile Include="..\src\widgets\generic\WS.c">
       <Filter>源文件\generic</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\widgets\json\json.array.c">
+      <Filter>源文件\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\json\json.object.c">
+      <Filter>源文件\json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\widgets\db\sqlsvr.c">
+      <Filter>源文件\db</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\libcc\widgets\event\timeout.h">
-      <Filter>头文件\event</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\widgets\event\event.h">
-      <Filter>头文件\event</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libcc\widgets\dns.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -185,18 +167,6 @@
     <ClInclude Include="..\include\libcc\widgets\widgets.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libcc\widgets\json\json.h">
-      <Filter>头文件\json</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\widgets\xml\xml.h">
-      <Filter>头文件\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\widgets\db\sql.h">
-      <Filter>头文件\db</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\widgets\ini\ini.h">
-      <Filter>头文件\ini</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\widgets\event\event.c.h">
       <Filter>源文件\event</Filter>
     </ClInclude>
@@ -220,6 +190,33 @@
     </ClInclude>
     <ClInclude Include="..\src\widgets\generic\generic.c.h">
       <Filter>源文件\generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\event.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\http.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\ini.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\json.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\socks5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\sql.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\timeout.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\WS.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\widgets\xml.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

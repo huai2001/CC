@@ -18,29 +18,33 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/math.h>
 #include <libcc/alloc.h>
 
-_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t len) {
+_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
     _cc_logger_error(_T("That operation is not supported"));
     return 0;
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
-    _cc_logger_error(_T("That operation is not supported"));
-    return 0;
+_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length) {
+    const _cc_String_t * fpath = GetAndroidExternalStoragePath();
+    length = _min(fpath.length, length);
+    memcpy(path, fpath.data, length);
+    path[length - 1] = 0;
+    return length;
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t len) {
-    const tchar_t* fpath;
+_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t length) {
+    const _cc_String_t * fpath;
     if (folder == _CC_FOLDER_TEMPLATES_) {
         fpath = GetAndroidCachePath();
     } else {
         fpath = GetAndroidExternalStoragePath();
     }
 
-    _tcsncpy(path, fpath, len);
-    path[len - 1] = 0;
-    return _tcslen(path);
+    length = _min(fpath.length, length);
+    memcpy(path, fpath.data, length);
+    path[length - 1] = 0;
+    return length;
 }

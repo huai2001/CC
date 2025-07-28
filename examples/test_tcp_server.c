@@ -6,8 +6,8 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         _cc_event_t *event;
         _cc_event_cycle_t *cycle_new;
         _cc_socket_t fd;
-        _cc_sockaddr_t remote_addr = {0};
-        _cc_socklen_t remote_addr_len = sizeof(_cc_sockaddr_t);
+        struct sockaddr_in remote_addr = {0};
+        _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
 
         fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {

@@ -97,7 +97,8 @@ _CC_API_PUBLIC(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg
                 break;
             }
 #ifdef _CC_UNICODE_
-            i = _cc_utf8_to_utf16((const uint8_t *)start, (const uint8_t *)n, (uint16_t *)buf, (uint16_t *)&buf[_cc_countof(buf)], false);
+            i = _cc_utf8_to_utf16((const uint8_t *)start, (const uint8_t *)n, 
+                                  (uint16_t *)buf, (uint16_t *)&buf[_cc_countof(buf)]);
             if (!fn(arg, (wchar_t*)buf, i - 1)) {
 #else
             if (!fn(arg, (tchar_t*)start, (int)(n - start - 1))) {

@@ -61,12 +61,13 @@ extern "C" {
 /* This is the system-independent socket info structure */
 typedef SOCKET                  _cc_socket_t;
 typedef int                     _cc_socklen_t;
+typedef struct sockaddr         _cc_sockaddr_t;
 
 typedef union {
     struct sockaddr addr;
     struct sockaddr_in addr_in;
     struct sockaddr_in6 addr_in6;
-} _cc_sockaddr_t;
+} _cc_union_sockaddr_t;
 
 #ifdef _CC_UNICODE_
     #define _cc_getaddrinfo      GetAddrInfoW
@@ -146,6 +147,8 @@ LPFN_CONNECTEX get_connectex_func_ptr(SOCKET fd);
  */
 LPFN_GETQUEUEDCOMPLETIONSTATUSEX get_queued_completion_status_func_ptr(void);
 
+/**/
+int32_t _win_recv(_cc_socket_t fd, byte_t* buf, int32_t length);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

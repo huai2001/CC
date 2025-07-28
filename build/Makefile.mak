@@ -124,13 +124,13 @@ else
 	CONFIGURATION = release
 endif
 
-BUILD_PATH	 = $(SRCROOT)/build/intermediates/$(ARCH)/$(CONFIGURATION)
-EXT_LIB_PATH = $(SRCROOT)/lib/$(ARCH)/$(CONFIGURATION)
-EXT_BIN_PATH = $(SRCROOT)/bin/$(ARCH)/$(CONFIGURATION)
+BUILD_PATH	  = $(SRCROOT)/build/intermediates/$(ARCH)/$(CONFIGURATION)
+EXT_LIB_PATH  = $(SRCROOT)/lib/$(ARCH)/$(CONFIGURATION)
+EXT_BIN_PATH  = $(SRCROOT)/bin/$(ARCH)/$(CONFIGURATION)
 
 ##编译过程中间文件输出目录
-EXT_OBJ_PATH = $(BUILD_PATH)/$(TARGET_NAME)/objs
-EXT_LST_PATH = $(BUILD_PATH)/$(TARGET_NAME)/lsts
+EXT_OBJ_PATH  = $(BUILD_PATH)/objs/$(TARGET_NAME)
+EXT_LST_PATH  = $(BUILD_PATH)/lsts/$(TARGET_NAME)
 
 #要包含的路径(本用例包含iclude,lib,bin 三个目录)
 INCLUDE_PATH += $(SRCROOT)/include $(EXT_LIB_PATH) $(EXT_BIN_PATH) $(THIRD_PARTY_PATH)
@@ -237,27 +237,28 @@ help:
 	@echo "====================== Version2.6 ============================"
 	@exit
 
-OUTPUT_OBJ_OPTION = $(EXT_OBJ_PATH)/$(subst /,_,$(subst $(SRCROOT),obj,$@))
+OUTPUT_OBJ	= $(EXT_OBJ_PATH)/$(subst /,_,$(subst $(SRCROOT),obj,$@))
 
+-include $(wildcard $(EXT_DEPS_PATH)/*.d)
 ##将.cpp文件编译成目标文件(.o)##
 %$(OBJ_SUF) : %$(CPP_SUF)
-	$(CPP) $(CXXFLAGS) -c $< -o $(OUTPUT_OBJ_OPTION)
+	$(CPP) $(CXXFLAGS) -c $< -o $(OUTPUT_OBJ)
 
 ##将.c文件编译成目标文件(.o)##
 %$(OBJ_SUF) : %$(C_SUF) 
-	$(CC) $(CFLAGS) -c $< -o $(OUTPUT_OBJ_OPTION)
+	$(CC) $(CFLAGS) -c $< -o $(OUTPUT_OBJ)
 
 ##将.m文件编译成目标文件(.o)##
 %$(OBJ_SUF) : %$(M_SUF)
-	$(CC) $(CFLAGS) -c $< -o $(OUTPUT_OBJ_OPTION)
+	$(CC) $(CFLAGS) -c $< -o $(OUTPUT_OBJ)
 
 ##将.c文件编译成汇编文件(.asm)##
 %$(ASM_SUF) : %$(C_SUF)
-	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_OBJ_OPTION)
+	$(CC) $(CFLAGS) -S $< -o $(OUTPUT_OBJ)
 
 ##将.cpp文件编译成汇编文件(.asm)##
 %$(ASM_SUF) : %$(CPP_SUF)
-	$(CPP) $(CFLAGS) -S $< -o $(OUTPUT_OBJ_OPTION)
+	$(CPP) $(CFLAGS) -S $< -o $(OUTPUT_OBJ)
 
 ##将.o文件编译成lib文件(.a)##
 %$(LIB_SUF) :

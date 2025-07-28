@@ -85,8 +85,8 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
         _cc_ftp_t* ftp = (_cc_ftp_t*)e->args;
         _cc_socket_t fd = _CC_INVALID_SOCKET_;
         _cc_event_t* new_event;
-        _cc_sockaddr_t remote_addr = {0};
-        _cc_socklen_t remote_addr_len = sizeof(_cc_sockaddr_t);
+        struct sockaddr_in remote_addr = {0};
+        _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
         _cc_event_cycle_t* new_cycle = _cc_get_event_cycle();
 
         fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
@@ -145,18 +145,9 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
     /*¿ÉÐ´Êý¾Ý*/
     if (which & _CC_EVENT_WRITABLE_) {
         if (e->buffer) {
-            if (_CC_EVENT_WBUF_HAS_DATA(e->buffer)) {
-                if (!_cc_event_sendbuf(e)) {
-                    _cc_ftp_unbind_accept((_cc_ftp_t*)e->args);
-                    return false;
-                }
-            }
-            if (!_CC_EVENT_WBUF_HAS_DATA(e->buffer)) {
-                if (e->flags & _CC_EVENT_DISCONNECT_) {
-                    _cc_ftp_unbind_accept((_cc_ftp_t*)e->args);
-                    return false;
-                }
-                _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+            if (!_cc_event_sendbuf(e)) {
+                _cc_ftp_unbind_accept((_cc_ftp_t*)e->args);
+                return false;
             }
         } else {
             _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);

@@ -21,77 +21,13 @@
 #ifndef _C_CC_SYS_LINUX_SOCKET_H_INCLUDED_
 #define _C_CC_SYS_LINUX_SOCKET_H_INCLUDED_
 
-#include "../../types.h"
+#include "../unix/sys_socket.h"
 
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <sys/un.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-
-#include <arpa/inet.h>
-
-#include <net/if.h>
-#include <netdb.h>
-
-#include <errno.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* Socket constants */
-#define _CC_INVALID_SOCKET_     (-1)
-#define _CC_SOCKET_ERROR_       (-1)
-
-/* errno define */
-#define _CC_ETIMEDOUT_        ETIMEDOUT
-#define _CC_ENOMEM_           ENOMEM
-#define _CC_EINVAL_           EINVAL
-#define _CC_ECONNREFUSED_     ECONNREFUSED
-#define _CC_ECONNRESET_       ECONNRESET
-#define _CC_EHOSTDOWN_        EHOSTDOWN
-#define _CC_EHOSTUNREACH_     EHOSTUNREACH
-#define _CC_EINTR_            EINTR
-#define _CC_EAGAIN_           EAGAIN
-#define _CC_ENETDOWN_         ENETDOWN
-#define _CC_ENETUNREACH_      ENETUNREACH
-#define _CC_ENOTCONN_         ENOTCONN
-#define _CC_EISCONN_          EISCONN
-#define _CC_EWOULDBLOCK_      EWOULDBLOCK
-#define _CC_ENOBUFS_          ENOBUFS
-#define _CC_ECONNABORTED_     ECONNABORTED
-#define _CC_EINPROGRESS_      EINPROGRESS
-
-#define _CC_SHUT_RD_          SHUT_RD
-#define _CC_SHUT_WR_          SHUT_WR
-#define _CC_SHUT_RD_WR_       SHUT_RDWR
-
-#define _cc_getaddrinfo       getaddrinfo
-#define _cc_freeaddrinfo      freeaddrinfo
-
-/* This is the system-independent socket info structure */
-typedef int                    _cc_socket_t;
-typedef struct addrinfo        _cc_addrinfo_t;
-typedef socklen_t              _cc_socklen_t;
-typedef union {
-    struct sockaddr addr;
-    struct sockaddr_in addr_in;
-    struct sockaddr_in6 addr_in6;
-    struct sockaddr_un addr_un;
-} _cc_sockaddr_t;
-#define _cc_getsockopt(__sock, __level, __optname, __optval , __optlen)\
-    getsockopt(__sock, __level, __optname, (pvoid_t)__optval , __optlen)
-
-#define _cc_setsockopt(__sock, __level, __optname, __optval , __optlen) \
-    setsockopt( __sock , __level , __optname , (pvoid_t)__optval , __optlen )
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

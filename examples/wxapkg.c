@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libcc.h>
-#include <libcc/widgets/json/json.h>
+#include <libcc/widgets/json.h>
 
 #define MAGIC_FIRST 0xBE
 #define MAGIC_LAST 0xED
@@ -176,7 +176,8 @@ void de_wxapkg(const tchar_t *full_name, const tchar_t *name, const tchar_t *sav
 
 #ifdef _CC_UNICODE_
         fread(file_name, sizeof(char_t), entry->name_length, fp);
-        _cc_utf8_to_utf16((uint8_t*)file_name, (uint8_t*)&file_name[entry->name_length], (uint16_t*)entry->name, (uint16_t*)&entry->name[_cc_countof(entry->name)], FALSE);
+        _cc_utf8_to_utf16((uint8_t*)file_name, (uint8_t*)&file_name[entry->name_length], 
+                          (uint16_t*)entry->name, (uint16_t*)&entry->name[_cc_countof(entry->name)]);
 #else
         fread(entry->name, sizeof(char_t), entry->name_length, fp);;
 #endif

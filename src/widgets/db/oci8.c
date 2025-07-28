@@ -24,7 +24,7 @@
 #include <libcc/socket/socket.h>
 #include <libcc/string.h>
 #include <libcc/time.h>
-#include <libcc/widgets/db/sql.h>
+#include <libcc/widgets/sql.h>
 #include <time.h>
 
 #ifdef _CC_ENABLE_OCI8_
@@ -210,19 +210,16 @@ _CC_API_PRIVATE(bool_t) reconnect(_cc_sql_t *ctx) {
     return (bool_t)(OCIPing(ctx->svchp, ctx->errhp, OCI_DEFAULT) == OCI_SUCCESS);
 }
 
-_CC_API_PRIVATE(bool_t) _oci8_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _oci8_execute(_cc_sql_t *ctx, const _cc_String_t *sql, _cc_sql_result_t **result) {
     int t = 0;
     sword res;
-    int32_t sql_string_len = 0;
     OCIStmt *stmthp;
     ub4 prefetch = 0;
     ub2 type;
     ub4 mode;
     ub4 iters;
 
-    _cc_assert(ctx != nullptr && sql_string != nullptr);
-
-    sql_string_len = (int32_t)_tcslen(sql_string);
+    _cc_assert(ctx != nullptr && sql != nullptr);
 
     res = OCIHandleAlloc((dvoid *)sql_envhp, (dvoid **)&stmthp, OCI_HTYPE_STMT, (size_t)0, (dvoid **)0);
     if (res != OCI_SUCCESS && res != OCI_SUCCESS_WITH_INFO) {
@@ -238,7 +235,7 @@ _CC_API_PRIVATE(bool_t) _oci8_execute(_cc_sql_t *ctx, const tchar_t *sql_string,
         return false;
     }
 
-    res = OCIStmtPrepare(stmthp, ctx->errhp, (text *)sql_string, (ub4)sql_string_len, (ub4)OCI_NTV_SYNTAX,
+    res = OCIStmtPrepare(stmthp, ctx->errhp, (text *)sql->data, (ub4)sql->length, (ub4)OCI_NTV_SYNTAX,
                          (ub4)OCI_DEFAULT);
     if (res != OCI_SUCCESS && res != OCI_SUCCESS_WITH_INFO) {
         OCIHandleFree(stmtp, OCI_HTYPE_STMT);

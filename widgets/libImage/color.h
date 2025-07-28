@@ -22,7 +22,7 @@
 #ifndef _CC_IMAGE_COLOR_H_INCLUDED_
 #define _CC_IMAGE_COLOR_H_INCLUDED_
 
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/math.h>
 #include <libcc/alloc.h>
 #include <libcc/buf.h>

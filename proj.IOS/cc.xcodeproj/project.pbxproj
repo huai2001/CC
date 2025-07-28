@@ -134,7 +134,7 @@
 		414E51331F6CB7F80085AF50 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
 		414E513B1F6CB7F80085AF50 /* cpu_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpu_info.h; sourceTree = "<group>"; };
 		414E513E1F6CB7F80085AF50 /* unix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unix.h; sourceTree = "<group>"; };
-		414E51421F6CB7F80085AF50 /* core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
+		414E51421F6CB7F80085AF50 /* generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = generic.h; sourceTree = "<group>"; };
 		414E51461F6CB7F80085AF50 /* des.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = des.h; sourceTree = "<group>"; };
 		414E51471F6CB7F80085AF50 /* dirent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dirent.h; sourceTree = "<group>"; };
 		414E51481F6CB7F80085AF50 /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = list.h; sourceTree = "<group>"; };
@@ -474,7 +474,7 @@
 				414E51321F6CB7F80085AF50 /* atomic.h */,
 				414E51331F6CB7F80085AF50 /* base64.h */,
 				414E51371F6CB7F80085AF50 /* core */,
-				414E51421F6CB7F80085AF50 /* core.h */,
+				414E51421F6CB7F80085AF50 /* generic.h */,
 				414E51461F6CB7F80085AF50 /* des.h */,
 				414E51471F6CB7F80085AF50 /* dirent.h */,
 				414E51481F6CB7F80085AF50 /* list.h */,

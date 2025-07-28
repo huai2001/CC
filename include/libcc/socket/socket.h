@@ -21,7 +21,7 @@
 #ifndef _C_CC_SOCKET_H_INCLUDED_
 #define _C_CC_SOCKET_H_INCLUDED_
 
-#include "../core.h"
+#include "../generic.h"
 #include "../mutex.h"
 
 #ifdef __CC_WINDOWS__
@@ -196,7 +196,7 @@ _CC_API_PUBLIC(int) _cc_socket_ipv6only(_cc_socket_t fd);
  * @param sa _cc_sockaddr_t structure
  * @param sa_len Size of _cc_sockaddr_t structure
  *
- * @return socket hanel
+ * @return socket handle
  */
 _CC_API_PUBLIC(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len);
 
@@ -244,7 +244,11 @@ _CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t l
  * @return true if successful or false on error.
  */
 _CC_FORCE_INLINE_ bool_t _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) {
+#ifdef __CC_WINDOWS__
+    return InetPton(af, src, dst) == 1;
+#else
     return inet_pton(af, src, dst) == 1;
+#endif
 }
 /**
  * @brief 
@@ -256,8 +260,12 @@ _CC_FORCE_INLINE_ bool_t _cc_inet_pton(int af, const tchar_t *src, byte_t *dst) 
  *
  * @return true if successful or false on error.
  */
-_CC_FORCE_INLINE_ bool_t _cc_inet_ntop(int af,  const byte_t *src, tchar_t *dst, int32_t size){
+_CC_FORCE_INLINE_ bool_t _cc_inet_ntop(int af,  const byte_t *src, tchar_t *dst, int32_t size) {
+#ifdef __CC_WINDOWS__
+    return InetNtop(af, src, dst, size) != nullptr;
+#else
     return inet_ntop(af, src, dst, size) != nullptr;
+#endif
 }
 /**
  * @brief 

@@ -5,14 +5,14 @@ _cc_sql_delegate_t sqldelegate;
 _cc_sql_t *sql_default = nullptr;
 
 const tchar_t *createTable = "CREATE TABLE IF NOT EXISTS FileList (" \
-        "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT nullptr," \
-        "Name VARCHAR(45) NOT nullptr," \
-        "CheckMD5 VARCHAR(33) NOT nullptr," \
-        "Compress VARCHAR(45) NOT nullptr," \
-        "CompressSize INTEGER NOT nullptr," \
-        "Size INTEGER NOT nullptr," \
-        "Path TEXT NOT nullptr," \
-        "LastUpdate timestamp NOT nullptr DEFAULT(DATETIME('now','localtime'))" \
+        "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," \
+        "Name VARCHAR(45) NOT NULL," \
+        "CheckMD5 VARCHAR(33) NOT NULL," \
+        "Compress VARCHAR(45) NOT NULL," \
+        "CompressSize INTEGER NOT NULL," \
+        "Size INTEGER NOT NULL," \
+        "Path VARCHAR(256) NOT NULL," \
+        "LastUpdate timestamp NOT NULL DEFAULT(DATETIME('now','localtime'))" \
     ")";
 
 
@@ -30,7 +30,7 @@ _cc_sql_t* openSQLite3(void) {
 
     sql = sqldelegate.connect(sqliteFile);
     if (sql == nullptr) {
-        _cc_logger_debug("Update SQL is nullptr");
+        _cc_logger_debug("Update SQL is null");
     }
 
     sqldelegate.execute(sql, createTable, false);

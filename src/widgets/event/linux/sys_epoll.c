@@ -21,7 +21,7 @@
 #include "../event.c.h"
 #include <libcc/alloc.h>
 #include <libcc/logger.h>
-#include <libcc/widgets/event/timeout.h>
+#include <libcc/widgets/timeout.h>
 #include <sys/epoll.h>
 
 #define _CC_EPOLL_EVENTS_ _CC_MAX_CHANGE_EVENTS_

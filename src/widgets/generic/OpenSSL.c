@@ -201,7 +201,7 @@ _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, tchar_t *host, size_t le
 #endif
 #ifdef _CC_UNICODE_
     _cc_utf16_to_utf8((uint16_t *)host, (uint16_t *)(host + length), (uint8_t *)host_utf8,
-                      (uint8_t *)host_utf8 + _cc_countof(host_utf8), FALSE);
+                      (uint8_t *)host_utf8 + _cc_countof(host_utf8));
     SSL_set_tlsext_host_name(ssl->handle, host_utf8);
 #else
     SSL_set_tlsext_host_name(ssl->handle, host);
@@ -233,7 +233,7 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_event_cycle_t *c
     SSL_set_connect_state(ssl->handle);
 
     /* required to get parallel v4 + v6 working */
-    if (sockaddr->addr.sa_family == AF_INET6) {
+    if (sockaddr->sa_family == AF_INET6) {
         e->descriptor |= _CC_EVENT_DESC_IPV6_;
 #if defined(IPV6_V6ONLY)
         _cc_socket_ipv6only(e->fd);
@@ -332,35 +332,33 @@ _CC_API_PUBLIC(uint16_t) _SSL_do_handshake(_cc_SSL_t *ssl) {
 
 /**/
 _CC_API_PUBLIC(int32_t) _SSL_sendbuf(_cc_SSL_t *ssl, _cc_event_t *e) {
+    int32_t bw;
     _cc_event_wbuf_t *wbuf;
-    int32_t off;
-    if (e->buffer == nullptr) {
-        _cc_logger_error(_T("No write cache was created. e->buffer == nullptr"));
-        return -1;
-    }
+    _cc_assert(e->buffer != nullptr);
 
     wbuf = &e->buffer->w;
-    if (wbuf->r == wbuf->w) {
+    if (wbuf->length == 0) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         return 0;
     }
-
     _cc_spin_lock(&wbuf->lock);
-    off = _SSL_send(ssl, wbuf->bytes + wbuf->r, wbuf->w - wbuf->r);
-    if (off > 0) {
-        wbuf->r += off;
-        if (wbuf->r == wbuf->w) {
+    bw = _SSL_send(ssl, wbuf->bytes, wbuf->length);
+    if (bw < 0) {
+        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+        return bw;
+    } else if (bw != 0 && bw < wbuf->length) {
+        memmove(wbuf->bytes, wbuf->bytes + bw, wbuf->length - bw);
+        wbuf->length -= bw;
+        if (wbuf->length == 0) {
             _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         }
-    } else if (off < 0) {
-        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
     _cc_unlock(&wbuf->lock);
-    return off;
+    return bw;
 }
 
 /**/
-_CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t *ssl, const pvoid_t buf, int32_t len) {
+_CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t *ssl, const byte_t *buf, int32_t len) {
     int32_t rc = 0;
 
     if (buf == nullptr) {
@@ -399,7 +397,7 @@ _CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t *ssl, const pvoid_t buf, int32_t len
     return rc;
 }
 
-_CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t *ssl, pvoid_t buf, int32_t len) {
+_CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t *ssl, byte_t *buf, int32_t len) {
     int32_t rc;
     ERR_clear_error();
     rc = (int32_t)SSL_read(ssl->handle, buf, len);
@@ -425,7 +423,7 @@ _CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t *ssl, pvoid_t buf, int32_t len) {
         case SSL_ERROR_SYSCALL: {
             int err = _cc_last_errno();
             if ((err == _CC_EINTR_ || err == _CC_EAGAIN_)) {
-                return true;
+                return 0;
             }
             _SSL_error("SSL_read");
             break;
@@ -437,10 +435,39 @@ _CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t *ssl, pvoid_t buf, int32_t len) {
     return rc;
 }
 /**/
+_CC_API_PUBLIC(int32_t) _SSL_event_send(_cc_SSL_t *ssl, _cc_event_t *e, const byte_t *data, int32_t length) {
+    int32_t bw = 0;
+    _cc_assert(e->buffer != nullptr);
+
+     // nothing queued? See if we can just send this without queueing.
+    if (e->buffer->w.length == 0) {
+        bw = _SSL_send(ssl, data, length);
+        if (bw < 0) {
+            return bw;
+        }
+        // sent the whole thing? We're good to go here.
+        if (bw == length) {
+            return length;
+        }
+        // partial write? We'll queue the rest.
+        length -= bw;
+        data += bw;
+    }
+
+    /*queue this up for sending later.*/
+    if (_cc_copy_event_wbuf(&e->buffer->w, data, length)) {
+        _cc_event_cycle_t *cycle = _cc_get_event_cycle_by_id(e->round);
+        _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+        cycle->reset(cycle, e);
+        return length;
+    }
+    return -1;
+}
+/**/
 _CC_API_PUBLIC(bool_t) _SSL_event_read(_cc_SSL_t *ssl, _cc_event_t *e) {
     int32_t rc;
     _cc_event_buffer_t *rw = e->buffer;
-    rc = _SSL_read(ssl, (pvoid_t)(rw->r.bytes + rw->r.length), rw->r.limit - rw->r.length);
+    rc = _SSL_read(ssl, (rw->r.bytes + rw->r.length), rw->r.limit - rw->r.length);
     if (rc > 0) {
         rw->r.length += rc;
         return true;

@@ -23,6 +23,7 @@
 #define _JSON_ARRAY_SIZE_ 32
 
 void _json_array_alloc(_cc_json_t* ctx, size_t size) {
+    ctx->type = _CC_JSON_ARRAY_;
     ctx->size = _cc_aligned_alloc_opt(size, _JSON_ARRAY_SIZE_);
     ctx->length = 0;
     ctx->element.uni_array = (_cc_json_t**)_cc_calloc(ctx->size, sizeof(_cc_json_t*));

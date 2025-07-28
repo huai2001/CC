@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/power.h>
 
 bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_*, int32_t*, byte_t*);

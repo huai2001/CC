@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/loadso.h>
 #include <libcc/logger.h>
 
@@ -57,18 +57,10 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
 
 /**/
 _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
-    pvoid_t symbol = GetProcAddress((HMODULE)handle, name);
-    if (symbol == nullptr) {
-        int32_t e = _cc_last_errno();
-#ifdef _CC_UNICODE_
-        wchar_t buf[128];
-        _cc_a2w(name, strlen(name), buf, _cc_countof(buf));
-        _cc_logger_error(_T("GetProcAddress(%s) error:%d %s"), buf, e, _cc_last_error(e));
-#endif
-        _cc_logger_error(_T("GetProcAddress(%s) error:%d %s"), name, e, _cc_last_error(e));
-
+    if (handle != nullptr) {
+        return (pvoid_t)GetProcAddress((HMODULE)handle, name);
     }
-    return symbol;
+    return nullptr;
 }
 
 /**/

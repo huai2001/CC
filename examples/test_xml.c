@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <locale.h>
 #include <libcc.h>
-#include <libcc/widgets/xml/xml.h>
+#include <libcc/widgets/xml.h>
 
 const tchar_t *xml_test = _T("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")\
     _T("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")\

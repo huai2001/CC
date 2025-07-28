@@ -2,19 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libcc.h>
+#include <libcc/widgets/sql.h>
 
 #include <sqlext.h>
 #include <ODBCINST.H>
 #pragma comment(lib,"odbccp32.lib")
 #pragma comment(lib,"odbc32.lib")
+#pragma comment(lib, "legacy_stdio_definitions.lib")
 
 tchar_t table_name[128];
-void GetSQLdelegateList()
+void GetSQLDriverList()
 {
 	WORD wRet = 0;
 	TCHAR szdelegates[4096];
 	memset(szdelegates, 0, sizeof(szdelegates));
-	if(SQLGetInstalleddelegates(szdelegates, _countof(szdelegates), &wRet))
+	if(SQLGetInstalledDrivers(szdelegates, _countof(szdelegates), &wRet))
 	{
 		LPTSTR pszDrv = szdelegates;
 		puts(_T("Installed delegator list:\n"));
@@ -55,7 +57,7 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 	}
 
 	// 连接数据源
-	if(SQLdelegateConnect( m_hdbc,nullptr,(UCHAR*)strConnect,SQL_NTS,szConnectOutput,sizeof(szConnectOutput),&nResult,SQL_delegate_COMPLETE ) != SQL_SUCCESS)
+	if(SQLDriverConnect( m_hdbc,nullptr,(UCHAR*)strConnect,SQL_NTS,szConnectOutput,sizeof(szConnectOutput),&nResult,SQL_DRIVER_COMPLETE ) != SQL_SUCCESS)
 	{
 		return false;
 	}
@@ -88,49 +90,57 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 int main(int argc, char *const arvg[])
 {
    int c = 0;
-    cc_sql_delegate_t sql_delegate;
-    cc_sql_t *conn_ptr = nullptr;
-    cc_sql_result_t *sql_result = nullptr;
+    _cc_String_t sql_str;
+    _cc_sql_delegate_t sql_delegate;
+    _cc_sql_t *conn_ptr = nullptr;
+    _cc_sql_result_t *sql_result = nullptr;
 	tchar_t strConnect[1024];
-	tchar_t *file_name = "C:\\sample2.xls";
 
 	/*
         Microsoft Excel 3.0 or 4.0  
-        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp; delegateID=278
+        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp; DriverID=278
         Microsoft Excel 5.0/7.0 
-        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp\sample.xls; delegateID=22
+        Examples: Driver={Microsoft Excel Driver (*.xls)}; DBQ=c:\temp\sample.xls; DriverID=22
     */
-	_sntprintf(strConnect,_cc_countof(strConnect),"Driver=Microsoft Excel Driver (*.xls);CREATE_DB=%s;DBQ=%s;READONLY=false;EXCLUSIVE=Yes;",
-			file_name,file_name);
+	// _sntprintf(strConnect,_cc_countof(strConnect),"Driver=Microsoft Excel Driver (*.xls);CREATE_DB=%s;DBQ=%s;READONLY=false;EXCLUSIVE=Yes;",
+	// 		file_name,file_name);
 
-	GetSQLdelegateList();
-	GetExcelAllTableNames(file_name);
-    cc_init_sqlsvr(&sql_delegate);
+	GetSQLDriverList();
+    GetExcelAllTableNames("C:\\data.xls");
+    _cc_init_sqlsvr(&sql_delegate);
 
-    conn_ptr = sql_delegate.connect(strConnect);
+    conn_ptr = sql_delegate.connect("Driver={Microsoft Excel Driver (*.xls)};DBQ=C:\\data.xls;ReadOnly=0;");
     if(conn_ptr) {
         printf("connection succed\n");
     } else {
         printf("connection failed\n");
+        return 0;
     }
 	
-	//sql_delegate.execute(conn_ptr, "CREATE TABLE sheet1 (Name TEXT,Age NUMBER)", false);
+	_cc_String_Set(sql_str,"CREATE TABLE sheet1 (Name TEXT,Age NUMBER)");
+	sql_delegate.execute(conn_ptr, &sql_str, false);
+	_cc_String_Set(sql_str,"INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐景周',26)");
+	sql_delegate.execute(conn_ptr, &sql_str, false);
+	_cc_String_Set(sql_str,"INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐志慧',22)");
+	sql_delegate.execute(conn_ptr, &sql_str, false);
+	_cc_String_Set(sql_str,"INSERT INTO  [sheet1$] (Name,Age) VALUES ('郭徽',27)");
+	sql_delegate.execute(conn_ptr, &sql_str, false);
 	
-	sql_delegate.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐景周',26)", false);
-	sql_delegate.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('徐志慧',22)", false);
-	sql_delegate.execute(conn_ptr, "INSERT INTO  [sheet1$] (Name,Age) VALUES ('郭徽',27)", false);
-	
-	_sntprintf(strConnect,_cc_countof(strConnect),"SELECT Name,Age FROM [%s];","sheet1$");
-	sql_result = sql_delegate.execute(conn_ptr, strConnect, true);
-
+	_cc_String_Set(sql_str,"SELECT Name,Age FROM [?];");
+    if (sql_delegate.execute(conn_ptr, &sql_str, &sql_result)) {
+        //sql_delegate.reset(sql, sql_result);
+        sql_delegate.bind(sql_result, 0, "sheet1$", sizeof("sheet1$")-1, _CC_SQL_TYPE_STRING_);
+        sql_delegate.step(conn_ptr, sql_result);
+        sql_delegate.free_result(conn_ptr, sql_result);
+    }
 
     if (sql_result) {
         int num_fields = 3;//sql_delegate.get_num_fields(sql_result);
         int i = 0;
-		while(sql_delegate.fetch_row(sql_result)) {
+		while(sql_delegate.fetch(sql_result)) {
 			char_t buff[256];
 			sql_delegate.get_string(sql_result, 1, buff, 256);
-			printf("Name:%s Age:%d\n",buff,sql_delegate.get_int32(sql_result, 2));
+			printf("Name:%s Age:%d\n",buff,sql_delegate.get_int(sql_result, 2));
         }
         sql_delegate.free_result(conn_ptr, sql_result);
     }

@@ -42,10 +42,7 @@ typedef struct _socks5 {
     byte_t status;
     byte_t method;
     _cc_event_t *e;
-    union {
-        struct sockaddr_in ipv4;
-        struct sockaddr_in6 ipv6;
-    } addr;
+    _cc_union_sockaddr_t addr;
 
     uint16_t port;
 
@@ -182,9 +179,9 @@ bool_t ProtocolRequest(byte_t *m, _cc_socks5_t *socks, _cc_event_t *e) {
         socks->port = _cc_swap16(socks->port);
         _cc_logger_debug(_T("IP:%s, Port:%d."), buf, socks->port);
         if (atype == _CC_SOCKS5_ADDRESS_TYPE_IPV6_) {
-            _cc_inet_ipv6_addr(&socks->addr.ipv6, (const tchar_t *)buf, socks->port);
+            _cc_inet_ipv6_addr(&socks->addr_in6, (const tchar_t *)buf, socks->port);
         } else {
-            _cc_inet_ipv4_addr(&socks->addr.ipv4, (const tchar_t *)buf, socks->port);
+            _cc_inet_ipv4_addr(&socks->addr_in, (const tchar_t *)buf, socks->port);
         }
         rep = 0x00;
     }
@@ -213,8 +210,8 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         _cc_socket_t fd;
         _cc_event_t *event;
         _cc_socks5_t *socks5;
-        _cc_sockaddr_t remote_addr = {0};
-        _cc_socklen_t remote_addr_len = sizeof(_cc_sockaddr_t);
+        struct sockaddr_in remote_addr = {0};
+        _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
         _cc_event_cycle_t *cycle_new = _cc_get_event_cycle();
 
         fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);

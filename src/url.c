@@ -22,6 +22,7 @@
 #include <libcc/socket/socket.h>
 #include <libcc/string.h>
 #include <libcc/url.h>
+#include <libcc/UTF.h>
 
 #ifndef __CC_WINDOWS__
 #include <arpa/inet.h>

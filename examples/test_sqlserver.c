@@ -84,7 +84,7 @@ int main(int argc, char *const arvg[]) {
     setlocale(LC_ALL, "chs");
 
     bzero(delegates, sizeof(delegates));
-    if (SQLGetInstalleddelegates(delegates, _cc_countof(delegates), &res)) {
+    if (SQLGetInstalledDrivers(delegates, _cc_countof(delegates), &res)) {
         tchar_t *p = delegates;
         int i = 0;
         while(*p) {

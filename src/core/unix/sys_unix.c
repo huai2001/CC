@@ -19,6 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <execinfo.h>
+#include <dlfcn.h>
 #include <stdio.h>
 #include <libcc/core/unix.h>
 #include <libcc/dirent.h>
@@ -39,18 +40,56 @@ _CC_API_PUBLIC(bool_t) _cc_isdir(const tchar_t *dir_path) {
     return false;
 }
 
-_CC_API_PUBLIC(void) _cc_get_resolve_symbol(_cc_buf_t *buf) {
+_CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
     int n,i;
+    size_t r;
     pvoid_t buffer[64];
     char **symbols;
     
     n = backtrace(buffer, _cc_countof(buffer));
     symbols = backtrace_symbols(buffer, n);
-    _cc_buf_append(buf, " ResolveSymbol: ", sizeof(" ResolveSymbol: ") - 1);
-    for (i = 1; i < n; i++) {
-        _cc_bufA_puts(buf, symbols[i]);
-        if (i < n) {
-            _cc_bufA_puts(buf, ", ");
+    
+    if (symbols == nullptr) {
+        return 0;
+    }
+
+    for (r = 0, i = 1; i < n; i++) {
+        size_t fmt_length = _sntprintf(buf + r, length - r, _T("{%s},"), symbols[i]);
+        if (fmt_length <= 0 || fmt_length > (length - r)) {
+            break;
+        }
+        r += fmt_length;
+    }
+    
+    if (r > 0) {
+        buf[r - 1] = 0;
+    }
+    free(symbols);
+    return r;
+}
+
+/**/
+_CC_API_PUBLIC(const _cc_String_t *) _cc_get_module_file_name(void) {
+    static TCHAR dl[64];
+    static _cc_String_t path = {0, dl};
+    if (path.length == 0) {
+        Dl_info info;
+        size_t length = 0, i;
+        if (!dladdr((void*)_cc_get_module_file_name, &info)) {
+            return &path;
+        }
+        for (i = length - 1; i > 0; i--) {
+            if (dl[i] == _CC_SLASH_C_) {
+                break;
+            }
+        }
+        if (i > 0) {
+            path.data = dl;
+            path.length = length - i;
+            memmove(dl,dl + i + 1, length - i);
+            dl[length - 1] = 0;
         }
     }
+
+    return &path;
 }

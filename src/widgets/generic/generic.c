@@ -19,6 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <libcc/UTF.h>
 #include "generic.c.h"
 
 typedef struct _XML_entity {

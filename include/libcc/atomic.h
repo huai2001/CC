@@ -21,7 +21,7 @@
 #ifndef _C_CC_ATOMIC_H_INCLUDED_
 #define _C_CC_ATOMIC_H_INCLUDED_
 
-#include "core.h"
+#include "generic.h"
 #include <libcc/time.h>
 
 #if defined(__CC_WINDOWS__)

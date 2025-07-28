@@ -20,7 +20,7 @@
 */
 #include "event.c.h"
 #include <libcc/alloc.h>
-#include <libcc/widgets/event/timeout.h>
+#include <libcc/widgets/timeout.h>
 
 _CC_API_PRIVATE(void) _timeout_move_list(_cc_event_cycle_t *cycle, int level, int n) {
     _cc_list_iterator_t *head = &cycle->level[level][n];

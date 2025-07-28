@@ -215,6 +215,9 @@
     <ClCompile Include="..\src\logger.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\syslog.c">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\core\windows\sys_locale.c">
       <Filter>src\core\windows</Filter>
     </ClCompile>
@@ -227,7 +230,15 @@
     <ClCompile Include="..\src\hmac.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\core\windows\sys_windows.c" />
+    <ClCompile Include="..\src\core\windows\sys_pipe.c">
+      <Filter>src\core\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\windows\sys_mmap.c">
+      <Filter>src\core\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\core\windows\sys_windows.c">
+      <Filter>src\core\windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\libcc\thread\windows\sys_thread.h">
@@ -255,6 +266,9 @@
       <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\logger.h">
+      <Filter>include\libcc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\syslog.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\md5.h">
@@ -299,7 +313,7 @@
     <ClInclude Include="..\include\libcc\atomic.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libcc\core.h">
+    <ClInclude Include="..\include\libcc\generic.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\endian.h">

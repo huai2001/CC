@@ -23,30 +23,27 @@
 #include <libcc/math.h>
 
 #if __WINRT__
-_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
+_CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t length) {
     WCHAR wbuffer[128] = L"";
-    int res = 0;
+    size_t rc = 0;
 
     /* !!! FIXME: do we not have GetUserPreferredUILanguages on WinPhone or UWP? */
 #ifdef __CC_WINPHONE__
-    res = GetLocaleInfoEx(LOCALE_NAME_SYSTEM_DEFAULT, LOCALE_SNAME, wbuffer, _cc_countof(wbuffer));
+    rc = GetLocaleInfoEx(LOCALE_NAME_SYSTEM_DEFAULT, LOCALE_SNAME, wbuffer, _cc_countof(wbuffer));
 #else
-    res = GetSystemDefaultLocaleName(wbuffer, _cc_countof(wbuffer));
+    rc = GetSystemDefaultLocaleName(wbuffer, _cc_countof(wbuffer));
 #endif
 
-    if (res > 0) {
+    if (rc > 0) {
         /* Need to convert LPWSTR to LPSTR, that is wide char to char. */
 #ifndef _CC_UNICODE_
-        _cc_w2a(wbuffer, res, buf, buflen);
+        _cc_w2a(wbuffer, (int32_t)rc, buf, (int32_t)length);
 #else
-        int i;
-        if (((size_t)res) >= (buflen - 1)) {
-            res = (int)(buflen - 1);
+        if (rc > length) {
+            rc = length;
         }
-
-        for (i = 0; i < res; i++) {
-            buf[i] = wbuffer[i];
-        }
+        memcpy(buf, wbuffer, sizeof(WCHAR) * rc);
+        buf[rc - 1] = 0;
 #endif
     }
 }

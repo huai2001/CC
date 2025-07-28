@@ -21,6 +21,7 @@
 #include <libcc/alloc.h>
 #include <libcc/buf.h>
 #include <libcc/string.h>
+#include <libcc/UTF.h>
 
 /* Skips spaces and comments as many as possible.*/
 _CC_API_PUBLIC(bool_t) _cc_buf_jump_comment(_cc_sbuf_t *const buffer) {
@@ -182,15 +183,15 @@ _CC_API_PUBLIC(bool_t) _cc_bufA_puts(_cc_buf_t *ctx, const char_t *s) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_appendvf(_cc_buf_t *ctx, const char_t *fmt, va_list arg) {
-    int32_t fmt_length, empty_len;
+    int32_t fmt_length, free_length;
 
     /* If the first attempt to append fails, resize the buffer appropriately
      * and try again */
     while (1) {
-        empty_len = (int32_t)_cc_buf_empty_length(ctx);
+        free_length = (int32_t)_cc_buf_remaining(ctx);
         /* Append the new formatted string */
         /* fmt_length is the length of the string required*/
-        fmt_length = (int32_t)_vsnprintf((char_t *)(ctx->bytes + ctx->length), empty_len, fmt, arg);
+        fmt_length = (int32_t)_vsnprintf((char_t *)(ctx->bytes + ctx->length), free_length, fmt, arg);
 
 #ifdef __CC_WINDOWS__
         if (fmt_length == -1) {
@@ -199,7 +200,7 @@ _CC_API_PUBLIC(bool_t) _cc_bufA_appendvf(_cc_buf_t *ctx, const char_t *fmt, va_l
 #endif
         if (fmt_length > 0) {
             /* SUCCESS */
-            if (fmt_length <= empty_len) {
+            if (fmt_length <= free_length) {
                 break;
             }
 
@@ -243,15 +244,15 @@ _CC_API_PUBLIC(bool_t) _cc_bufW_puts(_cc_buf_t *ctx, const wchar_t *s) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_bufW_appendvf(_cc_buf_t *ctx, const wchar_t *fmt, va_list arg) {
-    size_t fmt_length, empty_len;
+    size_t fmt_length, free_length;
 
     /* If the first attempt to append fails, resize the buffer appropriately
      * and try again */
     while (1) {
-        empty_len = _cc_buf_empty_length(ctx) / sizeof(wchar_t);
+        free_length = _cc_buf_remaining(ctx) / sizeof(wchar_t);
         /* Append the new formatted string */
         /* fmt_length is the length of the string required*/
-        fmt_length = _vsnwprintf((wchar_t *)(ctx->bytes + ctx->length), empty_len, fmt, arg);
+        fmt_length = _vsnwprintf((wchar_t *)(ctx->bytes + ctx->length), free_length, fmt, arg);
 
 #ifdef __CC_WINDOWS__
         if (fmt_length == -1) {
@@ -260,7 +261,7 @@ _CC_API_PUBLIC(bool_t) _cc_bufW_appendvf(_cc_buf_t *ctx, const wchar_t *fmt, va_
 #endif
         if (fmt_length > 0) {
             /* SUCCESS */
-            if (fmt_length <= empty_len) {
+            if (fmt_length <= free_length) {
                 break;
             }
 
@@ -299,7 +300,7 @@ _CC_API_PUBLIC(bool_t) _cc_bufW_appendf(_cc_buf_t *ctx, const wchar_t *fmt, ...)
 _CC_API_PUBLIC(_cc_buf_t*) _cc_buf_from_file(const tchar_t *file_name) {
     _cc_buf_t *buf = nullptr;
     _cc_file_t *f;
-    int64_t fsize;
+    size_t file_size;
     size_t byte_read;
 
     f = _cc_open_file(file_name, _T("rb"));
@@ -307,16 +308,12 @@ _CC_API_PUBLIC(_cc_buf_t*) _cc_buf_from_file(const tchar_t *file_name) {
         return nullptr;
     }
 
-    fsize = _cc_file_size(f);
+    file_size = (size_t)_cc_file_size(f);
 
-    if (_cc_likely(fsize > 0)) {
-        buf = _cc_create_buf((size_t)fsize);
-        if (_cc_unlikely(buf == nullptr)) {
-            _cc_file_close(f);
-            return nullptr;
-        }
-
-        while ((byte_read = _cc_file_read(f, buf->bytes + buf->length, sizeof(byte_t), buf->limit - buf->length)) > 0) {
+    if (_cc_likely(file_size > 0)) {
+        buf = _cc_create_buf(file_size);
+        while ((byte_read = _cc_file_read(f, buf->bytes + buf->length, 
+                                sizeof(byte_t), buf->limit - buf->length)) > 0) {
             buf->length += byte_read;
         }
     }
@@ -339,7 +336,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
 
     length = _cc_utf8_to_utf16((const uint8_t *)(ctx->bytes + offset), 
                             (const uint8_t *)(ctx->bytes + ctx->length + 1),
-                            (uint16_t *)b.bytes, (uint16_t *)(b.bytes + b.limit), false);
+                            (uint16_t *)b.bytes, (uint16_t *)(b.bytes + b.limit));
 
     if (length > 0) {
         _cc_free(ctx->bytes);
@@ -367,7 +364,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset) {
 
     length = _cc_utf16_to_utf8((const uint16_t *)(ctx->bytes + offset), 
                             (const uint16_t *)(ctx->bytes + ctx->length + 1),
-                            (uint8_t *)b.bytes, (uint8_t *)(b.bytes + b.limit), false);
+                            (uint8_t *)b.bytes, (uint8_t *)(b.bytes + b.limit));
 
     if (_cc_likely(length > 0)) {
         _cc_free(ctx->bytes);

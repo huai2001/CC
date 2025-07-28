@@ -21,7 +21,7 @@
 #ifndef _C_CC_RB_TREE_H_INCLUDED_
 #define _C_CC_RB_TREE_H_INCLUDED_
 
-#include "core.h"
+#include "generic.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -109,11 +109,11 @@ _CC_FORCE_INLINE_ void _cc_rbtree_node_init(_cc_rbtree_iterator_t *rb) {
 _CC_FORCE_INLINE_ void _cc_rbtree_insert(_cc_rbtree_t *root, 
                                          _cc_rbtree_iterator_t *node,
                                          _cc_rbtree_iterator_t *parent,
-                                         _cc_rbtree_iterator_t **rb_link) {
+                                         _cc_rbtree_iterator_t **link) {
     node->parent_color = (uintptr_t)parent;
     node->left = node->right = nullptr;
 
-    *rb_link = node;
+    *link = node;
 
     _cc_rbtree_insert_color(root, node);
 }

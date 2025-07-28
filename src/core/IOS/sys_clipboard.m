@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/math.h>
 #include <libcc/alloc.h>
 

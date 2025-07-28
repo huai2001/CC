@@ -282,41 +282,57 @@ DEFINE_GUID(_CC_FOLDERID_SCREENSHOTS_, 0xb7bede81, 0xdf94, 0x4682, 0xa7, 0xd8, 0
 DEFINE_GUID(_CC_FOLDERID_TEMPLATES_, 0xA63293E8, 0x664E, 0x48DB, 0xA0, 0x79, 0xDF, 0x75, 0x9E, 0x05, 0x09, 0xF7);
 DEFINE_GUID(_CC_FOLDERID_VIDEOS_, 0x18989B1D, 0x99B5, 0x455B, 0x84, 0x1C, 0xAB, 0x7C, 0x74, 0xE4, 0xDD, 0xFC);
 
-_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t len) {
-    len = GetModuleFileName(nullptr, path, (DWORD)len);
-    if (len == 0) {
+/**/
+_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
+    length = GetModuleFileName(nullptr, path, (DWORD)length);
+    if (length == 0) {
         _cc_logger_error(_T("Couldn't locate our .exe"));
         return 0;
     }
-    return len;
+    return length;
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
-    size_t i;
-    len = GetModuleFileName(nullptr, path, (DWORD)len);
-    if (len == 0) {
+/**/
+_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length) {
+    length = GetModuleFileName(nullptr, path, (DWORD)length);
+    if (length == 0) {
         _cc_logger_error(_T("Couldn't locate our .exe"));
         return 0;
     }
 
-    for (i = len - 1; i > 0; i--) {
-        if (path[i] == _CC_SLASH_C_) {
+    for (length -= 1; length > 0; length--) {
+        if (path[length] == _CC_SLASH_C_) {
             break;
         }
     }
 
-    _cc_assert(i > 0);  // Should have been an absolute path.
-    path[i] = '\0'; // chop off filename.
+    _cc_assert(length > 0);  // Should have been an absolute path.
+    path[length] = '\0'; // chop off filename.
 
-    return i;
+    return length;
 }
 
+/**/
+_CC_API_PUBLIC(size_t) _cc_get_cwd(tchar_t *path, size_t length) {
+    DWORD rc = GetCurrentDirectory((DWORD)length, path);
+    if (rc == 0) {
+        return 0;
+    }
 
-_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t len) {
+    // path separator at the end.
+    if (path[rc - 1] == _CC_SLASH_C_) {
+        path[rc - 1] = '\0';
+        rc--;
+    }
+    return rc;
+}
+
+/**/
+_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t length) {
     typedef HRESULT (WINAPI *pfnSHGetKnownFolderPath)(REFGUID /* REFKNOWNFOLDERID */, DWORD, HANDLE, PWSTR*);
     HMODULE lib = LoadLibraryW(L"Shell32.dll");
     pfnSHGetKnownFolderPath pSHGetKnownFolderPath = nullptr;
-    size_t length = 0;
+    size_t rc = 0;
 
     if (lib) {
         pSHGetKnownFolderPath = (pfnSHGetKnownFolderPath)GetProcAddress(lib, "SHGetKnownFolderPath");
@@ -379,17 +395,17 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
 
         hr = pSHGetKnownFolderPath(&type, 0x00008000 /* KF_FLAG_CREATE */, nullptr, &pszPath);
         if (SUCCEEDED(hr)) {
-            length = wcslen(pszPath);
+            rc = wcslen(pszPath);
 #ifdef _CC_UNICODE_
-            length = _min(length,len);
+            length = _min(length,rc);
             memcpy(path, pszPath, length);
             path[length - 1] = 0;
 #else
-            length = _cc_w2a(pszPath, (int32_t)length, path, (int32_t)len);
+            length = _cc_w2a(pszPath, (int32_t)rc, path, (int32_t)length);
 #endif
             //CoTaskMemFree(pszPath);
         } else {
-            length = 0;
+            rc = 0;
             _cc_logger_error(_T("Couldn't get folder, %s"), _cc_last_error(hr));
         }
     } else {
@@ -491,46 +507,3 @@ _CC_API_PUBLIC(bool_t) _cc_create_director(const tchar_t *path) {
     return true;
 }
 #endif
-/**/
-_CC_API_PUBLIC(size_t) _cc_get_cwd(tchar_t *path, size_t length) {
-    while (true) {
-        const DWORD bw = GetCurrentDirectory((DWORD)length, path);
-        if (bw == 0) {
-            return 0;
-        } else if (bw < length) {  // we got it!
-            // make sure there's a path separator at the end.
-            if ((bw == 0) || (path[bw - 1] != '\\')) {
-                path[bw] = '\\';
-                path[bw + 1] = '\0';
-            }
-            return bw;
-        }
-    }
-    return 0;
-}
-
-/*
-_CC_API_PUBLIC(bool_t) _sys_get_path_info(const tchar_t *path, _cc_path_info_t *info) {
-    WIN32_FILE_ATTRIBUTE_DATA winstat;
-    const BOOL rc = GetFileAttributesEx(path, GetFileExInfoStandard, &winstat);
-    if (!rc) {
-        return false;
-    }
-
-    if (winstat.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-        info->type = _CC_PATHTYPE_DIRECTORY_;
-        info->size = 0;
-    } else if (winstat.dwFileAttributes & (FILE_ATTRIBUTE_OFFLINE | FILE_ATTRIBUTE_DEVICE)) {
-        info->type = _CC_PATHTYPE_OTHER_;
-        info->size = ((((Uint64) winstat.nFileSizeHigh) << 32) | winstat.nFileSizeLow);
-    } else {
-        info->type = _CC_PATHTYPE_FILE_;
-        info->size = ((((Uint64) winstat.nFileSizeHigh) << 32) | winstat.nFileSizeLow);
-    }
-
-    info->create_time = _CC_TimeFromWindows_(winstat.ftCreationTime.dwLowDateTime, winstat.ftCreationTime.dwHighDateTime);
-    info->modify_time = _CC_TimeFromWindows_(winstat.ftLastWriteTime.dwLowDateTime, winstat.ftLastWriteTime.dwHighDateTime);
-    info->access_time = _CC_TimeFromWindows_(winstat.ftLastAccessTime.dwLowDateTime, winstat.ftLastAccessTime.dwHighDateTime);
-
-    return true;
-}*/

@@ -122,25 +122,24 @@ _CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t len) {
 }
 
 _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
-    size_t i;
     size_t rc = _sym_link(path, len);
     if (rc <= 0) {
         return 0;
     }
-    for (i = rc - 1; i > 0; i--) {
-        if (path[i] == _CC_SLASH_C_) {
+    for (rc -= 1; rc > 0; rc--) {
+        if (path[rc] == _CC_SLASH_C_) {
             break;
         }
     }
 
-    _cc_assert(i > 0);  // Should have been an absolute path.
-    path[i] = '\0'; // chop off filename.
+    _cc_assert(rc > 0);  // Should have been an absolute path.
+    path[rc] = '\0'; // chop off filename.
 
-    return i;
+    return rc;
 
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t len) {
+_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t length) {
     const tchar_t *param = nullptr;
     struct passwd *pw = getpwuid(getuid());
 
@@ -192,10 +191,10 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
     }
 
     if (param) {
-        return _sntprintf(path, len, "%s/%s", pw->pw_dir, param);
+        return _sntprintf(path, length, "%s/%s", pw->pw_dir, param);
     } else {
-        _tcsncpy(path, pw->pw_dir, len);
-        path[len - 1] = 0;
+        _tcsncpy(path, pw->pw_dir, length);
+        path[length - 1] = 0;
         return _tcslen(path);
     }
     return 0;

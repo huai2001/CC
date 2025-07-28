@@ -61,42 +61,11 @@ _CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32() {
     return _kernel32_handle;
 }
 
-_CC_API_PUBLIC(void) _cc_getW_resolve_symbol(_cc_buf_t *buf) {
+_CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
     DWORD64 displacement = 0;
     PVOID frames[64];
     USHORT i, n;
-    CHAR buffer[sizeof(SYMBOL_INFOW) + MAX_SYM_NAME * sizeof(WCHAR)];
-    PSYMBOL_INFOW symbol = (PSYMBOL_INFOW)buffer;
-    symbol->SizeOfStruct = sizeof(SYMBOL_INFOW);
-    symbol->MaxNameLen = MAX_SYM_NAME;
-
-    if (_current_process == nullptr) {
-        _current_process = GetCurrentProcess();
-    }
-
-    if(!SymInitialize(_current_process, nullptr, TRUE)) {
-        return;
-    }
-
-    n = CaptureStackBackTrace(0, _cc_countof(frames), frames, nullptr);
-    if (n) {
-        _cc_buf_append(buf, " ResolveSymbol: ", sizeof(" ResolveSymbol: ") - 1);
-        for (i = 1; i < n; i++) {
-            if (SymFromAddrW(_current_process, (DWORD64)(uintptr_t)frames[i], &displacement, symbol)) {
-                _cc_bufW_puts(buf, symbol->Name);
-                if (i < n) {
-                    _cc_bufW_puts(buf, L", ");
-                }
-            }
-        }
-    }
-    SymCleanup(_current_process);
-}
-
-_CC_API_PUBLIC(void) _cc_getA_resolve_symbol(_cc_buf_t *buf) {
-    DWORD64 displacement = 0;
-    PVOID frames[64];
-    USHORT i, n;
+    size_t r = 0;
     CHAR buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(CHAR)];
     PSYMBOL_INFO symbol = (PSYMBOL_INFO)buffer;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -107,21 +76,36 @@ _CC_API_PUBLIC(void) _cc_getA_resolve_symbol(_cc_buf_t *buf) {
     }
 
     if(!SymInitialize(_current_process, nullptr, TRUE)) {
-        return;
+        return 0;
     }
+
     n = CaptureStackBackTrace(0, _cc_countof(frames), frames, nullptr);
     if (n) {
-        _cc_buf_append(buf, " ResolveSymbol: ", sizeof(" ResolveSymbol: ") - 1);
-        for (i = 1; i < n; i++) {
+        for (r = 0, i = 1; i < n; i++) {
             if (SymFromAddr(_current_process, (DWORD64)(uintptr_t)frames[i], &displacement, symbol)) {
-                _cc_bufA_puts(buf, symbol->Name);
-                if (i < n) {
-                    _cc_bufA_puts(buf, ", ");
+                IMAGEHLP_LINE64 line = { sizeof(line) };
+                DWORD displacementLine = 0;
+                size_t fmt_length = 0;
+                if (SymGetLineFromAddr64(_current_process, (DWORD64)(uintptr_t)frames[i], &displacementLine, &line)) {
+                    fmt_length = _sntprintf(buf + r, length - r, _T("{%s:%ld},"), line.FileName,line.LineNumber);
+                    if (fmt_length <= 0 || fmt_length > (length - r)) {
+                        break;
+                    }
+                } else {
+                    fmt_length = _sntprintf(buf + r, length - r, _T("{%s},"), symbol->Name);
+                    if (fmt_length <= 0 || fmt_length > (length - r)) {
+                        break;
+                    }
                 }
+                r += fmt_length;
             }
+        }
+        if (r > 0) {
+            buf[r - 1] = 0;
         }
     }
     SymCleanup(_current_process);
+    return r;
 }
 
 /**/
@@ -154,6 +138,7 @@ _CC_API_PRIVATE(LONG WINAPI) _mini_dumper_handler(PEXCEPTION_POINTERS info) {
 
     _sntprintf(dbghelp_bugreport_path, _countof(dbghelp_bugreport_path),
                _T("%s\\%s_%d_%03d.dmp"), _minidump_module_path, _minidump_app_name, (int)timestamp, _cc_rand(255) % 100);
+    dbghelp_bugreport_path[_CC_MAX_PATH_ - 1] = 0;
 
     bugreport_file_handle = CreateFile(dbghelp_bugreport_path, GENERIC_WRITE, FILE_SHARE_WRITE, 
                                        nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -284,6 +269,35 @@ _CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
         ++p;
     }
     return sys_error_info;
+}
+
+/**/
+_CC_API_PUBLIC(const _cc_String_t*) _cc_get_module_file_name(void) {
+    static TCHAR dl[64];
+    static _cc_String_t path = {0};
+    if (path.length == 0) {
+        size_t length = 0, i;
+        HMODULE hModule = NULL;
+        GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)_cc_get_module_file_name, &hModule);
+
+        length = GetModuleFileName(hModule, dl, _cc_countof(dl));
+        if (length <= 0) {
+            return &path;
+        }
+        for (i = length - 1; i > 0; i--) {
+            if (dl[i] == _CC_SLASH_C_) {
+                break;
+            }
+        }
+        if (i > 0) {
+            path.data = dl;
+            path.length = length - i;
+            memmove(dl,dl + i + 1, length - i);
+            dl[length - 1] = 0;
+        }
+    }
+
+    return &path;
 }
 
 _CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, int32_t size) {

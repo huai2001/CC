@@ -22,7 +22,7 @@
 #define _C_CC_WIDGETS_H_INCLUDED_
 
 #include "dylib.h"
-#include "event/timeout.h"
+#include "timeout.h"
 #ifndef _CC_WIDGETS_EXPORT_SHARED_LIBRARY_
 #include "dns.h"
 #include "ftp.h"
@@ -30,10 +30,10 @@
 #include "WS.h"
 #include "url_request.h"
 #include "ip_locator.h"
-#include "json/json.h"
-#include "ini/ini.h"
-#include "xml/xml.h"
-#include "db/sql.h"
+#include "json.h"
+#include "ini.h"
+#include "xml.h"
+#include "sql.h"
 #endif
 
 /* Set up for C function definitions, even when using C++ */
@@ -51,7 +51,12 @@ tchar_t* get_rfc822_date(time_t t);
 */
 time_t get_rfc822_time(const tchar_t* rfc822_date);
 
+/**/
+_CC_WIDGETS_API(void) _widget_open_syslog(byte_t facility, const tchar_t *ip, const uint16_t port);
+/**/
+_CC_WIDGETS_API(void) _widget_close_syslog(void);
 
+_CC_WIDGETS_API(void) PrintModuleInfo();
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

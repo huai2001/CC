@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/loadso.h>
 #include <libcc/logger.h>
 #include <dlfcn.h>

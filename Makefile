@@ -8,6 +8,8 @@ ifdef shared
 	MACROS += _CC_ENABLE_SHARED_LIBRARY_=1
 endif
 
+MACROS += _CC_SYSLOG_RFC5424_
+
 include $(SRCROOT)/build/Makefile.mak
 
 LOCAL_SRC_FILES = src/aes.o \
@@ -39,6 +41,7 @@ LOCAL_SRC_FILES = src/aes.o \
 	src/rand.o \
 	src/ring.o \
 	src/logger.o \
+	src/syslog.o \
 	src/alloc.o \
 	src/socket/inet.o \
 	src/socket/socket.o \

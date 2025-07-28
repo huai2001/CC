@@ -29,7 +29,7 @@
 #define SETSOCKOPT_OPTVAL_TYPE (void *)
 #endif
 
-int __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
+_CC_API_PUBLIC(int) __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
     if (connect(fd, (struct sockaddr *)sa, sa_len) == -1) {
         int err = _cc_last_errno();
 
@@ -41,7 +41,7 @@ int __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const 
 }
 
 #ifndef __CC_WINDOWS__
-int __cc_get_fcntl(_cc_socket_t fd) {
+_CC_API_PUBLIC(int) __cc_get_fcntl(_cc_socket_t fd) {
     int r;
     do {
         r = fcntl(fd, F_GETFD);
@@ -57,7 +57,7 @@ int __cc_get_fcntl(_cc_socket_t fd) {
     return r;
 }
 
-int __cc_set_fcntl(_cc_socket_t fd, int flags) {
+_CC_API_PUBLIC(int) __cc_set_fcntl(_cc_socket_t fd, int flags) {
     int r;
     do {
         r = fcntl(fd, F_SETFD, flags);
@@ -171,6 +171,14 @@ _CC_API_PUBLIC(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *
     return accept_fd;
 }
 
+_CC_API_PRIVATE(bool_t) would_block(const int err) {
+#ifdef __CC_WINDOWS__
+    return (err == WSAEWOULDBLOCK) ? true : false;
+#else
+    return ((err == EWOULDBLOCK) || (err == EAGAIN) || (err == EINPROGRESS)) ? true : false;
+#endif
+}
+
 /* Set the socket send/recv timeout (SO_SNDTIMEO/SO_RCVTIMEO socket option) to
  * the specified number of milliseconds, or disable it if the 'ms' argument is
  * zero. */
@@ -205,7 +213,7 @@ _CC_API_PUBLIC(int32_t) _cc_send(_cc_socket_t fd, const byte_t* buf, int32_t len
 #endif
     if (result <= 0) {
         int err = _cc_last_errno();
-        if ((result == 0 && err == 0) || err == _CC_EINTR_ || err == _CC_EAGAIN_) {
+        if ((result == 0 && err == 0) || would_block(err)) {
             return 0;
         }
         return _CC_SOCKET_ERROR_;
@@ -231,7 +239,7 @@ _CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t l
             int err = _cc_last_errno();
             if (result == 0 && err == 0) {
                 return sent;
-            } else if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
+            } else if (would_block(err)) {
                 continue;
             }
             return _CC_SOCKET_ERROR_;
@@ -252,15 +260,19 @@ GOTO_SRECV_CONTINUE:
 
 #ifdef __CC_ANDROID__
     result = (int32_t)recv(fd, (char *)buf, length, MSG_NOSIGNAL);
+#elif defined(__CC_WINDOWS__)
+    result = (int32_t)_win_recv(fd, buf, length);
 #else
     result = (int32_t)recv(fd, (char *)buf, length, 0);
 #endif
 
     if (result < 0) {
         int err = _cc_last_errno();
-        if (err == _CC_EINTR_ || err == _CC_EAGAIN_) {
+        if (would_block(err)) {
             goto GOTO_SRECV_CONTINUE;
         }
     }
     return result;
 }
+
+

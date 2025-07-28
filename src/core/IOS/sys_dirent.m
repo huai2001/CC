@@ -18,42 +18,29 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/math.h>
 #include <libcc/alloc.h>
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 
-_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t len) {
-    size_t length = 0;
+_CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
+    return _cc_get_executable_path(path, length);
+}
 
+_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length) {
     NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
     if (bundlePath) {
-        length = (size_t)[bundlePath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
-        length = _min(len, length);
-        _tcsncpy(path, [bundlePath UTF8String], length);
+        size_t rc = (size_t)[bundlePath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+        length = _min(rc, length);
+        memcpy(path, [bundlePath UTF8String], length);
         path[length - 1] = 0;
     }
-    
     return length;
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
-    size_t length = 0;
-
-    NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
-    if (bundlePath) {
-        length = (size_t)[bundlePath lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
-        length = _min(len, length);
-        _tcsncpy(path, [bundlePath UTF8String], length);
-        path[length - 1] = 0;
-    }
-    
-    return length;
-}
-
-_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t len) {
+_CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t length) {
     @autoreleasepool {
         NSString *folderPath = nil;
 #ifdef _CC_PLATFORM_TVOS_
@@ -120,10 +107,10 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
 
 append_slash:
         if (folderPath) {
-            size_t length = (size_t)[path lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
-            length = _min(len, length);
-            _tcsncpy(cwd, [path UTF8String], length);
-            cwd[length - 1] = 0;
+            size_t rc = (size_t)[path lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
+            length = _min(length, rc);
+            memcpy(path, bundlePath, length);
+            path[length - 1] = 0;
             return length;
         } else {
             return 0;

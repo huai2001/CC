@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/alloc.h>
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <tlhelp32.h>
 
 static HWND _clipboard_handle = nullptr;

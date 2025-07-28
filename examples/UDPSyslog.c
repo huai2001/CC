@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <libcc/widgets/event/event.h>
+#include <libcc/widgets/event.h>
 #include <libcc.h>
 #include <locale.h>
 

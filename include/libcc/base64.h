@@ -21,7 +21,7 @@
 #ifndef _C_CC_BASE64_H_INCLUDED_
 #define _C_CC_BASE64_H_INCLUDED_
 
-#include "core.h"
+#include "generic.h"
 
 /*
 3*8bit=4*6bit=24

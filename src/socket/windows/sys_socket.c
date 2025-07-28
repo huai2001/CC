@@ -252,3 +252,17 @@ int _udp_reset_connect(SOCKET sock, BOOL bNewBehavior) {
 
     return result;
 }
+
+/**/
+int32_t _win_recv(_cc_socket_t fd, byte_t* buf, int32_t length) {
+    DWORD count_received;
+    DWORD flags = 0;
+    WSABUF wsabuf;
+    wsabuf.buf = (CHAR*)buf;
+    wsabuf.len = (ULONG) length;
+    const int res = WSARecv(fd, &wsabuf, 1, &count_received, &flags, NULL, NULL);
+    if (res != 0) {
+        return -1;
+    }
+    return (int32_t)count_received;
+}

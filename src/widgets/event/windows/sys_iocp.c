@@ -22,7 +22,7 @@
 #include <libcc/alloc.h>
 #include <libcc/logger.h>
 #include <libcc/thread.h>
-#include <libcc/widgets/event/timeout.h>
+#include <libcc/widgets/timeout.h>
 
 #ifdef _CC_EVENT_USE_IOCP_
 
@@ -128,7 +128,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
             return false;
         }
 
-        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
+        iocp_overlapped = _iocp_overlapped_alloc(cycle->priv, e);
         iocp_overlapped->fd = fd;
 
         if (_iocp_event_accept_event(iocp_overlapped)) {
@@ -136,24 +136,24 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
         }
 
         _cc_close_socket(fd);
-        _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+        _iocp_overlapped_free(cycle->priv, iocp_overlapped);
         return false;
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, addevents)) {
-        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
+        iocp_overlapped = _iocp_overlapped_alloc(cycle->priv, e);
 
         if (!_iocp_event_write_event(iocp_overlapped)) {
-            _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+            _iocp_overlapped_free(cycle->priv, iocp_overlapped);
             return false;
         }
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_READABLE_, addevents)) {
-        iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
+        iocp_overlapped = _iocp_overlapped_alloc(cycle->priv, e);
 
         if (!_iocp_event_receive_event(iocp_overlapped)) {
-            _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+            _iocp_overlapped_free(cycle->priv, iocp_overlapped);
             return false;
         }
     }
@@ -162,16 +162,14 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
 
 /**/
 _CC_API_PRIVATE(bool_t) _iocp_event_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    _iocp_overlapped_t *iocp_overlapped = nullptr;
-
-    iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
+    _iocp_overlapped_t *iocp_overlapped = _iocp_overlapped_alloc(cycle->priv, e);
     iocp_overlapped->flag = _CC_EVENT_PENDING_;
 
     if (PostQueuedCompletionStatus(IOCPPort, 0, _CC_IOCP_PENDING_, &iocp_overlapped->overlapped)) {
         return true;
     }
 
-    _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+    _iocp_overlapped_free(cycle->priv, iocp_overlapped);
     return false;
 }
 
@@ -239,17 +237,17 @@ _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_event_cycle_t *cycle, _cc_event_
         return false;
     }
 
-    if (!_iocp_bind(cycle, e, sa->addr.sa_family)) {
+    if (!_iocp_bind(cycle, e, sa->sa_family)) {
         return false;
     }
 
-    iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv, e);
+    iocp_overlapped = _iocp_overlapped_alloc(cycle->priv, e);
     iocp_overlapped->flag = _CC_EVENT_CONNECT_;
 
     if (!connect_fn(e->fd, (struct sockaddr *)sa, sa_len, nullptr, 0, nullptr, &iocp_overlapped->overlapped)) {
         int err = _cc_last_errno();
         if (err != WSA_IO_PENDING) {
-            _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+            _iocp_overlapped_free(cycle->priv, iocp_overlapped);
             _cc_logger_error(_T("Socket Connect:(%d) %s\n"), err, _cc_last_error(err));
             return false;
         }
@@ -272,7 +270,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_disconnect(_cc_event_cycle_t *cycle, _cc_eve
     _CC_SET_BIT(_CC_EVENT_DISCONNECT_, e->marks);
     _CC_MODIFY_BIT(_CC_EVENT_DISCONNECT_, _CC_EVENT_READABLE_, e->flags);
 
-    iocp_overlapped = _cc_iocp_overlapped_alloc(cycle->priv)
+    iocp_overlapped = _iocp_overlapped_alloc(cycle->priv)
     iocp_overlapped->fd = 0;
     iocp_overlapped->e = e;
     iocp_overlapped->ident = e->ident;
@@ -281,7 +279,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_disconnect(_cc_event_cycle_t *cycle, _cc_eve
     if (disconnect_fn(e->fd, &iocp_overlapped->overlapped, dwFlags, reserved) == false) {
         int err = _cc_last_errno();
         if (err != WSA_IO_PENDING) {
-            _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+            _iocp_overlapped_free(cycle->priv, iocp_overlapped);
             _cc_logger_error(_T("Socket Disconnect:(%d) %s\n"), err, _cc_last_error(err));
             return false;
         }
@@ -378,7 +376,7 @@ _iocp_overlapped_t* _iocp_upcast(_cc_event_cycle_t *cycle, LPOVERLAPPED overlapp
         return iocp_overlapped;
     }
 
-    _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+    _iocp_overlapped_free(cycle->priv, iocp_overlapped);
     return nullptr;
 }
 
@@ -428,7 +426,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t time
                     } else {
                         _iocp_event_dispatch(cycle, iocp_overlapped);
                     }
-                    _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+                    _iocp_overlapped_free(cycle->priv, iocp_overlapped);
                 }
             }
         } else {
@@ -442,7 +440,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t time
                         if (key == _CC_IOCP_PENDING_) {
                             _cleanup_event(cycle, iocp_overlapped->e);
                         }
-                        _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+                        _iocp_overlapped_free(cycle->priv, iocp_overlapped);
                     }
                     _cc_logger_error(_T("overlapped error: %d\n"), i);
                 }
@@ -465,14 +463,14 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t time
                 } else {
                     _iocp_event_dispatch(cycle, iocp_overlapped);
                 }
-                _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+                _iocp_overlapped_free(cycle->priv, iocp_overlapped);
             }
         } else {
             if (iocp_overlapped) {
                 if (key == _CC_IOCP_PENDING_) {
                     _cleanup_event(cycle, iocp_overlapped->e);
                 }
-                _cc_iocp_overlapped_free(cycle->priv, iocp_overlapped);
+                _iocp_overlapped_free(cycle->priv, iocp_overlapped);
             }
             last_error = _cc_last_errno();
             /**/
@@ -500,7 +498,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_quit(_cc_event_cycle_t *cycle) {
             CloseHandle(cycle->priv->port);
         }
 
-        _cc_iocp_overlapped_quit(cycle->priv);
+        _iocp_overlapped_quit(cycle->priv);
         _cc_free(cycle->priv);
     }
     return _event_cycle_quit(cycle);
@@ -521,7 +519,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_init(_cc_event_cycle_t *cycle) {
         return false;
     }
 
-    _cc_iocp_overlapped_init(priv);
+    _iocp_overlapped_init(priv);
 
     cycle->priv = priv;
 
@@ -533,7 +531,6 @@ _CC_API_PUBLIC(bool_t) _cc_init_event_iocp(_cc_event_cycle_t *cycle) {
     if (!_iocp_event_init(cycle)) {
         return false;
     }
-    cycle->reset = _iocp_event_reset;
     cycle->attach = _iocp_event_attach;
     cycle->connect = _iocp_event_connect;
     cycle->disconnect = _iocp_event_disconnect;

@@ -23,7 +23,7 @@
 #include <libcc/time.h>
 #include <libcc/types.h>
 #include <libcc/math.h>
-#include <libcc/widgets/db/sql.h>
+#include <libcc/widgets/sql.h>
 
 #if _CC_USE_SYSTEM_SQLITE3_LIB_
 #include <sqlite3.h>
@@ -311,43 +311,6 @@ _CC_API_PRIVATE(bool_t) _sqlite_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_prepare(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
-    int res = SQLITE_OK;
-    sqlite3_stmt *stmt = nullptr;
-    const tchar_t *tail;
-
-    _cc_assert(ctx != nullptr && ctx->sql != nullptr);
-
-    while (res == SQLITE_OK && *sql_string) {
-        res = _sqlite3_prepare(ctx->sql, sql_string, -1, &stmt, &tail);
-        if (res != SQLITE_OK) {
-            _cc_logger_error(_T("_sqlite3_prepare: %s"), _sqlite3_errmsg(ctx->sql));
-            if (stmt) {
-                _sqlite3_finalize(stmt);
-            }
-            return false;
-        }
-
-        if (!stmt) {
-            /* this happens for a comment or white-space */
-            sql_string = tail;
-            continue;
-        }
-
-        _sqlite3_reset(stmt);
-        break;
-    }
-    if (result) {
-        *result = (_cc_sql_result_t*)_cc_malloc(sizeof(_cc_sql_result_t));
-        (*result)->stmt = stmt;
-        (*result)->step_status = SQLITE_DONE;
-        (*result)->step = false;
-
-        return true;
-    }
-    return false;
-}
-
 _CC_API_PRIVATE(bool_t) _sqlite_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     int res = _sqlite3_reset(result->stmt);
     if (SQLITE_OK != res) {
@@ -369,15 +332,18 @@ _CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const _cc_String_t *sql, _cc_sql_result_t **result) {
     int res = SQLITE_OK;
     sqlite3_stmt *stmt = nullptr;
     const tchar_t *tail;
+    const tchar_t *sql_string = sql->data;
+    size_t sql_length = sql->length;
+
 
     _cc_assert(ctx != nullptr && ctx->sql != nullptr);
 
-    while (res == SQLITE_OK && *sql_string) {
-        res = _sqlite3_prepare(ctx->sql, sql_string, -1, &stmt, &tail);
+    do {
+        res = _sqlite3_prepare(ctx->sql, sql_string, (int)sql_length, &stmt, &tail);
         if (res != SQLITE_OK) {
             _cc_logger_error(_T("_sqlite3_prepare: %s"), _sqlite3_errmsg(ctx->sql));
             if (stmt) {
@@ -388,12 +354,12 @@ _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql_strin
 
         if (!stmt) {
             /* this happens for a comment or white-space */
+            sql_length = tail - sql_string;
             sql_string = tail;
-            continue;
+        } else {
+            break;
         }
-
-        break;
-    }
+    } while (res == SQLITE_OK && *sql_string);
 
     if (result) {
         *result = (_cc_sql_result_t*)_cc_malloc(sizeof(_cc_sql_result_t));
@@ -403,14 +369,15 @@ _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql_strin
         return true;
     }
 
-    res = _sqlite3_step(stmt);
-    if ((res != SQLITE_OK) && (res != SQLITE_DONE) && (res != SQLITE_ROW)) {
+    while (_sqlite3_step(stmt) == SQLITE_ROW);
+    _sqlite3_finalize(stmt);
+
+    if ((res != SQLITE_OK) && (res != SQLITE_DONE)) {
         _cc_logger_error(_T("_sqlite3_step: %s"), _sqlite3_errmsg(ctx->sql));
-        res = SQLITE_ERROR;
+        return false;
     }
 
-    _sqlite3_finalize(stmt);
-    return (res != SQLITE_ERROR);
+    return true;
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
@@ -699,7 +666,6 @@ _CC_API_PUBLIC(bool_t) _cc_init_sqlite(_cc_sql_delegate_t *delegator) {
     /**/
     SET(connect);
     SET(disconnect);
-    SET(prepare);
     SET(reset);
     SET(step);
     SET(execute);

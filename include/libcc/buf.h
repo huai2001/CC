@@ -106,7 +106,7 @@ typedef struct _cc_buf {
 /**
  * @brief Return bytes remaining in the buffer
  */
-#define _cc_buf_empty_length(buffer) ((buffer)->limit - (buffer)->length - 1)
+#define _cc_buf_remaining(buffer) ((buffer)->limit - (buffer)->length - 1)
 
 _CC_FORCE_INLINE_ void _cc_dump(const byte_t *bytes, size_t length) {
     size_t i;

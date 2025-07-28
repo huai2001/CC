@@ -22,7 +22,7 @@
 #include <libcc/atomic.h>
 #include <libcc/time.h>
 #include <libcc/types.h>
-#include <libcc/widgets/db/sql.h>
+#include <libcc/widgets/sql.h>
 #include <time.h>
 
 #ifdef __CC_WINDOWS__
@@ -83,7 +83,7 @@ _CC_API_PRIVATE(bool_t) checkErrorCode(SQLRETURN rc, SQLHDBC hDBC, SQLHSTMT hSTM
     SQLRETURN res = SQL_SUCCESS;
     if (rc != SQL_SUCCESS && rc != SQL_NO_DATA_FOUND && rc != SQL_SUCCESS_WITH_INFO) {
         if (rc != SQL_SUCCESS_WITH_INFO) { /* It's not just a warning */
-            _cc_logger(_CC_LOGGER_FLAGS_ERROR_, msg);
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, msg);
         }
         /*
          * Now see why the error/warning occurred
@@ -92,30 +92,30 @@ _CC_API_PRIVATE(bool_t) checkErrorCode(SQLRETURN rc, SQLHDBC hDBC, SQLHSTMT hSTM
             res = SQLError(hEnv, hDBC, hSTMT, szSqlState, &pfNativeError, szErrorMsg, MSG_LNG, &pcbErrorMsg);
             switch (res) {
             case SQL_SUCCESS:
-                _cc_logger(_CC_LOGGER_FLAGS_ERROR_, (const tchar_t *)szErrorMsg);
-                _cc_logger_format(_CC_LOGGER_FLAGS_ERROR_,
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, (const tchar_t *)szErrorMsg);
+                _cc_logger_format(_CC_LOG_LEVEL_ERROR_,
                                   _T("ODBC Error/Warning = %s, TimesTen ")
                                   _T("Error/Warning = %d"),
                                   szErrorMsg, szSqlState, pfNativeError);
                 break;
             case SQL_SUCCESS_WITH_INFO:
-                _cc_logger(_CC_LOGGER_FLAGS_ERROR_, _T("Call to SQLError failed with return code ")
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("Call to SQLError failed with return code ")
                                                     _T("of SQL_SUCCESS_WITH_INFO."));
-                _cc_logger(_CC_LOGGER_FLAGS_ERROR_, _T("Need to increase size of message buffer."));
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("Need to increase size of message buffer."));
                 break;
             case SQL_INVALID_HANDLE:
-                _cc_logger(_CC_LOGGER_FLAGS_ERROR_, _T("Call to SQLError failed with return code ")
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("Call to SQLError failed with return code ")
                                                     _T("of SQL_INVALID_HANDLE."));
                 break;
             case SQL_ERROR:
-                _cc_logger(_CC_LOGGER_FLAGS_ERROR_, _T("Call to SQLError failed with return code ")
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("Call to SQLError failed with return code ")
                                                     _T("of SQL_ERROR."));
                 break;
             case SQL_NO_DATA_FOUND:
-                _cc_logger(_CC_LOGGER_FLAGS_ERROR_, _T("SQL_NO_DATA_FOUND"));
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("SQL_NO_DATA_FOUND"));
                 break;
             default:
-                _cc_logger(_CC_LOGGER_FLAGS_ERROR_, _T("Call to SQLError failed with return code ")
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("Call to SQLError failed with return code ")
                                                     _T("of UNKNOW."));
                 break;
             } /* switch */
@@ -184,11 +184,11 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlsvr_connect(const tchar_t *sql_connection_string
 
     SQLSetConnectAttr(ctx->hDBC, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
-    request = SQLdelegateConnect(ctx->hDBC, nullptr, (SQLTCHAR *)sql_connection_string,
+    request = SQLDriverConnect(ctx->hDBC, nullptr, (SQLTCHAR *)sql_connection_string,
                                (SQLSMALLINT)_tcslen(sql_connection_string), OutConnStr,
-                               (SQLSMALLINT)_cc_countof(OutConnStr), &OutConnStrLen, SQL_delegate_NOPROMPT);
+                               (SQLSMALLINT)_cc_countof(OutConnStr), &OutConnStrLen, SQL_DRIVER_NOPROMPT);
 
-    if (checkErrorCode(request, ctx->hDBC, SQL_NULL_HSTMT, _T("Error in connecting to the delegate.")) == false) {
+    if (checkErrorCode(request, ctx->hDBC, SQL_NULL_HSTMT, _T("Error in connecting to the driver.")) == false) {
         _cc_free(ctx);
         return nullptr;
     }
@@ -221,7 +221,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const tchar_t *sql_string, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_String_t *sql, _cc_sql_result_t **result) {
     SQLHSTMT hSTMT = SQL_NULL_HSTMT;
     int request = SQL_SUCCESS;
     _cc_assert(ctx != nullptr && ctx->hDBC != SQL_NULL_HSTMT);
@@ -231,7 +231,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const tchar_t *sql_strin
         return false;
     }
 
-    request = SQLPrepare(hSTMT, (SQLTCHAR *)sql_string, SQL_NTS);
+    request = SQLPrepare(hSTMT, (SQLTCHAR *)sql->data, SQL_NTS);
     if (checkErrorCode(request, ctx->hDBC, hSTMT, _T("Unable to SQLPrepare.")) == false) {
         return false;
     }

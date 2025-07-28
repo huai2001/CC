@@ -111,9 +111,9 @@ static pthread_once_t key_once = PTHREAD_ONCE_INIT;
 static JavaVM *mJavaVM = nullptr;
 static _cc_mutex_t *Android_ActivityMutex = nullptr;
 
-static tchar_t *s_AndroidInternalFilesPath = nullptr;
-static tchar_t *s_AndroidExternalFilesPath = nullptr;
-static tchar_t *s_AndroidCachePath = nullptr;
+static _cc_String_t s_AndroidInternalFilesPath = {0};
+static _cc_String_t s_AndroidExternalFilesPath = {0};
+static _cc_String_t s_AndroidCachePath = {0};
 
 // Main activity
 static jclass mWidgetsClass;
@@ -284,6 +284,10 @@ _CC_API_PRIVATE(void) register_methods(JNIEnv *env, const char *classname, JNINa
 _CC_API_PUBLIC(JNIEnv*) Android_JNI_OnLoad(JavaVM *vm, void *reserved, jint version) {
     JNIEnv *env = nullptr;
 
+    s_AndroidInternalFilesPath.length = 0;
+    s_AndroidExternalFilesPath.length = 0;
+    s_AndroidCachePath.length = 0;
+    
     _cc_logger_debug("Android_JNI_OnLoad");
 
     mJavaVM = vm;
@@ -422,10 +426,13 @@ JNIEXPORT void JNICALL CC_JAVA_INTERFACE(nativeQuit)(
     if (Android_ActivityMutex) {
         _cc_destroy_mutex(&Android_ActivityMutex);
     }
-    _cc_safe_free(s_AndroidInternalFilesPath);
-    _cc_safe_free(s_AndroidExternalFilesPath);
-    _cc_safe_free(s_AndroidCachePath);
+    _cc_safe_free(s_AndroidInternalFilesPath.data);
+    _cc_safe_free(s_AndroidExternalFilesPath.data);
+    _cc_safe_free(s_AndroidCachePath.data);
 
+    s_AndroidInternalFilesPath.length = 0;
+    s_AndroidExternalFilesPath.length = 0;
+    s_AndroidCachePath.length = 0;
     Internal_Android_Destroy_AssetManager();
 
 
@@ -788,16 +795,14 @@ _CC_API_PUBLIC(bool_t) IsDeXMode(void) {
     return (*env)->CallStaticBooleanMethod(env, mWidgetsClass, midIsDeXMode);
 }
 
-_CC_API_PUBLIC(const tchar_t *) GetAndroidInternalStoragePath(void) {
-
-    if (!s_AndroidInternalFilesPath) {
+_CC_API_PUBLIC(const _cc_String_t *) GetAndroidInternalStoragePath(void) {
+    if (s_AndroidInternalFilesPath.length == 0) {
         struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
         jmethodID mid;
         jobject context;
         jobject fileObject;
         jstring pathString;
         const tchar_t *path;
-        size_t pathLength;
 
         JNIEnv *env = Android_JNI_GetEnv();
         if (!LocalReferenceHolder_Init(&refs, env)) {
@@ -831,13 +836,13 @@ _CC_API_PUBLIC(const tchar_t *) GetAndroidInternalStoragePath(void) {
         }
 
         path = (*env)->GetStringUTFChars(env, pathString, nullptr);
-        pathLength = (*env)->GetStringUTFLength(env, pathString);
-        s_AndroidInternalFilesPath = _cc_tcsndup(path,pathLength);
+        s_AndroidInternalFilesPath.length = (*env)->GetStringUTFLength(env, pathString);
+        s_AndroidInternalFilesPath.data = _cc_tcsndup(path,s_AndroidInternalFilesPath.length);
         (*env)->ReleaseStringUTFChars(env, pathString, path);
 
         LocalReferenceHolder_Cleanup(&refs);
     }
-    return s_AndroidInternalFilesPath;
+    return &s_AndroidInternalFilesPath;
 }
 
 _CC_API_PUBLIC(uint32_t) GetAndroidExternalStorageState(void) {
@@ -878,16 +883,15 @@ _CC_API_PUBLIC(uint32_t) GetAndroidExternalStorageState(void) {
     return stateFlags;
 }
 
-_CC_API_PUBLIC(const tchar_t *) GetAndroidExternalStoragePath(void) {
+_CC_API_PUBLIC(const _cc_String_t *) GetAndroidExternalStoragePath(void) {
 
-    if (!s_AndroidExternalFilesPath) {
+    if (s_AndroidExternalFilesPath.length == 0) {
         struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
         jmethodID mid;
         jobject context;
         jobject fileObject;
         jstring pathString;
         const tchar_t *path;
-        size_t pathLength;
 
         JNIEnv *env = Android_JNI_GetEnv();
         if (!LocalReferenceHolder_Init(&refs, env)) {
@@ -912,25 +916,24 @@ _CC_API_PUBLIC(const tchar_t *) GetAndroidExternalStoragePath(void) {
         pathString = (jstring)(*env)->CallObjectMethod(env, fileObject, mid);
 
         path = (*env)->GetStringUTFChars(env, pathString, nullptr);
-        pathLength = (*env)->GetStringUTFLength(env, pathString);
-        s_AndroidExternalFilesPath = _cc_tcsndup(path,pathLength);
+        s_AndroidExternalFilesPath.length = (*env)->GetStringUTFLength(env, pathString);
+        s_AndroidExternalFilesPath.data = _cc_tcsndup(path,s_AndroidExternalFilesPath.length);
         (*env)->ReleaseStringUTFChars(env, pathString, path);
 
         LocalReferenceHolder_Cleanup(&refs);
     }
-    return s_AndroidExternalFilesPath;
+    return &s_AndroidExternalFilesPath;
 }
 
-_CC_API_PUBLIC(const tchar_t *) GetAndroidCachePath(void) {
+_CC_API_PUBLIC(const _cc_String_t *) GetAndroidCachePath(void) {
     // !!! FIXME: lots of duplication with GetAndroidExternalStoragePath and GetAndroidInternalStoragePath; consolidate these functions!
-    if (!s_AndroidCachePath) {
+    if (s_AndroidCachePath.length == 0) {
         struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
         jmethodID mid;
         jobject context;
         jobject fileObject;
         jstring pathString;
         const tchar_t *path;
-        size_t pathLength;
 
         JNIEnv *env = Android_JNI_GetEnv();
         if (!LocalReferenceHolder_Init(&refs, env)) {
@@ -955,8 +958,8 @@ _CC_API_PUBLIC(const tchar_t *) GetAndroidCachePath(void) {
         pathString = (jstring)(*env)->CallObjectMethod(env, fileObject, mid);
 
         path = (*env)->GetStringUTFChars(env, pathString, nullptr);
-        pathLength = (*env)->GetStringUTFLength(env, pathString);
-        s_AndroidCachePath = _cc_tcsndup(path,pathLength);
+        s_AndroidCachePath.length = (*env)->GetStringUTFLength(env, pathString);
+        s_AndroidCachePath.data = _cc_tcsndup(path,s_AndroidCachePath.length);
         (*env)->ReleaseStringUTFChars(env, pathString, path);
 
         LocalReferenceHolder_Cleanup(&refs);

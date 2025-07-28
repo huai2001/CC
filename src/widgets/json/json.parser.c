@@ -96,35 +96,52 @@ _CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_t *const buffer, _cc_json_t
 }
 
 _CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_t *const buffer, _cc_json_t *root) {
-    _cc_json_t *item;
+    _cc_json_t *curr_item;
+    size_t offset = buffer->offset;
     /*parse the name of the key*/
     tchar_t *name = _sbuf_parser_string(buffer,nullptr);
     if (_cc_unlikely(!name)) {
+        buffer->offset = offset;
         return false;
     }
 
     if (!_cc_buf_jump_comment(buffer)) {
+        buffer->offset = offset;
         _cc_free(name);
         return false;
     }
     
     if (_cc_unlikely(!_cc_sbuf_access(buffer) || _cc_sbuf_offset_unequal(buffer, _T(':')))) {
         _cc_free(name);
+        buffer->offset = offset;
         return false;
     }
     /* skip : */
     buffer->offset++;
-    _cc_buf_jump_comment(buffer);
-    item = _json_object_push(root, name);
-    _cc_free(name);
 
-    /*parse the value*/
-    if (_cc_unlikely(!_json_read(buffer, item))) {
-        /*failed to parse value*/
+    if (!_cc_buf_jump_comment(buffer)) {
+        buffer->offset = offset;
+        _cc_free(name);
         return false;
     }
 
-    return true;
+    curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
+    bzero(curr_item, sizeof(_cc_json_t));
+    curr_item->type = _CC_JSON_NULL_;
+    curr_item->size = 0;
+    curr_item->name = name;
+    curr_item->element.uni_object.rb_node = nullptr;
+    curr_item->length = 0;
+
+    /*parse the value*/
+    if (!_json_read(buffer, curr_item)) {
+        buffer->offset = offset;
+        /*failed to parse value*/
+        _json_free_node(curr_item);
+        return false;
+    }
+
+    return _json_object_push(root, curr_item, true);
 }
 
 static bool_t _json_parser_object(_cc_sbuf_t *const buffer, _cc_json_t *item) {
@@ -135,13 +152,14 @@ static bool_t _json_parser_object(_cc_sbuf_t *const buffer, _cc_json_t *item) {
         /* to deeply nested */
         return false;
     }
+    
     buffer->depth++;
     /*skip { */
     buffer->offset++;
 
     if (!_cc_buf_jump_comment(buffer)) {
         buffer->offset--;
-        goto JSON_FAIL;
+        return false;
     }
 
     if (_cc_sbuf_offset_equal(buffer, _JSON_OBJECT_END_)) {
@@ -159,7 +177,7 @@ static bool_t _json_parser_object(_cc_sbuf_t *const buffer, _cc_json_t *item) {
             break;
 
         if (!_json_parser_key_and_value(buffer, item)) {
-            goto JSON_FAIL;
+            return false;
         }
 
         item->length++;
@@ -167,7 +185,7 @@ static bool_t _json_parser_object(_cc_sbuf_t *const buffer, _cc_json_t *item) {
 
     /*expected end of object*/
     if (!_cc_sbuf_access(buffer) || _cc_sbuf_offset_unequal(buffer,_JSON_OBJECT_END_)) {
-        goto JSON_FAIL;
+        return false;
     }
 
 JSON_SUCCESS:
@@ -176,12 +194,7 @@ JSON_SUCCESS:
     buffer->depth--;
     /**/
     _cc_buf_jump_comment(buffer);
-
     return true;
-
-JSON_FAIL:
-    _destroy_json_object(item);
-    return false;
 }
 
 static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *root) {
@@ -199,7 +212,7 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *root) {
 
     if (!_cc_buf_jump_comment(buffer)) {
         buffer->offset--;
-        goto JSON_FAIL;
+        return false;
     }
 
     if (_cc_sbuf_offset_equal(buffer,_JSON_ARRAY_END_)) {
@@ -222,26 +235,26 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *root) {
         curr_item->type = _CC_JSON_NULL_;
         curr_item->size = 0;
         curr_item->length = 0;
+        curr_item->name = nullptr;
+        curr_item->element.uni_object.rb_node = nullptr;
 
         if (!_json_read(buffer, curr_item)) {
-            _cc_destroy_json(&curr_item);
-            goto JSON_FAIL;
+            _json_free_node(curr_item);
+            return false;
         }
 
-        if (_cc_unlikely(_json_array_push(root, curr_item) == -1)) {
-            _cc_destroy_json(&curr_item);
-            goto JSON_FAIL;
+        if (_json_array_push(root, curr_item) == -1) {
+            _json_free_node(curr_item);
         }
     } while (_cc_sbuf_access(buffer) && _cc_sbuf_offset_equal(buffer,_JSON_NEXT_TOKEN_));
 
     /*expected end of array*/
     if (!_cc_sbuf_access(buffer) || _cc_sbuf_offset_unequal(buffer,_JSON_ARRAY_END_)) {
         /* invalid array */
-        goto JSON_FAIL;
+        return false;
     }
 
 JSON_SUCCESS:
-    root->type = _CC_JSON_ARRAY_;
     /* skip _JSON_ARRAY_END_ */
     buffer->offset++;
     buffer->depth--;
@@ -250,11 +263,6 @@ JSON_SUCCESS:
     _cc_buf_jump_comment(buffer);
 
     return true;
-
-JSON_FAIL:
-    _destroy_json_array(root);
-
-    return false;
 }
 
 _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item) {
@@ -305,19 +313,26 @@ _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item) {
 }
 
 _CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_t *const buffer) {
-    _cc_json_t *item = nullptr;
+    _cc_json_t *curr_item;
     _cc_syntax_error_t local_error;
 
     local_error.content = nullptr;
     local_error.position = 0;
 
-    item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-    bzero(item, sizeof(_cc_json_t));
-    item->type = _CC_JSON_NULL_;
-    item->size = 0;
-    item->length = 0;
-    if (_cc_buf_jump_comment(buffer) && _json_read(buffer, item)) {
-        return item;
+    if (!_cc_buf_jump_comment(buffer)) {
+        return nullptr;
+    }
+
+    curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
+    bzero(curr_item, sizeof(_cc_json_t));
+    curr_item->type = _CC_JSON_NULL_;
+    curr_item->size = 0;
+    curr_item->name = nullptr;
+    curr_item->element.uni_object.rb_node = nullptr;
+    curr_item->length = 0;
+
+    if (_json_read(buffer, curr_item)) {
+        return curr_item;
     }
 
     local_error.content = buffer->content;
@@ -330,7 +345,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_t *const buffer) {
     /*reset error position*/
     _cc_syntax_error(&local_error);
 
-    _cc_destroy_json(&item);
+    _json_free_node(curr_item);
     return nullptr;
 }
 

@@ -26,10 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libcc/alloc.h>
-#include <libcc/core.h>
+#include <libcc/generic.h>
 #include <libcc/thread.h>
 
-#include <libcc/widgets/event/event.h>
+#include <libcc/widgets/event.h>
 #include <libcc/widgets/dns.h>
 
 /* Set up for C function definitions, even when using C++ */

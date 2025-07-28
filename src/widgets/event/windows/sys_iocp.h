@@ -50,7 +50,7 @@ typedef struct _iocp_overlapped {
     OVERLAPPED overlapped;
     _cc_list_iterator_t lnk;
     _cc_event_t *e;
-}_iocp_overlapped_t;
+} _iocp_overlapped_t;
 
 
 /**
@@ -106,14 +106,14 @@ int _WSA_socket_receivefrom(_iocp_overlapped_t *overlapped, _cc_sockaddr_t *sa, 
  *
  * @param priv _cc_event_cycle_priv_t
  */
-void _cc_iocp_overlapped_init(_cc_event_cycle_priv_t* priv);
+void _iocp_overlapped_init(_cc_event_cycle_priv_t* priv);
 
 /**
  * @brief IOCP Uninitialize Overlapped
  * 
  * @param priv _cc_event_cycle_priv_t
  */
-void _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *priv);
+void _iocp_overlapped_quit(_cc_event_cycle_priv_t *priv);
 
 /**
  * @brief IOCP Create Overlapped
@@ -122,7 +122,7 @@ void _cc_iocp_overlapped_quit(_cc_event_cycle_priv_t *priv);
  *
  * @return 
  */
-_iocp_overlapped_t* _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv, _cc_event_t *e);
+_iocp_overlapped_t* _iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv, _cc_event_t *e);
 /**
  * @brief IOCP Free Overlapped
  *
@@ -130,7 +130,7 @@ _iocp_overlapped_t* _cc_iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv, _cc_
  * @param iocp_overlapped _iocp_overlapped_t
  *
  */
-void _cc_iocp_overlapped_free(_cc_event_cycle_priv_t *priv, _iocp_overlapped_t *overlapped);
+void _iocp_overlapped_free(_cc_event_cycle_priv_t *priv, _iocp_overlapped_t *overlapped);
 
 #endif
 

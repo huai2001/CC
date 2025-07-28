@@ -11,5 +11,5 @@ endif
 
 LIBS += z
 
-LOCAL_SRC_FILES = UpdateBuilder.o reload.o update.o SQLite3.o
+LOCAL_SRC_FILES = UpdateBuilder.o Reload.o Update.o SQLite3.o
 TARGET_NAME = UpdateBuilder.$(PLATFORM)

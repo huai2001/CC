@@ -25,7 +25,6 @@
 #error Unsupported OS
 #endif
 
-#include <stdio.h>
 #include "../types.h"
 
 // force_align_arg_pointer attribute requires gcc >= 4.2.x.
@@ -77,6 +76,7 @@
     #include <windows.h>
 #endif
 
+#include "../string.h"
 #include "../buf.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -133,8 +133,10 @@ _CC_API_PUBLIC(void) _cc_uninstall_dumper(void);
 
 #endif /*ndef _CC_DISABLED_DUMPER_ */
 
-_CC_API_PUBLIC(void) _cc_getW_resolve_symbol(_cc_buf_t *buf);
-_CC_API_PUBLIC(void) _cc_getA_resolve_symbol(_cc_buf_t *buf);
+/**/
+_CC_API_PUBLIC(const _cc_String_t *) _cc_get_module_file_name(void);
+/**/
+_CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length);
 /**
  * @brief Multi Byte To Wide Char
  *

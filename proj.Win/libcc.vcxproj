@@ -159,6 +159,8 @@
     <ClCompile Include="..\src\core\file.c" />
     <ClCompile Include="..\src\core\generic.c" />
     <ClCompile Include="..\src\core\cpu_info.c" />
+    <ClCompile Include="..\src\core\windows\sys_mmap.c" />
+    <ClCompile Include="..\src\core\windows\sys_pipe.c" />
     <ClCompile Include="..\src\core\windows\sys_windows.c" />
     <ClCompile Include="..\src\core\windows\sys_clipboard.c" />
     <ClCompile Include="..\src\core\windows\sys_dirent.c" />
@@ -171,6 +173,7 @@
     <ClCompile Include="..\src\hmap.c" />
     <ClCompile Include="..\src\loadso\windows\sys_loadso.c" />
     <ClCompile Include="..\src\logger.c" />
+    <ClCompile Include="..\src\syslog.c" />
     <ClCompile Include="..\src\md2.c" />
     <ClCompile Include="..\src\md4.c" />
     <ClCompile Include="..\src\md5.c" />
@@ -208,7 +211,7 @@
     <ClInclude Include="..\include\libcc\atomic.h" />
     <ClInclude Include="..\include\libcc\base16.h" />
     <ClInclude Include="..\include\libcc\base64.h" />
-    <ClInclude Include="..\include\libcc\core.h" />
+    <ClInclude Include="..\include\libcc\generic.h" />
     <ClInclude Include="..\include\libcc\core\compiler.h" />
     <ClInclude Include="..\include\libcc\core\platform.h" />
     <ClInclude Include="..\include\libcc\core\cpu_info.h" />
@@ -221,6 +224,7 @@
     <ClInclude Include="..\include\libcc\crc.h" />
     <ClInclude Include="..\include\libcc\loadso.h" />
     <ClInclude Include="..\include\libcc\logger.h" />
+    <ClInclude Include="..\include\libcc\syslog.h" />
     <ClInclude Include="..\include\libcc\math.h" />
     <ClInclude Include="..\include\libcc\md2.h" />
     <ClInclude Include="..\include\libcc\md4.h" />

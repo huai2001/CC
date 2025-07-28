@@ -33,9 +33,11 @@ int main(int argc, char *argv[]) {
     // _cc_buf_t buf;
     _cc_install_socket();
     // SetConsoleOutputCP(65001);
-    _cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test",_T("127.0.0.1"), _CC_PORT_SYSLOG_);
-    //_cc_logger_open_syslog(_CC_LOG_FACILITY_USER_, "test", nullptr, _CC_PORT_SYSLOG_);
-
+#ifdef __CC_WINDOWS__
+    _cc_open_syslog(_CC_LOG_FACILITY_USER_, "test",_T("127.0.0.1"), _CC_PORT_SYSLOG_);
+#else
+    _cc_open_syslog(_CC_LOG_FACILITY_USER_, "test", nullptr, _CC_PORT_SYSLOG_);
+#endif
     // _cc_buf_alloc(&buf, 1024);
     // start = clock();
     // for (i = 0; i < LOOP_MAX; i++) {

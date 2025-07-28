@@ -21,7 +21,7 @@
 #ifndef _C_CC_UTF8_H_INCLUDED_
 #define _C_CC_UTF8_H_INCLUDED_
 
-#include "core.h"
+#include "generic.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -59,35 +59,35 @@ _cc_unicode_to_utf16(uint32_t unic, uint16_t *utf16, size_t size);
 
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_utf8_to_utf16(const uint8_t *, const uint8_t *, uint16_t *, uint16_t *, bool_t);
+_cc_utf8_to_utf16(const uint8_t*, const uint8_t*, uint16_t*, uint16_t*);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_utf16_to_utf8(const uint16_t *, const uint16_t *, uint8_t *, uint8_t *, bool_t);
+_cc_utf16_to_utf8(const uint16_t*, const uint16_t*, uint8_t*, uint8_t*);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_utf8_to_utf32(const uint8_t *, const uint8_t *, uint32_t *, uint32_t *, bool_t);
+_cc_utf8_to_utf32(const uint8_t*, const uint8_t*, uint32_t*, uint32_t*);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_utf32_to_utf8(const uint32_t *, const uint32_t *, uint8_t *, uint8_t *, bool_t);
+_cc_utf32_to_utf8(const uint32_t*, const uint32_t*, uint8_t*, uint8_t*);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_utf16_to_utf32(const uint16_t *, const uint16_t *, uint32_t *, uint32_t *, bool_t);
+_cc_utf16_to_utf32(const uint16_t*, const uint16_t*, uint32_t*, uint32_t*);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_utf32_to_utf16(const uint32_t *, const uint32_t *, uint16_t *, uint16_t *, bool_t);
+_cc_utf32_to_utf16(const uint32_t*, const uint32_t*, uint16_t*, uint16_t*);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_utf8_to_gbk(const uint8_t *, const uint8_t *, uint8_t *, uint8_t *);
+_cc_utf8_to_gbk(const uint8_t*, const uint8_t*, uint8_t*, uint8_t*);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_gbk_to_utf8(const uint8_t *, const uint8_t *, uint8_t *, uint8_t *);
+_cc_gbk_to_utf8(const uint8_t*, const uint8_t*, uint8_t*, uint8_t*);
 
 /*convert u0041 u0042 u0043 u4e2d u6587 to utf8 */
 _CC_API_PUBLIC(int32_t)
-_cc_convert_utf16_literal_to_utf8(const tchar_t **input, const tchar_t *input_end, tchar_t *output, size_t output_length);
+_cc_convert_utf16_literal_to_utf8(const tchar_t **, const tchar_t*, tchar_t*, size_t);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*_C_CC_STRING_H_INCLUDED_*/
+#endif /*_C_CC_UTF8_H_INCLUDED_*/

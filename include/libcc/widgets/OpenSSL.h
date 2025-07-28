@@ -24,8 +24,7 @@
 
 //#define _CC_ENABLE_OPENSSL_ 1
 
-#include "dylib.h"
-#include "event/event.h"
+#include "event.h"
 
 
 /* Set up for C function definitions, even when using C++ */
@@ -54,19 +53,21 @@ _CC_WIDGETS_API(void) _SSL_quit(_cc_OpenSSL_t *);
 /**/
 _CC_WIDGETS_API(bool_t) _SSL_free(_cc_SSL_t*);
 /**/
-_CC_WIDGETS_API(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_event_cycle_t*cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen);
+_CC_WIDGETS_API(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t*, _cc_event_cycle_t*, _cc_event_t*, _cc_sockaddr_t*, _cc_socklen_t);
 /**/
-_CC_WIDGETS_API(void) _SSL_set_host_name(_cc_SSL_t *ssl, tchar_t *host, size_t length);
+_CC_WIDGETS_API(void) _SSL_set_host_name(_cc_SSL_t*, tchar_t*, size_t);
 /**/
-_CC_WIDGETS_API(uint16_t) _SSL_do_handshake(_cc_SSL_t *ssl);
+_CC_WIDGETS_API(uint16_t) _SSL_do_handshake(_cc_SSL_t*);
 /**/
-_CC_WIDGETS_API(int32_t) _SSL_send(_cc_SSL_t *, const pvoid_t, int32_t);
+_CC_WIDGETS_API(int32_t) _SSL_send(_cc_SSL_t*, const byte_t*, int32_t);
 /**/
-_CC_WIDGETS_API(int32_t) _SSL_read(_cc_SSL_t *, pvoid_t, int32_t);
+_CC_WIDGETS_API(int32_t) _SSL_read(_cc_SSL_t*, byte_t*, int32_t);
 /**/
-_CC_WIDGETS_API(int32_t) _SSL_sendbuf(_cc_SSL_t *ssl, _cc_event_t *e);
+_CC_WIDGETS_API(int32_t) _SSL_sendbuf(_cc_SSL_t*, _cc_event_t*);
 /**/
-_CC_WIDGETS_API(bool_t) _SSL_event_read(_cc_SSL_t *, _cc_event_t *);
+_CC_API_PUBLIC(int32_t) _SSL_event_send(_cc_SSL_t*, _cc_event_t*, const byte_t*, int32_t);
+/**/
+_CC_WIDGETS_API(bool_t) _SSL_event_read(_cc_SSL_t*, _cc_event_t*);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

@@ -21,7 +21,7 @@
 #ifndef _C_CC_DIRENT_H_INCLUDED_
 #define _C_CC_DIRENT_H_INCLUDED_
 
-#include "core.h"
+#include "generic.h"
 
 #if defined(__CC_WINDOWS__)
     #include "./core/windows.h"

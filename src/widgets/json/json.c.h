@@ -21,7 +21,7 @@
 #ifndef _C_CC_JSON_C_H_INCLUDED_
 #define _C_CC_JSON_C_H_INCLUDED_
 
-#include <libcc/widgets/json/json.h>
+#include <libcc/widgets/json.h>
 #include "../generic/generic.c.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -49,8 +49,8 @@ void _json_free_node(_cc_json_t *item);
 void _json_array_alloc(_cc_json_t* ctx, size_t size);
 bool_t _json_array_realloc(_cc_json_t *ctx, size_t size);
 
-size_t _json_array_push(_cc_json_t *ctx, _cc_json_t *data);
-_cc_json_t* _json_object_push(_cc_json_t *ctx, const tchar_t *keyword);
+size_t _json_array_push(_cc_json_t *ctx, _cc_json_t *item);
+bool_t _json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement);
 
 void _destroy_json_array(_cc_json_t*);
 void _destroy_json_object(_cc_json_t*);

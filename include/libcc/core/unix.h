@@ -22,7 +22,7 @@
 #define _C_CC_SYS_UNIX_HEAD_FILE_
 
 #include "../buf.h"
-#include <string.h>
+#include "../string.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -60,9 +60,10 @@ typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info
  * @brief Compatible with WINDOWS mode
  */
 #define _cc_uninstall_dumper() ((void)0)
-
-_CC_API_PUBLIC(void) _cc_get_resolve_symbol(_cc_buf_t *buf);
-    
+/**/
+_CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length);
+/**/
+_CC_API_PUBLIC(const _cc_String_t *) _cc_get_module_file_name(void);
 #ifndef _access
 #define _access access
 #endif

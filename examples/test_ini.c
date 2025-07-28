@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libcc.h>
-#include <libcc/widgets/ini/ini.h>
+#include <libcc/widgets/ini.h>
 
 const tchar_t *iniconf = _T("[reactor]\n")\
                          _T("maxConn = 1024   /*abc*/\n")\
