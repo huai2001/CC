@@ -251,8 +251,6 @@ _cc_splitA(_cc_AString_t *dst, int32_t count, char_t *src, int32_t(separator_fn)
             r = &dst[i++];
             r->data = tmp;
             r->length = (size_t)(p - tmp);
-
-            *p = 0;
             p += rc;
             tmp = p;
 
@@ -261,7 +259,6 @@ _cc_splitA(_cc_AString_t *dst, int32_t count, char_t *src, int32_t(separator_fn)
             }
             continue;
         } else if (rc < 0) {
-            *p = 0;
             break;
         }
         p++;
@@ -293,8 +290,6 @@ _cc_splitW(_cc_WString_t *dst, int32_t count, wchar_t *src, int32_t(separator_fn
             r = &dst[i++];
             r->data = tmp;
             r->length = (size_t)(p - tmp);
-
-            *p = 0;
             p += rc;
             tmp = p;
 
@@ -302,6 +297,8 @@ _cc_splitW(_cc_WString_t *dst, int32_t count, wchar_t *src, int32_t(separator_fn
                 break;
             }
             continue;
+        } else if (rc < 0) {
+            break;
         }
         p++;
     }

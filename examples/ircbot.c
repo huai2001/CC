@@ -154,7 +154,7 @@ int main (int argc, char * const argv[]) {
         return 0;
     }
     /*启动线程*/
-    network_thread = _cc_create_thread(thread_running, "irc client", &network_event);
+    network_thread = _cc_thread(thread_running, "irc client", &network_event);
     printf("starting \n");
 /*
     {

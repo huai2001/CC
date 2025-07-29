@@ -95,23 +95,32 @@ static bool_t _url_timeout_callback(_cc_event_cycle_t *timer, _cc_event_t *e, co
     if (request == nullptr || !_cc_event_loop_is_running()) {
         return false;
     }
+    if (which == _CC_EVENT_DELETED_) {
+        return false;
+    }
     _cc_logger_warin(_T("url-timout reset connect,%d"),e->ident);
     return (url_request_connect(request))?false:true;
 }
 
-static bool_t _handler(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+
+static bool_t _url_request_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
     _cc_url_request_t *request = (_cc_url_request_t *)e->args;
-    if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, which)) {
+
+    if (_CC_EVENT_DELETED_ == which) {
+        printf("_cc_url_request_ _CC_EVENT_DELETED_ %d\n",e->ident);
+        if (_cc_event_loop_is_running()) {
+            _cc_add_event_timeout(_cc_get_event_cycle(), 10000, _url_timeout_callback, request);
+        } else {
+            _cc_free_url_request(request);
+        }
+        return false;
+    } else if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, which)) {
         //printf("disconnect\n");
         return false;
-    }
-
-    if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {
+    } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {
         //printf("timeout\n");
         return url_request_header(request, e);
-    }
-    
-    if (_CC_ISSET_BIT(_CC_EVENT_CONNECTED_, which)) {
+    }else if (_CC_ISSET_BIT(_CC_EVENT_CONNECTED_, which)) {
         if (request->url.scheme.ident != _CC_SCHEME_HTTPS_) {
             return url_request_header(request, e);
         }
@@ -174,24 +183,6 @@ static bool_t _handler(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t 
                 return request->response->keep_alive;
             }
         }
-    }
-    return true;
-}
-
-static bool_t _url_request_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
-    _cc_url_request_t *request = (_cc_url_request_t *)e->args;
-    if (request == nullptr) {
-        return false;
-    }
-    
-    if (_handler(cycle, e, which) == false) {
-        printf("_cc_url_request_ _CC_EVENT_DELETED_ %d\n",e->ident);
-        if (_cc_event_loop_is_running()) {
-            _cc_add_event_timeout(_cc_get_event_cycle(), 10000, _url_timeout_callback, request);
-        } else {
-            _cc_free_url_request(request);
-        }
-        return false;
     }
     return true;
 }

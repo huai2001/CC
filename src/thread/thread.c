@@ -52,11 +52,11 @@ _CC_API_PUBLIC(void) _cc_thread_running_function(void *args) {
     }
 }
 /**/
-_CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
-    return _cc_create_thread_with_stacksize(callback, name, 0, args);
+_CC_API_PUBLIC(_cc_thread_t*) _cc_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
+    return _cc_thread_with_stacksize(callback, name, 0, args);
 }
 /**/
-_CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize,
+_CC_API_PUBLIC(_cc_thread_t*) _cc_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize,
                                                pvoid_t args) {
     _cc_thread_t *self;
 
@@ -88,7 +88,7 @@ _CC_API_PUBLIC(_cc_thread_t*) _cc_create_thread_with_stacksize(_cc_thread_callba
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_thread_start(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
-    _cc_thread_t *self = _cc_create_thread_with_stacksize(callback, name, 0, args);
+    _cc_thread_t *self = _cc_thread_with_stacksize(callback, name, 0, args);
     if (_cc_likely(self)) {
         _cc_detach_thread(self);
         return true;

@@ -77,9 +77,9 @@ int main(int argc, char *const arvg[]) {
     }
 
     nServiceStatus = 1;
-    readwriteThread = _cc_create_thread(threadSocketRunning, _T("SocketReadWrite"), NULL);
+    readwriteThread = _cc_thread(threadSocketRunning, _T("SocketReadWrite"), NULL);
     if (readwriteThread == NULL) {
-        _cc_logger_error(_T("_cc_create_thread(&ReadWriteThread) fail:%s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error(_T("_cc_thread(&ReadWriteThread) fail:%s"), _cc_last_error(_cc_last_errno()));
         nServiceStatus = 0;
     }
      

@@ -282,7 +282,7 @@ _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_parser(_cc_sbuf_t* const buffer) {
     /*reset error position*/
     _cc_syntax_error(&local_error);
 
-    _cc_destroy_ini(&root);
+    _cc_free_ini(root);
     return nullptr;
 }
 
@@ -292,13 +292,12 @@ _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_from_file(const tchar_t* file_name) {
 
     byte_t* content = nullptr;
     size_t offset = 0;
+    _cc_buf_t buf;
 
-    _cc_buf_t* buf = _cc_buf_from_file(file_name);
-
-    if (buf == nullptr) {
+    if (!_cc_buf_from_file(&buf,file_name)) {
         return nullptr;
     }
-    content = _cc_buf_bytes(buf);
+    content = buf.bytes;
 
     /*----BOM----
     EF BB BF = UTF-8
@@ -328,14 +327,14 @@ _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_from_file(const tchar_t* file_name) {
     }
 
     buffer.content = (tchar_t*)(content + offset);
-    buffer.length = (_cc_buf_length(buf) - offset) / sizeof(tchar_t);
+    buffer.length = (buf.length - offset) / sizeof(tchar_t);
     buffer.offset = 0;
     buffer.line = 1;
     buffer.depth = 0;
 
     item = _cc_ini_parser(&buffer);
 
-    _cc_destroy_buf(&buf);
+    _cc_free_buf(&buf);
 
     return item;
 }

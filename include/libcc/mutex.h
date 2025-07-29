@@ -47,7 +47,7 @@ typedef struct _cc_mutex _cc_mutex_t;
 /**
  * Create a mutex, initialized unlocked
  */
-_CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void);
+_CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void);
 /** Lock the mutex
  *  @return true, or false on error
  */
@@ -67,7 +67,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t*);
 /**
  * Destroy a mutex
  */
-_CC_API_PUBLIC(void) _cc_destroy_mutex(_cc_mutex_t**);
+_CC_API_PUBLIC(void) _cc_free_mutex(_cc_mutex_t*);
 
 /**
  * The CC semaphore structure, defined in semaphore.c
@@ -77,12 +77,12 @@ typedef struct _cc_semaphore _cc_semaphore_t;
 /**
  * Create a semaphore, initialized with value, returns nullptr on failure.
  */
-_CC_API_PUBLIC(_cc_semaphore_t*) _cc_create_semaphore(int32_t);
+_CC_API_PUBLIC(_cc_semaphore_t*) _cc_alloc_semaphore(int32_t);
 
 /**
  * Destroy a semaphore
  */
-_CC_API_PUBLIC(void) _cc_destroy_semaphore(_cc_semaphore_t**);
+_CC_API_PUBLIC(void) _cc_free_semaphore(_cc_semaphore_t*);
 
 /**
  * This function suspends the calling thread until the semaphore pointed
@@ -125,12 +125,12 @@ typedef struct _cc_condition _cc_condition_t;
 /**
  * Create a condition variable
  */
-_CC_API_PUBLIC(_cc_condition_t*) _cc_create_condition(void);
+_CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void);
 
 /**
  * Destroy a condition variable
  */
-_CC_API_PUBLIC(void) _cc_destroy_condition(_cc_condition_t**);
+_CC_API_PUBLIC(void) _cc_free_condition(_cc_condition_t*);
 
 /** Restart one of the threads that are waiting on the condition variable,
  *  @return true or false on error.

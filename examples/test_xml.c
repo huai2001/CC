@@ -83,15 +83,14 @@ int _tmain (int argc, tchar_t * const argv[]) {
         }*/
 
         {
-        _cc_buf_t* buf = _cc_dump_xml(xml);
-        if (buf) {
-            //fflush(stdout);
-            //fwrite(buf->bytes, sizeof(byte_t), buf->length, stdout);
-            _tprintf(_T("%s"), (tchar_t*)buf->bytes);
-            _cc_destroy_buf(&buf);
+        _cc_buf_t buf 
+        _cc_dump_xml(xml, buf);
+        //fflush(stdout);
+        //fwrite(buf->bytes, sizeof(byte_t), buf->length, stdout);
+        _tprintf(_T("%s"), (tchar_t*)buf->bytes);
+        _cc_free_buf(&buf);
         }
-        }
-        _cc_destroy_xml(&xml);
+        _cc_free_xml(xml);
     } else {
         _tprintf(_T("XML parse Fail:%s\n"), _cc_xml_error());
     }

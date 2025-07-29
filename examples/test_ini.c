@@ -24,14 +24,14 @@ const tchar_t *iniconf = _T("[reactor]\n")\
 int _tmain (int argc, tchar_t * const argv[]) {
     _cc_ini_t *ini = _cc_parse_ini(iniconf);
     if (ini) {
-        _cc_buf_t *buf;
+        _cc_buf_t buf;
         _cc_ini_t *section = _cc_ini_find(ini, _T("mysql"));
         if (section) {
             _tprintf(_T("HOST:%s\n"), _cc_ini_find_string(section, _T("db_host")));
             _tprintf(_T("PSWD:%s\n"), _cc_ini_find_string(section, _T("db_passwd")));
         }
-        buf = _cc_dump_ini(ini);
-        _tprintf(_T("%s"), (tchar_t*)buf->bytes);
+        _cc_dump_ini(ini, &buf);
+        _tprintf(_T("%s"), (tchar_t*)_cc_buf_stringify(&buf));
     } else {
         _tprintf(_T("error:%s"), _cc_ini_error());
     }

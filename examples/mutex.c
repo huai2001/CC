@@ -22,21 +22,21 @@ int32_t func(_cc_thread_t *thrd, void* arg) {
 int main(){
     char str1[8], str2[8];
     _cc_thread_t *p1,*p2;
-    mutex = _cc_create_mutex();
+    mutex = _cc_alloc_mutex();
     
     sprintf(str1, "abcdefg");
     sprintf(str2, "1234567");
     
-    p1 = _cc_create_thread(func, "test 1", str1);
+    p1 = _cc_thread(func, "test 1", str1);
     if(!p1){
         exit(1);
     }
-    p2 = _cc_create_thread(func, "test 2", str2);
+    p2 = _cc_thread(func, "test 2", str2);
     if(!p2){
         exit(1);
     }
     _cc_wait_thread(p1, nullptr);
     _cc_wait_thread(p2, nullptr);
     
-    _cc_destroy_mutex(&mutex);
+    _cc_free_mutex(mutex);
 }

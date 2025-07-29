@@ -90,32 +90,14 @@ _CC_FORCE_INLINE_ uint32_t _cc_hmap_length(_cc_hmap_t *ctx) {
  * @return a new empty hmap
  */
 _CC_API_PUBLIC(bool_t)
-_cc_hmap_alloc(_cc_hmap_t *ctx, uint32_t initial_size,
+_cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t initial_size,
     _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func);
 /**
  * @brief Free a hmap.
  *
  * @param ctx hmap context
  */
-_CC_API_PUBLIC(bool_t) _cc_hmap_free(_cc_hmap_t *ctx);
-/**
- * @brief Creates a new empty hmap.
- *
- * @param initial_size buffer count(!= 0. Creates a new memory buffer)
- * @param equals_func keywork equals callback function
- * @param hash_func keywork hash code callback function
- *
- * @return a new empty hmap
- */
-_CC_API_PUBLIC(_cc_hmap_t *)
-_cc_create_hmap(uint32_t initial_size,
-    _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func);
-/**
- * @brief destroy a hmap.
- *
- * @param ctx hmap context
- */
-_CC_API_PUBLIC(void) _cc_destroy_hmap(_cc_hmap_t **ctx);
+_CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx);
 /**/
 _CC_API_PUBLIC(intptr_t) _cc_hmap_value(intptr_t);
 /**

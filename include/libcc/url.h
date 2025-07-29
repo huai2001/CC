@@ -123,14 +123,20 @@ typedef struct _cc_url {
     tchar_t *password;
 } _cc_url_t;
 
+#define _cc_parse_url _cc_alloc_url
 /**/
-_CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *, const tchar_t *);
-/**/
-_CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *);
+
 /*create url*/
-_CC_API_PUBLIC(_cc_url_t *) _cc_create_url(const tchar_t *);
+_CC_API_PUBLIC(bool_t) _cc_alloc_url(_cc_url_t*, const tchar_t *);
 /**/
-_CC_API_PUBLIC(bool_t) _cc_destroy_url(_cc_url_t **);
+_CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t*);
+/* examples 1:
+char_t *urls = "http://www.domain.com/index.php?id=1&tid=2#top";
+_cc_url_t url;
+_cc_alloc_url(&url, urls);
+printf("-%s - %s- %d-\n",url.scheme.value, url.host, url.port);
+_cc_free_url(&url);
+*/
 
 /**/
 _CC_API_PUBLIC(int32_t)
@@ -144,12 +150,6 @@ _cc_raw_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t ds
 /**/
 _CC_API_PUBLIC(int32_t)
 _cc_raw_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
-
-/* examples 1:
-char_t *urls = "http://www.domain.com/index.php?id=1&tid=2#top";
-_cc_url_t* ur = _cc_create_url(urls);
-printf("-%s - %s- %d-\n",ur->scheme.value, ur->host, ur->port);
-*/
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

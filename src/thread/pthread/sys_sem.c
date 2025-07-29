@@ -28,7 +28,7 @@
 #include <semaphore.h>
 
 /* Create a semaphore */
-_CC_API_PUBLIC(_cc_semaphore_t*) _cc_create_semaphore(int32_t initial_value) {
+_CC_API_PUBLIC(_cc_semaphore_t*) _cc_alloc_semaphore(int32_t initial_value) {
     /* Allocate sem memory */
     _cc_semaphore_t *sem = (_cc_semaphore_t *)_cc_malloc(sizeof(_cc_semaphore_t));
 
@@ -42,12 +42,11 @@ _CC_API_PUBLIC(_cc_semaphore_t*) _cc_create_semaphore(int32_t initial_value) {
 }
 
 /* Free the semaphore */
-_CC_API_PUBLIC(void) _cc_destroy_semaphore(_cc_semaphore_t **sem) {
+_CC_API_PUBLIC(void) _cc_free_semaphore(_cc_semaphore_t *sem) {
     _cc_assert(sem);
-    if (_cc_likely(*sem)) {
-        sem_destroy(&(*sem)->sem);
-        _cc_free((*sem));
-        sem = nullptr;
+    if (_cc_likely(sem)) {
+        sem_destroy(&sem->sem);
+        _cc_free(sem);
     }
 }
 

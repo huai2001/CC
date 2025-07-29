@@ -50,16 +50,13 @@ typedef struct _cc_array {
 /**/
 #define _cc_array_get _cc_array_find
 
+
 /**/
-_CC_API_PUBLIC(_cc_array_t*) _cc_create_array(size_t);
+_CC_API_PUBLIC(bool_t) _cc_alloc_array(_cc_array_t*, size_t);
 /**/
-_CC_API_PUBLIC(void) _cc_destroy_array(_cc_array_t**);
+_CC_API_PUBLIC(bool_t) _cc_realloc_array(_cc_array_t*, size_t);
 /**/
-_CC_API_PUBLIC(bool_t) _cc_array_alloc(_cc_array_t*, size_t);
-/**/
-_CC_API_PUBLIC(bool_t) _cc_array_realloc(_cc_array_t*, size_t);
-/**/
-_CC_API_PUBLIC(bool_t) _cc_array_free(_cc_array_t* thiz);
+_CC_API_PUBLIC(bool_t) _cc_free_array(_cc_array_t* thiz);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_array_cleanup(_cc_array_t*);
 /**/

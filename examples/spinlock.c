@@ -31,19 +31,19 @@ int32_t func(_cc_thread_t *thrd, void* arg) {
 int main (int argc, char * const argv[]) {
     _cc_thread_t *p1,*p2;
 #if USE_MUTEX
-    mutexlock = _cc_create_mutex();
+    mutexlock = _cc_alloc_mutex();
 #else
     _cc_lock_init(&spinlock);
 #endif
     
     start = clock();
     
-    p1 = _cc_create_thread(func, "test 1", nullptr);
+    p1 = _cc_thread(func, "test 1", nullptr);
     if(!p1){
         exit(1);
     }
     
-    p2 = _cc_create_thread(func, "test 2", nullptr);
+    p2 = _cc_thread(func, "test 2", nullptr);
     if(!p2){
         exit(1);
     }

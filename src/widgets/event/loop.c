@@ -89,7 +89,7 @@ _CC_API_PUBLIC(bool_t) _cc_event_loop(int32_t count, void (*func)(_cc_event_cycl
             continue;
         }
         n->args = nullptr;
-        *(threads + i) = _cc_create_thread(_running, nullptr, n);
+        *(threads + i) = _cc_thread(_running, _T("event lopp"), n);
         g.count++;
     }
     

@@ -96,16 +96,15 @@ _CC_WIDGETS_API(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer);
  * @param ctx _cc_xml_t structure
  *
  */
-_CC_WIDGETS_API(void) _cc_destroy_xml(_cc_xml_t** ctx);
+_CC_WIDGETS_API(void) _cc_free_xml(_cc_xml_t* ctx);
 
 /**
  * @brief Print XML Object to buffer
  *
  * @param ctx _cc_xml_t structure
  *
- * @return _cc_buf_t structure
  */
-_CC_WIDGETS_API(_cc_buf_t*) _cc_dump_xml(_cc_xml_t* ctx);
+_CC_WIDGETS_API(void) _cc_dump_xml(_cc_xml_t* ctx, _cc_buf_t* buf);
 
 /**
  * @brief new a XML object

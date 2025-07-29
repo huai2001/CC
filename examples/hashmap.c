@@ -66,7 +66,7 @@ int main (int argc, char * const argv[]) {
 #endif
 
 #if TESTES
-    mymap = _cc_create_hmap(0, _hashmap_equals, hashmap_build_hash);
+    mymap = _cc_alloc_hmap(0, _hashmap_equals, hashmap_build_hash);
 #else
     mymap.rb_node = nullptr;
 #endif
@@ -174,7 +174,7 @@ int main (int argc, char * const argv[]) {
     start = clock();
 #if TESTES
     /* Now, destroy the map */
-    _cc_destroy_hmap(&mymap);
+    _cc_free_hmap(mymap);
 #else
     map_destroy(&mymap);
 #endif

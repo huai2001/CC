@@ -100,14 +100,6 @@ bool_t _valid_event_fd(_cc_event_t *);
 uint16_t _valid_connected(_cc_event_t *e, uint16_t which);
 
 /**
- * @brief Cleanup event
- *
- * @param cycle _cc_event_cycle_t structure
- * @param e _cc_event_t structure
- */
-void _cleanup_event(_cc_event_cycle_t *cycle, _cc_event_t *e);
-
-/**
  * @brief Socket disconnect event
  *
  * @param cycle _cc_event_cycle_t structure

@@ -58,7 +58,7 @@ _CC_API_PRIVATE(bool_t) _Heartbeat(_cc_event_t *e, byte_t oc) {
 /**/
 _CC_API_PRIVATE(void) _WebSocketFree(_WebSocket_t *ws) {
     _cc_http_free_request_header(&ws->request);
-    _cc_buf_free(&ws->buffer);
+    _cc_free_buf(&ws->buffer);
     _cc_free(ws);
 }
 
@@ -147,7 +147,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         ws->content_length = 0;
         ws->status = _CC_HTTP_STATUS_HEADER_;
         ws->request = nullptr;
-        _cc_buf_alloc(&ws->buffer, _CC_16K_BUFFER_SIZE_);
+        _cc_alloc_buf(&ws->buffer, _CC_16K_BUFFER_SIZE_);
 
         event->fd = fd;
         event->callback = e->callback;

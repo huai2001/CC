@@ -5,11 +5,12 @@
 #include <libcc/string.h>
 
 int main (int argc, char * const argv[]) {
-    _cc_array_t *arr;
+    _cc_array_t array;
+    _cc_array_t *arr = &array;
     int *find_val = nullptr;
     uint32_t i = 0;
     
-    arr = _cc_create_array(15);
+    _cc_alloc_array(arr,15);
     for (i = 0;  i < 10; i++) {
         int *a = _CC_MALLOC(int);
         *a = i + 100;
@@ -36,7 +37,7 @@ int main (int argc, char * const argv[]) {
         _cc_free(val);
     });
     
-    _cc_destroy_array(&arr);
+    _cc_free_array(&arr);
     
     system("pause");
     return 0;

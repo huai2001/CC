@@ -21,7 +21,7 @@
 #include "sys_thread.c.h"
 
 /* Create a condition variable */
-_CC_API_PUBLIC(_cc_condition_t*) _cc_create_condition(void) {
+_CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
     _cc_condition_t *cond = (_cc_condition_t *)_cc_malloc(sizeof(_cc_condition_t));
     if (pthread_cond_init(&cond->cond_var, nullptr) < 0) {
         _cc_logger_error(_T("pthread_cond_init() failed"));
@@ -31,12 +31,11 @@ _CC_API_PUBLIC(_cc_condition_t*) _cc_create_condition(void) {
 }
 
 /* Destroy a condition variable */
-_CC_API_PUBLIC(void) _cc_destroy_condition(_cc_condition_t **cond) {
-    if (_cc_likely(*cond)) {
+_CC_API_PUBLIC(void) _cc_free_condition(_cc_condition_t *cond) {
+    if (_cc_likely(cond)) {
         /*pthread_cond_broadcast(&(*cond)->cond);*/
-        pthread_cond_destroy(&(*cond)->cond_var);
-        _cc_free(*cond);
-        *cond = nullptr;
+        pthread_cond_destroy(&cond->cond_var);
+        _cc_free(cond);
     }
 }
 

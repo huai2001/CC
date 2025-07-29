@@ -247,11 +247,11 @@ _CC_API_PUBLIC(bool_t) _event_cycle_init(_cc_event_cycle_t *cycle) {
         g.slot_alloc = 0;
         g.alloc = 0;
 
-        _cc_array_alloc(&g.cycles, _CC_MAX_CYCLES_);
+        _cc_alloc_array(&g.cycles, _CC_MAX_CYCLES_);
     }
 
 #ifdef _CC_EVENT_USE_MUTEX_
-    cycle->lock = _cc_create_mutex();
+    cycle->lock = _cc_alloc_mutex();
 #else
     _cc_lock_init(&cycle->lock);
 #endif
@@ -262,7 +262,6 @@ _CC_API_PUBLIC(bool_t) _event_cycle_init(_cc_event_cycle_t *cycle) {
     cycle->processed = 0;
     cycle->priv = nullptr;
     cycle->ident = _cc_atomic32_inc(&(g.alloc)) & 0xff;
-    cycle->cleanup = nullptr;
     cycle->attach = nullptr;
     cycle->connect = nullptr;
     cycle->disconnect = nullptr;
@@ -271,7 +270,7 @@ _CC_API_PUBLIC(bool_t) _event_cycle_init(_cc_event_cycle_t *cycle) {
     cycle->quit = nullptr;
     cycle->reset = nullptr;
 
-    if (!_cc_array_alloc(&cycle->changes, _CC_MAX_CHANGE_EVENTS_)) {
+    if (!_cc_alloc_array(&cycle->changes, _CC_MAX_CHANGE_EVENTS_)) {
         _cc_assert(false);
         return false;
     }
@@ -306,28 +305,24 @@ _CC_API_PRIVATE(void) _event_link_free(_cc_event_cycle_t *cycle, _cc_list_iterat
         next = next->next;
 
         e = _cc_upcast(curr, _cc_event_t, lnk);
-        
+        if (e->callback) {
+            e->callback(cycle, e, _CC_EVENT_DELETED_);
+        }
         _cc_free_event(cycle, e);
     }
 }
 
 /**/
 _CC_API_PUBLIC(bool_t) _event_cycle_quit(_cc_event_cycle_t *cycle) {
-    size_t i, j, c;
-    _cc_event_t *e;
+    size_t i, j;
     _cc_assert(cycle != nullptr);
 
     _event_lock(cycle);
     cycle->running = 0;
-    c = _cc_array_length(&cycle->changes);
-    for (i = 0; i < c; i++) {
-        e = (_cc_event_t *)cycle->changes.data[i];
-
-        if (!_cc_list_iterator_empty(&e->lnk)) {
-            _cc_free_event(cycle, e);
-        }
-    }
-    _cc_array_free(&cycle->changes);
+    _cc_array_for_each(_cc_event_t, e, i, &cycle->changes, {
+        _cc_list_iterator_swap(&cycle->pending, &e->lnk);
+    });
+    _cc_free_array(&cycle->changes);
     _event_unlock(cycle);
     
     for (i = 0; i < _CC_TIMEOUT_NEAR_; i++) {
@@ -352,7 +347,7 @@ _CC_API_PUBLIC(bool_t) _event_cycle_quit(_cc_event_cycle_t *cycle) {
         g.slot_length = 0;
 
         _cc_queue_iterator_cleanup(&g.idles);
-        _cc_array_free(&g.cycles);
+        _cc_free_array(&g.cycles);
     }
     return true;
 }
@@ -376,24 +371,21 @@ _CC_API_PUBLIC(uint16_t) _valid_connected(_cc_event_t *e, uint16_t which) {
 _CC_API_PUBLIC(bool_t) _event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t which) {
     /**/
     cycle->processed++;
+    _cc_list_iterator_swap(&cycle->pending, &e->lnk);
     
     /**/
-    if (e->callback && e->callback(cycle, e, which)) {
-        _cc_list_iterator_swap(&cycle->pending, &e->lnk);
-        return true;
+    if (e->callback) {
+        if (e->callback(cycle, e, which)) {
+            return true;
+        }
+
+        e->callback(cycle, e, _CC_EVENT_DELETED_);
     }
+
 
     /*force disconnect socket*/
-    _cleanup_event(cycle, e);
+    _CC_MODIFY_BIT(_CC_EVENT_DISCONNECT_, _CC_EVENT_READABLE_|_CC_EVENT_ACCEPT_, e->flags);
     return false;
-}
-
-/**/
-_CC_API_PUBLIC(void) _cleanup_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    if (cycle->cleanup) {
-        cycle->cleanup(cycle, e);
-    }
-    _cc_free_event(cycle, e);
 }
 
 /**/
@@ -408,7 +400,7 @@ _CC_API_PUBLIC(bool_t) _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
         if (_cc_array_push(&cycle->changes, e) != -1) {
             _CC_SET_BIT(_CC_EVENT_CHANGING_, e->flags);
         } else {
-            _cc_logger_error(_T("_cc_event_reset fail"));
+            _cc_logger_debug(_T("_cc_event_reset fail"));
             results = false;
         }
     }

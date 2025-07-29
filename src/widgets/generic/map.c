@@ -209,12 +209,9 @@ static void _traverse_map_join(_cc_rbtree_iterator_t *node, pvoid_t args, const 
 _CC_API_PUBLIC(_cc_buf_t*) _cc_map_join(_cc_map_t *ctx, const tchar_t delimiter) {
     tchar_t *s;
     size_t len;
-    _cc_buf_t *buf;
+    _cc_buf_t *buf = (_cc_buf_t*)_cc_malloc(sizeof(_cc_buf_t));
 
-    buf = _cc_create_buf(1024);
-    if (buf == nullptr) {
-        return nullptr;
-    }
+    _cc_alloc_buf(buf, 1024);
 
     if (ctx->rb_node) {
         _traverse_map_join(ctx->rb_node, buf, delimiter);

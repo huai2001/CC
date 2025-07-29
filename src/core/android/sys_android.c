@@ -321,7 +321,7 @@ JNIEXPORT void JNICALL CC_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cls
     androidPowerInfo.registered = false;
 
     if (!Android_ActivityMutex) {
-        Android_ActivityMutex = _cc_create_mutex(); // Could this be created twice if onCreate() is called a second time ?
+        Android_ActivityMutex = _cc_alloc_mutex(); // Could this be created twice if onCreate() is called a second time ?
     }
     /*
      * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
@@ -424,7 +424,7 @@ JNIEXPORT void JNICALL CC_JAVA_INTERFACE(nativeQuit)(
     __android_log_print(ANDROID_LOG_VERBOSE, _CC_ANDROID_TAG_, "nativeQuit()");
 
     if (Android_ActivityMutex) {
-        _cc_destroy_mutex(&Android_ActivityMutex);
+        _cc_free_mutex(Android_ActivityMutex);
     }
     _cc_safe_free(s_AndroidInternalFilesPath.data);
     _cc_safe_free(s_AndroidExternalFilesPath.data);

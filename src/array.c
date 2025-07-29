@@ -24,7 +24,7 @@
 #define _CC_MAX_ARRAY_EXPAND_ 32
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_array_alloc(_cc_array_t *ctx, size_t capacity) {
+_CC_API_PUBLIC(bool_t) _cc_alloc_array(_cc_array_t *ctx, size_t capacity) {
     _cc_assert(ctx != nullptr);
 
     ctx->limit = _cc_aligned_alloc_opt(capacity, 64);
@@ -34,18 +34,7 @@ _CC_API_PUBLIC(bool_t) _cc_array_alloc(_cc_array_t *ctx, size_t capacity) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_array_t*) _cc_create_array(size_t capacity) {
-    _cc_array_t *ctx = _CC_MALLOC(_cc_array_t);
-    if (_cc_array_alloc(ctx, capacity)) {
-        return ctx;
-    }
-
-    _cc_safe_free(ctx);
-    return nullptr;
-}
-
-/**/
-_CC_API_PUBLIC(bool_t) _cc_array_realloc(_cc_array_t *ctx, size_t capacity) {
+_CC_API_PUBLIC(bool_t) _cc_realloc_array(_cc_array_t *ctx, size_t capacity) {
     pvoid_t *data;
 
     _cc_assert(ctx != nullptr);
@@ -83,7 +72,7 @@ _CC_API_PUBLIC(size_t) _cc_array_push(_cc_array_t *ctx, pvoid_t data) {
     index = ctx->length;
     /*if not enough space,expand first*/
     if (ctx->limit <= 0x80000000 && index >= ctx->limit) {
-        _cc_array_realloc(ctx, index + 1);
+        _cc_realloc_array(ctx, index + 1);
     }
 
     if (index >= ctx->limit) {
@@ -107,7 +96,7 @@ _CC_API_PUBLIC(bool_t) _cc_array_append(_cc_array_t *ctx, const _cc_array_t *app
     capacity = ctx->length + append->length;
     /*if not enough space,expand first*/
     if (ctx->limit <= 0x80000000 && capacity > ctx->limit) {
-        _cc_array_realloc(ctx, capacity);
+        _cc_realloc_array(ctx, capacity);
     }
 
     memcpy(ctx->data[ctx->length], append->data[0], append->length * sizeof(pvoid_t));
@@ -167,7 +156,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_array_remove(_cc_array_t *ctx, const size_t index) {
     return data;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_array_free(_cc_array_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_free_array(_cc_array_t *ctx) {
     _cc_assert(ctx != nullptr);
 
     _cc_safe_free(ctx->data);
@@ -175,14 +164,6 @@ _CC_API_PUBLIC(bool_t) _cc_array_free(_cc_array_t *ctx) {
     ctx->limit = 0;
 
     return true;
-}
-
-_CC_API_PUBLIC(void) _cc_destroy_array(_cc_array_t **ctx) {
-    if (_cc_array_free(*ctx)) {
-        _cc_free(*ctx);
-    }
-
-    *ctx = nullptr;
 }
 
 _CC_API_PUBLIC(bool_t) _cc_array_cleanup(_cc_array_t *ctx) {

@@ -1,6 +1,10 @@
 ##################################################
 SRCROOT	:= $(abspath .)
 
+THIRD_PARTY_PATH = $(abspath $(SRCROOT)/..)/third-party
+INCLUDE_PATH += $(THIRD_PARTY_PATH)
+
+
 #生成的文件名
 TARGET_NAME = cc
 
@@ -8,7 +12,7 @@ ifdef shared
 	MACROS += _CC_ENABLE_SHARED_LIBRARY_=1
 endif
 
-MACROS += _CC_SYSLOG_RFC5424_
+#MACROS += _CC_SYSLOG_RFC5424_
 
 include $(SRCROOT)/build/Makefile.mak
 

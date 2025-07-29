@@ -19,6 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/string.h>
+#include <libcc/generic.h>
 
 
 /** B0A1-F7FE

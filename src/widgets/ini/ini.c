@@ -105,18 +105,17 @@ _CC_API_PUBLIC(const tchar_t*) _cc_ini_find_string(_cc_ini_t* item, const tchar_
     return nullptr;
 }
 /**/
-_CC_API_PUBLIC(void) _cc_destroy_ini(_cc_ini_t** ctx) {
+_CC_API_PUBLIC(void) _cc_free_ini(_cc_ini_t* ctx) {
     
-    if (_cc_unlikely(ctx == nullptr || *ctx == nullptr)) {
+    if (_cc_unlikely(ctx == nullptr)) {
         return;
     }
 
-    if ((*ctx)->type == _CC_INI_SECTION_) {
-        _cc_rbtree_destroy(&(*ctx)->element.uni_object, _ini_free_rb_node);
+    if (ctx->type == _CC_INI_SECTION_) {
+        _cc_rbtree_destroy(&ctx->element.uni_object, _ini_free_rb_node);
     }
 
-    _cc_free(*ctx);
-    *ctx = nullptr;
+    _cc_free(ctx);
 }
 
 /**/
@@ -150,8 +149,7 @@ static void _INI_dump(_cc_buf_t* buf, _cc_rbtree_t* rb) {
     });
 }
 
-_CC_API_PUBLIC(_cc_buf_t*) _cc_dump_ini(_cc_ini_t* item) {
-    _cc_buf_t* buf = _cc_create_buf(_CC_16K_BUFFER_SIZE_);
+_CC_API_PUBLIC(void) _cc_dump_ini(_cc_ini_t* item, _cc_buf_t* buf) {
+    _cc_alloc_buf(buf, _CC_16K_BUFFER_SIZE_);
     _INI_dump(buf, &item->element.uni_object);
-    return buf;
 }

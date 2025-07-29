@@ -388,7 +388,7 @@ int main (int argc, char * const argv[]) {
 
     //39.108.173.196
     _cc_inet_ipv4_addr(&sa, _T("127.0.0.1"), 10606);
-    network_thread = _cc_create_thread(fn_thread, _T("net-time"), &network_event);
+    network_thread = _cc_thread(fn_thread, _T("net-time"), &network_event);
 
     e = _cc_tcp_connect(&network_event, 
     _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockaddr_t*)&sa,

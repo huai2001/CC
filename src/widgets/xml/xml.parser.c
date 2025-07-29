@@ -155,7 +155,7 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
     const tchar_t *start = p;
     const tchar_t *endpos = nullptr;
 
-    _cc_buf_alloc(&buf, 1024);
+    _cc_alloc_buf(&buf, 1024);
     endpos = buffer->content + buffer->length;
 
     while (p < endpos) {
@@ -191,7 +191,7 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
     buffer->offset = (size_t)(p - buffer->content);
 
     if (buf.length <= 0) {
-        _cc_buf_free(&buf);
+        _cc_free_buf(&buf);
         return false;
     }
 
@@ -199,14 +199,14 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
     alloc_length = _cc_buf_length(&buf) + 1;
     context->text = (tchar_t *)_cc_malloc(alloc_length * sizeof(tchar_t));
     if (_convert_text(context->text, alloc_length, (const tchar_t *)buf.bytes, (const tchar_t *)buf.bytes + buf.length)) {
-        _cc_buf_free(&buf);
+        _cc_free_buf(&buf);
         return true;
     }
 
     _cc_free(context->text);
     context->text = nullptr;
 
-    _cc_buf_free(&buf);
+    _cc_free_buf(&buf);
     return false;
 }
 
@@ -517,7 +517,7 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer) {
     /*reset error position*/
     _cc_syntax_error(&local_error);
 
-    _cc_destroy_xml(&item);
+    _cc_free_xml(item);
     return nullptr;
 }
 
@@ -528,12 +528,12 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_from_file(const tchar_t *file_name) {
     byte_t *content = nullptr;
     size_t offset = 0;
 
-    _cc_buf_t *buf = _cc_buf_from_file(file_name);
+    _cc_buf_t buf;
 
-    if (_cc_unlikely(buf == nullptr)) {
+    if (!_cc_buf_from_file(&buf, file_name)) {
         return nullptr;
     }
-    content = _cc_buf_bytes(buf);
+    content = buf.bytes;
 
     /*----BOM----
     EF BB BF = UTF-8
@@ -552,10 +552,10 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_from_file(const tchar_t *file_name) {
 #ifdef _CC_UNICODE_
     _cc_buf_utf8_to_utf16(buf, (uint32_t)offset);
     buffer.content = (tchar_t *)buf->bytes;
-    buffer.length = _cc_buf_length(buf) / sizeof(tchar_t);
+    buffer.length = buf.length / sizeof(tchar_t);
 #else
     buffer.content = (tchar_t *)(content + offset);
-    buffer.length = (_cc_buf_length(buf) - offset) / sizeof(tchar_t);
+    buffer.length = (buf.length - offset) / sizeof(tchar_t);
 #endif
     buffer.offset = 0;
     buffer.line = 1;
@@ -563,7 +563,7 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_from_file(const tchar_t *file_name) {
 
     item = _cc_xml_parser(&buffer);
 
-    _cc_destroy_buf(&buf);
+    _cc_free_buf(&buf);
 
     return item;
 }

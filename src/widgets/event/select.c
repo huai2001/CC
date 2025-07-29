@@ -87,7 +87,7 @@ _CC_API_PRIVATE(_cc_socket_t) _select_event_accept(_cc_event_cycle_t *cycle, _cc
 }
 
 /**/
-_CC_API_PRIVATE(void) _select_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     _cc_event_cycle_priv_t *fset = cycle->priv;
     int32_t i;
 
@@ -98,13 +98,14 @@ _CC_API_PRIVATE(void) _select_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_
             break;
         }
     }
+    _cc_free_event(cycle, e);
 }
 
 /**/
 _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         /*delete*/
-        _cleanup_event(cycle, e);
+        _event_cleanup(cycle, e);
         return;
     }
 
@@ -261,6 +262,5 @@ _CC_API_PUBLIC(bool_t) _cc_init_event_select(_cc_event_cycle_t *cycle) {
     cycle->wait = _select_event_wait;
     cycle->quit = _select_event_quit;
     cycle->reset = _select_event_reset;
-    cycle->cleanup = _select_event_cleanup;
     return true;
 }

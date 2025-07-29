@@ -40,7 +40,7 @@
 /**/
 /*close socket*/
 /**/
-_CC_API_PRIVATE(void) _iocp_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (e->accept_fd != _CC_INVALID_SOCKET_) {
         /**/
         LINGER linger = {1, 0};
@@ -52,6 +52,7 @@ _CC_API_PRIVATE(void) _iocp_event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t 
         CancelIo((HANDLE)e->accept_fd);
         _cc_close_socket(e->accept_fd);
     }
+    _cc_free_event(cycle, e);
 }
 
 /**/
@@ -338,7 +339,7 @@ _CC_API_PRIVATE(void) _iocp_event_dispatch(_cc_event_cycle_t *cycle, _iocp_overl
 _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         /*delete*/
-        _cleanup_event(cycle, e);
+        _event_cleanup(cycle, e);
         return;
     }
 
@@ -354,7 +355,7 @@ _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
             if(e->callback) {
                 e->callback(cycle, e, _CC_EVENT_DISCONNECT_);
             }
-            _cleanup_event(cycle, e);
+            _event_cleanup(cycle, e);
             return;
         }
     }
@@ -438,7 +439,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t time
                     iocp_overlapped = _iocp_upcast(cycle,overlappeds[i].lpOverlapped);
                     if (iocp_overlapped) {
                         if (key == _CC_IOCP_PENDING_) {
-                            _cleanup_event(cycle, iocp_overlapped->e);
+                            _event_cleanup(cycle, iocp_overlapped->e);
                         }
                         _iocp_overlapped_free(cycle->priv, iocp_overlapped);
                     }
@@ -468,7 +469,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_event_cycle_t *cycle, uint32_t time
         } else {
             if (iocp_overlapped) {
                 if (key == _CC_IOCP_PENDING_) {
-                    _cleanup_event(cycle, iocp_overlapped->e);
+                    _event_cleanup(cycle, iocp_overlapped->e);
                 }
                 _iocp_overlapped_free(cycle->priv, iocp_overlapped);
             }
@@ -538,7 +539,7 @@ _CC_API_PUBLIC(bool_t) _cc_init_event_iocp(_cc_event_cycle_t *cycle) {
     cycle->wait = _iocp_event_wait;
     cycle->quit = _iocp_event_quit;
     cycle->reset = _iocp_event_reset;
-    cycle->cleanup = _iocp_event_cleanup;
+
     return true;
 }
 

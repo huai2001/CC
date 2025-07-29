@@ -137,7 +137,7 @@ _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
         if (_CC_EVENT_IS_SOCKET(e->marks)) {
             _epoll_event_update(cycle->priv->fd, e, true);
         }
-        _cleanup_event(cycle, e);
+        _cc_free_event(cycle, e);
         return;
     }
 

@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 #else
     _cc_open_syslog(_CC_LOG_FACILITY_USER_, "test", nullptr, _CC_PORT_SYSLOG_);
 #endif
-    // _cc_buf_alloc(&buf, 1024);
+    // _cc_alloc_buf(&buf, 1024);
     // start = clock();
     // for (i = 0; i < LOOP_MAX; i++) {
     //     _cc_buf_cleanup(&buf);

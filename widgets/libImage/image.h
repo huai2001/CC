@@ -153,7 +153,7 @@ _CC_IMAGE_API(_cc_image_t*) _cc_init_image(uint32_t format, uint32_t width, uint
 _CC_IMAGE_API(_cc_image_t*) _cc_init_image_data(uint32_t format, uint32_t width, uint32_t height, byte_t *data);
 
 /**/
-_CC_IMAGE_API(bool_t) _cc_destroy_image(_cc_image_t** image);
+_CC_IMAGE_API(bool_t) _cc_free_image(_cc_image_t* image);
 
 /**/
 _CC_IMAGE_API(int32_t) _cc_get_bits_per_pixel_from_format(const byte_t format);

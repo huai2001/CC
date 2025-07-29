@@ -56,7 +56,7 @@ int32_t fn_thread_write(_cc_thread_t *thrd, void* param) {
 int main (int argc, char * const argv[]) {
     _test_t d = {0};
     _cc_install_memory_tracked();
-    buf = _cc_create_ring(5*sizeof(_test_t));
+    buf = _cc_alloc_ring(5*sizeof(_test_t));
 
     for (i = 1; i < 20; i++) {
         d.game_id = i;
@@ -74,26 +74,26 @@ int main (int argc, char * const argv[]) {
         _tprintf(_T("[%0.4d - %0.4d]\n"), d.game_id, d.group_id);
     }
     /*
-    rw_lock = _cc_create_mutex();
+    rw_lock = _cc_alloc_mutex();
     if (rw_lock == nullptr) {
         _tprintf(_T("create mutex lock fial.\n"));
-        _cc_destroy_ring(&buf);
+        _cc_free_ring(buf);
         return 0;
     }
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_read, "read", nullptr);
+    rw_thread[thread_count] = _cc_thread(fn_thread_read, "read", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }
 
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 1", nullptr);
+    rw_thread[thread_count] = _cc_thread(fn_thread_write, "write 1", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 2", nullptr);
+    rw_thread[thread_count] = _cc_thread(fn_thread_write, "write 2", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }
-    rw_thread[thread_count] = _cc_create_thread(fn_thread_write, "write 3", nullptr);
+    rw_thread[thread_count] = _cc_thread(fn_thread_write, "write 3", nullptr);
     if(rw_thread[thread_count]) {
         thread_count++;
     }
@@ -103,15 +103,15 @@ int main (int argc, char * const argv[]) {
     }
 
     for(i = 0; i < thread_count; i++) {
-        _cc_destroy_thread(&rw_thread[i]);
+        _cc_wait_thread(rw_thread[i]);
     }
 
     if (rw_lock) {
-        _cc_destroy_mutex(&rw_lock);
+        _cc_free_mutex(rw_lock);
     }
     */
     _tprintf(_T("\n"));
-    _cc_destroy_ring(&buf);
+    _cc_free_ring(buf);
     _cc_uninstall_memory_tracked();
     return 0;
 }

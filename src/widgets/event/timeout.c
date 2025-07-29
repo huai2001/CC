@@ -61,7 +61,7 @@ _CC_API_PRIVATE(void) _timeout_execute(_cc_event_cycle_t *cycle) {
             if ((e->flags & _CC_EVENT_DISCONNECT_) == 0) {
                 _event_callback(cycle, e, _CC_EVENT_TIMEOUT_);
             } else {
-                _cleanup_event(cycle, e);
+                _cc_free_event(cycle, e);
             }
         });
         _cc_list_iterator_cleanup(&cycle->nears[i]);
@@ -127,7 +127,7 @@ _CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
         e->timer = cycle->timer;
         _add_event_timeout(cycle, e);
     } else {
-        _cleanup_event(cycle, e);
+        _cc_free_event(cycle, e);
     }
 }
 
@@ -174,7 +174,7 @@ _CC_API_PUBLIC(bool_t) _cc_init_event_timeout(_cc_event_cycle_t *cycle) {
     cycle->connect = nullptr;
     cycle->disconnect = nullptr;
     cycle->accept = nullptr;
-    cycle->cleanup = nullptr;
+
     return true;
 }
 

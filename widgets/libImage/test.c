@@ -91,7 +91,7 @@ void to(const char* src, const char* dest) {
         if (!_cc_write_PNG(dest, img)) {
             printf("write PNG fail.\n");
         }
-        _cc_destroy_image(&img);
+        _cc_free_image(img);
      }
 }
 

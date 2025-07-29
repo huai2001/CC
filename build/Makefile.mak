@@ -133,7 +133,7 @@ EXT_OBJ_PATH  = $(BUILD_PATH)/objs/$(TARGET_NAME)
 EXT_LST_PATH  = $(BUILD_PATH)/lsts/$(TARGET_NAME)
 
 #要包含的路径(本用例包含iclude,lib,bin 三个目录)
-INCLUDE_PATH += $(SRCROOT)/include $(EXT_LIB_PATH) $(EXT_BIN_PATH) $(THIRD_PARTY_PATH)
+INCLUDE_PATH += $(SRCROOT)/include $(THIRD_PARTY_PATH)
 LIBRARY_PATH += $(EXT_LIB_PATH) $(SRCROOT)/bin/$(ARCH) $(SRCROOT)/lib/$(ARCH) $(EXT_BIN_PATH)
 
 #在编译过程的不同阶段之间使用管道而非临时文件进行通信，可以加快编译速度。建议使用。

@@ -82,7 +82,7 @@ extern void _cc_thread_running_function(pvoid_t);
  * @return thread handle
  */
 _CC_API_PUBLIC(_cc_thread_t *)
-_cc_create_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args);
+_cc_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args);
 /**
  * @brief Create a thread
  *
@@ -94,7 +94,7 @@ _cc_create_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t a
  * @return thread handle
  */
 _CC_API_PUBLIC(_cc_thread_t *)
-_cc_create_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stack_size, pvoid_t args);
+_cc_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stack_size, pvoid_t args);
 /**
  * @brief Create a thread
  *

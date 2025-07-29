@@ -188,9 +188,8 @@ _CC_WIDGETS_API(bool_t) _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *k
  *
  * @param ctx JSON object
  *
- * @return Buf context
  */
-_CC_WIDGETS_API(_cc_buf_t *) _cc_json_dump(_cc_json_t *jctx);
+_CC_WIDGETS_API(void) _cc_json_dump(_cc_json_t *jctx, _cc_buf_t* buf);
 
 /**
  * @brief Open JSON file
@@ -221,7 +220,7 @@ _CC_WIDGETS_API(_cc_json_t *) _cc_josn_parser(_cc_sbuf_t *const buffer);
  * @param ctx _cc_json_t structure
  *
  */
-_CC_WIDGETS_API(void) _cc_destroy_json(_cc_json_t **ctx);
+_CC_WIDGETS_API(void) _cc_free_json(_cc_json_t *ctx);
 /**
  * @brief Get JSON Parse error message
  *

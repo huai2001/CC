@@ -43,16 +43,6 @@
 
 static tchar_t *_URL_PATH_ROOT_ = _T("/");
 
-#define _alloc_url_field_data(S1, S2, D, U)                                                                            \
-    do {                                                                                                               \
-        U->D = _cc_tcsndup((S2), (size_t)((S1) - (S2)));                                                               \
-        if (_cc_unlikely(nullptr == U->D)) {                                                                              \
-            _cc_free_url(U);                                                                                           \
-            return nullptr;                                                                                               \
-        }                                                                                                              \
-        (S2) = (S1);                                                                                                   \
-    } while (0)
-
 /*Scheme name*/
 typedef struct _cc_url_scheme {
     uint32_t ident;
@@ -79,6 +69,12 @@ const _cc_url_scheme_t _url_supported_schemes[] = {
     _URL_SCHEME_SUPPORTED_MAP(XX)
 #undef XX
 };
+
+#define _alloc_url_field_data(S1, S2, D, U)                                                                            \
+    do {                                                                                                               \
+        U->D = _cc_tcsndup((S2), (size_t)((S1) - (S2)));                                                               \
+        (S2) = (S1);                                                                                                   \
+    } while (0)
 
 /**/
 _CC_API_PRIVATE(bool_t) _url_exists_user_password(const tchar_t *s) {
@@ -151,8 +147,8 @@ _CC_API_PRIVATE(bool_t) is_valid_host(const tchar_t *_host) {
 }
 #endif
 
-/*create url*/
-_CC_API_PRIVATE(_cc_url_t *) _create_url(_cc_url_t *u, const tchar_t *url) {
+/*parser url*/
+_CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
     const tchar_t *curstr, *tmpstr;
     const tchar_t *user_name = nullptr, *user_password = nullptr;
 
@@ -321,23 +317,17 @@ URL_PRASE_PATH_PARAMS:
 }
 
 _CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
-    if (_create_url(u, url) == nullptr) {
+    if (_parser_url(u, url) == nullptr) {
         return false;
     }
     return true;
 }
 
-/*create url*/
-_CC_API_PUBLIC(_cc_url_t *) _cc_create_url(const tchar_t *url) {
-    _cc_url_t *u = _CC_MALLOC(_cc_url_t);
-    if (_create_url(u, url) == nullptr) {
-        _cc_free(u);
-        return nullptr;
-    }
-    return u;
-}
 /**/
 _CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *url) {
+    if (_cc_unlikely(url == nullptr)) {
+        return true;
+    }
     if (url->request != nullptr && url->request != _URL_PATH_ROOT_) {
         _cc_free(url->request);
         url->request = nullptr;
@@ -359,17 +349,6 @@ _CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *url) {
         url->scheme.value = nullptr;
     }
     return true;
-}
-/**/
-_CC_API_PUBLIC(bool_t) _cc_destroy_url(_cc_url_t **url) {
-    if (_cc_likely(url && *url)) {
-        _cc_free_url(*url);
-        _cc_free((*url));
-        (*url) = nullptr;
-
-        return true;
-    }
-    return false;
 }
 
 /* {{{ url_encode

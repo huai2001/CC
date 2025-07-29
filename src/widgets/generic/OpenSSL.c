@@ -130,16 +130,16 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(bool_t is_client) {
     if (_cc_atomic32_inc_ref(&_SSL_init_refcount)) {
         _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
         if (!_SSL_only_init()) {
-            _SSL_lock = 0;
+            _cc_unlock(&_SSL_lock);
             return nullptr;
         }
-        _SSL_lock = 0;
+        _cc_unlock(&_SSL_lock);
     }
 
     ctx = _cc_malloc(sizeof(_cc_OpenSSL_t));
     _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
     ssl_ctx = SSL_CTX_new(is_client ? TLS_client_method() : TLS_server_method());
-    _SSL_lock = 0;
+    _cc_unlock(&_SSL_lock);
     if (ssl_ctx == nullptr) {
         _SSL_error("SSL_CTX_new");
         _cc_free(ctx);
@@ -257,14 +257,6 @@ _CC_API_PUBLIC(uint16_t) _SSL_do_handshake(_cc_SSL_t *ssl) {
 
     switch (SSL_get_error(ssl->handle, rs)) {
     case SSL_ERROR_ZERO_RETURN:
-            _SSL_error(_T("The TLS/SSL connection has been closed. ")
-                       _T("If the protocol version is SSL 3.0 or higher, this result ")
-                       _T("code is returned ")
-                       _T("only if a closure alert has occurred in the protocol, ")
-                       _T("i.e. if the connection has been closed cleanly. ")
-                       _T("Note that in this case SSL_ERROR_ZERO_RETURN does not ")
-                       _T("necessarily indicate ")
-                       _T("that the underlying transport has been closed."));
         break;
     case SSL_ERROR_WANT_READ:
         // Need to wait for a read event to continue to complete the
@@ -282,18 +274,12 @@ _CC_API_PUBLIC(uint16_t) _SSL_do_handshake(_cc_SSL_t *ssl) {
         // later."));
         return _CC_SSL_HS_WANT_READ_;
     case SSL_ERROR_WANT_X509_LOOKUP:
-            _SSL_error(_T("The operation did not complete because an application ")
-                       _T("callback set by SSL_CTX_set_client_cert_cb() ")
-                       _T("has asked to be called again. The TLS/SSL I/O function ")
-                       _T("should be called again later."));
         break;
 #ifdef SSL_ERROR_WANT_ASYNC
     case SSL_ERROR_WANT_ASYNC:
         // This will only occur if the mode has been set to SSL_MODE_ASYNC
         // using SSL_CTX_set_mode or SSL_set_mode and an asynchronous
         // capable engine is being used.
-            _SSL_error(_T("The operation did not complete because an asynchronous ")
-                       _T("engine is still processing data. "));
         break;
 #endif
 #ifdef SSL_ERROR_WANT_ASYNC_JOB
@@ -302,31 +288,21 @@ _CC_API_PUBLIC(uint16_t) _SSL_do_handshake(_cc_SSL_t *ssl) {
         // using SSL_CTX_set_mode or SSL_set_mode and a maximum limit has
         // been set on the async job pool through a call to
         // ASYNC_init_thread.
-            _SSL_error(_T("The asynchronous job could not be started because there ")
-                       _T("were no async jobs available in the pool (see ")
-                       _T("ASYNC_init_thread(3))."));
         break;
 #endif
     case SSL_ERROR_SYSCALL: {
         int err = _cc_last_errno();
         if (_CC_EINTR_ == err) {
             break;
-        } else {
-            _cc_logger_error(_T("Some non-recoverable I/O error occurred. The OpenSSL ")
-                             _T("error queue may contain more information on the ")
-                             _T("error. ")
-                             _T("For socket I/O on Unix systems, consult errno %d for ")
-                             _T("details."), err);
         }
-    } break;
+    }
+        break;
     case SSL_ERROR_SSL:
-        _SSL_error(_T("A failure in the SSL library occurred, usually a protocol ")
-                   _T("error. The OpenSSL error queue contains more information ")
-                   _T("on the error."));
         break;
     case SSL_ERROR_NONE:
         break;
     }
+    _SSL_error("SSL_do_handshake");
     return _CC_SSL_HS_ERROR_;
 }
 

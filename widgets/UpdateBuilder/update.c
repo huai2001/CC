@@ -312,7 +312,7 @@ int builder_UpdateList(void) {
 int createUpdateFile(const tchar_t *saveFile, _cc_sql_t *sql) {
     char_t str[256];
     _cc_sql_result_t *resultSQL = nullptr;
-    _cc_buf_t *buf;
+    _cc_buf_t buf;
     _cc_json_t *rootJSON = _cc_json_alloc_object(_CC_JSON_ARRAY_, nullptr);
     sqldelegate.execute(sql, "select `ID`, `Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path` from `main`.`FileList`;", &resultSQL);
     while (sqldelegate.fetch(resultSQL)) {
@@ -337,15 +337,13 @@ int createUpdateFile(const tchar_t *saveFile, _cc_sql_t *sql) {
         sqldelegate.free_result(sql, resultSQL);
     }
 
-    buf = _cc_json_dump(rootJSON);
-    if (buf) {
-        _cc_file_t *fp = _cc_open_file(saveFile, _T("wb"));
-        if (fp) {
-            _cc_file_write(fp, buf->bytes, 1, buf->length);
-            _cc_file_close(fp);
-        }
+    _cc_json_dump(rootJSON, buf);
+    _cc_file_t *fp = _cc_open_file(saveFile, _T("wb"));
+    if (fp) {
+        _cc_file_write(fp, buf.bytes, 1, buf.length);
+        _cc_file_close(fp);
     }
-    _cc_destroy_buf(&buf);
-    _cc_destroy_json(&rootJSON);
+    _cc_free_buf(&buf);
+    _cc_free_json(rootJSON);
     return 0;
 }

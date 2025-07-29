@@ -26,7 +26,7 @@
 #define _CC_RING_EXPAND_ 1
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_ring_alloc(_cc_ring_t *ctx, int32_t slot_size) {
+_CC_API_PUBLIC(bool_t) _cc_alloc_ring(_cc_ring_t *ctx, int32_t slot_size) {
     _cc_assert(ctx != nullptr);
 
     ctx->size = _max(slot_size, 10);
@@ -42,32 +42,10 @@ _CC_API_PUBLIC(bool_t) _cc_ring_alloc(_cc_ring_t *ctx, int32_t slot_size) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_ring_t*) _cc_create_ring(int32_t slot_size) {
-    _cc_ring_t *ctx = (_cc_ring_t *)_cc_malloc(sizeof(_cc_ring_t));
-    if (_cc_likely(_cc_ring_alloc(ctx, slot_size))) {
-        return ctx;
-    }
-
-    _cc_safe_free(ctx);
-    return nullptr;
-}
-
-/**/
-_CC_API_PUBLIC(bool_t) _cc_ring_free(_cc_ring_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_free_ring(_cc_ring_t *ctx) {
     _cc_assert(ctx != nullptr);
     _cc_safe_free(ctx->data);
     return true;
-}
-
-/**/
-_CC_API_PUBLIC(void) _cc_destroy_ring(_cc_ring_t **ctx) {
-    _cc_assert(ctx != nullptr);
-
-    if (_cc_ring_free(*ctx)) {
-        _cc_free((*ctx));
-    }
-
-    (*ctx) = nullptr;
 }
 
 /**/

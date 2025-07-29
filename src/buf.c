@@ -77,7 +77,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_jump_comment(_cc_sbuf_t *const buffer) {
     return _cc_sbuf_access(buffer);
 }
 
-_CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t *ctx, size_t initial) {
+_CC_API_PUBLIC(bool_t) _cc_alloc_buf(_cc_buf_t *ctx, size_t initial) {
     _cc_assert(ctx != nullptr);
 
     memset(ctx, 0, sizeof(_cc_buf_t));
@@ -89,14 +89,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t *ctx, size_t initial) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_buf_t *) _cc_create_buf(size_t initial) {
-    _cc_buf_t *ctx = _CC_MALLOC(_cc_buf_t);
-    _cc_buf_alloc(ctx, initial);
-    return ctx;
-}
-
-/**/
-_CC_API_PUBLIC(bool_t) _cc_buf_free(_cc_buf_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_free_buf(_cc_buf_t *ctx) {
     _cc_assert(ctx != nullptr);
 
     if (_cc_likely(ctx->bytes)) {
@@ -107,17 +100,6 @@ _CC_API_PUBLIC(bool_t) _cc_buf_free(_cc_buf_t *ctx) {
     ctx->limit = ctx->length = 0;
 
     return true;
-}
-
-/**/
-_CC_API_PUBLIC(void) _cc_destroy_buf(_cc_buf_t **ctx) {
-    _cc_assert(ctx != nullptr);
-
-    if (_cc_buf_free(*ctx)) {
-        _cc_free(*ctx);
-    }
-
-    *ctx = nullptr;
 }
 
 /**/
@@ -297,29 +279,28 @@ _CC_API_PUBLIC(bool_t) _cc_bufW_appendf(_cc_buf_t *ctx, const wchar_t *fmt, ...)
     return result;
 }
 
-_CC_API_PUBLIC(_cc_buf_t*) _cc_buf_from_file(const tchar_t *file_name) {
-    _cc_buf_t *buf = nullptr;
+_CC_API_PUBLIC(bool_t) _cc_buf_from_file(_cc_buf_t* buf,const tchar_t *file_name) {
     _cc_file_t *f;
     size_t file_size;
-    size_t byte_read;
+    size_t r;
 
     f = _cc_open_file(file_name, _T("rb"));
     if (f == nullptr) {
-        return nullptr;
+        return false;
     }
 
     file_size = (size_t)_cc_file_size(f);
 
     if (_cc_likely(file_size > 0)) {
-        buf = _cc_create_buf(file_size);
-        while ((byte_read = _cc_file_read(f, buf->bytes + buf->length, 
-                                sizeof(byte_t), buf->limit - buf->length)) > 0) {
-            buf->length += byte_read;
+        _cc_alloc_buf(buf, file_size);
+        while ((r = _cc_file_read(f, buf->bytes + buf->length, 
+                sizeof(byte_t), buf->limit - buf->length)) > 0) {
+            buf->length += r;
         }
     }
     _cc_file_close(f);
 
-    return buf;
+    return true;
 }
 
 _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
@@ -330,7 +311,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
         return false;
     }
 
-    if (!_cc_buf_alloc(&b, (ctx->length - offset + 1) * sizeof(wchar_t))) {
+    if (!_cc_alloc_buf(&b, (ctx->length - offset + 1) * sizeof(wchar_t))) {
         return false;
     }
 
@@ -346,7 +327,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
         return true;
     }
 
-    _cc_buf_free(&b);
+    _cc_free_buf(&b);
     return false;
 }
 
@@ -358,7 +339,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset) {
         return false;
     }
 
-    if (!_cc_buf_alloc(&b, (ctx->length - offset + 1) * sizeof(char_t))) {
+    if (!_cc_alloc_buf(&b, (ctx->length - offset + 1) * sizeof(char_t))) {
         return false;
     }
 
@@ -374,6 +355,6 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset) {
         return true;
     }
 
-    _cc_buf_free(&b);
+    _cc_free_buf(&b);
     return false;
 }

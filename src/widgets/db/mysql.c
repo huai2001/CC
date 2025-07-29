@@ -169,7 +169,7 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
 #endif
 
 #ifdef _CC_UNICODE_
-    _cc_buf_alloc(&ctx->buffer, 1024);
+    _cc_alloc_buf(&ctx->buffer, 1024);
 #endif
     ctx->auto_commit = true;
 
@@ -233,7 +233,7 @@ _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string
 
 _CC_API_PRIVATE(bool_t) _mysql_disconnect(_cc_sql_t *ctx) {
 #ifdef _CC_UNICODE_
-    _cc_buf_free(&ctx->buffer);
+    _cc_free_buf(&ctx->buffer);
 #endif
     mysql_close(ctx->sql);
 

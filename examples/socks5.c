@@ -269,7 +269,7 @@ int main (int argc, char * const argv[]) {
         return 0;
     }
     /*启动线程*/
-    network_thread = _cc_create_thread(thread_running, "socks5", &network_event);
+    network_thread = _cc_thread(thread_running, "socks5", &network_event);
     
     /*连接到服务端口为8088*/
     if(connect_server(_T("47.96.85.231"), 3128) == nullptr) {

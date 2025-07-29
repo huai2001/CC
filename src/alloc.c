@@ -29,7 +29,7 @@
 #include <dlfcn.h>
 #endif
 
-static tchar_t *mem_types[4] = {"free","_cc_malloc","_cc_calloc","_cc_realloc"};
+static tchar_t *mem_types[4] = {_T("free"),_T("_cc_malloc"),_T("_cc_calloc"),_T("_cc_realloc")};
 
 /* Explicitly override malloc/free etc when using tcmalloc. */
 #if defined(__CC_USE_TCMALLOC__)
@@ -45,97 +45,18 @@ static tchar_t *mem_types[4] = {"free","_cc_malloc","_cc_calloc","_cc_realloc"};
 #endif
 
 #ifdef _CC_ENABLE_MEMORY_TRACKED_
-#if _CC_USE_SYSTEM_SQLITE3_LIB_
-#include <sqlite3.h>
-#else
-#include <sqlite3/sqlite3.h>
-#endif
-static sqlite3 *g_memory_db = nullptr;
-
-_CC_API_PRIVATE(void) open_sqlite() {
-    bool_t is_create_table = false;
-    tchar_t path[_CC_MAX_PATH_];
-    tchar_t sqlite3_file[_CC_MAX_PATH_];
-
-    const tchar_t *createMemoryTable = "CREATE TABLE IF NOT EXISTS `MEMORYS` (" \
-        "`ID`       INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," \
-        "`PTR`      BIGINT          NOT NULL," \
-        "`SIZE`     INTEGER         DEFAULT (0)," \
-        "`METHOD`   VARCHAR(64)     DEFAULT ('-')," \
-        "`Name`     VARCHAR(64)     DEFAULT ('-')," \
-        "`MSG`      TEXT            DEFAULT ('-')," \
-        "`ALLOC_DATE` timestamp NOT NULL DEFAULT(DATETIME('now','localtime'))" \
-    ");"\
-    "CREATE INDEX INDEX_PTR ON MEMORYS (`PTR`);";
-
-    _cc_get_executable_path(path,_CC_MAX_PATH_);
-    _cc_fpath(sqlite3_file,_cc_countof(sqlite3_file), _T("%s.memory.db"), path);
-
-    if (_taccess(sqlite3_file, _CC_ACCESS_F_) == -1) {
-        is_create_table = true;
-    }
-
-    if (sqlite3_open(sqlite3_file, &g_memory_db) != SQLITE_OK) {
-        return ;
-    }
-
-    if (is_create_table) {
-        if (sqlite3_exec(g_memory_db, createMemoryTable, NULL, NULL, nullptr) != SQLITE_OK) {
-            sqlite3_close(g_memory_db);
-            g_memory_db = nullptr;
-        }
-    }
-}
-
-_CC_API_PRIVATE(void) close_sqlite() {
-    sqlite3_close(g_memory_db);
-    g_memory_db = nullptr;
-}
-
 /*
  * Remove a pointer to the rbtree with some key
  */
 _CC_API_PUBLIC(void) __cc_tracked_memory_unlink(uintptr_t ptr) {
-    if (g_memory_db == nullptr) {
-        open_sqlite();
-    }
-    if (g_memory_db) {
-        sqlite3_stmt *stmt;
-        const _cc_String_t delete_sql = _cc_String("DELETE FROM MEMORYS WHERE `PTR` = ?;");
-        if (sqlite3_prepare_v2(g_memory_db, delete_sql.data, (int)delete_sql.length, &stmt, NULL) == SQLITE_OK) {
-            sqlite3_bind_int64(stmt, 1, ptr);
-            sqlite3_step(stmt);
-            sqlite3_finalize(stmt);
-        }
-    }
+
 }
 
 /*
  * Add a pointer to the rbtree with some key
  */
 _CC_API_PUBLIC(void) __cc_tracked_memory(uintptr_t ptr, size_t size, const int _type) {
-    tchar_t buffer[_CC_8K_BUFFER_SIZE_];
-    size_t buffer_length;
-    if (g_memory_db == nullptr) {
-        open_sqlite();
-    }
 
-    buffer_length = _cc_get_resolve_symbol(buffer, _CC_8K_BUFFER_SIZE_);
- 
-    if (g_memory_db) {
-        sqlite3_stmt *stmt;
-        const _cc_String_t *module_name = _cc_get_module_file_name();
-        const _cc_String_t insert_sql = _cc_String("INSERT INTO MEMORYS(`PTR`,`SIZE`,`METHOD`,`NAME`,`MSG`) VALUES (?, ?, ?, ?, ?);");
-        if (sqlite3_prepare_v2(g_memory_db, insert_sql.data, (int)insert_sql.length, &stmt, NULL) == SQLITE_OK) {
-            sqlite3_bind_int64(stmt, 1, ptr);
-            sqlite3_bind_int64(stmt, 2, size);
-            sqlite3_bind_text(stmt, 3, mem_types[_type], -1, SQLITE_STATIC);
-            sqlite3_bind_text(stmt, 4, module_name->data, (int)module_name->length, SQLITE_STATIC);
-            sqlite3_bind_text(stmt, 5, buffer, (int)buffer_length, SQLITE_STATIC);
-            sqlite3_step(stmt);
-            sqlite3_finalize(stmt);
-        }
-    }
 }
 #endif
 /**/

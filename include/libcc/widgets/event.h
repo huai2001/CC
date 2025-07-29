@@ -180,8 +180,6 @@ struct _cc_event_cycle {
     bool_t (*wait)(_cc_event_cycle_t *cycle, uint32_t timeout);
     /**/
     bool_t (*quit)(_cc_event_cycle_t *cycle);
-    /**/
-    void (*cleanup)(_cc_event_cycle_t *cycle, _cc_event_t *e);
 };
 
 /**

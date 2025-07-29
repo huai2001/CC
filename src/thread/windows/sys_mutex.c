@@ -43,7 +43,7 @@ static pfnTryAcquireSRWLockExclusive pTryAcquireSRWLockExclusive = nullptr;
 #endif
 
 /** Create a mutex, initialized unlocked */
-_CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_cs(void) {
+_CC_API_PRIVATE(_cc_mutex_t*) _cc_alloc_mutex_cs(void) {
     /* Allocate mutex memory */
     struct _cc_mutex_cs *mutex = _CC_MALLOC(struct _cc_mutex_cs);
     bzero(mutex, sizeof(struct _cc_mutex_cs));
@@ -58,7 +58,7 @@ _CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_cs(void) {
 }
 
 /** Create a mutex, initialized unlocked */
-_CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_srw(void) {
+_CC_API_PRIVATE(_cc_mutex_t*) _cc_alloc_mutex_srw(void) {
     /* Allocate mutex memory */
     struct _cc_mutex_srw *mutex = _CC_MALLOC(struct _cc_mutex_srw);
     if (mutex) {
@@ -69,14 +69,14 @@ _CC_API_PRIVATE(_cc_mutex_t*) _cc_create_mutex_srw(void) {
 }
 
 /* Free the mutex */
-_CC_API_PRIVATE(void) _cc_destroy_mutex_cs(_cc_mutex_t *mutex_cs) {
+_CC_API_PRIVATE(void) _cc_free_mutex_cs(_cc_mutex_t *mutex_cs) {
     struct _cc_mutex_cs *mutex = (struct _cc_mutex_cs *)mutex_cs;
     DeleteCriticalSection(&mutex->cs);
     _cc_free(mutex_cs);
 }
 
 /* Free the mutex */
-_CC_API_PRIVATE(void) _cc_destroy_mutex_srw(_cc_mutex_t *mutex_srw) {
+_CC_API_PRIVATE(void) _cc_free_mutex_srw(_cc_mutex_t *mutex_srw) {
     _cc_free(mutex_srw);
 }
 
@@ -163,15 +163,15 @@ _CC_API_PRIVATE(bool_t) _cc_mutex_unlock_srw(_cc_mutex_t *mutex_srw) {
     return true;
 }
 
-_cc_mutex_impl_t _cc_mutex_impl_active = {_cc_create_mutex_cs,   _cc_destroy_mutex_cs, _cc_mutex_lock_cs,
+_cc_mutex_impl_t _cc_mutex_impl_active = {_cc_alloc_mutex_cs,   _cc_free_mutex_cs, _cc_mutex_lock_cs,
                                           _cc_mutex_try_lock_cs, _cc_mutex_unlock_cs,  _CC_MUTEX_CS_};
 
 /** Create a mutex, initialized unlocked */
-_CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
+_CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
 #if _CC_WINDOWS_FORCE_MUTEX_CRITICAL_SECTIONS_
 #elif __WINRT__
-    _cc_mutex_impl_active.Create = _cc_create_mutex_srw;
-    _cc_mutex_impl_active.Destroy = _cc_destroy_mutex_srw;
+    _cc_mutex_impl_active.Create = _cc_alloc_mutex_srw;
+    _cc_mutex_impl_active.Destroy = _cc_free_mutex_srw;
     _cc_mutex_impl_active.Lock = _cc_mutex_lock_srw;
     _cc_mutex_impl_active.TryLock = _cc_mutex_try_lock_srw;
     _cc_mutex_impl_active.Unlock = _cc_mutex_unlock_srw;
@@ -189,8 +189,8 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
             pTryAcquireSRWLockExclusive =
                 (pfnTryAcquireSRWLockExclusive)GetProcAddress(kernel32, "TryAcquireSRWLockExclusive");
             if (pReleaseSRWLockExclusive && pAcquireSRWLockExclusive && pTryAcquireSRWLockExclusive) {
-                _cc_mutex_impl_active.Create = _cc_create_mutex_srw;
-                _cc_mutex_impl_active.Destroy = _cc_destroy_mutex_srw;
+                _cc_mutex_impl_active.Create = _cc_alloc_mutex_srw;
+                _cc_mutex_impl_active.Destroy = _cc_free_mutex_srw;
                 _cc_mutex_impl_active.Lock = _cc_mutex_lock_srw;
                 _cc_mutex_impl_active.TryLock = _cc_mutex_try_lock_srw;
                 _cc_mutex_impl_active.Unlock = _cc_mutex_unlock_srw;
@@ -228,11 +228,10 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     return _cc_mutex_impl_active.Unlock(mutex);
 }
 
-_CC_API_PUBLIC(void) _cc_destroy_mutex(_cc_mutex_t **mutex) {
-    if (mutex == nullptr || *mutex == nullptr) {
+_CC_API_PUBLIC(void) _cc_free_mutex(_cc_mutex_t *mutex) {
+    if (mutex == nullptr) {
         _cc_logger_error(_T("Passed a nullptr mutex"));
         return;
     }
-    _cc_mutex_impl_active.Destroy(*mutex);
-    *mutex = nullptr;
+    _cc_mutex_impl_active.Destroy(mutex);
 }

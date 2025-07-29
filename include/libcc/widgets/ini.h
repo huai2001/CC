@@ -67,11 +67,11 @@ _CC_WIDGETS_API(_cc_ini_t*) _cc_ini_find(_cc_ini_t* item, const tchar_t* name);
 /**/
 _CC_WIDGETS_API(const tchar_t*) _cc_ini_find_string(_cc_ini_t* item, const tchar_t* name);
 /**/
-_CC_WIDGETS_API(void) _cc_destroy_ini(_cc_ini_t** ctx);
+_CC_WIDGETS_API(void) _cc_free_ini(_cc_ini_t* ctx);
 /**/
 _CC_WIDGETS_API(const tchar_t*) _cc_ini_error(void);
 /**/
-_CC_WIDGETS_API(_cc_buf_t*) _cc_dump_ini(_cc_ini_t* item);
+_CC_WIDGETS_API(void) _cc_dump_ini(_cc_ini_t* item, _cc_buf_t* buf);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

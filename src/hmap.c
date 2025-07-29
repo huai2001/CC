@@ -172,7 +172,7 @@ _CC_API_PRIVATE(int) _hmap_rehash(_cc_hmap_t *ctx) {
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_hmap_alloc(_cc_hmap_t *ctx, uint32_t initial_size,
+_CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t initial_size,
     _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func) {
     _cc_assert(ctx != nullptr);
     ctx->slots = (int32_t)_cc_aligned_alloc_opt(initial_size, INITIAL_SIZE);
@@ -189,20 +189,6 @@ _CC_API_PUBLIC(bool_t) _cc_hmap_alloc(_cc_hmap_t *ctx, uint32_t initial_size,
     ctx->hash_func = hash_func;
 
     return true;
-}
-/*
- * Return an empty hmap, or nullptr on failure.
- */
-_CC_API_PUBLIC(_cc_hmap_t*) _cc_create_hmap(uint32_t initial_size,
-    _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func) {
-    _cc_hmap_t *ctx = (_cc_hmap_t *)_cc_malloc(sizeof(_cc_hmap_t));
-
-    if (_cc_hmap_alloc(ctx, initial_size,equals_func,hash_func)) {
-        return ctx;
-    }
-
-    _cc_safe_free(ctx);
-    return nullptr;
 }
 
 /*
@@ -316,21 +302,12 @@ _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *ctx) {
 }
 
 /* free the hmap */
-_CC_API_PUBLIC(bool_t) _cc_hmap_free(_cc_hmap_t *ctx) {
+_CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx) {
     _cc_assert(ctx != nullptr);
 
     _cc_safe_free(ctx->data);
 
     return true;
-}
-
-/* Deallocate the hmap */
-_CC_API_PUBLIC(void) _cc_destroy_hmap(_cc_hmap_t **ctx) {
-    if (_cc_hmap_free(*ctx)) {
-        _cc_free((*ctx));
-    }
-
-    (*ctx) = nullptr;
 }
 
 /**/

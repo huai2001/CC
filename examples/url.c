@@ -28,41 +28,39 @@ void url_decode_and_encode() {
 
 int main (int argc, char * const argv[]) {   //
     tchar_t *str = _T("http://usernameabc%u4e2dB%u56fd:123654789.com@[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]/rest/160601/ocr/ocr_idcard.json?uid=100&fid=1#post");
-    _cc_url_t *url;
+    _cc_url_t url;
 
 	//setlocale(LC_ALL, "chs");
 
-    url = _cc_create_url(str);
-    if (url) {
-        _tprintf(_T("scheme:%s\n"),url->scheme.value);
-        _tprintf(_T("host:%s\n"),url->host);
-        _tprintf(_T("port:%d\n"),url->port);
-        _tprintf(_T("path:%s\n"),url->path);
+    if (_cc_alloc_url(&url, str)) {
+        _tprintf(_T("scheme:%s\n"),url.scheme.value);
+        _tprintf(_T("host:%s\n"),url.host);
+        _tprintf(_T("port:%d\n"),url.port);
+        _tprintf(_T("path:%s\n"),url.path);
         /* URL Components (URL-Quoted)*/
-        _tprintf(_T("request:%s\n"),url->request);
-        _tprintf(_T("query:%s\n"),url->query);
-        _tprintf(_T("fragment:%s\n"),url->fragment);
-        _tprintf(_T("username:%s\n"),url->username);
-        _tprintf(_T("password:%s\n"),url->password);
+        _tprintf(_T("request:%s\n"),url.request);
+        _tprintf(_T("query:%s\n"),url.query);
+        _tprintf(_T("fragment:%s\n"),url.fragment);
+        _tprintf(_T("username:%s\n"),url.username);
+        _tprintf(_T("password:%s\n"),url.password);
     }
     
-    _cc_destroy_url(&url);
+    _cc_free_url(&url);
     str = _T("http://usernameabc%u4e2dB%u56fd:dsa%3a%2f%2f%26%3ff%23%25%24%5e553@rm-m5e3c7r12h9rnbqd2jo.mysql.rds.aliyuncs.com:8080");
-    url = _cc_create_url(str);
-    if (url) {
-        _tprintf(_T("scheme:%s\n"),url->scheme.value);
-        _tprintf(_T("host:%s\n"),url->host);
-        _tprintf(_T("port:%d\n"),url->port);
-        _tprintf(_T("path:%s\n"),url->path);
+    if (_cc_alloc_url(&url, str)) {
+        _tprintf(_T("scheme:%s\n"),url.scheme.value);
+        _tprintf(_T("host:%s\n"),url.host);
+        _tprintf(_T("port:%d\n"),url.port);
+        _tprintf(_T("path:%s\n"),url.path);
         /* URL Components (URL-Quoted)*/
-        _tprintf(_T("request:%s\n"),url->request);
-        _tprintf(_T("query:%s\n"),url->query);
-        _tprintf(_T("fragment:%s\n"),url->fragment);
-        _tprintf(_T("username:%s\n"),url->username);
-        _tprintf(_T("password:%s\n"),url->password);
+        _tprintf(_T("request:%s\n"),url.request);
+        _tprintf(_T("query:%s\n"),url.query);
+        _tprintf(_T("fragment:%s\n"),url.fragment);
+        _tprintf(_T("username:%s\n"),url.username);
+        _tprintf(_T("password:%s\n"),url.password);
     }
     
-    _cc_destroy_url(&url);
+    _cc_free_url(&url);
 
     //url_decode_and_encode();
     return 0;

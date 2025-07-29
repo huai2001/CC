@@ -39,13 +39,9 @@ typedef struct _cc_ring {
 } _cc_ring_t;
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_ring_alloc(_cc_ring_t*, int32_t);
+_CC_API_PUBLIC(bool_t) _cc_alloc_ring(_cc_ring_t*, int32_t);
 /**/
-_CC_API_PUBLIC(bool_t) _cc_ring_free(_cc_ring_t*);
-/**/
-_CC_API_PUBLIC(_cc_ring_t*) _cc_create_ring(int32_t);
-/**/
-_CC_API_PUBLIC(void) _cc_destroy_ring(_cc_ring_t**);
+_CC_API_PUBLIC(bool_t) _cc_free_ring(_cc_ring_t*);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_ring_push(_cc_ring_t*, pvoid_t);
 /**/

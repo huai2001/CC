@@ -39,7 +39,7 @@ _cc_String_t json_string = _cc_String(
 void json_P() {
     _cc_json_t *json2;
     _cc_json_t *json = _cc_json_parse((const tchar_t *)json_string.data, json_string.length); //
-    _cc_buf_t *buf = nullptr;
+    _cc_buf_t buf;
 
     //json = _cc_json_alloc_object(_CC_JSON_OBJECT_, nullptr);
     _cc_logger_error("test");
@@ -57,13 +57,13 @@ void json_P() {
         if (json2) {
             //_cc_json_array_remove(json2, 1);
         }
-        buf = _cc_json_dump(json);
-        printf("%s\n\n", (char*)_cc_buf_bytes(buf));
-        _cc_destroy_buf(&buf);
+        _cc_json_dump(json,buf);
+        printf("%s\n\n", (char*)_cc_buf_stringify(&buf));
+        _cc_free_buf(&buf);
     } else {
 		printf("%s\n", _cc_json_error());
 	}
-	_cc_destroy_json(&json);
+	_cc_free_json(json);
     
 }
 
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
     //    //printf("json:%s\n",_cc_json_object_find_string(json, "nickname"));
     //    //for (j = 0; j <LOOP_MAX; j++)
     //    //   _cc_json_object_find_string(json, _T("nickname"));
-    //    _cc_destroy_json(&json);
+    //    _cc_free_json(json);
     //}
     //end = clock();
     //_cc_loggerA_info("CC JSON Parse: %f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);

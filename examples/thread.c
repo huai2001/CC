@@ -58,10 +58,10 @@ int main (int argc, char * const argv[]) {
     int i = 0;
     srand((uint32_t)time(nullptr));
     //_cc_install_memory_tracked();
-    sem = _cc_create_semaphore(0);
+    sem = _cc_alloc_semaphore(0);
 
     for (i = 0; i < MAX_THREAD_COUNT; i++) {
-        _cc_thread_t *t = _cc_create_thread(fn_thread_print, "test print", nullptr);
+        _cc_thread_t *t = _cc_thread(fn_thread_print, "test print", nullptr);
         if (t) {
             _cc_detach_thread(t);
         }

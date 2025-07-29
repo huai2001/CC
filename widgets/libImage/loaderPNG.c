@@ -198,7 +198,7 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
     if (!row_pointers) {
         _cc_logger_error(_T("LOAD PNG: Internal PNG create row pointers failure"));
         png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-        _cc_destroy_image(&image);
+        _cc_free_image(image);
         return nullptr;
     }
 
@@ -216,7 +216,7 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
     if (setjmp(png_jmpbuf(png_ptr))) {
         png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
         _cc_free(row_pointers);
-        _cc_destroy_image(&image);
+        _cc_free_image(image);
         return nullptr;
     }
 

@@ -62,7 +62,7 @@ _CC_API_PUBLIC(void) _cc_free_url_request(_cc_url_request_t *request) {
         _cc_http_free_response_header(&request->response);
     }
 
-    _cc_buf_free(&request->buffer);
+    _cc_free_buf(&request->buffer);
     _cc_free_url(&request->url);
     _cc_free(request);
 }
@@ -242,7 +242,7 @@ _CC_API_PUBLIC(_cc_url_request_t*) _cc_url_request(const tchar_t *url, pvoid_t a
     request->ssl = nullptr;
     request->gzip = nullptr;
     request->handshaking = (request->url.scheme.ident == _CC_SCHEME_HTTPS_);
-    _cc_buf_alloc(&request->buffer, _CC_IO_BUFFER_SIZE_);
+    _cc_alloc_buf(&request->buffer, _CC_IO_BUFFER_SIZE_);
 
     return request;
 }

@@ -37,7 +37,7 @@ static fptrSleepConditionVariableCS pSleepConditionVariableCS = nullptr;
 
 #endif
 /* Create a condition variable */
-_CC_API_PUBLIC(_cc_condition_t*) _cc_create_condition(void) {
+_CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
     _cc_condition_t *cond = _CC_MALLOC(_cc_condition_t);
     bzero(cond, sizeof(_cc_condition_t));
 
@@ -82,15 +82,14 @@ _CC_API_PUBLIC(_cc_condition_t*) _cc_create_condition(void) {
 }
 
 /* Destroy a condition variable */
-_CC_API_PUBLIC(void) _cc_destroy_condition(_cc_condition_t **cond) {
-    if (_cc_likely(*cond)) {
+_CC_API_PUBLIC(void) _cc_free_condition(_cc_condition_t *cond) {
+    if (_cc_likely(cond)) {
 #ifdef _CC_WINDOWS_SUPPORTED_CONDITION_
 
 #else
-        CloseHandle((*cond)->cond_var);
+        CloseHandle(cond->cond_var);
 #endif
-        _cc_free(*cond);
-        *cond = nullptr;
+        _cc_free(cond);
     }
 }
 

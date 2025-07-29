@@ -126,11 +126,12 @@ _CC_FORCE_INLINE_ void _cc_buf_reset(_cc_buf_t *buf) {
 /**
  * @brief Create buf
  *
+ * @param ctx _cc_buf_t structure
  * @param file_name file path
  *
- * @return _cc_buf_t structure
+ * @return true if successful or false on error.
  */
-_CC_API_PUBLIC(_cc_buf_t*) _cc_buf_from_file(const tchar_t* file_name);
+_CC_API_PUBLIC(bool_t) _cc_buf_from_file(_cc_buf_t* buf,const tchar_t* file_name);
 /**
  * @brief Initialize buf
  *
@@ -139,7 +140,7 @@ _CC_API_PUBLIC(_cc_buf_t*) _cc_buf_from_file(const tchar_t* file_name);
  *
  * @return true if successful or false on error.
  */
-_CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t* ctx, size_t initial);
+_CC_API_PUBLIC(bool_t) _cc_alloc_buf(_cc_buf_t* ctx, size_t initial);
 /**
  * @brief free buf
  *
@@ -147,23 +148,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_alloc(_cc_buf_t* ctx, size_t initial);
  *
  * @return true if successful or false on error.
  */
-_CC_API_PUBLIC(bool_t) _cc_buf_free(_cc_buf_t* ctx);
-/**
- * @brief Create buf
- *
- * @param initial Size of buffer
- *
- * @return _cc_buf_t structure
- */
-_CC_API_PUBLIC(_cc_buf_t*) _cc_create_buf(size_t initial);
-/**
- * @brief Destroy buf
- *
- * @param ctx _cc_buf_t structure
- *
- * @return true if successful or false on error.
- */
-_CC_API_PUBLIC(void) _cc_destroy_buf(_cc_buf_t** ctx);
+_CC_API_PUBLIC(bool_t) _cc_free_buf(_cc_buf_t* ctx);
 /**/
 _CC_API_PUBLIC(const tchar_t*) _cc_buf_stringify(_cc_buf_t *ctx, size_t *length);
 /**

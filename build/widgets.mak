@@ -9,14 +9,9 @@ ifdef all
 	url_request = 1
 endif
 
-LIBS	+= cc
+MACROS	+= _CC_WIDGETS_EXPORT_SHARED_LIBRARY_=1
 
 ifdef shared
-	MACROS += _CC_WIDGETS_EXPORT_SHARED_LIBRARY_=1
-	ifdef url_request
-		MACROS += _CC_ENABLE_OPENSSL_=1 
-	endif
-
 	ifeq ($(PLATFORM), windows)
 		LIBS += ssl-3-x64 crypto-3-x64 mysql
 	else ifeq ($(PLATFORM), osx)
@@ -29,9 +24,7 @@ ifdef shared
 		LIBS += sqlite3 
 	endif
 endif
-ifeq ($(PLATFORM), windows)
-	LOCAL_SRC_FILES += $(SRCROOT)/proj.Win/dllmain.c
-endif
+
 #SQLite Download Page
 #https://www.sqlite.org/download.html
 # download：sqlite-amalgamation-3500100.zip sqlit3 header
@@ -51,13 +44,13 @@ endif
 # pacman -S mingw-w64-x86_64-mysql
 ifdef db
 ifeq ($(PLATFORM), osx)
-	MACROS	+= _CC_ENABLE_UNIXODBC_=1
+	MACROS			+= _CC_ENABLE_UNIXODBC_=1
 	INCLUDE_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/include
 	LIBRARY_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/lib
 
 	LOCAL_SRC_FILES += $(SRCROOT)/src/db/sqlsvr.o
 
-	LIBS += odbc
+	LIBS			+= odbc
 
 	LIBRARY_PATH	+= /usr/lib64/mysql
 endif
@@ -103,7 +96,7 @@ LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/json/json.object.o \
 					$(WIDGET_FILES)/json/json.parser.o
 
- LOCAL_SRC_FILES += \
+LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/ini/ini.o \
 					$(WIDGET_FILES)/ini/ini.parser.o
 
@@ -113,6 +106,7 @@ LOCAL_SRC_FILES += \
 endif # --json db--
 
 ifdef url_request
+MACROS			+= _CC_ENABLE_OPENSSL_=1 
 LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/generic/gzip.o \
 					$(WIDGET_FILES)/generic/map.o \

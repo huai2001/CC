@@ -133,12 +133,11 @@ void _destroy_json_object(_cc_json_t *root) {
     _cc_rbtree_destroy(&root->element.uni_object, _json_free_object_rb_node);
 }
 
-_CC_API_PUBLIC(void) _cc_destroy_json(_cc_json_t **item) {
-    if (_cc_unlikely(item == nullptr || *item == nullptr)) {
+_CC_API_PUBLIC(void) _cc_free_json(_cc_json_t *item) {
+    if (_cc_unlikely(item == nullptr)) {
         return;
     }
-    _json_free_node(*item);
-    *item = nullptr;
+    _json_free_node(item);
 }
 
 /**/
@@ -357,16 +356,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_object(_cc_json_t *root, _cc_buf_t *buf, int
     _cc_buf_append(buf, depth_buf, sizeof(tchar_t) * depth);
 }
 
-_CC_API_PUBLIC(_cc_buf_t*) _cc_json_dump(_cc_json_t *item) {
-    _cc_buf_t *buf;
-
-    if (item == nullptr) {
-        return nullptr;
-    }
-
-    buf = _cc_create_buf(_CC_16K_BUFFER_SIZE_);
-    if (_cc_likely(buf)) {
-        _cc_json_dump_value(item, buf, 0);
-    }
-    return buf;
+_CC_API_PUBLIC(void) _cc_json_dump(_cc_json_t *item, _cc_buf_t *buf) {
+    _cc_alloc_buf(buf, _CC_16K_BUFFER_SIZE_);
+    _cc_json_dump_value(item, buf, 0);
 }

@@ -21,7 +21,7 @@
 #include "sys_thread.c.h"
 
 /** Create a mutex, initialized unlocked */
-_CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
+_CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
     _cc_mutex_t *mutex;
     pthread_mutexattr_t attr;
 
@@ -46,11 +46,10 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_create_mutex(void) {
 }
 
 /* Free the mutex */
-_CC_API_PUBLIC(void) _cc_destroy_mutex(_cc_mutex_t **mutex) {
-    if (_cc_likely(*mutex)) {
-        pthread_mutex_destroy(&(*mutex)->ident);
-        _cc_free(*mutex);
-        *mutex = nullptr;
+_CC_API_PUBLIC(void) _cc_free_mutex(_cc_mutex_t *mutex) {
+    if (_cc_likely(mutex)) {
+        pthread_mutex_destroy(&mutex->ident);
+        _cc_free(mutex);
     }
 }
 

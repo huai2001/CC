@@ -76,12 +76,11 @@ _CC_FORCE_INLINE_ uint64_t fileCheck(const tchar_t* fileName, tchar_t* output) {
 
 #define CHUNK_SOURCE 1024
 #define CHUNK_DEST 16384
-_CC_FORCE_INLINE_ _cc_buf_t* _gzip_def(const tchar_t* source_file,
+_CC_FORCE_INLINE_ bool_t _gzip_def(_cc_buf_t *buf, const tchar_t* source_file,
                                        int level,
                                        size_t file_size) {
     int res, flush;
     z_stream strm;
-    _cc_buf_t* buf;
 
     byte_t source[CHUNK_SOURCE];
     byte_t dest[CHUNK_DEST];
@@ -90,7 +89,7 @@ _CC_FORCE_INLINE_ _cc_buf_t* _gzip_def(const tchar_t* source_file,
 
     fp = _tfopen(source_file, _T("rb"));
     if (fp == nullptr) {
-        return nullptr;
+        return false;
     }
 
     /* allocate deflate state */
@@ -102,13 +101,10 @@ _CC_FORCE_INLINE_ _cc_buf_t* _gzip_def(const tchar_t* source_file,
     res = deflateInit2(&strm, level, Z_DEFLATED, MAX_WBITS + 16, MAX_MEM_LEVEL,
                        Z_DEFAULT_STRATEGY);
     if (res != Z_OK) {
-        return nullptr;
+        return false;
     }
 
-    buf = _cc_create_buf(file_size);
-    if (buf == nullptr) {
-        goto DEF_FIAL;
-    }
+    _cc_alloc_buf(buf, file_size);
     /* compress until end of file */
     do {
         strm.avail_in = (uint32_t)fread(source, 1, CHUNK_SOURCE, fp);
@@ -139,18 +135,16 @@ _CC_FORCE_INLINE_ _cc_buf_t* _gzip_def(const tchar_t* source_file,
     (void)deflateEnd(&strm);
     fclose(fp);
 
-    return buf;
+    return true;
 
 DEF_FIAL:
     /* clean up and return */
     (void)deflateEnd(&strm);
     fclose(fp);
 
-    if (buf) {
-        _cc_destroy_buf(&buf);
-    }
-
-    return nullptr;
+    _cc_free_buf(&buf);
+    
+    return false;
 }
 
 _CC_FORCE_INLINE_ int _gzip_inf(const tchar_t* dest_file,
@@ -225,14 +219,12 @@ INF_FIAL:
 }
 
 void _xxtea_decrypt_file(const tchar_t* source_path, const tchar_t* save_path) {
-    _cc_buf_t* fdata;
+    _cc_buf_t fdata;
     byte_t* output;
     size_t output_length;
 
-    fdata = _cc_buf_from_file(source_path);
-
-    if (fdata) {
-        output = _cc_xxtea_decrypt(fdata->bytes, fdata->length, keys,
+    if (_cc_buf_from_file(&fdata,source_path)) {
+        output = _cc_xxtea_decrypt(fdata.bytes, fdata.length, keys,
                                    &output_length);
         if (output) {
             int res = _gzip_inf(save_path, output, output_length);
@@ -245,12 +237,12 @@ void _xxtea_decrypt_file(const tchar_t* source_path, const tchar_t* save_path) {
         } else {
             printf("_cc_xxtea_decrypt fail. %s\n", source_path);
         }
-        _cc_destroy_buf(&fdata);
+        _cc_free_buf(&fdata);
     }
 }
 
 void _xxtea_encrypt_file(const tchar_t* source_path, const tchar_t* save_path) {
-    _cc_buf_t* fdata;
+    _cc_buf_t fdata;
     byte_t* output;
     size_t output_length;
 
@@ -260,13 +252,11 @@ void _xxtea_encrypt_file(const tchar_t* source_path, const tchar_t* save_path) {
         return;
     }
 
-    fdata = _gzip_def(source_path, Z_DEFAULT_COMPRESSION, CHUNK_DEST);
-
-    if (fdata) {
+    if (_gzip_def(&fdata, source_path, Z_DEFAULT_COMPRESSION, CHUNK_DEST)) {
         size_t left;
         size_t bytes_write;
         output_length = 0;
-        output = _cc_xxtea_encrypt(fdata->bytes, fdata->length, keys,
+        output = _cc_xxtea_encrypt(fdata.bytes, fdata.length, keys,
                                    &output_length);
         if (output && output_length > 0) {
             left = 0;
@@ -289,7 +279,7 @@ void _xxtea_encrypt_file(const tchar_t* source_path, const tchar_t* save_path) {
         } else {
             printf("_cc_xxtea_encrypt fail. %s\n", source_path);
         }
-        _cc_destroy_buf(&fdata);
+        _cc_free_buf(&fdata);
     } else {
         printf("_gzip_def fail. %s\n", source_path);
     }
@@ -343,35 +333,33 @@ static int print_usage(void) {
 
 
 static void _injectJS(const tchar_t *source_path, const tchar_t* save_path) {
-    _cc_buf_t *buf;
-    _cc_buf_t *inject_file;
+    _cc_buf_t buf;
+    _cc_buf_t inject_file;
     _cc_buf_t modify;
     tchar_t *packageUrl;
     size_t pos = 0;
     FILE *wf;
 
     // 解压注入
-    inject_file = _cc_buf_from_file(_T("./inject.js"));
-    if (inject_file == nullptr) {
+    if (!_cc_buf_from_file(&inject_file,_T("./inject.js"))) {
         return;
     }
 
-    buf = _cc_buf_from_file(source_path);
-    if (buf == nullptr) {
+    if (!_cc_buf_from_file(&buf,  source_path)) {
         return;
     }
-    _cc_buf_alloc(&modify, buf->length + 2480 + inject_file->length);
-    packageUrl = _tcsstr((tchar_t *)buf->bytes, "updateManifestUrls: function(");
+    _cc_alloc_buf(&modify, buf.length + 2480 + inject_file.length);
+    packageUrl = _tcsstr((tchar_t *)buf.bytes, "updateManifestUrls: function(");
     if (packageUrl) {
         _cc_AString_t updateManifestUrls = _cc_String(
             "updateManifestUrls: function(e, t, n){return this.old_updateManifestUrls(e,dyad.packageUrl,n);},old_");
-        pos = (size_t)(packageUrl - (tchar_t *)buf->bytes);
-        _cc_buf_append(&modify, buf->bytes, pos);
+        pos = (size_t)(packageUrl - (tchar_t *)buf.bytes);
+        _cc_buf_append(&modify, buf.bytes, pos);
         _cc_buf_append(&modify, updateManifestUrls.data, updateManifestUrls.length);
-        _cc_buf_append(&modify, buf->bytes + pos, buf->length - pos);
+        _cc_buf_append(&modify, buf.bytes + pos, buf.length - pos);
     }
 
-    _cc_buf_append(&modify, inject_file->bytes, inject_file->length);
+    _cc_buf_append(&modify, inject_file.bytes, inject_file.length);
 
     wf = _tfopen(source_path, _T("wb"));
     if (wf) {
@@ -380,9 +368,9 @@ static void _injectJS(const tchar_t *source_path, const tchar_t* save_path) {
     }
 
     _xxtea_encrypt_file(source_path, save_path);
-    _cc_buf_free(&modify);
-    _cc_destroy_buf(&buf);
-    _cc_destroy_buf(&inject_file);
+    _cc_free_buf(&modify);
+    _cc_free_buf(&buf);
+    _cc_free_buf(&inject_file);
 }
 
 int main(int argc, char* const argv[]) {

@@ -267,9 +267,8 @@ static void _xml_free(_cc_xml_t *ctx) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_destroy_xml(_cc_xml_t **ctx) {
-    _xml_free(*ctx);
-    *ctx = nullptr;
+_CC_API_PUBLIC(void) _cc_free_xml(_cc_xml_t *ctx) {
+    _xml_free(ctx);
 }
 
 /**/
@@ -329,14 +328,11 @@ static void _dump_xml_buffer(_cc_xml_t *XML, int32_t depth, _cc_buf_t *buf) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_buf_t*) _cc_dump_xml(_cc_xml_t *XML) {
+_CC_API_PUBLIC(void) _cc_dump_xml(_cc_xml_t *XML,_cc_buf_t *buf) {
     _cc_list_iterator_t *v;
-    _cc_buf_t *buf = _cc_create_buf(_CC_16K_BUFFER_SIZE_);
-    if (_cc_likely(buf)) {
-        _cc_buf_puts(buf, _T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
-        _cc_list_iterator_for(v, &XML->element.uni_child) {
-            _dump_xml_buffer(_cc_upcast(v, _cc_xml_t, lnk), 0, buf);
-        }
+    _cc_alloc_buf(buf,_CC_16K_BUFFER_SIZE_);
+    _cc_buf_puts(buf, _T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
+    _cc_list_iterator_for(v, &XML->element.uni_child) {
+        _dump_xml_buffer(_cc_upcast(v, _cc_xml_t, lnk), 0, buf);
     }
-    return buf;
 }

@@ -447,18 +447,17 @@ _cc_image_t* _cc_init_image(uint32_t format, uint32_t width, uint32_t height) {
 
 _cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
     _cc_image_t *img = nullptr;
-    _cc_buf_t *buf;
+    _cc_buf_t buf;
     _cc_image_filetype_t filetype;
 
-    buf = _cc_buf_from_file(file_name);
-    if (buf == nullptr) {
+    if (!_cc_buf_from_file(&buf,file_name)) {
         return nullptr;
     }
 
-    filetype = _cc_get_imagetypes( buf->bytes, (int32_t)buf->length );
+    filetype = _cc_get_imagetypes( buf.bytes, (int32_t)buf.length );
     
     if (filetype == _CC_IMAGE_FILETYPE_UNKNOWN_) {
-        _cc_destroy_buf(&buf);
+        _cc_free_buf(&buf);
         _cc_logger_error(_T("Image file type(%d) unknown :%s"), filetype, file_name);
 
         return nullptr;
@@ -466,49 +465,49 @@ _cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
 
     switch(filetype) {
         case _CC_IMAGE_FILETYPE_BMP_:
-            img = _cc_load_BMP( buf->bytes, (int32_t)buf->length );
+            img = _cc_load_BMP( buf.bytes, (int32_t)buf.length );
             break;
 #ifdef _CC_3RD_LIBPNG_
         case _CC_IMAGE_FILETYPE_PNG_:
-            img = _cc_load_PNG( buf->bytes, (int32_t)buf->length );
+            img = _cc_load_PNG( buf.bytes, (int32_t)buf.length );
             break;
 #endif
 #ifdef _CC_3RD_LIBJPG_
         case _CC_IMAGE_FILETYPE_JPEG_:
         case _CC_IMAGE_FILETYPE_JP2_:
-            img = _cc_load_JPG( buf->bytes, (int32_t)buf->length );
+            img = _cc_load_JPG( buf.bytes, (int32_t)buf.length );
             break;
 #endif
         case _CC_IMAGE_FILETYPE_PCX_:
-            img = _cc_load_PCX( buf->bytes, (int32_t)buf->length );
+            img = _cc_load_PCX( buf.bytes, (int32_t)buf.length );
             break;
         case _CC_IMAGE_FILETYPE_TGA_:
-            img = _cc_load_TGA( buf->bytes, (int32_t)buf->length );
+            img = _cc_load_TGA( buf.bytes, (int32_t)buf.length );
             break;
         default:
             _cc_logger_error(_T("Unable to load image file:%s"), file_name);
             break;
     }
 
-    _cc_destroy_buf(&buf);
+    _cc_free_buf(&buf);
 
     return img;
 }
 
-bool_t _cc_destroy_image( _cc_image_t** image ) {
-    if ( image == nullptr || (*image) == nullptr )
+bool_t _cc_free_image( _cc_image_t* image ) {
+    if ( image == nullptr) {
         return false;
-
-    _cc_safe_free((*image)->data);
-
-    if ((*image)->palette.data && (*image)->palette.size > 0) {
-        _cc_free((*image)->palette.data);
-        (*image)->palette.data = nullptr;
-        (*image)->palette.size = 0;
     }
-    _cc_free((*image));
-    (*image)=nullptr;
 
+    _cc_safe_free(image->data);
+
+    if (image->palette.data && image->palette.size > 0) {
+        _cc_free(image->palette.data);
+        image->palette.data = nullptr;
+        image->palette.size = 0;
+    }
+
+    _cc_free(image);
     return true;
 }
 
