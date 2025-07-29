@@ -306,7 +306,7 @@ _CC_API_PRIVATE(void) _event_link_free(_cc_event_cycle_t *cycle, _cc_list_iterat
 
         e = _cc_upcast(curr, _cc_event_t, lnk);
         if (e->callback) {
-            e->callback(cycle, e, _CC_EVENT_DELETED_);
+            e->callback(cycle, e, _CC_EVENT_DISCONNECT_);
         }
         _cc_free_event(cycle, e);
     }
@@ -379,7 +379,7 @@ _CC_API_PUBLIC(bool_t) _event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e,
             return true;
         }
 
-        e->callback(cycle, e, _CC_EVENT_DELETED_);
+        e->callback(cycle, e, _CC_EVENT_DISCONNECT_);
     }
 
 

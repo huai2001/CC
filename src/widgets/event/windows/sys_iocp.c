@@ -317,8 +317,11 @@ _CC_API_PRIVATE(void) _iocp_event_dispatch(_cc_event_cycle_t *cycle, _iocp_overl
     _cc_event_t *e = iocp_overlapped->e;
     uint16_t which = _CC_EVENT_IS_SOCKET(iocp_overlapped->flag);
 
-    _CC_UNSET_BIT(iocp_overlapped->flag, e->marks);
+    if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags)) {
+        return ;
+    }
 
+    _CC_UNSET_BIT(iocp_overlapped->flag, e->marks);
     if (iocp_overlapped->flag == _CC_EVENT_ACCEPT_) {
         e->accept_fd = iocp_overlapped->fd;
     } else if (iocp_overlapped->flag == _CC_EVENT_CONNECT_) {

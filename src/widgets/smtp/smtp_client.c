@@ -17,7 +17,6 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle, _cc_eve
         _tprintf(_T("%d connect to server .\n"), e->fd);
 
         if (!_cc_smtp_connected(smtp)) {
-            network_event_close(cycle, e);
             return false;
         }
         if (which == _CC_EVENT_CONNECTED_) {
@@ -37,7 +36,6 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle, _cc_eve
     if (which & _CC_EVENT_READABLE_) {
         if (!_cc_event_recv(e)) {
             _tprintf(_T("TCP close %d\n"), e->fd);
-            network_event_close(cycle, e);
             return false;
         }
 
@@ -69,7 +67,6 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle, _cc_eve
     /*连接超时*/
     if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
-        network_event_close(cycle, e);
         return false;
     }
 
