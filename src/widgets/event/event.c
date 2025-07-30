@@ -305,7 +305,7 @@ _CC_API_PRIVATE(void) _event_link_free(_cc_event_cycle_t *cycle, _cc_list_iterat
         next = next->next;
 
         e = _cc_upcast(curr, _cc_event_t, lnk);
-        if (e->callback) {
+        if (e->callback && ((e->flags & _CC_EVENT_DISCONNECT_) == 0)) {
             e->callback(cycle, e, _CC_EVENT_DISCONNECT_);
         }
         _cc_free_event(cycle, e);
@@ -379,9 +379,10 @@ _CC_API_PUBLIC(bool_t) _event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e,
             return true;
         }
 
-        e->callback(cycle, e, _CC_EVENT_DISCONNECT_);
+        if ((which & _CC_EVENT_DISCONNECT_) == 0) {
+            e->callback(cycle, e, _CC_EVENT_DISCONNECT_);
+        }
     }
-
 
     /*force disconnect socket*/
     _CC_MODIFY_BIT(_CC_EVENT_DISCONNECT_, _CC_EVENT_READABLE_|_CC_EVENT_ACCEPT_, e->flags);
