@@ -46,6 +46,11 @@ typedef struct {
     (x).data = _str;\
 } while (0)
 
+#define _cc_String_Null(_str) do { \
+    (_str)->length = 0;\
+    (_str)->data = nullptr;\
+} while(0)
+
 /*for porting from GCC compilers*/
 #ifndef _CC_MSVC_
     #include <stdarg.h>
