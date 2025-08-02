@@ -71,7 +71,7 @@ struct _cc_json {
 #define _CC_JSON_RETURN_VALUE(O, T, V)                                                                                 \
     do {                                                                                                               \
         if (O && O->type == T) {                                                                                       \
-            return O->element.V;                                                                                        \
+            return O->element.V;                                                                                       \
         }                                                                                                              \
     } while (0)
 
