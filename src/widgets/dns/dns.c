@@ -26,12 +26,12 @@ static int dns_server_count = 0;
 
 _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *);
 
-static uint8_t *dns_read_rdata(uint8_t *, uint8_t *, _cc_dns_record_t *);
+_CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *, uint8_t *, _cc_dns_record_t *);
 /*
  * This will convert 3www6google3com to www.google.com
  * got it :)
  * */
-int _domain(char_t *buf, int dest_length) {
+_CC_API_PRIVATE(int) _domain(char_t *buf, int dest_length) {
     int i, j, offset;
     for (i = 0; i < dest_length; i++) {
         offset = (int)buf[i];
@@ -45,7 +45,7 @@ int _domain(char_t *buf, int dest_length) {
     return i;
 }
 
-int _build_question(uint8_t *buf, const char_t *host, int type) {
+_CC_API_PRIVATE(int) _build_question(uint8_t *buf, const char_t *host, int type) {
     int offset;
     struct QUESTION *q;
     char_t *p;
@@ -106,62 +106,32 @@ _CC_API_PRIVATE(void) dump_type(const byte_t *rdata, const uint16_t type) {
 
 _CC_API_PRIVATE(void) dump(const _cc_dns_t *dns) {
     // print answers
+    int16_t i;
     _tprintf(_T("Answer Records : %d \n"), dns->header.answer);
 
-    _cc_list_iterator_for_each(v, &dns->answers, {
-        _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
+    for ( i = 0; i < dns->header.answer; i++) {
+        _cc_dns_record_t *r = dns->answers[i];
         _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
         dump_type(r->rdata, r->type);
-    });
+    }
 
     // print authorities
     _tprintf(_T("Authoritive Records : %d \n"), dns->header.author);
 
-    _cc_list_iterator_for_each(v, &dns->authorities, {
-        _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
+    for ( i = 0; i < dns->header.author; i++) {
+        _cc_dns_record_t *r = dns->authorities[i];
         _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
-        if (r->type == _CC_DNS_T_NS_) {
-            printf("has nameserver : %s\n", (char_t *)r->rdata);
-        }
-    });
+        dump_type(r->rdata, r->type);
+    }
 
     // print additional resource records
     _tprintf(_T("Additional Records : %d \n"), dns->header.addition);
 
-    _cc_list_iterator_for_each(v, &dns->additional, {
-        _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
+    for ( i = 0; i < dns->header.addition; i++) {
+        _cc_dns_record_t *r = dns->additional[i];
         _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
         dump_type(r->rdata, r->type);
-    });
-}
-
-void _cc_dns_free(_cc_dns_t *dns) {
-    dump(dns);
-
-    _cc_list_iterator_for_each(v, &dns->answers, {
-        _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
-        _cc_free(r->name);
-        _cc_free(r->rdata);
-        _cc_free(r);
-    });
-
-    _cc_list_iterator_for_each(v, &dns->authorities, {
-        _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
-        _cc_free(r->name);
-        _cc_free(r->rdata);
-        _cc_free(r);
-    });
-
-    _cc_list_iterator_for_each(v, &dns->additional, {
-        _cc_dns_record_t *r = _cc_upcast(v, _cc_dns_record_t, lnk);
-        _cc_free(r->name);
-        _cc_free(r->rdata);
-        _cc_free(r);
-    });
-
-    _cc_list_iterator_cleanup(&dns->answers);
-    _cc_list_iterator_cleanup(&dns->authorities);
-    _cc_list_iterator_cleanup(&dns->additional);
+    }
 }
 
 _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t which) {
@@ -173,6 +143,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_eve
         struct sockaddr_in dest;
         socklen_t sa_len = (socklen_t)sizeof(struct sockaddr_in);
         _cc_dns_header_t *header;
+        _cc_dns_record_t **record;
         _cc_dns_t *dns = (_cc_dns_t *)e->args;
         int16_t error_code = 0;
 
@@ -283,40 +254,40 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_eve
 
         reader = &buffer[offset];
 
+        record = (_cc_dns_record_t **)_cc_calloc(dns->header.answer,sizeof(_cc_dns_record_t));
+        dns->answers = record;
         // Start reading answers
         for (i = 0; i < dns->header.answer; i++) {
-            _cc_dns_record_t *r = (_cc_dns_record_t *)_cc_malloc(sizeof(_cc_dns_record_t));
+            _cc_dns_record_t *r = record[i];
             reader = dns_read_rdata(reader, buffer, r);
             if (reader == nullptr) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
-                _cc_free(r);
                 return false;
             }
-            _cc_list_iterator_push_front(&dns->answers, &r->lnk);
         }
 
+        record = (_cc_dns_record_t **)_cc_calloc(dns->header.author,sizeof(_cc_dns_record_t));
+        dns->answers = record;
         // read authorities
         for (i = 0; i < dns->header.author; i++) {
-            _cc_dns_record_t *r = (_cc_dns_record_t *)_cc_malloc(sizeof(_cc_dns_record_t));
+            _cc_dns_record_t *r = record[i];
             reader = dns_read_rdata(reader, buffer, r);
             if (reader == nullptr) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
-                _cc_free(r);
                 return false;
             }
-            _cc_list_iterator_push_front(&dns->authorities, &r->lnk);
         }
 
+        record = (_cc_dns_record_t **)_cc_calloc(dns->header.addition,sizeof(_cc_dns_record_t));
+        dns->additional = record;
         // read additional
         for (i = 0; i < dns->header.addition; i++) {
-            _cc_dns_record_t *r = (_cc_dns_record_t *)_cc_malloc(sizeof(_cc_dns_record_t));
+            _cc_dns_record_t *r = record[i];
             reader = dns_read_rdata(reader, buffer, r);
             if (reader == nullptr) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
-                _cc_free(r);
                 return false;
             }
-            _cc_list_iterator_push_front(&dns->additional, &r->lnk);
         }
         dump(dns);
         return true;
@@ -337,9 +308,10 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
     _cc_dns_header_t *header;
 
     struct sockaddr_in dest;
-    _cc_list_iterator_cleanup(&dns->answers);
-    _cc_list_iterator_cleanup(&dns->authorities);
-    _cc_list_iterator_cleanup(&dns->additional);
+
+    dns->answers = nullptr;
+    dns->authorities = nullptr;
+    dns->additional = nullptr;
 
     // UDP packet for DNS queries
     dns_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -381,6 +353,44 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
     return 0;
 }
 
+void _cc_dns_free(_cc_dns_t *dns) {
+    int16_t i;
+    dump(dns);
+
+    for ( i = 0; i < dns->header.answer; i++) {
+        _cc_dns_record_t *r = dns->answers[i];
+        _cc_free(r->name);
+        _cc_free(r->rdata);
+        _cc_free(r);
+    }
+
+    for ( i = 0; i < dns->header.author; i++) {
+        _cc_dns_record_t *r = dns->authorities[i];
+        _cc_free(r->name);
+        _cc_free(r->rdata);
+        _cc_free(r);
+    }
+
+    for ( i = 0; i < dns->header.addition; i++) {
+        _cc_dns_record_t *r = dns->additional[i];
+        _cc_free(r->name);
+        _cc_free(r->rdata);
+        _cc_free(r);
+    }
+
+    _cc_free(dns->answers);
+    _cc_free(dns->authorities);
+    _cc_free(dns->additional);
+
+    dns->answers = nullptr;
+    dns->authorities = nullptr;
+    dns->additional = nullptr;
+
+    dns->header.answer = 0;
+    dns->header.author = 0;
+    dns->header.addition = 0;
+}
+
 /*
  *
  * */
@@ -397,7 +407,7 @@ _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *addr) {
 /*
  *
  * */
-static uint8_t *dns_read_rdata(uint8_t *reader, uint8_t *buffer, _cc_dns_record_t *rescord) {
+_CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, _cc_dns_record_t *rescord) {
     int stop;
     struct R_DATA *r;
 
@@ -431,7 +441,7 @@ static uint8_t *dns_read_rdata(uint8_t *reader, uint8_t *buffer, _cc_dns_record_
 /*
  *
  * */
-uint8_t *dns_read_name(uint8_t *reader, uint8_t *buffer, int *count) {
+_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *reader, uint8_t *buffer, int *count) {
     int offset;
     bool_t jumped = false;
     char_t name[256];

@@ -54,16 +54,14 @@ typedef struct _cc_dns_record {
     uint16_t length;
     uint32_t ttl;
     byte_t* rdata;
-    
-    _cc_list_iterator_t lnk;
 } _cc_dns_record_t;
 
 typedef struct _cc_dns {
     uint16_t error_code;
     _cc_dns_header_t header;
-    _cc_list_iterator_t answers;
-    _cc_list_iterator_t authorities;
-    _cc_list_iterator_t additional;
+    _cc_dns_record_t **answers;
+    _cc_dns_record_t **authorities;
+    _cc_dns_record_t **additional;
 
     _cc_rbtree_iterator_t lnk;
 } _cc_dns_t;

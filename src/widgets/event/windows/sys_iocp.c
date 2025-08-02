@@ -61,7 +61,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_accept_event(_iocp_overlapped_t *iocp_overla
 
     iocp_overlapped->flag = _CC_EVENT_ACCEPT_;
     result = _WSA_socket_accept(iocp_overlapped);
-    if (_cc_unlikely(NO_ERROR != result)) {
+    if (NO_ERROR != result) {
         _CC_UNSET_BIT(_CC_EVENT_ACCEPT_, iocp_overlapped->e->marks);
         _cc_logger_warin(_T("_WSA_socket_accept:%d, %s\n"), result, _cc_last_error(result));
         return false;
@@ -80,7 +80,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_write_event(_iocp_overlapped_t *iocp_overlap
 
     iocp_overlapped->flag = _CC_EVENT_WRITABLE_;
     result = _WSA_socket_send(iocp_overlapped);
-    if (_cc_unlikely(result != NO_ERROR)) {
+    if (result != NO_ERROR) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, iocp_overlapped->e->marks);
         _cc_logger_error(_T("WSASend fail:%d, %s\n"), result, _cc_last_error(result));
         return false;
@@ -98,7 +98,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_receive_event(_iocp_overlapped_t *iocp_overl
     }
     iocp_overlapped->flag = _CC_EVENT_READABLE_;
     result = _WSA_socket_receive(iocp_overlapped);
-    if (_cc_unlikely(result != NO_ERROR)) {
+    if (result != NO_ERROR) {
         _CC_UNSET_BIT(_CC_EVENT_READABLE_, iocp_overlapped->e->marks);
         _cc_logger_error(_T("_WSAReceive fail:%d, %s\n"), result, _cc_last_error(result));
         return false;
@@ -123,7 +123,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_update(_cc_event_cycle_t *cycle, _cc_event_t
         }
 
         fd = WSASocket(AF_INET, SOCK_STREAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
-        if (_cc_unlikely(fd == _CC_INVALID_SOCKET_)) {
+        if (fd == _CC_INVALID_SOCKET_) {
             int result = _cc_last_errno();
             _cc_logger_error(_T("WSASocket fail:%d, %s\n"), result, _cc_last_error(result));
             return false;

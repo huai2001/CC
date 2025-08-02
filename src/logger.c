@@ -74,6 +74,8 @@ _CC_API_PRIVATE(void) _outputA_log(uint8_t level, const char_t *msg, size_t leng
     fputs(msg, stdout);
     fputs("\n", stdout);
 #endif
+    
+    _cc_syslogA(level, msg, length);
 }
 
 _CC_API_PRIVATE(void) _outputW_log(uint8_t level, const wchar_t *msg, size_t length) {
@@ -86,15 +88,15 @@ _CC_API_PRIVATE(void) _outputW_log(uint8_t level, const wchar_t *msg, size_t len
     fputws(msg, stdout);
     fputws(L"\n", stdout);
 #endif
+
+    _cc_syslogW(level, msg, length);
 }
 
 _CC_API_PUBLIC(void) _cc_loggerA(uint8_t level, const char_t *msg) {
-    _cc_syslogA(level, msg, strlen(msg));
     _outputA_log(level, msg, strlen(msg));
 }
 
 _CC_API_PUBLIC(void) _cc_loggerW(uint8_t level, const wchar_t *msg) {
-    _cc_syslogW(level, msg, wcslen(msg));
     _outputW_log(level, msg, wcslen(msg));
 }
 
