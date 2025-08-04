@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/alloc.h>
-#include <libcc/base58.h>
+#include <libcc/crypto/base58.h>
 
 /* {{{ base58 tables */
 //"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";

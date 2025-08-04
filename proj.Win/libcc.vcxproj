@@ -148,14 +148,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\aes.c" />
     <ClCompile Include="..\src\alloc.c" />
     <ClCompile Include="..\src\array.c" />
     <ClCompile Include="..\src\atomic\atomic.c" />
     <ClCompile Include="..\src\atomic\rwlock.c" />
-    <ClCompile Include="..\src\base16.c" />
-    <ClCompile Include="..\src\base58.c" />
-    <ClCompile Include="..\src\base64.c" />
     <ClCompile Include="..\src\core\file.c" />
     <ClCompile Include="..\src\core\generic.c" />
     <ClCompile Include="..\src\core\cpu_info.c" />
@@ -167,24 +163,29 @@
     <ClCompile Include="..\src\core\windows\sys_file.c" />
     <ClCompile Include="..\src\core\windows\sys_locale.c" />
     <ClCompile Include="..\src\crc.c" />
-    <ClCompile Include="..\src\des.c" />
-    <ClCompile Include="..\src\hmac.c" />
     <ClCompile Include="..\src\list.c" />
     <ClCompile Include="..\src\hmap.c" />
     <ClCompile Include="..\src\loadso\windows\sys_loadso.c" />
     <ClCompile Include="..\src\logger.c" />
     <ClCompile Include="..\src\syslog.c" />
-    <ClCompile Include="..\src\md2.c" />
-    <ClCompile Include="..\src\md4.c" />
-    <ClCompile Include="..\src\md5.c" />
     <ClCompile Include="..\src\power\power.c" />
     <ClCompile Include="..\src\power\windows\sys_power.c" />
     <ClCompile Include="..\src\rand.c" />
     <ClCompile Include="..\src\rbtree.c" />
     <ClCompile Include="..\src\ring.c" />
-    <ClCompile Include="..\src\sha1.c" />
-    <ClCompile Include="..\src\sha256.c" />
-    <ClCompile Include="..\src\sha512.c" />
+    <ClCompile Include="..\src\crypto\des.c" />
+    <ClCompile Include="..\src\crypto\aes.c" />
+    <ClCompile Include="..\src\crypto\base16.c" />
+    <ClCompile Include="..\src\crypto\base58.c" />
+    <ClCompile Include="..\src\crypto\base64.c" />
+    <ClCompile Include="..\src\crypto\hmac.c" />
+    <ClCompile Include="..\src\crypto\md2.c" />
+    <ClCompile Include="..\src\crypto\md4.c" />
+    <ClCompile Include="..\src\crypto\md5.c" />
+    <ClCompile Include="..\src\crypto\sha1.c" />
+    <ClCompile Include="..\src\crypto\sha256.c" />
+    <ClCompile Include="..\src\crypto\sha512.c" />
+    <ClCompile Include="..\src\crypto\xxtea.c" />
     <ClCompile Include="..\src\queue.c" />
     <ClCompile Include="..\src\socket\inet.c" />
     <ClCompile Include="..\src\socket\socket.c" />
@@ -202,22 +203,18 @@
     <ClCompile Include="..\src\url.c" />
     <ClCompile Include="..\src\UTF.c" />
     <ClCompile Include="..\src\uuid.c" />
-    <ClCompile Include="..\src\xxtea.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\libcc\aes.h" />
     <ClInclude Include="..\include\libcc\alloc.h" />
     <ClInclude Include="..\include\libcc\array.h" />
     <ClInclude Include="..\include\libcc\atomic.h" />
-    <ClInclude Include="..\include\libcc\base16.h" />
-    <ClInclude Include="..\include\libcc\base64.h" />
+    <ClInclude Include="..\include\libcc\buf.h" />
     <ClInclude Include="..\include\libcc\generic.h" />
     <ClInclude Include="..\include\libcc\core\compiler.h" />
     <ClInclude Include="..\include\libcc\core\platform.h" />
     <ClInclude Include="..\include\libcc\core\cpu_info.h" />
     <ClInclude Include="..\include\libcc\core\file.h" />
     <ClInclude Include="..\include\libcc\core\windows\sys_flock.h" />
-    <ClInclude Include="..\include\libcc\des.h" />
     <ClInclude Include="..\include\libcc\dirent.h" />
     <ClInclude Include="..\include\libcc\list.h" />
     <ClInclude Include="..\include\libcc\endian.h" />
@@ -226,15 +223,11 @@
     <ClInclude Include="..\include\libcc\logger.h" />
     <ClInclude Include="..\include\libcc\syslog.h" />
     <ClInclude Include="..\include\libcc\math.h" />
-    <ClInclude Include="..\include\libcc\md2.h" />
-    <ClInclude Include="..\include\libcc\md4.h" />
-    <ClInclude Include="..\include\libcc\md5.h" />
     <ClInclude Include="..\include\libcc\mutex.h" />
     <ClInclude Include="..\include\libcc\power.h" />
     <ClInclude Include="..\include\libcc\rand.h" />
     <ClInclude Include="..\include\libcc\rbtree.h" />
     <ClInclude Include="..\include\libcc\ring.h" />
-    <ClInclude Include="..\include\libcc\sha.h" />
     <ClInclude Include="..\include\libcc\queue.h" />
     <ClInclude Include="..\include\libcc\socket\socket.h" />
     <ClInclude Include="..\include\libcc\socket\windows\sys_iocp.h" />
@@ -252,11 +245,19 @@
     <ClInclude Include="..\include\libcc\uuid.h" />
     <ClInclude Include="..\include\libcc\version.h" />
     <ClInclude Include="..\include\libcc.h" />
-    <ClInclude Include="..\include\libcc\base58.h" />
-    <ClInclude Include="..\include\libcc\buf.h" />
+    <ClInclude Include="..\include\libcc\crypto\aes.h" />
+    <ClInclude Include="..\include\libcc\crypto\des.h" />
+    <ClInclude Include="..\include\libcc\crypto\base16.h" />
+    <ClInclude Include="..\include\libcc\crypto\base58.h" />
+    <ClInclude Include="..\include\libcc\crypto\base64.h" />
+    <ClInclude Include="..\include\libcc\crypto\md2.h" />
+    <ClInclude Include="..\include\libcc\crypto\md4.h" />
+    <ClInclude Include="..\include\libcc\crypto\md5.h" />
+    <ClInclude Include="..\include\libcc\crypto\hmac.h" />
+    <ClInclude Include="..\include\libcc\crypto\sha.h" />
+    <ClInclude Include="..\include\libcc\crypto\xxtea.h" />
     <ClInclude Include="..\include\libcc\core\windows.h" />
     <ClInclude Include="..\include\libcc\core\windows\sys_mmap.h" />
-    <ClInclude Include="..\src\thread\windows\sys_thread.c.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

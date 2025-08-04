@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/md2.h>
+#include <libcc/crypto/md2.h>
 #include <libcc/string.h>
 
 static const byte_t PI_SUBST[256] = {

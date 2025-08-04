@@ -54,6 +54,9 @@
     <Filter Include="src\loadso">
       <UniqueIdentifier>{5eb08e38-1199-4cd2-90cf-182e25225abc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\crypto">
+      <UniqueIdentifier>{6bd3cb15-4286-96fa-baa3-03a4d71313ba}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\loadso\windows">
       <UniqueIdentifier>{a7569514-27dc-407b-852b-06b153da227f}</UniqueIdentifier>
     </Filter>
@@ -72,27 +75,15 @@
     <Filter Include="include\libcc\socket\windows">
       <UniqueIdentifier>{9e86c5c1-7478-457b-9932-057c5fe3a05d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\libcc\crypto">
+      <UniqueIdentifier>{cf9c1ac4-79b8-972b-bdc0-4fe20c7d6c88}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\aes.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\array.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\base58.c">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\base64.c">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\des.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\list.c">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\md5.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\rand.c">
@@ -158,20 +149,47 @@
     <ClCompile Include="..\src\socket\socket.c">
       <Filter>src\socket</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\sha1.c">
+    <ClCompile Include="..\src\crypto\aes.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\des.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\base16.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\base58.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\base64.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\hmap.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\sha256.c">
-      <Filter>src</Filter>
+    <ClCompile Include="..\src\crypto\xxtea.c">
+      <Filter>src\crypto</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\sha512.c">
-      <Filter>src</Filter>
+    <ClCompile Include="..\src\crypto\hmac.c">
+      <Filter>src\crypto</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\md2.c">
-      <Filter>src</Filter>
+    <ClCompile Include="..\src\crypto\sha1.c">
+      <Filter>src\crypto</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\md4.c">
-      <Filter>src</Filter>
+    <ClCompile Include="..\src\crypto\sha256.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\sha512.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\md2.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\md4.c">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\crypto\md5.c">
+      <Filter>src\crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\src\time\time.c">
       <Filter>src\time</Filter>
@@ -203,12 +221,6 @@
     <ClCompile Include="..\src\time\strptime.c">
       <Filter>src\time</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\base16.c">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\hmap.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\alloc.c">
       <Filter>src</Filter>
     </ClCompile>
@@ -221,13 +233,7 @@
     <ClCompile Include="..\src\core\windows\sys_locale.c">
       <Filter>src\core\windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\xxtea.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\uuid.c">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\hmac.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\core\windows\sys_pipe.c">
@@ -247,16 +253,34 @@
     <ClInclude Include="..\include\libcc\thread\sys_thread.h">
       <Filter>include\libcc\thread</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libcc\aes.h">
-      <Filter>include\libcc</Filter>
+    <ClInclude Include="..\include\libcc\crypto\des.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\aes.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\base16.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\base58.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\base64.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\sha.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\md2.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\md4.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\md5.h">
+      <Filter>include\libcc\crypto</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\array.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\base64.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\des.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\dirent.h">
@@ -269,9 +293,6 @@
       <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\syslog.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\md5.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\mutex.h">
@@ -334,15 +355,6 @@
     <ClInclude Include="..\include\libcc\socket\windows\sys_socket.h">
       <Filter>include\libcc\socket\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libcc\sha.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\md2.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libcc\md4.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libcc.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -373,14 +385,8 @@
     <ClInclude Include="..\include\libcc\hmap.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libcc\base16.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libcc\alloc.h">
       <Filter>include\libcc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\thread\windows\sys_thread.c.h">
-      <Filter>src\thread\windows</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\uuid.h">
       <Filter>include\libcc</Filter>
@@ -388,14 +394,17 @@
     <ClInclude Include="..\include\libcc\core\windows\sys_mmap.h">
       <Filter>include\libcc\core\windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libcc\base58.h">
-      <Filter>include\libcc</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libcc\buf.h">
       <Filter>include\libcc</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libcc\core\windows.h">
       <Filter>include\libcc\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\hmac.h">
+      <Filter>include\libcc\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libcc\crypto\xxtea.h">
+      <Filter>include\libcc\crypto</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

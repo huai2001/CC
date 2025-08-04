@@ -190,9 +190,14 @@ _CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_event_cycle_t *cycle, uint32_t tim
         _cc_event_t *e = (_cc_event_t *)actives[i].data.ptr;
 
         if (what & EPOLLERR) {
-            which = _CC_EVENT_IS_SOCKET(e->flags);
-        } else if ((what & EPOLLHUP) && !(what & EPOLLRDHUP)) {
-            which = _CC_EVENT_IS_SOCKET(e->flags);
+            which = _CC_EVENT_DISCONNECT_;
+        } else if (what & EPOLLHUP) {
+            /*
+                The EPOLLHUP event will be triggered on this end when the fd is closed on the other end.
+                the EPOLLHUP event as a readable event.
+                If the read 0 bytes, it indicates that the opposite end has closed.
+            */
+            which = _CC_EVENT_READABLE_;//or _CC_EVENT_DISCONNECT_
         } else {
             if (what & EPOLLIN) {
                 which |= _CC_ISSET_BIT(_CC_EVENT_ACCEPT_ | _CC_EVENT_READABLE_, e->flags);

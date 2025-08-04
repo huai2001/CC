@@ -45,6 +45,8 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
     size_t r;
     pvoid_t buffer[64];
     char **symbols;
+    const char *func_name;
+    Dl_info info;
     
     n = backtrace(buffer, _cc_countof(buffer));
     symbols = backtrace_symbols(buffer, n);
@@ -54,7 +56,15 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
     }
 
     for (r = 0, i = 1; i < n; i++) {
-        size_t fmt_length = _sntprintf(buf + r, length - r, _T("{%s},"), symbols[i]);
+        size_t fmt_length;
+        if (dladdr(symbols[i], &info)) {
+            func_name = info.dli_sname;
+        } else if (symbols[i]) {
+            func_name = symbols[i];
+        } else {
+            func_name = "null";
+        }
+        fmt_length = _sntprintf(buf + r, length - r, _T("{%s:<%s>},"), func_name, symbols[i]);
         if (fmt_length <= 0 || fmt_length > (length - r)) {
             break;
         }

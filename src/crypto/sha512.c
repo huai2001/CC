@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/sha.h>
+#include <libcc/crypto/sha.h>
 #include <libcc/string.h>
 
 #if !defined(_CC_SHA512_ALT_)

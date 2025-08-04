@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/alloc.h>
-#include <libcc/base16.h>
+#include <libcc/crypto/base16.h>
 
 /* {{{ base16 tables */
 static const tchar_t base16_table[] = {

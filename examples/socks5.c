@@ -168,9 +168,6 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     /*成功连接服务器*/
     if (which & _CC_EVENT_CONNECTED_) {
         _tprintf(_T("%d connect to server.\n"), e->fd);
-        
-        e->buffer = _cc_alloc_event_buffer();
-        
         return send_socks5_methods(cycle, e);
     }
     
@@ -251,7 +248,7 @@ static _cc_event_t *connect_server(const tchar_t* addr, uint16_t port) {
     
     _cc_inet_ipv4_addr(&dest, addr, port);
     
-    return network_event.connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_, fd,
+    return network_event.connect(&network_event, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, fd,
                                         120000, network_event_callback, nullptr,
                                         (const _cc_sockaddr_t*)&dest, sizeof(struct sockaddr_in));
 }

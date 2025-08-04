@@ -19,8 +19,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/alloc.h>
-#include <libcc/hmac.h>
 #include <libcc/string.h>
+#include <libcc/crypto/hmac.h>
 
 #define MAX_HASHLEN 64
 #define MAX_BLOCKLEN 128

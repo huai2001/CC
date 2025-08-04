@@ -29,18 +29,19 @@ LOCAL_C_INCLUDES := ../../include ./
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 
 LOCAL_SRC_FILES := \
-        ../../src/aes.c \
-        ../../src/base16.c \
-        ../../src/base58.c \
-        ../../src/base64.c \
-        ../../src/md2.c \
-        ../../src/md4.c \
-        ../../src/md5.c \
-        ../../src/sha1.c \
-        ../../src/sha256.c \
-        ../../src/sha512.c \
-        ../../src/sha3.c \
-        ../../src/des.c \
+        ../../src/crypto/aes.c \
+        ../../src/crypto/des.c \
+        ../../src/crypto/base16.c \
+        ../../src/crypto/base58.c \
+        ../../src/crypto/base64.c \
+        ../../src/crypto/md2.c \
+        ../../src/crypto/md4.c \
+        ../../src/crypto/md5.c \
+        ../../src/crypto/sha1.c \
+        ../../src/crypto/sha256.c \
+        ../../src/crypto/sha512.c \
+        ../../src/crypto/sha3.c \
+        ../../src/crypto/hmac.c \
         ../../src/crc.c \
         ../../src/list.c \
         ../../src/queue.c \

@@ -1,11 +1,11 @@
 /*
  * Copyright libcc.cn@gmail.com. and other libcc contributors.
  * All rights reserved.org>
- *
+ * 
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the authors be held liable for any damages
  * arising from the use of this software.
- *
+ * 
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
@@ -18,41 +18,27 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef _C_CC_XXTEA_H_INCLUDED_
-#define _C_CC_XXTEA_H_INCLUDED_
+#ifndef _C_CC_CRYPTO__H_INCLUDED_
+#define _C_CC_CRYPTO__H_INCLUDED_
 
-#include "types.h"
-
+#include "aes.h"
+#include "des.h"
+#include "base16.h"
+#include "base58.h"
+#include "base64.h"
+#include "md2.h"
+#include "md4.h"
+#include "md5.h"
+#include "hmac.h"
+#include "sha.h"
+/* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * Function: _cc_xxtea_encrypt
- * @data:    Data to be encrypted
- * @len:     Length of the data to be encrypted
- * @key:     Symmetric key
- * @out_len: Pointer to output length variable
- * Returns:  Encrypted data or %nullptr on failure
- *
- * Caller is responsible for freeing the returned buffer.
- */
-_CC_API_PUBLIC(byte_t*) _cc_xxtea_encrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length);
-
-/**
- * Function: xxtea_decrypt
- * @data:    Data to be decrypted
- * @len:     Length of the data to be decrypted
- * @key:     Symmetric key
- * @out_len: Pointer to output length variable
- * Returns:  Decrypted data or %nullptr on failure
- *
- * Caller is responsible for freeing the returned buffer.
- */
-_CC_API_PUBLIC(byte_t*) _cc_xxtea_decrypt(const byte_t *data, size_t len, const byte_t *key, size_t *output_length);
-
+/* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /*_C_CC_CRYPTO__H_INCLUDED_*/

@@ -21,7 +21,7 @@
 #ifndef _C_CC_MD2_H_INCLUDED_
 #define _C_CC_MD2_H_INCLUDED_
 
-#include "generic.h"
+#include "../generic.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

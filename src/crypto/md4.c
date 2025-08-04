@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/md4.h>
+#include <libcc/crypto/md4.h>
 #include <libcc/string.h>
 
 /*

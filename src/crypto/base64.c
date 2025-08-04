@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 #include <libcc/alloc.h>
-#include <libcc/base64.h>
+#include <libcc/crypto/base64.h>
 
 /** @var base64_chars
  *   A 64 character alphabet.

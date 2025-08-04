@@ -64,27 +64,54 @@ _CC_API_PRIVATE(void) _output_android(uint8_t level, const char_t *msg) {
 }
 #endif
 
+const char  SYSLOG_LEVEL_CODE[_CC_LOG_LEVEL_DEBUG_ + 1] = {
+    'G', 'A', 'C', 'E', 'W', 'N', 'I', 'D'
+};
+
 _CC_API_PRIVATE(void) _outputA_log(uint8_t level, const char_t *msg, size_t length) {
-#ifdef _CC_MSVC_
-    OutputDebugStringA(msg);
-    OutputDebugStringA("\n");
-#elif defined(__CC_ANDROID__)
+#ifdef __CC_ANDROID__
     _output_android(level, msg);
 #else
+    tchar_t buffer[_CC_8K_BUFFER_SIZE_];
+    struct tm tm_now;
+    time_t now = time(nullptr);
+    _cc_gmtime(&now, &tm_now);
+
+    _sntprintf(buffer, _cc_countof(buffer), _T("<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d "),
+                                SYSLOG_LEVEL_CODE[level], 
+                                tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, 
+                                _cc_getpid());
+#ifdef _CC_MSVC_
+    OutputDebugString(buffer);
+    OutputDebugStringA(msg);
+    OutputDebugStringA("\n");
+#endif
+    fputs(buffer, stdout);
     fputs(msg, stdout);
     fputs("\n", stdout);
 #endif
-    
     _cc_syslogA(level, msg, length);
 }
 
 _CC_API_PRIVATE(void) _outputW_log(uint8_t level, const wchar_t *msg, size_t length) {
-#ifdef _CC_MSVC_
-    OutputDebugStringW(msg);
-    OutputDebugStringW(L"\n");
-#elif defined(__CC_ANDROID__)
+#ifdef __CC_ANDROID__
     _output_android(level, msg);
 #else
+    tchar_t buffer[_CC_8K_BUFFER_SIZE_];
+    struct tm tm_now;
+    time_t now = time(nullptr);
+    _cc_gmtime(&now, &tm_now);
+
+    _sntprintf(buffer, _cc_countof(buffer), _T("<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d "),
+                                SYSLOG_LEVEL_CODE[level], 
+                                tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec,
+                                _cc_getpid());
+#ifdef _CC_MSVC_
+    OutputDebugString(buffer);
+    OutputDebugStringW(msg);
+    OutputDebugStringW(L"\n");
+#endif
+    fputs(buffer, stdout);
     fputws(msg, stdout);
     fputws(L"\n", stdout);
 #endif

@@ -16,21 +16,22 @@ endif
 
 include $(SRCROOT)/build/Makefile.mak
 
-LOCAL_SRC_FILES = src/aes.o \
-	src/base16.o \
-	src/base58.o \
-	src/base64.o \
+LOCAL_SRC_FILES = \
+	src/crypto/aes.o \
+	src/crypto/base16.o \
+	src/crypto/base58.o \
+	src/crypto/base64.o \
+	src/crypto/md2.o \
+	src/crypto/md4.o \
+	src/crypto/md5.o \
+	src/crypto/sha1.o \
+	src/crypto/sha256.o \
+	src/crypto/sha512.o \
+	src/crypto/sha3.o \
+	src/crypto/hmac.o \
+	src/crypto/des.o \
+	src/crypto/xxtea.o \
 	src/crc.o \
-	src/md2.o \
-	src/md4.o \
-	src/md5.o \
-	src/sha1.o \
-	src/sha256.o \
-	src/sha512.o \
-	src/sha3.o \
-	src/hmac.o \
-	src/des.o \
-	src/xxtea.o \
 	src/UTF.o \
 	src/GBK.o \
 	src/list.o \

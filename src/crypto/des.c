@@ -18,7 +18,7 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
 */
-#include <libcc/des.h>
+#include <libcc/crypto/des.h>
 /*
  * 32-bit integer manipulation macros (big endian)
  */
