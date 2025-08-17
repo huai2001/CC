@@ -79,7 +79,7 @@ ifneq ($(filter $(PLATFORM), osx),)
 		src/core/OSX/sys_file.o \
 		src/core/OSX/sys_dirent.o \
 		src/core/OSX/sys_locale.o \
-		src/core/OSX/sys_ios.o \
+		src/core/OSX/sys_osx.o \
 		src/core/unix/sys_unix.o \
 		src/power/macosx/sys_power.o \
 		src/socket/unix/sys_socket.o \

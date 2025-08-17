@@ -42,7 +42,7 @@ static uint32_t CalculateGCD(uint32_t a, uint32_t b) {
     return CalculateGCD(b, (a % b));
 }
 
-_CC_API_PRIVATE(void) _tick_init() {
+_CC_API_PRIVATE(void) _tick_init(void) {
     uint64_t tick_freq;
     uint32_t gcd;
 

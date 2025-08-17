@@ -283,13 +283,13 @@ _CC_API_PUBLIC(float64_t) _cc_randomf64(float64_t from, float64_t to) {
 
 /**/
 _CC_API_PUBLIC(uint32_t) _cc_random32(uint32_t from, uint32_t to) {
-    int32_t n = _random();
+    int32_t n = (int32_t)_random();
     return _cc_rand(n) * (to - from) + from;
 }
 
 /**/
 _CC_API_PUBLIC(uint64_t) _cc_random64(uint64_t from, uint64_t to) {
-    int32_t n = _random();
+    int32_t n = (int32_t)_random();
     return _cc_rand(n) * (to - from) + from;
 }
 

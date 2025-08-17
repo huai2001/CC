@@ -63,7 +63,7 @@ _CC_API_PUBLIC(bool_t) _cc_has_clipboard_text(void) {
 
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_is_simulator() {
+_CC_API_PUBLIC(bool_t) _cc_is_simulator(void) {
     #if TARGET_OS_SIMULATOR
         return true;
     #elif TARGET_IPHONE_SIMULATOR

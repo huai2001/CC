@@ -127,8 +127,7 @@ uint64_t - [0 : 18446744073709551615]
     #define nullptr NULL
 #endif
     
-#ifndef intptr_t
-    /**/
+#if 0
     #ifndef _W64
         #define _W64
     #endif

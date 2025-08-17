@@ -41,6 +41,35 @@ extern "C" {
  */
 #define _cc_getpid() ((uint32_t)getpid())
 
+/**
+ * @brief Multi Byte To Wide Char
+ *
+ * @param s1 Multi byte buffer
+ * @param s1_len The length of the Multi byte
+ * @param s2 Wide char buffer
+ * @param size Wide char buffer size
+ *
+ * @return Length of wide char
+*/
+_CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1,
+                         int32_t s1_len,
+                         wchar_t* s2,
+                         int32_t size);
+/**
+ * @brief Wide Byte To Multi Char
+ *
+ * @param s1 Wide byte buffer
+ * @param s1_len The length of the Wide byte
+ * @param s2 Multi char buffer
+ * @param size Multi char buffer size
+ *
+ * @return Length of Multi char
+ */
+_CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1,
+                         int32_t s1_len,
+                         char_t* s2,
+                         int32_t size);
+
 #ifndef _CC_DISABLED_DUMPER_
     
 #define _CC_DUMPER_SUCCESS_                            0

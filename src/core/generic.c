@@ -21,6 +21,7 @@
 #include <libcc/alloc.h>
 #include <libcc/dirent.h>
 #include <libcc/math.h>
+#include <libcc/UTF.h>
 
 #ifndef __CC_WINDOWS__
 

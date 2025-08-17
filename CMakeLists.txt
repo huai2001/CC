@@ -34,20 +34,20 @@ MESSAGE("SOURCE:${PROJECT_C_SOURCE_DIR}")
 
 # Generate the static library from the library sources
 SET(SRC_LIST
-    ${PROJECT_C_SOURCE_DIR}/aes.c
-    ${PROJECT_C_SOURCE_DIR}/base16.c
-    ${PROJECT_C_SOURCE_DIR}/base58.c
-    ${PROJECT_C_SOURCE_DIR}/base64.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/aes.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/base16.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/base58.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/base64.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/md2.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/md4.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/md5.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/sha1.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/sha256.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/sha512.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/sha3.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/des.c
+    ${PROJECT_C_SOURCE_DIR}/crypto/xxtea.c
     ${PROJECT_C_SOURCE_DIR}/crc.c
-    ${PROJECT_C_SOURCE_DIR}/md2.c
-    ${PROJECT_C_SOURCE_DIR}/md4.c
-    ${PROJECT_C_SOURCE_DIR}/md5.c
-    ${PROJECT_C_SOURCE_DIR}/sha1.c
-    ${PROJECT_C_SOURCE_DIR}/sha256.c
-    ${PROJECT_C_SOURCE_DIR}/sha512.c
-    ${PROJECT_C_SOURCE_DIR}/sha3.c
-    ${PROJECT_C_SOURCE_DIR}/des.c
-	${PROJECT_C_SOURCE_DIR}/xxtea.c
     ${PROJECT_C_SOURCE_DIR}/UTF.c
     ${PROJECT_C_SOURCE_DIR}/GBK.c
     ${PROJECT_C_SOURCE_DIR}/list.c

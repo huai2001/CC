@@ -80,7 +80,7 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
 
 /**/
 _CC_API_PUBLIC(const _cc_String_t *) _cc_get_module_file_name(void) {
-    static TCHAR dl[64];
+    static tchar_t dl[64];
     static _cc_String_t path = {0, dl};
     if (path.length == 0) {
         Dl_info info;

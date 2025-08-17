@@ -22,6 +22,7 @@
 #include <libcc/generic.h>
 #include <libcc/logger.h>
 
+#include <fcntl.h>
 /**/
 _CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode);
 

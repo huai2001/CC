@@ -11,17 +11,31 @@ endif
 
 MACROS	+= _CC_WIDGETS_EXPORT_SHARED_LIBRARY_=1
 
-ifdef shared
-	ifeq ($(PLATFORM), windows)
-		LIBS += ssl-3-x64 crypto-3-x64 mysql
-	else ifeq ($(PLATFORM), osx)
-		LIBS += ssl.3 crypto.3
-	else
-		LIBS += ssl crypto mysqlclient
-	endif
+ifeq ($(PLATFORM), osx)
+	INCLUDE_PATH	+= /opt/homebrew/opt/openssl/include
+	LIBRARY_PATH	+= /opt/homebrew/opt/openssl/lib
 
+	INCLUDE_PATH	+= /opt/homebrew/opt/mysql-client/include
+	LIBRARY_PATH	+= /opt/homebrew/opt/mysql-client/lib
+endif
+
+ifdef shared
+	ifdef url_request
+		ifeq ($(PLATFORM), windows)
+			LIBS += ssl-3-x64 crypto-3-x64
+		else ifeq ($(PLATFORM), osx)
+			LIBS += ssl.3 crypto.3
+		else
+			LIBS += ssl crypto
+		endif
+	endif
 	ifdef db
 		LIBS += sqlite3 
+		ifeq ($(PLATFORM), windows)
+			LIBS += mysql
+		else
+			LIBS += mysqlclient
+		endif
 	endif
 endif
 
@@ -38,21 +52,21 @@ endif
 # sudo apt-get install libmysqlclient-dev
 
 #macOS Homebrew
-# bash brew install sqlite
+# brew install sqlite
+# brew install mysql-client
+
 
 # 安装 64 位版本的 MySQL 客户端库
 # pacman -S mingw-w64-x86_64-mysql
 ifdef db
 ifeq ($(PLATFORM), osx)
 	MACROS			+= _CC_ENABLE_UNIXODBC_=1
-	INCLUDE_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/include
-	LIBRARY_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/lib
+	#INCLUDE_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/include
+	#LIBRARY_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/lib
 
-	LOCAL_SRC_FILES += $(SRCROOT)/src/db/sqlsvr.o
+	#LOCAL_SRC_FILES += $(SRCROOT)/src/db/sqlsvr.o
 
-	LIBS			+= odbc
-
-	LIBRARY_PATH	+= /usr/lib64/mysql
+	#LIBS			+= odbc
 endif
 
 INCLUDE_PATH	+= /usr/local/include /usr/include
@@ -106,11 +120,10 @@ LOCAL_SRC_FILES += \
 endif # --json db--
 
 ifdef url_request
-MACROS			+= _CC_ENABLE_OPENSSL_=1 
+MACROS			+= _CC_ENABLE_OPENSSL_=1
 LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/generic/gzip.o \
 					$(WIDGET_FILES)/generic/map.o \
-					$(WIDGET_FILES)/generic/WS.o \
 					$(WIDGET_FILES)/generic/http.header.o \
 					$(WIDGET_FILES)/generic/http.request.parser.o \
 					$(WIDGET_FILES)/generic/http.response.parser.o \
@@ -147,4 +160,5 @@ endif # --end url_request --
 
 LOCAL_SRC_FILES += \
 					$(WIDGET_FILES)/generic/generic.o \
+					$(WIDGET_FILES)/generic/WS.o \
 					$(WIDGET_FILES)/widgets.o

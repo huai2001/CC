@@ -76,6 +76,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(byte_t baseid) {
             _cc_event_t *data;
 
             if (max_limit <= g.slot_length) {
+                _cc_logger_error(_T("The maximum number of event supported by the RLIMIT_NOFILE is %d"), max_limit);
                 return nullptr;
             }
 

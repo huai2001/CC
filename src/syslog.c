@@ -45,7 +45,7 @@ _CC_API_PUBLIC(void) _cc_syslog_lock(void) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_syslog_unlock() {
+_CC_API_PUBLIC(void) _cc_syslog_unlock(void) {
     _cc_unlock(&syslog.lock);
 }
 

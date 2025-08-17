@@ -62,7 +62,8 @@ _CC_API_PRIVATE(uint64_t) ROL64(uint64_t val, int offset) {
     } else if (!BIT_INTERLEAVE) {
         return (val << offset) | (val >> (64 - offset));
     } else {
-        uint32_t hi = (uint32_t)(val >> 32), lo = (uint32_t)val;
+        uint32_t hi = (uint32_t)(val >> 32);
+        uint32_t lo = (uint32_t)val;
 
         if (offset & 1) {
             uint32_t tmp = hi;
@@ -970,7 +971,9 @@ _CC_API_PRIVATE(void) _keccak_f1600(uint64_t A[5][5]) {
 
 _CC_API_PRIVATE(uint64_t) _bit_interleave(uint64_t Ai) {
     if (BIT_INTERLEAVE) {
-        uint32_t hi = (uint32_t)(Ai >> 32), lo = (uint32_t)Ai;
+        uint32_t hi = (uint32_t)(Ai >> 32);
+        uint32_t lo = (uint32_t)Ai;
+
         uint32_t t0, t1;
 
         t0 = lo & 0x55555555;
@@ -1021,7 +1024,8 @@ _CC_API_PRIVATE(uint64_t) _bit_interleave(uint64_t Ai) {
 
 _CC_API_PRIVATE(uint64_t) _bit_deinterleave(uint64_t Ai) {
     if (BIT_INTERLEAVE) {
-        uint32_t hi = (uint32_t)(Ai >> 32), lo = (uint32_t)Ai;
+        uint32_t hi = (uint32_t)(Ai >> 32);
+        uint32_t lo = (uint32_t)Ai;
         uint32_t t0, t1;
 
         t0 = lo & 0x0000ffff;
@@ -1178,7 +1182,8 @@ _CC_API_PUBLIC(void) _cc_sha3_update(_cc_sha3_t *ctx, const byte_t *input, size_
          * leaving the rest for later processing...
          */
         memcpy(ctx->buf + num, inp, rem);
-        inp += rem, len -= rem;
+        inp += rem;
+        len -= rem;
         (void)SHA3_absorb(ctx->A, ctx->buf, bsz, bsz);
         ctx->bufsz = 0;
         /* ctx->buf is processed, ctx->num is guaranteed to be zero */

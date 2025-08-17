@@ -24,8 +24,10 @@
 static struct in_addr dns_servers[DNS_SERVERS_MCOUNT];
 static int dns_server_count = 0;
 
+_CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int type);
 _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *);
 
+_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *, uint8_t *, int *);
 _CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *, uint8_t *, _cc_dns_record_t *);
 /*
  * This will convert 3www6google3com to www.google.com
@@ -45,7 +47,7 @@ _CC_API_PRIVATE(int) _domain(char_t *buf, int dest_length) {
     return i;
 }
 
-_CC_API_PRIVATE(int) _build_question(uint8_t *buf, const char_t *host, int type) {
+_CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int type) {
     int offset;
     struct QUESTION *q;
     char_t *p;
@@ -321,7 +323,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
     offset = sizeof(_cc_dns_header_t);
 
     // point to the query portion
-    offset += _build_question(&buf[offset], host, type);
+    offset += dns_build_question(&buf[offset], host, type);
 
     // Set the DNS structure to standard queries
     header = (_cc_dns_header_t *)&buf;
@@ -344,8 +346,12 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
 
     {
         _cc_event_cycle_t *cycle = _cc_get_event_cycle();
-        if (cycle->attach(cycle, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_, dns_sock, 60000, _dns_response_callback,
-                              dns) == nullptr) {
+        _cc_event_t *e = _cc_event_alloc(cycle, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_);
+        e->fd = dns_sock;
+        e->callback = _dns_response_callback;
+        e->timeout = 60000;
+        e->args = dns;
+        if (!cycle->attach(cycle, e)) {
             _cc_logger_error(_T("thread %d attach socket (%d) event fial."), _cc_get_thread_id(nullptr), dns_sock);
             return _CC_DNS_ERR_SEE_ERRNO_;
         }

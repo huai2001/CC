@@ -25,7 +25,7 @@
 #include <libcc/time.h>
 #include <libcc/widgets/sql.h>
 
-#if defined(__CC_WINDOWS__) || defined(__CC_APPLE__)
+#if defined(__CC_WINDOWS__)
 #include <mysql/include/errmsg.h>
 #include <mysql/include/mysql.h>
 #include <mysql/include/mysqld_error.h>

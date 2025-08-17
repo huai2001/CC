@@ -48,10 +48,12 @@ ifeq ($(arch),)
 	else ifeq ($(ARCH), i686)
 		CFLAGS += -m32 -msse2
 	else ifeq ($(ARCH), aarch64)
-		CFLAGS += -march=armv8-a+crc+crypto
+		#CFLAGS += -march=armv8-a+crc+crypto
+		CFLAGS += -m64
 		ARCH_x64 = 1
 	else ifeq ($(ARCH), arm)
-		CFLAGS += -march=armv7-a+neon-vfpv4
+		#CFLAGS += -march=armv7-a+neon-vfpv4
+		CFLAGS += -m32
 	else
 		#$(warning Unknown architecture $(ARCH), using generic flags)
 		CFLAGS  += -m64
@@ -69,8 +71,8 @@ endif
 ##################################################
 
 ifeq ($(PLATFORM), ios)
-	CC		?= xcrun -sdk iphoneos clang
-	CPP		?= xcrun -sdk iphoneos clang
+	CC		= xcrun -sdk iphoneos clang
+	CPP		= xcrun -sdk iphoneos clang
 	ifdef ARCH_x64
 		CFLAGS  += -arch arm64 # x86_64
 	else
@@ -79,21 +81,16 @@ ifeq ($(PLATFORM), ios)
 	CFLAGS  += -mios-version-min=$(MIN_VERSION) -march=armv7-a -fmessage-length=0
 	LDFLAGS += -mios-version-min=$(MIN_VERSION) -march=armv7-a -Wl, -Bsymbolic-functions -read_only_relocs suppress
 else ifeq ($(PLATFORM), osx)
-	ifdef ARCH_x64
-		CFLAGS  += -arch x86_64
-	else
-		CFLAGS  += -arch i386
-	endif
-	CC		?= clang
-	CPP		?= clang
+	CC		= clang
+	CPP		= clang
 	CFLAGS  += -mmacosx-version-min=$(MIN_VERSION)
 	LDFLAGS += -Wl,-rpath,./ -mmacosx-version-min=$(MIN_VERSION) -Bsymbolic-functions -framework Foundation -framework CoreLocation -framework Cocoa
 	INSTALL_NAME = -install_name @loader_path/lib$(TARGET_NAME).dylib
 else ifeq ($(PLATFORM), linux)
 	LDFLAGS += -Wl,--rpath=./
 else ifeq ($(PLATFORM), freebsd)
-	MAKE 	?= gmake
-	CC		?= clang
+	MAKE 	= gmake
+	CC		= clang
 	LDFLAGS += -Wl,--rpath=./
 else ifeq ($(PLATFORM), windows)
 

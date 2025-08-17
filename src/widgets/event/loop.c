@@ -125,7 +125,7 @@ _CC_API_PUBLIC(bool_t) _cc_quit_event_loop(void) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_event_loop_abort() {
+_CC_API_PUBLIC(void) _cc_event_loop_abort(void) {
     g.keep_active = false;
 }
 

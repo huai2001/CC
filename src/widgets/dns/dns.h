@@ -74,8 +74,6 @@ struct R_DATA {
     uint16_t length;
 };
 
-uint8_t *dns_read_name(uint8_t *, uint8_t *, int *);
-int _build_question(uint8_t *buf, const char_t *host, int type);
 #pragma pack()
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

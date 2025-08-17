@@ -3,7 +3,7 @@
 
 _CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url) {
     @autoreleasepool {
-        CFURLRef cfurl = CFURLCreateWithBytes(NULL, (const UInt8 *)url, SDL_strlen(url), kCFStringEncodingUTF8, NULL);
+        CFURLRef cfurl = CFURLCreateWithBytes(NULL, (const UInt8 *)url, _tcslen(url), kCFStringEncodingUTF8, NULL);
         OSStatus status = LSOpenCFURLRef(cfurl, NULL);
         CFRelease(cfurl);
         if (status != noErr) {

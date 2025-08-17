@@ -324,9 +324,9 @@ _CC_API_PUBLIC(tchar_t*) _cc_last_error(int32_t _errno);
  *
  * @param text
  *
- * @return 0
+ * @return true if successful or false on error.
  */
-_CC_API_PUBLIC(int32_t) _cc_set_clipboard_text(const tchar_t *text);
+_CC_API_PUBLIC(bool_t) _cc_set_clipboard_text(const tchar_t *text);
 /**
  * @brief Get clipboard Text
  *
