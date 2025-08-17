@@ -74,16 +74,20 @@ _CC_API_PRIVATE(void) _outputA_log(const tchar_t *file, int line, uint8_t level,
     struct tm tm_now;
     time_t now = time(nullptr);
 #endif
-    const tchar_t *fname = _tcschr(file, _CC_SLASH_C_);
+    const tchar_t *fname = _tcsrchr(file, _CC_SLASH_C_);
     if (fname == nullptr) {
     #ifdef __CC_WINDOWS__
-        fname = _tcschr(file, '/');
+        fname = _tcsrchr(file, '/');
     #else
-        fname = _tcschr(file, '\\');
+        fname = _tcsrchr(file, '\\');
     #endif
         if (fname == nullptr) {
             fname = file;
+        } else {
+            fname++;
         }
+    } else {
+        fname++;
     }
 
 #ifdef __CC_ANDROID__
@@ -112,16 +116,20 @@ _CC_API_PRIVATE(void) _outputW_log(const tchar_t *file, int line, uint8_t level,
     struct tm tm_now;
     time_t now = time(nullptr);
 #endif
-    const tchar_t *fname = _tcschr(file, _CC_SLASH_C_);
+    const tchar_t *fname = _tcsrchr(file, _CC_SLASH_C_);
     if (fname == nullptr) {
     #ifdef __CC_WINDOWS__
-        fname = _tcschr(file, '/');
+        fname = _tcsrchr(file, '/');
     #else
-        fname = _tcschr(file, '\\');
+        fname = _tcsrchr(file, '\\');
     #endif
         if (fname == nullptr) {
             fname = file;
+        } else {
+            fname++;
         }
+    } else {
+        fname++;
     }
 #ifdef __CC_ANDROID__
     _output_android(fname, line, level, msg);
