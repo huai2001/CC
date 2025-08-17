@@ -29,65 +29,71 @@ extern "C" {
 #endif
 
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA_vformat(uint8_t level, const char_t* fmt, va_list arg);
+#ifndef _CL
+    #define _CL(x) __CL(x)
+    #define __CL(x) L##x
+#endif
+
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA_format(uint8_t level, const char_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t level, const char_t* fmt, va_list arg);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA(uint8_t level, const char_t* str);
+_CC_API_PUBLIC(void) _cc_loggerA_format(const tchar_t *file, int line, uint8_t level, const char_t* fmt, ...);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerW_vformat(uint8_t level, const wchar_t* fmt, va_list arg);
+_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t* str);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerW_format(uint8_t level, const wchar_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, va_list arg);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerW(uint8_t level, const wchar_t* str);
+_CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, ...);
+/**/
+_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t* str);
 
 #ifdef _CC_MSVC_
     /**/
     #define _cc_loggerW_debug(FMT, ...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##__VA_ARGS__)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_DEBUG_, FMT, ##__VA_ARGS__)
     #define _cc_loggerA_debug(FMT, ...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##__VA_ARGS__)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_DEBUG_, FMT, ##__VA_ARGS__)
 
     #define _cc_loggerW_info(FMT, ...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_INFO_, FMT, ##__VA_ARGS__)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_INFO_, FMT, ##__VA_ARGS__)
     #define _cc_loggerA_info(FMT, ...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_INFO_, FMT, ##__VA_ARGS__)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_INFO_, FMT, ##__VA_ARGS__)
 
     #define _cc_loggerW_warin(FMT, ...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_WARNING_, FMT, ##__VA_ARGS__)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_WARNING_, FMT, ##__VA_ARGS__)
     #define _cc_loggerA_warin(FMT, ...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_WARNING_, FMT, ##__VA_ARGS__)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_WARNING_, FMT, ##__VA_ARGS__)
 
     #define _cc_loggerW_error(FMT, ...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_ERROR_, FMT, ##__VA_ARGS__)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_ERROR_, FMT, ##__VA_ARGS__)
     #define _cc_loggerA_error(FMT, ...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_ERROR_, FMT, ##__VA_ARGS__)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_ERROR_, FMT, ##__VA_ARGS__)
 #else
     #define _cc_loggerW_debug(FMT, ARGS...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##ARGS)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_DEBUG_, FMT, ##ARGS)
     #define _cc_loggerA_debug(FMT, ARGS...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_DEBUG_, FMT, ##ARGS)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_DEBUG_, FMT, ##ARGS)
 
     #define _cc_loggerW_info(FMT, ARGS...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_INFO_, FMT, ##ARGS)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_INFO_, FMT, ##ARGS)
     #define _cc_loggerA_info(FMT, ARGS...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_INFO_, FMT, ##ARGS)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_INFO_, FMT, ##ARGS)
 
     #define _cc_loggerW_warin(FMT, ARGS...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_WARNING_, FMT, ##ARGS)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_WARNING_, FMT, ##ARGS)
     #define _cc_loggerA_warin(FMT, ARGS...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_WARNING_, FMT, ##ARGS)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_WARNING_, FMT, ##ARGS)
 
     #define _cc_loggerW_error(FMT, ARGS...) \
-        _cc_loggerW_format(_CC_LOG_LEVEL_ERROR_, FMT, ##ARGS)
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_ERROR_, FMT, ##ARGS)
     #define _cc_loggerA_error(FMT, ARGS...) \
-        _cc_loggerA_format(_CC_LOG_LEVEL_ERROR_, FMT, ##ARGS)
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_ERROR_, FMT, ##ARGS)
 #endif
 
 /**/
 #ifdef _CC_UNICODE_
 #define _cc_logger_format _cc_loggerW_format
-#define _cc_logger _cc_loggerW
+#define _cc_logger(LEVEL, MSG) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, MSG)
 #define _cc_logger_warin _cc_loggerW_warin
 #define _cc_logger_debug _cc_loggerW_debug
 #define _cc_logger_info _cc_loggerW_info
@@ -95,7 +101,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(uint8_t level, const wchar_t* str);
 #define _cc_logger_syslog _cc_loggerW_syslog
 #else
 #define _cc_logger_format _cc_loggerA_format
-#define _cc_logger _cc_loggerA
+#define _cc_logger(LEVEL, MSG) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, MSG)
 #define _cc_logger_warin _cc_loggerA_warin
 #define _cc_logger_debug _cc_loggerA_debug
 #define _cc_logger_info _cc_loggerA_info

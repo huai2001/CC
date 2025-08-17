@@ -62,7 +62,7 @@
          */
         #define _cc_assert(expr) \
         if (!(expr)) { \
-            __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "Assertion failed: %s (%s: %d)\n", #expr, __FILE__, __LINE__); \
+            _cc_logger_error(_T("Assertion failed: %s"), #expr); \
             abort(); \
         }
     #endif
@@ -72,7 +72,7 @@
 #endif
 
 #define _cc_abort() do {\
-    _cc_loggerA_format(_CC_LOG_LEVEL_ERROR_, "[%s(%d)%s] abort", _CC_FILE_, _CC_LINE_, _CC_FUNC_);\
+    _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("Assertion failed"));\
     abort();\
 } while (0)
 

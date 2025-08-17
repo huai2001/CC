@@ -34,31 +34,31 @@
 #ifdef __CC_ANDROID__
 #include <libcc/core/android.h>
 
-_CC_API_PRIVATE(void) _output_android(uint8_t level, const char_t *msg) {
+_CC_API_PRIVATE(void) _output_android(const tchar_t *file, int line, uint8_t level, const char_t *msg) {
     switch(level) {
         case _CC_LOG_LEVEL_EMERG_:
-            __android_log_print(ANDROID_LOG_FATAL, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_FATAL, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
         case _CC_LOG_LEVEL_ALERT_:
-            __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
         case _CC_LOG_LEVEL_CRIT_:
-            __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
         case _CC_LOG_LEVEL_ERROR_:
-            __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
         case _CC_LOG_LEVEL_WARNING_:
-            __android_log_print(ANDROID_LOG_WARN, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_WARN, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
         case _CC_LOG_LEVEL_NOTICE_:
-            __android_log_print(ANDROID_LOG_INFO, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_INFO, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
         case _CC_LOG_LEVEL_INFO_:
-            __android_log_print(ANDROID_LOG_INFO, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_INFO, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
         case _CC_LOG_LEVEL_DEBUG_:
-            __android_log_print(ANDROID_LOG_DEBUG, _CC_ANDROID_TAG_, "%s", msg);
+            __android_log_print(ANDROID_LOG_DEBUG, _CC_ANDROID_TAG_, "%s(%d) %s", fname, line, msg);
             break;
     }
 }
@@ -68,19 +68,32 @@ const char  SYSLOG_LEVEL_CODE[_CC_LOG_LEVEL_DEBUG_ + 1] = {
     'G', 'A', 'C', 'E', 'W', 'N', 'I', 'D'
 };
 
-_CC_API_PRIVATE(void) _outputA_log(uint8_t level, const char_t *msg, size_t length) {
-#ifdef __CC_ANDROID__
-    _output_android(level, msg);
-#else
-    tchar_t buffer[_CC_8K_BUFFER_SIZE_];
+_CC_API_PRIVATE(void) _outputA_log(const tchar_t *file, int line, uint8_t level, const char_t *msg, size_t length) {
+#ifndef __CC_ANDROID__
+    tchar_t buffer[_CC_1K_BUFFER_SIZE_];
     struct tm tm_now;
     time_t now = time(nullptr);
-    _cc_gmtime(&now, &tm_now);
+#endif
+    const tchar_t *fname = _tcschr(file, _CC_SLASH_C_);
+    if (fname == nullptr) {
+    #ifdef __CC_WINDOWS__
+        fname = _tcschr(file, '/');
+    #else
+        fname = _tcschr(file, '\\');
+    #endif
+        if (fname == nullptr) {
+            fname = file;
+        }
+    }
 
-    _sntprintf(buffer, _cc_countof(buffer), _T("<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d "),
+#ifdef __CC_ANDROID__
+    _output_android(fname, line, level, msg);
+#else
+    _cc_gmtime(&now, &tm_now);
+    _sntprintf(buffer, _cc_countof(buffer), _T("<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d %s(%d) "),
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, 
-                                _cc_getpid());
+                                _cc_getpid(), fname, line);
 #ifdef _CC_MSVC_
     OutputDebugString(buffer);
     OutputDebugStringA(msg);
@@ -93,19 +106,31 @@ _CC_API_PRIVATE(void) _outputA_log(uint8_t level, const char_t *msg, size_t leng
     _cc_syslogA(level, msg, length);
 }
 
-_CC_API_PRIVATE(void) _outputW_log(uint8_t level, const wchar_t *msg, size_t length) {
-#ifdef __CC_ANDROID__
-    _output_android(level, msg);
-#else
-    tchar_t buffer[_CC_8K_BUFFER_SIZE_];
+_CC_API_PRIVATE(void) _outputW_log(const tchar_t *file, int line, uint8_t level, const wchar_t *msg, size_t length) {
+#ifndef __CC_ANDROID__
+    tchar_t buffer[_CC_1K_BUFFER_SIZE_];
     struct tm tm_now;
     time_t now = time(nullptr);
+#endif
+    const tchar_t *fname = _tcschr(file, _CC_SLASH_C_);
+    if (fname == nullptr) {
+    #ifdef __CC_WINDOWS__
+        fname = _tcschr(file, '/');
+    #else
+        fname = _tcschr(file, '\\');
+    #endif
+        if (fname == nullptr) {
+            fname = file;
+        }
+    }
+#ifdef __CC_ANDROID__
+    _output_android(fname, line, level, msg);
+#else
     _cc_gmtime(&now, &tm_now);
-
-    _sntprintf(buffer, _cc_countof(buffer), _T("<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d "),
+    _sntprintf(buffer, _cc_countof(buffer), _T("<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d %s(%d) "),
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec,
-                                _cc_getpid());
+                                _cc_getpid(), fname, line);
 #ifdef _CC_MSVC_
     OutputDebugString(buffer);
     OutputDebugStringW(msg);
@@ -119,15 +144,15 @@ _CC_API_PRIVATE(void) _outputW_log(uint8_t level, const wchar_t *msg, size_t len
     _cc_syslogW(level, msg, length);
 }
 
-_CC_API_PUBLIC(void) _cc_loggerA(uint8_t level, const char_t *msg) {
-    _outputA_log(level, msg, strlen(msg));
+_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t *msg) {
+    _outputA_log(file, line, level, msg, strlen(msg));
 }
 
-_CC_API_PUBLIC(void) _cc_loggerW(uint8_t level, const wchar_t *msg) {
-    _outputW_log(level, msg, wcslen(msg));
+_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t *msg) {
+    _outputW_log(file, line, level, msg, wcslen(msg));
 }
 
-_CC_API_PUBLIC(void) _cc_loggerA_vformat(uint8_t level, const char_t *fmt, va_list arg) {
+_CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t level, const char_t *fmt, va_list arg) {
     char_t buf[_CC_LOG_BUFFER_SIZE_];
     size_t fmt_length, empty_len;
     char_t *ptr = buf;
@@ -156,7 +181,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(uint8_t level, const char_t *fmt, va_li
 
         /* SUCCESS */
         if (fmt_length < empty_len) {
-            _outputA_log(level, ptr, fmt_length);
+            _outputA_log(file, line, level, ptr, fmt_length);
             break;
         }
         empty_len = _cc_aligned_alloc_opt(fmt_length + 10, 32);
@@ -169,7 +194,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(uint8_t level, const char_t *fmt, va_li
     }
 }
 
-_CC_API_PUBLIC(void) _cc_loggerW_vformat(uint8_t level, const wchar_t *fmt, va_list arg) {
+_CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t level, const wchar_t *fmt, va_list arg) {
     wchar_t buf[_CC_LOG_BUFFER_SIZE_];
     size_t fmt_length, empty_len;
 
@@ -197,7 +222,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(uint8_t level, const wchar_t *fmt, va_l
 
         /* SUCCESS */
         if (fmt_length < empty_len) {
-            _outputW_log(level, ptr, fmt_length);
+            _outputW_log(file, line, level, ptr, fmt_length);
             break;
         }
 
@@ -211,18 +236,18 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(uint8_t level, const wchar_t *fmt, va_l
     }
 }
 
-_CC_API_PUBLIC(void) _cc_loggerA_format(uint8_t level, const char_t *fmt, ...) {
+_CC_API_PUBLIC(void) _cc_loggerA_format(const tchar_t *file, int line, uint8_t level, const char_t *fmt, ...) {
     va_list arg;
 
     va_start(arg, fmt);
-    _cc_loggerA_vformat(level, fmt, arg);
+    _cc_loggerA_vformat(file, line, level, fmt, arg);
     va_end(arg);
 }
 
-_CC_API_PUBLIC(void) _cc_loggerW_format(uint8_t level, const wchar_t *fmt, ...) {
+_CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t level, const wchar_t *fmt, ...) {
     va_list arg;
 
     va_start(arg, fmt);
-    _cc_loggerW_vformat(level, fmt, arg);
+    _cc_loggerW_vformat(file, line, level, fmt, arg);
     va_end(arg);
 }
