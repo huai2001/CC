@@ -31,7 +31,7 @@ extern "C" {
 void _gzip_clean(pvoid_t gzip);
 void _gzip_reset(pvoid_t gzip);
 
-pvoid_t _gzip_inf_init(void);
+bool_t _alloc_gzip_inf(pvoid_t *gzip);
 bool_t _gzip_inf(pvoid_t gzip, byte_t *source, size_t length, _cc_buf_t *buffer);
 
 /* Ends C function definitions when using C++ */

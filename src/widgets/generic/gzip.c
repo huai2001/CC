@@ -35,7 +35,7 @@ _CC_API_PUBLIC(void) _gzip_reset(pvoid_t gzip) {
     (void)inflateReset((z_stream*)gzip);
 }
 
-_CC_API_PUBLIC(pvoid_t) _gzip_inf_init(void) {
+_CC_API_PUBLIC(bool_t) _alloc_gzip_inf(pvoid_t *gzip) {
     z_stream *strm = (z_stream*)_cc_malloc(sizeof(z_stream));
     /* allocate inflate state */
     strm->zalloc = Z_NULL;
@@ -46,9 +46,11 @@ _CC_API_PUBLIC(pvoid_t) _gzip_inf_init(void) {
 
     if (inflateInit2(strm, MAX_WBITS + 32) != Z_OK) {
         _cc_free(strm);
-        return nullptr;
+        return false;
     }
-    return strm;
+
+    *gzip = strm;
+    return true;
 }
 
 _CC_API_PUBLIC(bool_t) _gzip_inf(pvoid_t gzip, byte_t *source, size_t length, _cc_buf_t *buffer) {

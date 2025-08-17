@@ -159,7 +159,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_header(_cc_url_request_t *reques
         if (request->gzip) {
             _gzip_reset(request->gzip);
         } else {
-            request->gzip = _gzip_inf_init();
+            return _alloc_gzip_inf(&request->gzip);
         }
     }
     return true;
