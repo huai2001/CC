@@ -28,7 +28,7 @@
 #include <atomic.h>
 #endif
 
-#define _CC_RWLOCK_WLOCK_ ((_cc_atomic_t)-1)
+#define _CC_RWLOCK_WLOCK_ (-1)
 
 _CC_API_PUBLIC(void) _cc_cpu_pause() {
 #if __CC_WINDOWS__
