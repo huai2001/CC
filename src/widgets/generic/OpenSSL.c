@@ -32,9 +32,11 @@
 
 static _cc_atomic32_t _SSL_lock = 0;
 static _cc_atomic32_t _SSL_init_refcount = 0;
+static BIO_METHOD* _SSL_bio_method = nullptr;
 
 struct _cc_SSL {
     SSL *handle;
+    BIO *bio;
     _cc_OpenSSL_t *ctx;
 };
 
@@ -76,10 +78,10 @@ _CC_API_PRIVATE(bool_t) _SSL_only_init() {
  *  - OPENSSL_config() should be used for OpenSSL versions < 1.1.0
  *  - OPENSSL_init_crypto() should be used for OpenSSL versions >= 1.1.0
  */
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    //OPENSSL_config(nullptr);
+#if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_1_1_0
+    OPENSSL_config(nullptr);
 #else
-    //OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, nullptr);
+    OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, nullptr);
 #endif
     ERR_load_BIO_strings();
     ERR_load_crypto_strings();
@@ -88,10 +90,12 @@ _CC_API_PRIVATE(bool_t) _SSL_only_init() {
         _SSL_error("SSL_library_init");
         return false;
     }
-
-    OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
+    OpenSSL_add_all_algorithms();
 #endif
+
+    _SSL_bio_method = BIO_meth_new(BIO_TYPE_SOURCE_SINK | 100, "ssl_bio");
+
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 #ifndef SSL_OP_NO_COMPRESSION
     {
@@ -126,6 +130,7 @@ _CC_API_PRIVATE(bool_t) _SSL_only_init() {
 _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(bool_t is_client) {
     SSL_CTX *ssl_ctx;
     _cc_OpenSSL_t *ctx;
+    long mode;
     /*SSL init*/
     if (_cc_atomic32_inc_ref(&_SSL_init_refcount)) {
         _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
@@ -138,7 +143,8 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(bool_t is_client) {
 
     ctx = _cc_malloc(sizeof(_cc_OpenSSL_t));
     _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
-    ssl_ctx = SSL_CTX_new(is_client ? TLS_client_method() : TLS_server_method());
+    //ssl_ctx = SSL_CTX_new(is_client ? TLS_client_method() : TLS_server_method());
+    ssl_ctx = SSL_CTX_new(is_client ? SSLv23_client_method() : SSLv23_server_method());
     _cc_unlock(&_SSL_lock);
     if (ssl_ctx == nullptr) {
         _SSL_error("SSL_CTX_new");
@@ -146,9 +152,43 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(bool_t is_client) {
         return nullptr;
     }
 
+    mode = SSL_CTX_get_mode(ssl_ctx);
+
+#if defined(SSL_MODE_RELEASE_BUFFERS)
+    mode |= SSL_MODE_RELEASE_BUFFERS;
+#endif
+    SSL_CTX_set_mode(ssl_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | mode);
+    if (is_client) {
+        SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_NONE, nullptr);
+        SSL_CTX_set_quiet_shutdown(ssl_ctx, 1);
+    }
+
     ctx->handle = ssl_ctx;
     ctx->refcount = 0;
     return ctx;
+}
+
+_CC_API_PUBLIC(void) _SSL_quit(_cc_OpenSSL_t *ctx) {
+    if (_cc_atomic32_dec_ref(&_SSL_init_refcount)) {
+        if (_SSL_bio_method) {
+            BIO_meth_free(_SSL_bio_method);
+            _SSL_bio_method = nullptr;
+        }
+    #if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_1_1_0
+        CONF_modules_free();
+        ENGINE_cleanup();
+        EVP_cleanup();
+        CRYPTO_cleanup_all_ex_data();
+        ERR_free_strings();
+    #if OPENSSL_VERSION_NUMBER >= OPENSSL_VERSION_1_0_2
+        SSL_COMP_free_compression_methods();
+    #endif
+    #endif
+    }
+
+    SSL_CTX_free(ctx->handle);
+    ctx->handle = nullptr;
+    _cc_free(ctx);
 }
 
 /**/
@@ -165,36 +205,77 @@ _CC_API_PUBLIC(bool_t) _SSL_free(_cc_SSL_t *ssl) {
 
     _cc_atomic32_dec(&ssl->ctx->refcount);
 
+    // exit
+    // BIO_set_init(ssl->bio, 0);
+    // BIO_set_data(ssl->bio, nullptr);
+    // BIO_set_shutdown(ssl->bio, 0);
+
     SSL_shutdown(ssl->handle);
     SSL_free(ssl->handle);
 
     _cc_free(ssl);
 
-
     ERR_clear_error();
-    CRYPTO_cleanup_all_ex_data();
-#if OPENSSL_VERSION_NUMBER < 0x10100003L
-    EVP_cleanup();
-    /*
-#ifndef OPENSSL_NO_ENGINE
-    ENGINE_cleanup();
-#endif*/
-#endif
-
-    /*SSL*/
     return true;
 }
 
-_CC_API_PUBLIC(void) _SSL_quit(_cc_OpenSSL_t *ctx) {
-    if (_cc_atomic32_dec_ref(&_SSL_init_refcount)) {
-        ERR_free_strings();
+/**/
+_CC_API_PUBLIC(_cc_SSL_t*) _SSL_alloc(_cc_OpenSSL_t* ctx) {
+    _cc_SSL_t *ssl = _cc_malloc(sizeof(_cc_SSL_t));
+
+    _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
+    ssl->handle = SSL_new(ctx->handle);
+    _SSL_lock = 0;
+
+    if (ssl == nullptr) {
+        return nullptr;
     }
 
-    SSL_CTX_free(ctx->handle);
-    ctx->handle = nullptr;
-    _cc_free(ctx);
-}
+    // init bio
+    // ssl->bio = BIO_new(_SSL_bio_method);
 
+    // set bio to ssl
+    // BIO_set_data(ssl->bio, ssl);
+    // SSL_set_bio(ssl->handle, ssl->bio, ssl->bio);
+
+    ssl->ctx = ctx;
+
+    return ssl;
+}
+/*
+typedef (int (*_SSL_setup_callback_t)(const tchar_t *host, pvoid_t context));
+
+_CC_API_PUBLIC(void) _SSL_setup(_cc_SSL_t *ssl, int mode, 
+                                const tchar_t *cert_file,
+                                const tchar_t *key_file,
+                                const tchar_t * key_password,
+                                _SSL_setup_callback_t fn) {
+
+    SSL_CTX_set_verify(ssl->handle, mode, nullptr);
+
+    if (ssl) {
+        static _cc_atomic64_t session_id = 0;
+        uint64_t session_id_context = _cc_atomic64_inc(&session_id);
+        SSL_CTX_set_session_id_context(ssl->handle, (BYTE*)&session_id_context, sizeof(session_id_context));
+    }
+
+    if (key_password) {
+        SSL_CTX_set_default_passwd_cb_userdata(ssl->handle, (void*)key_password);
+    }
+
+    if (!SSL_CTX_use_PrivateKey_file(sslCtx, (key_file), SSL_FILETYPE_PEM)) {
+        return ;
+    }
+
+    if (!SSL_CTX_use_certificate_chain_file(sslCtx, (cert_file))){
+        return ;
+    }
+
+    if (!SSL_CTX_check_private_key(sslCtx)){
+        return ;
+    }
+}
+*/
 _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, tchar_t *host, size_t length) {
 #ifdef _CC_UNICODE_
     char host_utf8[256];
@@ -208,49 +289,18 @@ _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, tchar_t *host, size_t le
 #endif
 }
 
-_CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
-    _cc_SSL_t *ssl = _cc_malloc(sizeof(_cc_SSL_t));
-    _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
-    ssl->handle = SSL_new(ctx->handle);
-    _SSL_lock = 0;
-    if (ssl == nullptr) {
-        return nullptr;
-    }
-
-    ssl->ctx = ctx;
-
-    /*Open then socket*/
-    e->fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
-    if (e->fd == -1) {
-        _cc_logger_error(_T("socket fail:%s."), _cc_last_error(_cc_last_errno()));
-        _cc_free(ssl);
-        return nullptr;
-    }
-    /* if we can't terminate nicely, at least allow the socket to be reused*/
-    _cc_set_socket_reuseaddr(e->fd);
-
-    SSL_set_fd(ssl->handle, (int)e->fd);
+_CC_API_PUBLIC(bool_t) _SSL_connect(_cc_SSL_t *ssl, _cc_socket_t fd) {
+    SSL_set_fd(ssl->handle, (int)fd);
     SSL_set_connect_state(ssl->handle);
-
-    /* required to get parallel v4 + v6 working */
-    if (sockaddr->sa_family == AF_INET6) {
-        e->descriptor |= _CC_EVENT_DESC_IPV6_;
-#if defined(IPV6_V6ONLY)
-        _cc_socket_ipv6only(e->fd);
-#endif
-    }
-
-    if (cycle->connect(cycle, e,sockaddr, socklen)) {
-        _cc_atomic32_inc(&ctx->refcount);
-        return ssl;
-    }
-
-    _cc_free(ssl);
-    return nullptr;
+    return true;
 }
 
 _CC_API_PUBLIC(uint16_t) _SSL_do_handshake(_cc_SSL_t *ssl) {
-    int rs = SSL_do_handshake(ssl->handle);
+    int rs;
+
+    ERR_clear_error();
+
+    rs = SSL_do_handshake(ssl->handle);
     if (rs == 1) {
         return _CC_SSL_HS_ESTABLISHED_;
     }
@@ -321,13 +371,12 @@ _CC_API_PUBLIC(int32_t) _SSL_sendbuf(_cc_SSL_t *ssl, _cc_event_t *e) {
     bw = _SSL_send(ssl, wbuf->bytes, wbuf->length);
     if (bw < 0) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-        return bw;
     } else if (bw != 0 && bw < wbuf->length) {
         memmove(wbuf->bytes, wbuf->bytes + bw, wbuf->length - bw);
         wbuf->length -= bw;
-        if (wbuf->length == 0) {
-            _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-        }
+    } else {
+        wbuf->length = 0;
+        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
     _cc_unlock(&wbuf->lock);
     return bw;

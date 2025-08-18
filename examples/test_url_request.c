@@ -69,6 +69,7 @@ static bool_t url_request_success(_cc_url_request_t *request) {
     case HTTP_STATUS_OK:
     case HTTP_STATUS_PARTIAL_CONTENTS:
         _cc_buf_cleanup(&request->buffer);
+        _cc_logger_debug(_T("url_request success,%s"), request->url.host);
         return true;
     case HTTP_STATUS_MOVED_TEMPORARILY: // 目标跳转
     case HTTP_STATUS_MOVED_PERMANENTLY: // 目标跳转
@@ -82,6 +83,8 @@ static bool_t url_request_success(_cc_url_request_t *request) {
     }
     }
     _cc_file_close(fp);
+
+    _cc_logger_warin(_T("url_request fail,%s"), request->url.host);
     return true;
 }
 
@@ -195,31 +198,58 @@ static bool_t url_request(const tchar_t *url, pvoid_t args) {
 }
 static bool_t url_request_connect(_cc_url_request_t *request) {
     struct sockaddr_in sa;
+    _cc_socket_t fd;
     _cc_event_t *e;
     _cc_event_cycle_t *cycle = _cc_get_event_cycle();
     if (request == nullptr) {
         return false;
     }
 
-    _cc_inet_ipv4_addr(&sa, request->url.host, request->url.port);
+    /*Open then socket*/
+    fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
+    if (fd == -1) {
+        _cc_logger_error(_T("socket fail:%s."), _cc_last_error(_cc_last_errno()));
+        return false;
+    }
+
+    /* if we can't terminate nicely, at least allow the socket to be reused*/
+    _cc_set_socket_reuseaddr(fd);
+
     e = _cc_event_alloc(cycle, _CC_EVENT_BUFFER_|_CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
     if (e == nullptr) {
         return false;
     }
 
+    e->fd = fd;
     e->callback = _url_request_callback;
     e->timeout = 30000;
     e->args = request;
+    _cc_reset_url_request(request);
 
     if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
-        request->ssl = _SSL_connect(openSSL,cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in));
-        if (request->ssl) {
-            _SSL_set_host_name(request->ssl, request->url.host, _tcslen(request->url.host));
-            return true;
+        request->ssl = _SSL_alloc(openSSL);
+        if (request->ssl == nullptr) {
+            _cc_free_event(cycle, e);
+            return false;
         }
-    } else if (_cc_tcp_connect(cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _SSL_set_host_name(request->ssl, request->url.host, _tcslen(request->url.host));
+        _SSL_connect(request->ssl, e->fd);
+    } 
+
+    _cc_inet_ipv4_addr(&sa, request->url.host, request->url.port);
+
+    /* required to get parallel v4 + v6 working */
+    if (sa.sin_family == AF_INET6) {
+        e->descriptor |= _CC_EVENT_DESC_IPV6_;
+#if defined(IPV6_V6ONLY)
+        _cc_socket_ipv6only(e->fd);
+#endif
+    }
+
+    if (cycle->connect(cycle, e, (_cc_sockaddr_t*)&sa, sizeof(struct sockaddr_in))) {
         return true;
     }
+
     _cc_free_event(cycle, e);
     return false;
 }

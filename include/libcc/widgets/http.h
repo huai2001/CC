@@ -89,7 +89,7 @@ typedef struct _cc_http_response_header {
 
 typedef bool_t (*_cc_http_header_fn_t)(pvoid_t *arg, tchar_t *line, int length);
 
-_CC_API_PUBLIC(bool_t) _cc_http_header_line(_cc_map_t *headers, tchar_t *line, int length);
+_CC_WIDGETS_API(bool_t) _cc_http_header_line(_cc_map_t *headers, tchar_t *line, int length);
 /**/
 _CC_WIDGETS_API(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg, _cc_event_rbuf_t* r);
 /**/

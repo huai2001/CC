@@ -44,16 +44,31 @@ extern "C" {
 #define _CC_SSL_HS_WANT_READ_       2
 #define _CC_SSL_HS_WANT_WRITE_      3
 
+#define OPENSSL_VERSION_1_0_2	0x10002000L
+#define OPENSSL_VERSION_1_1_0	0x10100000L
+#define OPENSSL_VERSION_3_0_0	0x30000000L
+
 typedef struct _cc_OpenSSL _cc_OpenSSL_t;
 typedef struct _cc_SSL _cc_SSL_t;
+
+#if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_3_0_0
+	#define _SSL_X509_NAME_HASH	X509_NAME_hash
+#else
+	_CC_FORCE_INLINE_ unsigned long _SSL_X509_NAME_HASH(const X509_NAME *x) {
+		return X509_NAME_hash_ex(x, nullptr, nullptr, nullptr);
+	}
+#endif
+
 
 _CC_WIDGETS_API(_cc_OpenSSL_t*) _SSL_init(bool_t is_client);
 /**/
 _CC_WIDGETS_API(void) _SSL_quit(_cc_OpenSSL_t *);
 /**/
+_CC_WIDGETS_API(_cc_SSL_t*) _SSL_alloc(_cc_OpenSSL_t*);
+/**/
 _CC_WIDGETS_API(bool_t) _SSL_free(_cc_SSL_t*);
 /**/
-_CC_WIDGETS_API(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t*, _cc_event_cycle_t*, _cc_event_t*, _cc_sockaddr_t*, _cc_socklen_t);
+_CC_WIDGETS_API(bool_t) _SSL_connect(_cc_SSL_t *ctx, _cc_socket_t fd);
 /**/
 _CC_WIDGETS_API(void) _SSL_set_host_name(_cc_SSL_t*, tchar_t*, size_t);
 /**/
