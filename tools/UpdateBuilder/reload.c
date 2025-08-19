@@ -77,7 +77,7 @@ int builder_ReloadList(void) {
 
     sqldelegate.execute(sql, _T("DELETE FROM `FileList`;"), nullptr);
     sqldelegate.execute(sql, _T("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'FileList';"), nullptr);
-    if (sqldelegate.prepare(sql, _T("INSERT INTO `FileList` (`Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path`) VALUES ( ?,'',0,?,?,?);"), &result)) {
+    if (sqldelegate.execute(sql, _T("INSERT INTO `FileList` (`Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path`) VALUES ( ?,'',0,?,?,?);"), &result)) {
         OpenDeepDirectory(sourceDirectory, sql, result);
         sqldelegate.free_result(sql, result);
     }
