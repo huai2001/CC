@@ -65,10 +65,6 @@
 extern "C" {
 #endif
 
-#ifndef __CC_WINDOWS__
-int __cc_get_fcntl(_cc_socket_t fd);
-int __cc_set_fcntl(_cc_socket_t fd, int flags);
-#endif
 /**/
 int __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len);
 
@@ -87,7 +83,6 @@ _CC_API_PUBLIC(bool_t) _cc_install_socket(void);
 _CC_API_PUBLIC(bool_t) _cc_uninstall_socket(void);
 
 /*
-
 */
 _CC_API_PUBLIC(_cc_socket_t) _cc_socket(uint32_t domain, uint32_t type, uint32_t protocol);
 

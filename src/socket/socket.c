@@ -41,48 +41,18 @@ _CC_API_PUBLIC(int) __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockad
 }
 
 #ifndef __CC_WINDOWS__
-_CC_API_PUBLIC(int) __cc_get_fcntl(_cc_socket_t fd) {
-    int r;
-    do {
-        r = fcntl(fd, F_GETFD);
-    } while (r == -1 && errno == EINTR);
-
-#ifdef _CC_DEBUG_
-    if (r == -1) {
-        r = _cc_last_errno();
-        _cc_logger_error(_T("F_GETFL fcntl(%d) failed with error:%d, %s "), fd, r, _cc_last_error(r));
-    }
-#endif
-
-    return r;
-}
-
-_CC_API_PUBLIC(int) __cc_set_fcntl(_cc_socket_t fd, int flags) {
-    int r;
-    do {
-        r = fcntl(fd, F_SETFD, flags);
-    } while (r == -1 && errno == EINTR);
-#ifdef _CC_DEBUG_
-    if (r == -1) {
-        flags = _cc_last_errno();
-        _cc_logger_error(_T("F_SETFL fcntl(%d) failed with error:%d, %s "), fd, flags, _cc_last_error(flags));
-    }
-#endif
-    return r;
-}
-
 /* Enable the FD_CLOEXEC on the given fd to avoid fd leaks.
  * This function should be invoked for fd's on specific places
  * where fork + execve system calls are called. */
 
 _CC_API_PUBLIC(bool_t) _cc_set_socket_closeonexec(_cc_socket_t fd) {
 #if defined(FD_CLOEXEC)
-    int flags = __cc_get_fcntl(fd);
+    int flags = __cc_get_fcntl(fd, F_GETFD);
     if (flags == -1 || (flags & FD_CLOEXEC)) {
         return false;
     }
 
-    if (__cc_set_fcntl(fd, flags | FD_CLOEXEC) < 0) {
+    if (__cc_set_fcntl(fd, F_SETFD, flags | FD_CLOEXEC) < 0) {
         return false;
     }
 #endif

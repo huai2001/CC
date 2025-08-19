@@ -83,6 +83,34 @@ _CC_API_PUBLIC(int) _cc_close_socket(_cc_socket_t fd) {
 #undef _sys_close
 }
 
+_CC_API_PUBLIC(int) __cc_get_fcntl(_cc_socket_t fd, int cmd) {
+    int r;
+    do {
+        r = fcntl(fd, cmd);
+    } while (r == -1 && errno == EINTR);
+
+#ifdef _CC_DEBUG_
+    if (r == -1) {
+        _cc_logger_error(_T("fcntl(%d, %d) failed with error:%s "), fd, cmd, _cc_last_error(_cc_last_errno()));
+    }
+#endif
+
+    return r;
+}
+
+_CC_API_PUBLIC(int) __cc_set_fcntl(_cc_socket_t fd, int cmd, int flags) {
+    int r;
+    do {
+        r = fcntl(fd, cmd, flags);
+    } while (r == -1 && errno == EINTR);
+#ifdef _CC_DEBUG_
+    if (r == -1) {
+        _cc_logger_error(_T("fcntl(%d, %d, %d) failed with error: %s "), fd, cmd, flags, _cc_last_error(_cc_last_errno()));
+    }
+#endif
+    return r;
+}
+
 _CC_API_PUBLIC(int) _cc_set_socket_nodelay(_cc_socket_t fd, int enable) {
     return setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &enable, sizeof(enable));
 }
@@ -94,7 +122,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
 #elif defined(__CC_OS2__)
     return ioctl(fd, FIONBIO, &nonblocking);
 #else
-    int flags = __cc_get_fcntl(fd);
+    int flags = __cc_get_fcntl(fd, F_GETFL);
     if (nonblocking) {
 #if defined(O_NONBLOCK)
         flags |= O_NONBLOCK;
@@ -112,7 +140,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
         flags &= ~FNDELAY;
 #endif
     }
-    return __cc_set_fcntl(fd, flags);
+    return __cc_set_fcntl(fd, F_SETFL, flags);
 #endif
 }
 

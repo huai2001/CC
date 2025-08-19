@@ -98,6 +98,11 @@ typedef union {
 #define _cc_setsockopt(__sock, __level, __optname, __optval , __optlen) \
     setsockopt( __sock , __level , __optname , (pvoid_t)__optval , __optlen )
 
+/**/
+int __cc_get_fcntl(_cc_socket_t fd, int cmd);
+/**/
+int __cc_set_fcntl(_cc_socket_t fd, int cmd, int flags);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }
