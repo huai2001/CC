@@ -48,7 +48,11 @@ _CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t l
 _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t* str);
 
 #ifdef _CC_MSVC_
-    /**/
+    #define _cc_loggerW_alert(FMT, ...) \
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_ALERT_, FMT, ##__VA_ARGS__)
+    #define _cc_loggerA_alert(FMT, ...) \
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_ALERT_, FMT, ##__VA_ARGS__)
+
     #define _cc_loggerW_debug(FMT, ...) \
         _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_DEBUG_, FMT, ##__VA_ARGS__)
     #define _cc_loggerA_debug(FMT, ...) \
@@ -69,6 +73,11 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
     #define _cc_loggerA_error(FMT, ...) \
         _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_ERROR_, FMT, ##__VA_ARGS__)
 #else
+    #define _cc_loggerW_alert(FMT, ARGS...) \
+        _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_ALERT_, FMT, ##ARGS)
+    #define _cc_loggerA_alert(FMT, ARGS...) \
+        _cc_loggerA_format(_CC_FILE_, _CC_LINE_, _CC_LOG_LEVEL_ALERT_, FMT, ##ARGS)
+
     #define _cc_loggerW_debug(FMT, ARGS...) \
         _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_DEBUG_, FMT, ##ARGS)
     #define _cc_loggerA_debug(FMT, ARGS...) \
@@ -98,6 +107,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 #define _cc_logger_debug _cc_loggerW_debug
 #define _cc_logger_info _cc_loggerW_info
 #define _cc_logger_error _cc_loggerW_error
+#define _cc_logger_alert _cc_loggerW_alert
 #define _cc_logger_syslog _cc_loggerW_syslog
 #else
 #define _cc_logger_format _cc_loggerA_format
@@ -106,6 +116,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 #define _cc_logger_debug _cc_loggerA_debug
 #define _cc_logger_info _cc_loggerA_info
 #define _cc_logger_error _cc_loggerA_error
+#define _cc_logger_alert _cc_loggerA_alert
 #define _cc_logger_syslog _cc_loggerA_syslog
 #endif
 

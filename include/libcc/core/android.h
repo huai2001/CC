@@ -47,7 +47,7 @@ extern "C" {
 /**
  * @brief JNI Console log
  */
-#define _CC_ANDROID_TAG_ "CC-JNI"
+#define _CC_ANDROID_TAG_ "LIBCC-JNI"
 
 typedef void (*RequestAndroidPermissionCallback_t)(void *userdata, const tchar_t *permission, bool granted);
 

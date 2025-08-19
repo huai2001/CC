@@ -103,13 +103,42 @@ _CC_API_PRIVATE(void) _outputA_log(const tchar_t *file, int line, uint8_t level,
     OutputDebugStringA(msg);
     OutputDebugStringA("\n");
 #endif
+    switch(level) {
+        case _CC_LOG_LEVEL_EMERG_:
+        case _CC_LOG_LEVEL_ALERT_:
+        case _CC_LOG_LEVEL_ERROR_:
+            fputs("\033[31m", stdout);
+            break;
+        case _CC_LOG_LEVEL_CRIT_:
+        case _CC_LOG_LEVEL_WARNING_:
+            fputs("\033[33m", stdout);
+            break;
+        case _CC_LOG_LEVEL_NOTICE_:
+            fputs("\033[32m", stdout);
+            break;
+        case _CC_LOG_LEVEL_INFO_:
+            fputs("\033[34m", stdout);
+            break;
+        case _CC_LOG_LEVEL_DEBUG_:
+            fputs("\033[36m", stdout);
+            break;
+    }
     fputs(buffer, stdout);
     fputs(msg, stdout);
-    fputs("\n", stdout);
+    fputs("\033[0m\n", stdout);
 #endif
     _cc_syslogA(level, msg, length);
 }
-
+/*
+"\033[30m Black     \033[0m"
+"\033[31m Red       \033[0m"
+"\033[32m Green     \033[0m"
+"\033[33m Yellow    \033[0m"
+"\033[34m Blue      \033[0m"
+"\033[35m Pink      \033[0m"
+"\033[36m Sky blue  \033[0m"
+"\033[37m White     \033[0m"
+*/
 _CC_API_PRIVATE(void) _outputW_log(const tchar_t *file, int line, uint8_t level, const wchar_t *msg, size_t length) {
 #ifndef __CC_ANDROID__
     tchar_t buffer[_CC_1K_BUFFER_SIZE_];
@@ -144,9 +173,30 @@ _CC_API_PRIVATE(void) _outputW_log(const tchar_t *file, int line, uint8_t level,
     OutputDebugStringW(msg);
     OutputDebugStringW(L"\n");
 #endif
+    switch(level) {
+        case _CC_LOG_LEVEL_EMERG_:
+        case _CC_LOG_LEVEL_ALERT_:
+        case _CC_LOG_LEVEL_ERROR_:
+            fputs("\033[31m", stdout);
+            break;
+        case _CC_LOG_LEVEL_CRIT_:
+        case _CC_LOG_LEVEL_WARNING_:
+            fputs("\033[33m", stdout);
+            break;
+        case _CC_LOG_LEVEL_NOTICE_:
+            fputs("\033[32m", stdout);
+            break;
+        case _CC_LOG_LEVEL_INFO_:
+            fputs("\033[34m", stdout);
+            break;
+        case _CC_LOG_LEVEL_DEBUG_:
+            fputs("\033[36m", stdout);
+            break;
+    }
     fputs(buffer, stdout);
     fputws(msg, stdout);
-    fputws(L"\n", stdout);
+    fputws(L"\033[0m\n", stdout);
+
 #endif
 
     _cc_syslogW(level, msg, length);
