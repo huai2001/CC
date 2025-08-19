@@ -256,12 +256,12 @@ void _build_vmess_header(_vmess_t *vmess, const byte_t *addr, uint16_t len, uint
 
 byte_t c = 0;
 time_t start_time = 0;
-_cc_event_cycle_t network_event;
+_cc_async_event_t network_event;
 _cc_thread_t *network_thread = nullptr;
 
 int32_t fn_thread(_cc_thread_t *thrd, void* param) {
     while(c!='q')
-        _cc_event_wait((_cc_event_cycle_t *)param, 100);
+        _cc_event_wait((_cc_async_event_t *)param, 100);
 
     return 1;
 }
@@ -327,7 +327,7 @@ void sendVmess(_cc_event_t *e) {
     }
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if(which & _CC_EVENT_CONNECT_){
         sendVmess(e);
         _cc_logger_debug(_T("Connect to server!\n"));

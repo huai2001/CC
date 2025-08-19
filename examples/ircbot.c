@@ -7,7 +7,7 @@
 static char *channel = "#dyadbots";
 //定义一个事件对象
 static _cc_thread_t* network_thread;
-static _cc_event_cycle_t network_event;
+static _cc_async_event_t network_event;
 static _cc_event_t *curr_event;
 //线程生命周期变量
 static bool_t keep_active = true;
@@ -15,7 +15,7 @@ static int is_registered = 0;
 
 int32_t thread_running(_cc_thread_t *t, pvoid_t args) {
     while(keep_active)
-        _cc_event_wait((_cc_event_cycle_t*)args, 100);
+        _cc_event_wait((_cc_async_event_t*)args, 100);
     
     return 0;
 }
@@ -41,7 +41,7 @@ static bool_t send_message(_cc_event_t *e) {
     return true;
 }
 
-static bool_t close_event(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+static bool_t close_event(_cc_async_event_t *async, _cc_event_t *e) {
     if (curr_event == e) {
         curr_event = nullptr;
         _putts(_T("Press 'enter' key to exit\n"));
@@ -71,7 +71,7 @@ static void onLine(_cc_event_t *e, const char_t* data, uint16_t length) {
     }
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     /*成功连接服务器*/
     if (which & _CC_EVENT_CONNECTED_) {
         tchar_t data[1024];
@@ -90,14 +90,14 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     /*无法连接*/
     if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("Disconnect to server: %s.\n"), _cc_last_error(_cc_last_errno()));
-        return close_event(cycle, e);
+        return close_event(async, e);
     }
     
     /*有数据可以读*/
     if (which & _CC_EVENT_READABLE_) {
         if (!_cc_event_recv(e)) {
             _tprintf(_T("TCP close %d\n"), e->fd);
-            return close_event(cycle, e);
+            return close_event(async, e);
         }
 
         if (e->buffer && e->buffer->r.length > 0) {
@@ -135,7 +135,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     /*连接超时*/
     if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
-        return close_event(cycle, e);
+        return close_event(async, e);
     }
     
     return true;

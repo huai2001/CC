@@ -7,13 +7,13 @@
 #include <libcc/widgets/widgets.h>
 
 int main (int argc, char* argv[]) {
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
 
     _cc_dns_listen();
     while (getchar() != 'q') {
         _cc_sleep(100);
     }
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
     return 0;
 }
 

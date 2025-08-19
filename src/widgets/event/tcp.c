@@ -24,7 +24,7 @@
 /**< The backlog that listen() should use. */
 #define _NET_LISTEN_BACKLOG_ SOMAXCONN
 /**/
-_CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
+_CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
     /*Open then socket*/
     e->fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (e->fd == -1) {
@@ -52,10 +52,10 @@ _CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_event_cycle_t *cycle, _cc_event_t *e, 
         return false;
     }
 
-    return cycle->attach(cycle, e);
+    return async->attach(async, e);
 }
 
-_CC_API_PUBLIC(bool_t) _cc_tcp_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
+_CC_API_PUBLIC(bool_t) _cc_tcp_connect(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen) {
     /*Open then socket*/
     e->fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (e->fd == -1) {
@@ -72,5 +72,5 @@ _CC_API_PUBLIC(bool_t) _cc_tcp_connect(_cc_event_cycle_t *cycle, _cc_event_t *e,
 #endif
     }
 
-    return cycle->connect(cycle, e, sockaddr, socklen);
+    return async->connect(async, e, sockaddr, socklen);
 }

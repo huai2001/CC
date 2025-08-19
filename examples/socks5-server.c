@@ -48,7 +48,7 @@ typedef struct _socks5 {
 
 } _cc_socks5_t;
 
-static bool_t _socks5_event_callback2(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t _socks5_event_callback2(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_CONNECTED_) {
         _cc_logger_debug(_T("%d connect to server."), e->fd);
         return true;
@@ -197,7 +197,7 @@ bool_t ProtocolRequest(byte_t *m, _cc_socks5_t *socks, _cc_event_t *e) {
     memcpy(&buf[4], &ip, 4);
     memcpy(&buf[8], &port, 2);
 
-    socks->e = _cc_tcp_connect(_cc_get_event_cycle(), _CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_ | _CC_EVENT_BUFFER_,
+    socks->e = _cc_tcp_connect(_cc_get_async_event(), _CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_ | _CC_EVENT_BUFFER_,
                                (_cc_sockaddr_t *)&socks->addr, 60000, _socks5_event_callback2, e);
 
     socks->status = 4;
@@ -205,16 +205,16 @@ bool_t ProtocolRequest(byte_t *m, _cc_socks5_t *socks, _cc_event_t *e) {
     return true;
 }
 
-static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t _socks5_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_event_t *event;
         _cc_socks5_t *socks5;
         struct sockaddr_in remote_addr = {0};
         _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
-        _cc_event_cycle_t *cycle_new = _cc_get_event_cycle();
+        _cc_async_event_t *cycle_new = _cc_get_async_event();
 
-        fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
+        fd = _cc_event_accept(async, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
             _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(nullptr),
                              _cc_last_error(_cc_last_errno()));
@@ -321,8 +321,8 @@ static bool_t _socks5_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
 
 void _cc_socks5_starting(uint16_t port) {
     struct sockaddr_in sa;
-    _cc_event_cycle_t *cycle = _cc_get_event_cycle();
-    _cc_evnet_t *e = _cc_event_alloc(cycle, _CC_EVENT_ACCEPT_);
+    _cc_async_event_t *async = _cc_get_async_event();
+    _cc_evnet_t *e = _cc_event_alloc(async, _CC_EVENT_ACCEPT_);
     if (e == nullptr) {
         return;
     }
@@ -330,18 +330,18 @@ void _cc_socks5_starting(uint16_t port) {
     e->callback = _socks5_event_callback;
 
     _cc_inet_ipv4_addr(&sa, nullptr, port);
-    if (!_cc_tcp_listen(cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
-        _cc_free_event(cycle, e);
+    if (!_cc_tcp_listen(async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _cc_free_event(async, e);
     }
 }
 
 int main(int argc, char *argv[]) {
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
 
     _cc_socks5_starting(8088);
     while (getchar() != 'q') {
         _cc_sleep(100);
     }
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
     return 0;
 }

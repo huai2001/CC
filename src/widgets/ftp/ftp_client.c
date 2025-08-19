@@ -12,7 +12,7 @@
 
 _CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t which);
 
-_CC_API_PRIVATE(bool_t) network_event_close(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_close(_cc_async_event_t* async,
                                              _cc_event_t* e) {
     if (e->args)
         _cc_ftp_disconnected((_cc_ftp_t*)e->args);
@@ -20,7 +20,7 @@ _CC_API_PRIVATE(bool_t) network_event_close(_cc_event_cycle_t* cycle,
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) network_event_pasv_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_pasv_callback(_cc_async_event_t* async,
                                                      _cc_event_t* e,
                                                      const uint16_t which) {
     /*成功连接服务器*/
@@ -49,7 +49,7 @@ _CC_API_PRIVATE(bool_t) network_event_pasv_callback(_cc_event_cycle_t* cycle,
             printf("%s\n", (char_t*)rbuf->bytes);
             rbuf->length = 0;
 
-            network_event_close(cycle, e);
+            network_event_close(async, e);
             return false;
         }
 
@@ -71,13 +71,13 @@ _CC_API_PRIVATE(bool_t) network_event_pasv_callback(_cc_event_cycle_t* cycle,
     /*连接超时*/
     if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
-        network_event_close(cycle, e);
+        network_event_close(async, e);
         return false;
     }
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_async_event_t* async,
                                                      _cc_event_t* e,
                                                      const uint16_t which) {
     /*成功连接服务器*/
@@ -87,9 +87,9 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
         _cc_event_t* new_event;
         struct sockaddr_in remote_addr = {0};
         _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
-        _cc_event_cycle_t* new_cycle = _cc_get_event_cycle();
+        _cc_async_event_t* new_cycle = _cc_get_event_cycle();
 
-        fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
+        fd = _cc_event_accept(async, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
             _cc_logger_error(_T("thread %d accept fail.\n"), _cc_get_thread_id(nullptr));
             return true;
@@ -129,7 +129,7 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
             printf("%s\n", (char_t*)rbuf->bytes);
             rbuf->length = 0;
 
-            network_event_close(cycle, e);
+            network_event_close(async, e);
             return false;
         }
 
@@ -164,7 +164,7 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_event_cycle_t* cycle,
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
+_CC_API_PRIVATE(bool_t) network_event_callback(_cc_async_event_t* async,
                                                 _cc_event_t* e,
                                                 const uint16_t which) {
     /*成功连接服务器*/
@@ -174,7 +174,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
         ftp->ctrl.e = e;
 
         if (!_cc_ftp_connected(ftp)) {
-            network_event_close(cycle, e);
+            network_event_close(async, e);
             return false;
         }
 
@@ -186,7 +186,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
     if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("%d disconnect to server.\n"), e->fd);
 
-        network_event_close(cycle, e);
+        network_event_close(async, e);
         return false;
     }
 
@@ -196,7 +196,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
         _cc_event_rbuf_t* rbuf = &e->buffer->r;
         if (!_cc_event_recv(e)) {
             _tprintf(_T("TCP close %d\n"), e->fd);
-            network_event_close(cycle, e);
+            network_event_close(async, e);
             return false;
         }
 
@@ -211,7 +211,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
                 return true;
             }
         }
-        network_event_close(cycle, e);
+        network_event_close(async, e);
         return false;
     }
 
@@ -224,7 +224,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
     /*连接超时*/
     if (which & _CC_EVENT_TIMEOUT_) {
         _tprintf(_T("TCP timeout %d\n"), e->fd);
-        network_event_close(cycle, e);
+        network_event_close(async, e);
         return false;
     }
 
@@ -234,7 +234,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle,
 /**/
 bool_t _cc_ftp_tcp_listen(_cc_ftp_t* ftp) {
     struct linger lng = {0, 0};
-    _cc_event_cycle_t *cycle = nullptr;
+    _cc_async_event_t *async = nullptr;
     _cc_socket_t fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (fd == -1) {
         return false;
@@ -268,7 +268,7 @@ bool_t _cc_ftp_tcp_listen(_cc_ftp_t* ftp) {
         return false;
     }
 
-    ftp->data.e = cycle->attach(cycle, _CC_EVENT_ACCEPT_, fd, 60000, network_event_port_callback, ftp);
+    ftp->data.e = async->attach(async, _CC_EVENT_ACCEPT_, fd, 60000, network_event_port_callback, ftp);
     if (ftp->data.e) {
         _cc_set_socket_nonblock(fd, true);
         return true;
@@ -319,8 +319,8 @@ _CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t which) {
                     _cc_ftp_open_port(ftp);
                 }
             } else {
-                ftp->data.cycle = _cc_get_event_cycle();
-                ftp->data.e = _cc_tcp_connect(ftp->data.cycle, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_,
+                ftp->data.async = _cc_get_event_cycle();
+                ftp->data.e = _cc_tcp_connect(ftp->data.async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_,
                     (_cc_sockaddr_t*)&ftp->sa, 60000, network_event_pasv_callback, ftp);
             }
             break;
@@ -360,7 +360,7 @@ _CC_API_PRIVATE(bool_t) ftp_event_callback(_cc_ftp_t* ftp, uint16_t which) {
 
 bool_t ftp_client(_cc_ftp_t* ftp, tchar_t *host, uint16_t port) {
     struct sockaddr_in sa;
-    _cc_event_cycle_t *cycle = _cc_get_event_cycle();
+    _cc_async_event_t *async = _cc_get_event_cycle();
     if (ftp == nullptr) {
         return false;
     }
@@ -372,7 +372,7 @@ bool_t ftp_client(_cc_ftp_t* ftp, tchar_t *host, uint16_t port) {
     ftp->logined = false;
 
     _cc_inet_ipv4_addr(&sa, host, port);
-    if (_cc_tcp_connect(cycle, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockaddr_t*)&sa, 60000, network_event_callback, ftp) == nullptr) {
+    if (_cc_tcp_connect(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_BUFFER_, (_cc_sockaddr_t*)&sa, 60000, network_event_callback, ftp) == nullptr) {
         _tprintf(_T("Unable to connect to the network port %s:%d\n"), host, port);
     }
     return true;

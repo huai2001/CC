@@ -9,7 +9,7 @@ static struct {
 } monitoring;
 
 static bool_t keep_active = true;
-static _cc_event_cycle_t accept_event;
+static _cc_async_event_t accept_event;
 
 tchar_t* get_disk_size_unit(uint64_t disk_size, tchar_t *buf, int32_t size) {
     if (disk_size < 1024) {
@@ -41,7 +41,7 @@ static uint32_t getIP(const _cc_event_t* e) {
     return (addr.sin_addr.s_addr);
 }*/
 
-static bool_t send_data(_cc_event_cycle_t *cycle, _cc_event_t *e, byte_t *buf, int32_t len) {
+static bool_t send_data(_cc_async_event_t *async, _cc_event_t *e, byte_t *buf, int32_t len) {
     int32_t sent = _cc_send(e->fd, buf, len);//_cc_event_send(e, buf, len);
 
     if (sent > 0) {
@@ -54,7 +54,7 @@ static bool_t send_data(_cc_event_cycle_t *cycle, _cc_event_t *e, byte_t *buf, i
     return false;
 }
 
-static bool_t timeout_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t timeout_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     time_t t = time(nullptr);
     tchar_t unit_size[2][1024];
     struct tm* local_time = localtime(&t);
@@ -73,14 +73,14 @@ static bool_t timeout_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
     return true;
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_event_t *event;
         struct sockaddr_in remote_addr = {0};
         _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
-        _cc_event_cycle_t *cycle_new = _cc_get_event_cycle();
-        fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
+        _cc_async_event_t *cycle_new = _cc_get_async_event();
+        fd = _cc_event_accept(async, e, &remote_addr, &remote_addr_len);
 		if (fd == _CC_INVALID_SOCKET_) {
             _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(nullptr), _cc_last_error(_cc_last_errno()));
             return true;
@@ -132,7 +132,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         }
         if (rw->r.length > 0) {
             _cc_atomic64_add(&monitoring.revice_size, rw->r.length);
-            send_data(cycle, e, rw->r.bytes, rw->r.length);
+            send_data(async, e, rw->r.bytes, rw->r.length);
         }
 
         //_cc_sleep(1);
@@ -151,7 +151,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
         //_cc_logger_debug("-----\n(%d)\n----\n%s\n",e->fd, buf);
 
         _cc_atomic64_add(&monitoring.revice_size, length);
-        //send_data(cycle, e, buf, length);
+        //send_data(async, e, buf, length);
         _cc_sleep(1);
         return true;
     }
@@ -201,7 +201,7 @@ void exit_proc(int sig) {
             printf("exit_proc error - %d\n", sig);
             break;
     }
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
     //_cc_sleep(10000);
     exit(0);
 }
@@ -212,11 +212,11 @@ int main (int argc, char * const argv[]) {
     int32_t i = 0;
     struct sockaddr_in sa;
     _cc_event_t *e;
-    _cc_event_cycle_t *cycle;
+    _cc_async_event_t *async;
     int16_t port = 10000;
 
     _cc_install_socket();
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
     bzero(&monitoring, sizeof(monitoring));
     if (_cc_init_event_poller(&accept_event) == false) {
         return 1;
@@ -246,10 +246,10 @@ int main (int argc, char * const argv[]) {
                     local_time->tm_min,
                     local_time->tm_sec);
     }
-    cycle = _cc_get_event_cycle();
+    async = _cc_get_async_event();
 
-    _cc_add_event_timeout(cycle, 5000, timeout_event_callback, nullptr);
-    //_cc_add_event_timeout(_cc_get_event_cycle(), 1000*60, timeout_event_callback, nullptr);
+    _cc_add_event_timeout(async, 5000, timeout_event_callback, nullptr);
+    //_cc_add_event_timeout(_cc_get_async_event(), 1000*60, timeout_event_callback, nullptr);
     
 #ifndef __CC_WINDOWS__
     signal(SIGHUP,exit_proc);
@@ -262,7 +262,7 @@ int main (int argc, char * const argv[]) {
         _cc_event_wait(&accept_event, 100);
     }
 #ifdef __CC_WINDOWS__
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
 #endif
     //
     return 0;

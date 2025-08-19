@@ -12,7 +12,7 @@ typedef struct timer{
 static _timer_t timerlist[10];
 //static int32_t count = 0;
 
-bool_t _timeout_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+bool_t _timeout_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     uint64_t tick = _cc_get_ticks();
     _timer_t *timer = (_timer_t*)e->args;
     time_t t = time(nullptr);
@@ -31,20 +31,20 @@ bool_t _timeout_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_
 }
 
 int main (int argc, char * const argv[]) {
-    //_cc_event_cycle_t timers;
+    //_cc_async_event_t timers;
     int i;
     uint64_t tick = _cc_get_ticks();
 
     //_cc_init_event_poller(&timers);
     //_cc_init_event_timeout(&timers);
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
 
     for(i = 1; i < _cc_countof(timerlist); i++) {
         timerlist[i].ident = i + 1000;
         timerlist[i].tick = tick;
-        _cc_add_event_timeout(_cc_get_event_cycle(), 1000 * (i + 1), _timeout_callback, &timerlist[i]);
+        _cc_add_event_timeout(_cc_get_async_event(), 1000 * (i + 1), _timeout_callback, &timerlist[i]);
     }
-    while (_cc_event_loop_is_running()) {
+    while (_cc_async_event_is_running()) {
         //timers.wait(&timers, 100);
         _cc_sleep(100);
     }

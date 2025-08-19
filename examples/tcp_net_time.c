@@ -4,11 +4,11 @@
 
 byte_t c = 0;
 time_t start_time = 0;
-_cc_event_cycle_t cycle;
+_cc_async_event_t async;
 
 int32_t fn_thread(_cc_thread_t *thrd, void* args) {
     while (c != 'q')
-        _cc_event_wait(&cycle, 100);
+        _cc_event_wait(&async, 100);
 
     return 1;
 }
@@ -45,7 +45,7 @@ void ConvertTime(time_t ulTime) {
     }
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *event_base, _cc_event_t *ev, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *event_base, _cc_event_t *ev, const uint16_t which) {
     if (which & _CC_EVENT_CONNECT_) {
         start_time = time(nullptr);
         _tprintf(_T(" connect to server!\n"));
@@ -103,22 +103,22 @@ int main (int argc, char * const argv[]) {
 
     _cc_install_socket();
 
-    if (_cc_init_event_poller(&cycle) == false) {
+    if (_cc_init_event_poller(&async) == false) {
         return 0;
     }
 
-    _cc_thread_start(fn_thread, _T("net-time"), &cycle);
+    _cc_thread_start(fn_thread, _T("net-time"), &async);
 
     _cc_inet_ipv4_addr(&sa, webUrl[rand() % _cc_countof(webUrl)], 53);
 
-    e = _cc_event_alloc(&cycle,  _CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_);
+    e = _cc_event_alloc(&async,  _CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_);
     if (e == nullptr) {
         return;
     }
     e->callback = network_event_callback;
     e->timeout = 10000;
-    if (!_cc_tcp_connect(&cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
-        _cc_free_event(&cycle, e);
+    if (!_cc_tcp_connect(&async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _cc_free_event(&async, e);
         return;
     }
 
@@ -126,7 +126,7 @@ int main (int argc, char * const argv[]) {
         _cc_sleep(100);
     }
 
-    cycle.quit(&cycle);
+    async.quit(&async);
 
     _cc_uninstall_socket();
 

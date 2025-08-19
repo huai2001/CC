@@ -3,14 +3,14 @@
 #include <locale.h>
 #include <stdio.h>
 
-_CC_API_PRIVATE(bool_t) network_event_close(_cc_event_cycle_t* cycle, _cc_event_t* e) {
+_CC_API_PRIVATE(bool_t) network_event_close(_cc_async_event_t* async, _cc_event_t* e) {
     if (e->args)
         _cc_smtp_disconnected((_cc_smtp_t*)e->args);
 
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle, _cc_event_t* e, const uint16_t which) {
+_CC_API_PRIVATE(bool_t) network_event_callback(_cc_async_event_t* async, _cc_event_t* e, const uint16_t which) {
     _cc_smtp_t* smtp = (_cc_smtp_t*)e->args;
     /*成功连接服务器*/
     if (which & _CC_EVENT_CONNECTED_) {
@@ -28,7 +28,7 @@ _CC_API_PRIVATE(bool_t) network_event_callback(_cc_event_cycle_t* cycle, _cc_eve
     if (which & _CC_EVENT_DISCONNECT_) {
         _tprintf(_T("%d disconnect to server.\n"), e->fd);
 
-        network_event_close(cycle, e);
+        network_event_close(async, e);
         return false;
     }
 
@@ -137,8 +137,8 @@ bool_t smtp_client(_cc_smtp_t* smtp, tchar_t *host, uint16_t port) {
     /*连接到服务端口为21*/
     //_T("smtp.163.com")
     _cc_inet_ipv4_addr(&sa, host, port);
-    smtp->ctrl.cycle = _cc_get_event_cycle();
-    smtp->ctrl.e = _cc_tcp_connect(smtp->ctrl.cycle, _CC_EVENT_BUFFER_|_CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_,
+    smtp->ctrl.async = _cc_get_async_event();
+    smtp->ctrl.e = _cc_tcp_connect(smtp->ctrl.async, _CC_EVENT_BUFFER_|_CC_EVENT_CONNECT_ | _CC_EVENT_TIMEOUT_,
         (_cc_sockaddr_t*)&sa, 60000, network_event_callback, smtp);
     if (smtp->ctrl.e == nullptr) {
         _cc_logger_error(_T("Unable to connect to the network port %s:%d\n"), host, port);

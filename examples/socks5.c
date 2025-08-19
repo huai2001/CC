@@ -3,7 +3,7 @@
 #include <locale.h>
 
 //定义一个事件对象
-static _cc_event_cycle_t network_event;
+static _cc_async_event_t network_event;
 //定义一个线程
 static _cc_thread_t *network_thread = nullptr;
 //线程生命周期变量
@@ -13,7 +13,7 @@ static int socks5_status = 0;
 
 int32_t thread_running(_cc_thread_t *t, pvoid_t args) {
     while(keep_active)
-        _cc_event_wait((_cc_event_cycle_t*)args, 100);
+        _cc_event_wait((_cc_async_event_t*)args, 100);
     
     return 0;
 }
@@ -40,7 +40,7 @@ typedef struct _cc_socks5_methods {
     byte_t auth;
 } _cc_socks5_methods_t;
 
-bool_t send_socks5(_cc_event_cycle_t *cycle, _cc_event_t *e, byte_t *data, int32_t len) {
+bool_t send_socks5(_cc_async_event_t *async, _cc_event_t *e, byte_t *data, int32_t len) {
     int32_t sent = _cc_event_send(e, data, len);
     if (sent > 0){
         return true;
@@ -48,7 +48,7 @@ bool_t send_socks5(_cc_event_cycle_t *cycle, _cc_event_t *e, byte_t *data, int32
     return false;
 }
 
-static bool_t send_socks5_methods(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+static bool_t send_socks5_methods(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_socks5_methods_t method;
     method.version = 0x05;
     method.n = 0x01;
@@ -58,7 +58,7 @@ static bool_t send_socks5_methods(_cc_event_cycle_t *cycle, _cc_event_t *e) {
     buf[i++] = 0x01;
     buf[i++] = 0x02;
     
-    return send_socks5(cycle, e, (byte_t*)&method, sizeof(_cc_socks5_methods_t));
+    return send_socks5(async, e, (byte_t*)&method, sizeof(_cc_socks5_methods_t));
 }
 
 /*
@@ -68,7 +68,7 @@ static bool_t send_socks5_methods(_cc_event_cycle_t *cycle, _cc_event_t *e) {
 | 1  |        1        |  1 to 255   |        1        |  1 to 255  |
 +----+-----------------+-------------+-----------------+------------+
 */
-static bool_t send_socks5_auth(_cc_event_cycle_t *cycle, _cc_event_t *e, const tchar_t *user_name, const tchar_t *password) {
+static bool_t send_socks5_auth(_cc_async_event_t *async, _cc_event_t *e, const tchar_t *user_name, const tchar_t *password) {
     byte_t buf[1024];
     byte_t *p;
     byte_t c = 0,len = 0;
@@ -90,7 +90,7 @@ static bool_t send_socks5_auth(_cc_event_cycle_t *cycle, _cc_event_t *e, const t
     }
     *p = len;
     
-    return send_socks5(cycle, e, buf, i);
+    return send_socks5(async, e, buf, i);
 }
 
 /*
@@ -115,7 +115,7 @@ DST.ADDR.目的地址
     当ATYP=0x03 第一个部分为一个1字节表示域名长度，第二部分就是剩余内容为具体域名。Active表示长度不定。没有\0作为结尾
 DST.PORT 网络字节序表示的目的端口
 */
-static bool_t send_socks5_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const tchar_t *domain, int16_t port){
+static bool_t send_socks5_connect(_cc_async_event_t *async, _cc_event_t *e, const tchar_t *domain, int16_t port){
     byte_t buf[128];
     byte_t c = 0,len = 0;
     byte_t *p;
@@ -136,7 +136,7 @@ static bool_t send_socks5_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, cons
     buf[i++] = (byte_t)(port/256);
     buf[i++] = (byte_t)(port%256);
     
-    return send_socks5(cycle, e, buf, i);
+    return send_socks5(async, e, buf, i);
 }
 
 /*
@@ -162,13 +162,13 @@ BND.ADDR 代理服务器连接目标服务器成功后的代理服务器IP
 BND.PORT 代理服务器连接目标服务器成功后的代理服务器端口
 */
 
-//send_socks5_request(cycle, e, "www.ip138.com", 80);
+//send_socks5_request(async, e, "www.ip138.com", 80);
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     /*成功连接服务器*/
     if (which & _CC_EVENT_CONNECTED_) {
         _tprintf(_T("%d connect to server.\n"), e->fd);
-        return send_socks5_methods(cycle, e);
+        return send_socks5_methods(async, e);
     }
     
     /*无法连接*/
@@ -192,14 +192,14 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
                 case 0:{
                     if (*s == 0x05 && *(s + 1) == 0x02) {
                         socks5_status = 1;
-                        return send_socks5_auth(cycle, e, "account", "123654aa");
+                        return send_socks5_auth(async, e, "account", "123654aa");
                     }
                 }
                     break;
                 case 1: {
                     if (*s == 0x01 && *(s + 1) == 0x00) {
                         socks5_status = 2;
-                        return send_socks5_connect(cycle, e, "2000019.ip138.com", 80);
+                        return send_socks5_connect(async, e, "2000019.ip138.com", 80);
                     }
                     break;
                 }
@@ -207,7 +207,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
                     if (*s == 0x05 && *(s + 1) == 0x00) {
                         socks5_status = 3;
                         const char_t *http = "GET / HTTP/1.1\r\nHost: 2000019.ip138.com\r\nConnection: close\r\n\r\n";
-                        return send_socks5(cycle, e, (byte_t*)http, (int32_t)(sizeof(char_t)*strlen(http)));
+                        return send_socks5(async, e, (byte_t*)http, (int32_t)(sizeof(char_t)*strlen(http)));
                     }
                     break;
                 default:

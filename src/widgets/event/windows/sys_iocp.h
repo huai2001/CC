@@ -35,7 +35,7 @@ extern "C" {
 #define _CC_IOCP_PENDING_                 0xFFFFFFF1
 #define _CC_IOCP_EXIT_                    0xFFFFFFFF
 
-struct _cc_event_cycle_priv {
+struct _cc_async_event_priv {
 	HANDLE port;
     _cc_list_iterator_t overlapped_active;
     _cc_list_iterator_t overlapped_idle;
@@ -104,33 +104,33 @@ int _WSA_socket_receivefrom(_iocp_overlapped_t *overlapped, _cc_sockaddr_t *sa, 
 /**
  * @brief IOCP Initialize Overlapped 
  *
- * @param priv _cc_event_cycle_priv_t
+ * @param priv _cc_async_event_priv_t
  */
-void _iocp_overlapped_init(_cc_event_cycle_priv_t* priv);
+void _iocp_overlapped_init(_cc_async_event_priv_t* priv);
 
 /**
  * @brief IOCP Uninitialize Overlapped
  * 
- * @param priv _cc_event_cycle_priv_t
+ * @param priv _cc_async_event_priv_t
  */
-void _iocp_overlapped_quit(_cc_event_cycle_priv_t *priv);
+void _iocp_overlapped_quit(_cc_async_event_priv_t *priv);
 
 /**
  * @brief IOCP Create Overlapped
  *
- * @param priv _cc_event_cycle_priv_t
+ * @param priv _cc_async_event_priv_t
  *
  * @return 
  */
-_iocp_overlapped_t* _iocp_overlapped_alloc(_cc_event_cycle_priv_t *priv, _cc_event_t *e);
+_iocp_overlapped_t* _iocp_overlapped_alloc(_cc_async_event_priv_t *priv, _cc_event_t *e);
 /**
  * @brief IOCP Free Overlapped
  *
- * @param priv _cc_event_cycle_priv_t
+ * @param priv _cc_async_event_priv_t
  * @param iocp_overlapped _iocp_overlapped_t
  *
  */
-void _iocp_overlapped_free(_cc_event_cycle_priv_t *priv, _iocp_overlapped_t *overlapped);
+void _iocp_overlapped_free(_cc_async_event_priv_t *priv, _iocp_overlapped_t *overlapped);
 
 #endif
 

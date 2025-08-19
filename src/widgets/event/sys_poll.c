@@ -25,62 +25,62 @@
 
 #define _CC_POLL_EVENTS_ 1024
 
-struct _cc_event_cycle_priv {
+struct _cc_async_event_priv {
     _cc_event_t *list[_CC_POLL_EVENTS_];
     _cc_event_t *fds[_CC_POLL_EVENTS_];
     nfds_t nfds;
 };
 
 /**/
-_CC_API_PRIVATE(bool_t) _poll_event_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    return _reset_event(cycle, e);
+_CC_API_PRIVATE(bool_t) _poll_event_reset(_cc_async_event_t *async, _cc_event_t *e) {
+    return _reset_event(async, e);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _poll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    _cc_event_cycle_priv_t *fset;
-    _cc_assert(cycle != nullptr);
-    fset = cycle->priv;
+_CC_API_PRIVATE(bool_t) _poll_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
+    _cc_async_event_priv_t *fset;
+    _cc_assert(async != nullptr);
+    fset = async->priv;
 
     if (e->fd && _CC_ISSET_BIT(_CC_EVENT_DESC_SOCKET_,e->descriptor) && fset->nfds >= _CC_POLL_EVENTS_) {
         _cc_logger_error(_T("The maximum number of descriptors supported by the poll() is %d"), _CC_POLL_EVENTS_);
         return false;
     }
 
-    if(!_reset_event(cycle, e)) {
+    if(!_reset_event(async, e)) {
         return false;
     }
 
     e->descriptor = _CC_EVENT_DESC_POLL_POLLFD_ | (e->descriptor & 0xff);
 
-    _event_lock(cycle);
+    _event_lock(async);
     fset->list[fset->nfds++] = e;
-    _event_unlock(cycle);
+    _event_unlock(async);
     
     return true;
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _poll_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
+_CC_API_PRIVATE(bool_t) _poll_event_connect(_cc_async_event_t *async, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
     if (__cc_stdlib_socket_connect(e->fd, sa, sa_len)) {
-        return _poll_event_attach(cycle, e);
+        return _poll_event_attach(async, e);
     }
     return false;
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _poll_event_disconnect(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    return _disconnect_event(cycle, e);
+_CC_API_PRIVATE(bool_t) _poll_event_disconnect(_cc_async_event_t *async, _cc_event_t *e) {
+    return _disconnect_event(async, e);
 }
 
 /**/
-_CC_API_PRIVATE(_cc_socket_t) _poll_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
+_CC_API_PRIVATE(_cc_socket_t) _poll_event_accept(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
     return _cc_socket_accept(e->fd, sa, sa_len);
 }
 
 /**/
-_CC_API_PRIVATE(void) _event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    _cc_event_cycle_priv_t *fset = cycle->priv;
+_CC_API_PRIVATE(void) _event_cleanup(_cc_async_event_t *async, _cc_event_t *e) {
+    _cc_async_event_priv_t *fset = async->priv;
     int32_t i;
 
     for (i = 0; i < fset->nfds; i++) {
@@ -90,7 +90,7 @@ _CC_API_PRIVATE(void) _event_cleanup(_cc_event_cycle_t *cycle, _cc_event_t *e) {
             break;
         }
     }
-    _cc_free_event(cycle, e);
+    _cc_free_event(async, e);
 }
 /**/
 _CC_API_PRIVATE(bool_t) _set_fd_event(_cc_event_t *e, struct pollfd *p) {
@@ -121,23 +121,23 @@ _CC_API_PRIVATE(bool_t) _set_fd_event(_cc_event_t *e, struct pollfd *p) {
 }
 
 /**/
-_CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         /*delete*/
-        _event_cleanup(cycle, e);
+        _event_cleanup(async, e);
         return;
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_PENDING_, e->flags)) {
-        _cc_list_iterator_swap(&cycle->pending, &e->lnk);
+        _cc_list_iterator_swap(&async->pending, &e->lnk);
         return;
     }
 
-    _reset_event_timeout(cycle, e);
+    _reset_event_timeout(async, e);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_async_event_t *async, uint32_t timeout) {
     _cc_event_t *e;
     int32_t i;
     int32_t nfds;
@@ -145,13 +145,13 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t time
     uint16_t which = _CC_EVENT_UNKNOWN_, what;
     struct pollfd fds[_CC_POLL_EVENTS_];
 
-    _cc_event_cycle_priv_t *priv = cycle->priv;
+    _cc_async_event_priv_t *priv = async->priv;
 
     /**/
-    _reset_event_pending(cycle, _reset);
+    _reset_event_pending(async, _reset);
 
-    if (cycle->diff > 0) {
-        timeout -= cycle->diff;
+    if (async->diff > 0) {
+        timeout -= async->diff;
     }
 
     /**/
@@ -195,7 +195,7 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t time
 
             if (which) {
                 ready--;
-                _event_callback(cycle, e, which);
+                _event_callback(async, e, which);
             }
         }
     } else {
@@ -207,44 +207,44 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_event_cycle_t *cycle, uint32_t time
         }
     }
 
-    _update_event_timeout(cycle, timeout);
+    _update_event_timeout(async, timeout);
     return true;
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _poll_event_quit(_cc_event_cycle_t *cycle) {
-    _cc_assert(cycle != nullptr);
+_CC_API_PRIVATE(bool_t) _poll_event_quit(_cc_async_event_t *async) {
+    _cc_assert(async != nullptr);
 
-    _cc_safe_free(cycle->priv);
+    _cc_safe_free(async->priv);
 
-    return _event_cycle_quit(cycle);
+    return _async_event_quit(async);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _poll_event_init(_cc_event_cycle_t *cycle) {
-    _cc_event_cycle_priv_t *priv;
-    if (!_event_cycle_init(cycle)) {
+_CC_API_PRIVATE(bool_t) _poll_event_init(_cc_async_event_t *async) {
+    _cc_async_event_priv_t *priv;
+    if (!_async_event_init(async)) {
         return false;
     }
-    priv = (_cc_event_cycle_priv_t *)_cc_calloc(1, sizeof(_cc_event_cycle_priv_t));
+    priv = (_cc_async_event_priv_t *)_cc_calloc(1, sizeof(_cc_async_event_priv_t));
     priv->nfds = 0;
 
-    cycle->priv = priv;
+    async->priv = priv;
     return true;
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_init_event_poll(_cc_event_cycle_t *cycle) {
-    if (!_poll_event_init(cycle)) {
+_CC_API_PUBLIC(bool_t) _cc_init_event_poll(_cc_async_event_t *async) {
+    if (!_poll_event_init(async)) {
         return false;
     }
-    cycle->reset = _poll_event_reset;
-    cycle->attach = _poll_event_attach;
-    cycle->connect = _poll_event_connect;
-    cycle->disconnect = _poll_event_disconnect;
-    cycle->accept = _poll_event_accept;
-    cycle->wait = _poll_event_wait;
-    cycle->quit = _poll_event_quit;
-    cycle->reset = _poll_event_reset;
+    async->reset = _poll_event_reset;
+    async->attach = _poll_event_attach;
+    async->connect = _poll_event_connect;
+    async->disconnect = _poll_event_disconnect;
+    async->accept = _poll_event_accept;
+    async->wait = _poll_event_wait;
+    async->quit = _poll_event_quit;
+    async->reset = _poll_event_reset;
     return true;
 }

@@ -30,13 +30,13 @@ extern "C" {
 #endif
 
 /**/
-_CC_WIDGETS_API(bool_t) _cc_init_event_timeout(_cc_event_cycle_t*);
+_CC_WIDGETS_API(bool_t) _cc_init_event_timeout(_cc_async_event_t*);
 
 /**/
 _CC_WIDGETS_API(_cc_event_t*)
-_cc_add_event_timeout(_cc_event_cycle_t* cycle, uint32_t timeout, _cc_event_callback_t callback, pvoid_t args);
+_cc_add_event_timeout(_cc_async_event_t* async, uint32_t timeout, _cc_event_callback_t callback, pvoid_t args);
 /**/
-_CC_WIDGETS_API(bool_t) _cc_kill_event_timeout(_cc_event_cycle_t*, _cc_event_t*);
+_CC_WIDGETS_API(bool_t) _cc_kill_event_timeout(_cc_async_event_t*, _cc_event_t*);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

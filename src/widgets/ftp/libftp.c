@@ -34,21 +34,21 @@ void libftp_setup(_cc_ftp_t* ftp,
 }
 
 bool_t _cc_ftp_unbind_accept(_cc_ftp_t* ftp) {
-    if (ftp->data.accept.e && ftp->data.accept.cycle) {
-        ftp->data.accept.cycle->disconnect(ftp->data.accept.cycle, ftp->data.accept.e);
+    if (ftp->data.accept.e && ftp->data.accept.async) {
+        ftp->data.accept.async->disconnect(ftp->data.accept.async, ftp->data.accept.e);
         ftp->data.accept.e = nullptr;
-        ftp->data.accept.cycle = nullptr;
+        ftp->data.accept.async = nullptr;
     }
     return true;
 }
 
 bool_t _cc_ftp_bind_accept(_cc_ftp_t* ftp,
-                           _cc_event_cycle_t *cycle,
+                           _cc_async_event_t *async,
                            _cc_event_t* e) {
     _cc_ftp_unbind_accept(ftp);
 
     ftp->data.accept.e = e;
-    ftp->data.accept.cycle = cycle;
+    ftp->data.accept.async = async;
 
     return true;
 }

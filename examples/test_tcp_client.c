@@ -20,7 +20,7 @@ tchar_t* get_disk_size_unit(uint64_t disk_size, tchar_t *buf, int32_t size) {
     return buf;
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_CONNECTED_) {
         _cc_logger_debug(_T("%d connect to server."), e->fd);
         return true;
@@ -82,9 +82,9 @@ void testes_connect(const tchar_t* host, const uint16_t port) {
     int r = 0;
     struct sockaddr_in sa;
     _cc_event_t *e;
-    _cc_event_cycle_t *cycle = _cc_get_event_cycle();
+    _cc_async_event_t *async = _cc_get_async_event();
 
-    e = _cc_event_alloc(cycle,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
+    e = _cc_event_alloc(async,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
     if (e == nullptr) {
         return;
     }
@@ -93,8 +93,8 @@ void testes_connect(const tchar_t* host, const uint16_t port) {
     e->timeout = r * 1000;
 
     _cc_inet_ipv4_addr(&sa, host, port);
-    if (!_cc_tcp_connect(cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
-        _cc_free_event(cycle, e);
+    if (!_cc_tcp_connect(async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _cc_free_event(async, e);
         return;
     }
 }
@@ -106,14 +106,14 @@ int _tmain (int argc, tchar_t * const argv[]) {
     char c = 0;
 
     srand((uint32_t)time(nullptr));
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
 
     testes_connect(TCP_CLIENT_IP,8080);
 
     while((c = getchar()) != 'q') {
         _cc_sleep(100);
     }
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
     
     return 0;
 }

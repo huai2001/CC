@@ -117,15 +117,15 @@ struct _cc_ftp {
         
     struct {
         _cc_event_t *e;
-        _cc_event_cycle_t *cycle;
+        _cc_async_event_t *async;
     } ctrl;
         
     struct {
         _cc_event_t *e;
-        _cc_event_cycle_t *cycle;
+        _cc_async_event_t *async;
         struct {
             _cc_event_t *e;
-            _cc_event_cycle_t *cycle;
+            _cc_async_event_t *async;
         }accept;
     } data;
         
@@ -164,7 +164,7 @@ _CC_WIDGETS_API(bool_t) _cc_ftp_opts_port_passive(_cc_ftp_t *ftp);
 /**/
 _CC_WIDGETS_API(bool_t) _cc_ftp_open_port(_cc_ftp_t *ftp);
 /**/
-_CC_WIDGETS_API(bool_t) _cc_ftp_bind_accept(_cc_ftp_t* ftp, _cc_event_cycle_t *cycle, _cc_event_t *e);
+_CC_WIDGETS_API(bool_t) _cc_ftp_bind_accept(_cc_ftp_t* ftp, _cc_async_event_t *async, _cc_event_t *e);
 /**/
 _CC_WIDGETS_API(bool_t) _cc_ftp_unbind_accept(_cc_ftp_t* ftp);
 /**/

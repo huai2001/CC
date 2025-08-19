@@ -93,9 +93,9 @@ static bool_t url_request_read(_cc_url_request_t *request) {
     return true;
 }
 
-static bool_t _url_timeout_callback(_cc_event_cycle_t *timer, _cc_event_t *e, const uint16_t which) {
+static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, const uint16_t which) {
     _cc_url_request_t *request = (_cc_url_request_t *)e->args;
-    if (request == nullptr || !_cc_event_loop_is_running()) {
+    if (request == nullptr || !_cc_async_event_is_running()) {
         return false;
     }
     if (which == _CC_EVENT_DISCONNECT_) {
@@ -106,14 +106,14 @@ static bool_t _url_timeout_callback(_cc_event_cycle_t *timer, _cc_event_t *e, co
 }
 
 
-static bool_t _url_request_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     _cc_url_request_t *request = (_cc_url_request_t *)e->args;
 
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, which)) {
         //printf("disconnect\n");
         printf("_cc_url_request_ _CC_EVENT_DISCONNECT_ %d\n",e->ident);
-        if (_cc_event_loop_is_running()) {
-            _cc_add_event_timeout(_cc_get_event_cycle(), 10000, _url_timeout_callback, request);
+        if (_cc_async_event_is_running()) {
+            _cc_add_event_timeout(_cc_get_async_event(), 10000, _url_timeout_callback, request);
         } else {
             _cc_free_url_request(request);
         }
@@ -200,7 +200,7 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
     struct sockaddr_in sa;
     _cc_socket_t fd;
     _cc_event_t *e;
-    _cc_event_cycle_t *cycle = _cc_get_event_cycle();
+    _cc_async_event_t *async = _cc_get_async_event();
     if (request == nullptr) {
         return false;
     }
@@ -215,7 +215,7 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
     /* if we can't terminate nicely, at least allow the socket to be reused*/
     _cc_set_socket_reuseaddr(fd);
 
-    e = _cc_event_alloc(cycle, _CC_EVENT_BUFFER_|_CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
+    e = _cc_event_alloc(async, _CC_EVENT_BUFFER_|_CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
     if (e == nullptr) {
         return false;
     }
@@ -229,7 +229,7 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
     if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
         request->ssl = _SSL_alloc(openSSL);
         if (request->ssl == nullptr) {
-            _cc_free_event(cycle, e);
+            _cc_free_event(async, e);
             return false;
         }
         _SSL_set_host_name(request->ssl, request->url.host, _tcslen(request->url.host));
@@ -246,18 +246,18 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
 #endif
     }
 
-    if (cycle->connect(cycle, e, (_cc_sockaddr_t*)&sa, sizeof(struct sockaddr_in))) {
+    if (async->connect(async, e, (_cc_sockaddr_t*)&sa, sizeof(struct sockaddr_in))) {
         return true;
     }
 
-    _cc_free_event(cycle, e);
+    _cc_free_event(async, e);
     return false;
 }
 
 int main(int argc, char *const argv[]) {
     openSSL = _SSL_init(true);
 
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
 
     url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
     // url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
@@ -270,6 +270,6 @@ int main(int argc, char *const argv[]) {
     while (getchar() != 'q') {
         _cc_sleep(100);
     }
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
     return 0;
 }

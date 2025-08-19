@@ -5,7 +5,7 @@
 
 static byte_t c = 0;
 
-_CC_API_PRIVATE(bool_t) udp(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t which) {
+_CC_API_PRIVATE(bool_t) udp(_cc_async_event_t *async, _cc_event_t *e, uint16_t which) {
     if (which & _CC_EVENT_READABLE_) {
         struct sockaddr_in remote_addr;
         socklen_t addr_len = sizeof(remote_addr);
@@ -25,17 +25,17 @@ _CC_API_PRIVATE(bool_t) udp(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t w
 
 /**/
 _CC_API_PRIVATE(int32_t) running(_cc_thread_t *thread, void *args) {
-    _cc_event_cycle_t *cycle = (_cc_event_cycle_t *)args;
+    _cc_async_event_t *async = (_cc_async_event_t *)args;
     while (c != 'q') {
-        cycle->wait(cycle, 10);
+        async->wait(async, 10);
     }
-    cycle->quit(cycle);
+    async->quit(async);
     return 1;
 }
 
 int main (int argc, char * const argv[]) {
     struct sockaddr_in sin;
-    _cc_event_cycle_t cycle;
+    _cc_async_event_t async;
     _cc_event_t *event;
     _cc_socket_t io_fd = _CC_INVALID_SOCKET_;
     int16_t port = _CC_SYSLOG_PORT_;
@@ -64,9 +64,9 @@ int main (int argc, char * const argv[]) {
 
     _tprintf(_T("UDSysPLog Listen Port: %d\n"), port);
 
-    _cc_init_event_select(&cycle);
+    _cc_init_event_select(&async);
 
-    event = _cc_event_alloc(&cycle,  _CC_EVENT_READABLE_);
+    event = _cc_event_alloc(&async,  _CC_EVENT_READABLE_);
     if (event == nullptr) {
         _cc_close_socket(io_fd);
         return -1;
@@ -76,12 +76,12 @@ int main (int argc, char * const argv[]) {
 
     _cc_set_socket_nonblock(io_fd, 1);
 
-    if (!cycle.attach(&cycle, event)) {
+    if (!async.attach(&async, event)) {
         _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), io_fd);
-        _cc_free_event(&cycle, event);
+        _cc_free_event(&async, event);
         return -1;
     }
-    _cc_thread_start(running, "UDPSyslog", &cycle);
+    _cc_thread_start(running, "UDPSyslog", &async);
 
     while((c = getchar()) != 'q') {
         if (c == 'c') {

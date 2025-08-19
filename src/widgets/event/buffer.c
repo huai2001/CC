@@ -103,9 +103,9 @@ _CC_API_PUBLIC(int32_t) _cc_event_send(_cc_event_t *e, const byte_t *data, int32
 
     /*queue this up for sending later.*/
     if (_cc_copy_event_wbuf(&e->buffer->w, data, length)) {
-        _cc_event_cycle_t *cycle = _cc_get_event_cycle_by_id(e->round);
+        _cc_async_event_t *async = _cc_get_async_event_by_id(e->round);
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-        cycle->reset(cycle, e);
+        async->reset(async, e);
         return length;
     }
     return -1;

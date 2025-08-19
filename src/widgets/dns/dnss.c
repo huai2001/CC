@@ -20,7 +20,7 @@
 */
 #include "dns.h"
 
-_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
 	if (which & _CC_EVENT_READABLE_) {
         struct sockaddr_in sa;
         int32_t n = 0, res = 0;
@@ -68,7 +68,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_eve
 bool_t _cc_dns_listen(void) {
     struct sockaddr_in sa;
     _cc_socket_t io_fd;
-    _cc_event_cycle_t *cycle = _cc_get_event_cycle();
+    _cc_async_event_t *async = _cc_get_async_event();
 
     io_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (io_fd == -1) {
@@ -82,7 +82,7 @@ bool_t _cc_dns_listen(void) {
         return false;
     }
 
-    if (cycle->attach(cycle, _CC_EVENT_READABLE_, io_fd, 0, _dns_response_callback, nullptr) == nullptr) {
+    if (async->attach(async, _CC_EVENT_READABLE_, io_fd, 0, _dns_response_callback, nullptr) == nullptr) {
         _cc_logger_error(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), io_fd);
         return false;
     }

@@ -25,35 +25,35 @@
 static struct {
     bool_t keep_active;
     int32_t count;
-    _cc_event_cycle_t *cycles;
+    _cc_async_event_t *async_events;
     _cc_thread_t **threads;
-    void (*callback)(_cc_event_cycle_t*, bool_t);
+    void (*callback)(_cc_async_event_t*, bool_t);
 } g = {false, 0, nullptr, nullptr, nullptr};
 
 /**/
 _CC_API_PRIVATE(int32_t) _running(_cc_thread_t *thread, void *args) {
-    _cc_event_cycle_t *cycle = (_cc_event_cycle_t *)args;
+    _cc_async_event_t *async = (_cc_async_event_t *)args;
     if (g.callback) {
-        g.callback(cycle, true);
+        g.callback(async, true);
     }
 
     while (g.keep_active) {
-        cycle->wait(cycle, 10);
+        async->wait(async, 10);
     }
 
     if (g.callback) {
-        g.callback(cycle, false);
+        g.callback(async, false);
     }
 
-    cycle->quit(cycle);
+    async->quit(async);
     return 0;
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_event_loop(int32_t count, void (*func)(_cc_event_cycle_t*,bool_t)) {
+_CC_API_PUBLIC(bool_t) _cc_install_async_event(int32_t count, void (*func)(_cc_async_event_t*,bool_t)) {
     int32_t i;
     _cc_thread_t** threads;
-    _cc_event_cycle_t *cycles;
+    _cc_async_event_t *async_events;
 
     if (g.keep_active) {
         return false;
@@ -67,24 +67,24 @@ _CC_API_PUBLIC(bool_t) _cc_event_loop(int32_t count, void (*func)(_cc_event_cycl
         count = _cc_cpu_count();
     }
 
-    cycles = (_cc_event_cycle_t *)_cc_calloc(count, sizeof(_cc_event_cycle_t));
-    if (cycles == nullptr) {
+    async_events = (_cc_async_event_t *)_cc_calloc(count, sizeof(_cc_async_event_t));
+    if (async_events == nullptr) {
         return false;
     }
 
     threads = (_cc_thread_t **)_cc_calloc(count, sizeof(_cc_thread_t *));
     if (threads == nullptr) {
-        _cc_free(cycles);
+        _cc_free(async_events);
         return false;
     }
 
     g.keep_active = true;
-    g.cycles = cycles;
+    g.async_events = async_events;
     g.threads = threads;
     g.callback = func;
 
     for (i = 0; i < count; ++i) {
-        _cc_event_cycle_t *n = (_cc_event_cycle_t *)(cycles + i);
+        _cc_async_event_t *n = (_cc_async_event_t *)(async_events + i);
         if (_cc_init_event_poller(n) == false) {
             continue;
         }
@@ -97,7 +97,7 @@ _CC_API_PUBLIC(bool_t) _cc_event_loop(int32_t count, void (*func)(_cc_event_cycl
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_quit_event_loop(void) {
+_CC_API_PUBLIC(bool_t) _cc_uninstall_async_event(void) {
     int32_t i;
 
     if (!g.keep_active) {
@@ -114,9 +114,9 @@ _CC_API_PUBLIC(bool_t) _cc_quit_event_loop(void) {
         g.threads = nullptr;
     }
 
-    if (g.cycles) {
-        _cc_free(g.cycles);
-        g.cycles = nullptr;
+    if (g.async_events) {
+        _cc_free(g.async_events);
+        g.async_events = nullptr;
     }
 
     _cc_uninstall_socket();
@@ -125,11 +125,11 @@ _CC_API_PUBLIC(bool_t) _cc_quit_event_loop(void) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_event_loop_abort(void) {
+_CC_API_PUBLIC(void) _cc_async_event_abort(void) {
     g.keep_active = false;
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_event_loop_is_running(void) {
+_CC_API_PUBLIC(bool_t) _cc_async_event_is_running(void) {
     return g.keep_active;
 }

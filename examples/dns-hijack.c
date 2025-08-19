@@ -9,7 +9,7 @@ int main (int argc, char * const argv[]) {
     //_cc_dns_t dns;
     //char *dns_servers_list[2] = {"114.114.114.114", "223.5.5.5"};
     setlocale( LC_CTYPE, "chs" );
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
 
     //bzero(&dns, sizeof(_cc_dns_t));
 
@@ -27,7 +27,7 @@ int main (int argc, char * const argv[]) {
     }
 
     //_cc_dns_free(&dns);
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
 
     return 0;
 }

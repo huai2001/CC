@@ -53,33 +53,33 @@ extern "C" {
 #endif
 
 /*
- * @brief Initializes an event cycle class
+ * @brief Initializes an event async class
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  *
  * @return true if successful or false on error.
  */
-bool_t _event_cycle_init(_cc_event_cycle_t *cycle);
+bool_t _async_event_init(_cc_async_event_t *async);
 
 /*
- * @brief Free an event cycle class
+ * @brief Free an event async class
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  *
  * @return true if successful or false on error.
  */
-bool_t _event_cycle_quit(_cc_event_cycle_t *cycle);
+bool_t _async_event_quit(_cc_async_event_t *async);
 
 /**
  * @brief Calls back an event function
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param e _cc_event_t structure
  * @param which The state of an event
  *
  * @return true if successful or false on error.
  */
-bool_t _event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t which);
+bool_t _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint16_t which);
 /**
  * @brief Check the Socket is valid
  *
@@ -92,7 +92,7 @@ bool_t _valid_event_fd(_cc_event_t *);
 /**
  * @brief Check valid socket connected event
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param which current event flag
  *
  * @return Returns an updated event flag
@@ -102,56 +102,56 @@ uint16_t _valid_connected(_cc_event_t *e, uint16_t which);
 /**
  * @brief Socket disconnect event
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param e _cc_event_t structure
  *
  * @return true if successful or false on error.
  */
-bool_t _disconnect_event(_cc_event_cycle_t *cycle, _cc_event_t *e);
+bool_t _disconnect_event(_cc_async_event_t *async, _cc_event_t *e);
 
 /**
  * @brief Wait for reset event
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param e _cc_event_t structure
  *
  * @return true if successful or false on error.
  */
-bool_t _reset_event(_cc_event_cycle_t *cycle, _cc_event_t *e);
+bool_t _reset_event(_cc_async_event_t *async, _cc_event_t *e);
 
 /**
  * @brief Reset pending events
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param func callback
  *
  */
-void _reset_event_pending(_cc_event_cycle_t *cycle, void (*func)(_cc_event_cycle_t *, _cc_event_t *));
+void _reset_event_pending(_cc_async_event_t *async, void (*func)(_cc_async_event_t *, _cc_event_t *));
 /**
  * @brief add timeout events
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param e _cc_event_t structure
  *
  */
-void _add_event_timeout(_cc_event_cycle_t *cycle, _cc_event_t *e);
+void _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
 /**
  * @brief Reset timeout events
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param e _cc_event_t structure
  *
  */
-void _reset_event_timeout(_cc_event_cycle_t *cycle, _cc_event_t *e);
+void _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
 /**
  * @brief Run timeout events
  *
- * @param cycle _cc_event_cycle_t structure
+ * @param async _cc_async_event_t structure
  * @param func callback function
  *
  * @return true if successful or false on error.
  */
-void _update_event_timeout(_cc_event_cycle_t *cycle, uint32_t timeout);
+void _update_event_timeout(_cc_async_event_t *async, uint32_t timeout);
 
 
 /* Ends C function definitions when using C++ */

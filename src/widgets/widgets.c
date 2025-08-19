@@ -78,9 +78,9 @@ _CC_API_PUBLIC(bool_t) _cc_event_writef(_cc_event_t *e, const tchar_t *fmt, ...)
     _cc_unlock(&wbuf->lock);
 
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags)) {
-        _cc_event_cycle_t *cycle = _cc_get_event_cycle_by_id(e->round);
+        _cc_async_event_t *async = _cc_get_async_event_by_id(e->round);
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-        cycle->reset(cycle, e);
+        async->reset(async, e);
     }
     return true;
 

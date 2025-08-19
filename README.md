@@ -114,7 +114,7 @@ static bool_t send_message(_cc_event_t *e) {
     return true;
 }
 
-static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t _callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_CONNECT_) {
         _tprintf(_T(" connect to server!\n"));
     }
@@ -170,36 +170,36 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
 }
 
 int _tmain (int argc, tchar_t * const argv[]) {
-    _cc_event_cycle_t cycle;
+    _cc_async_event_t async;
     struct sockaddr_in sa;
     _cc_event_t *curr_event = nullptr;
 
     _cc_install_socket();
 
-    if (!_cc_init_event_poller(&cycle)) {
+    if (!_cc_init_event_poller(&async)) {
         return 0;
     }
     _cc_inet_ipv4_addr(&sa, "127.0.0.1", 8088);
-    curr_event = _cc_event_alloc(cycle,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
+    curr_event = _cc_event_alloc(async,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
     if (curr_event == nullptr) {
         return 0;
     }
     curr_event->callback = _callback;
     curr_event->timeout = 6000;
 
-    if (!_cc_tcp_connect(&cycle, curr_event, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
-        _cc_free_event(&cycle, curr_event);
+    if (!_cc_tcp_connect(&async, curr_event, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _cc_free_event(&async, curr_event);
         return;
     }
 
     while(keep_active) {
-        _cc_event_wait(&cycle, 100);
+        _cc_event_wait(&async, 100);
         if (curr_event) {
             send_message(curr_event);
         }
     }
 
-    cycle.delegator.quit(&cycle);
+    async.quit(&async);
     _cc_uninstall_socket();
     return 1;
 }
@@ -234,13 +234,13 @@ static void onLine(_cc_event_t *e, const char_t* data, uint16_t length) {
     }
 }
 
-static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t _callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_ACCEPT_) {
         _cc_socket_t fd;
         _cc_union_sockaddr_t remote_addr = {0};
         _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
-        _cc_event_cycle_t *cycle = _cc_get_event_cycle();
-        fd = _cc_event_accept(cycle, e, &remote_addr, &remote_addr_len);
+        _cc_async_event_t *async = _cc_get_async_event();
+        fd = _cc_event_accept(async, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
             _cc_logger_debug(_T("accept fail %s."), _cc_last_error(_cc_last_errno()));
             return true;
@@ -248,7 +248,7 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
         
         _cc_set_socket_nonblock(fd, 1);
 
-        if (cycle->attach(cycle, _CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_|_CC_EVENT_BUFFER_, fd, e->timeout, _callback, nullptr) == nullptr) {
+        if (async->attach(async, _CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_|_CC_EVENT_BUFFER_, fd, e->timeout, _callback, nullptr) == nullptr) {
             _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
             return true;
         }
@@ -310,17 +310,17 @@ static bool_t _callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t
 }
 
 int _tmain (int argc, tchar_t * const argv[]) {
-    _cc_event_cycle_t cycle;
+    _cc_async_event_t async;
     _cc_event_t *e;
     struct sockaddr_in sa;
 
     _cc_install_socket();
 
-    if (!_cc_init_event_poller(&cycle)) {
+    if (!_cc_init_event_poller(&async)) {
         return 0;
     }
 
-    e = _cc_event_alloc(&cycle, _CC_EVENT_ACCEPT_);
+    e = _cc_event_alloc(&async, _CC_EVENT_ACCEPT_);
     if (e == nullptr) {
         return - 1;
     }
@@ -328,18 +328,18 @@ int _tmain (int argc, tchar_t * const argv[]) {
     e->callback = network_event_callback;
     
     _cc_inet_ipv4_addr(&sa, nullptr, 8088);
-    if (!_cc_tcp_listen(&cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
-        _cc_free_event(&cycle, e);
+    if (!_cc_tcp_listen(&async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _cc_free_event(&async, e);
         return -1;
     }
 
     _cc_logger_debug(_T("listen port: %d"), 8088);
 
     while(keep_active) {
-        _cc_event_wait(&cycle, 100);
+        _cc_event_wait(&async, 100);
     }
 
-    cycle.delegator.quit(&cycle);
+    async.delegator.quit(&async);
     _cc_uninstall_socket();
     return 1;
 }

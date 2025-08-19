@@ -93,7 +93,7 @@ struct _cc_smtp {
         
     struct {
         _cc_event_t *e;
-        _cc_event_cycle_t *cycle;
+        _cc_async_event_t *async;
     } ctrl;
         
     _cc_smtp_resp_t resp;

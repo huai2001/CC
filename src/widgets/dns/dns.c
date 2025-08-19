@@ -136,7 +136,7 @@ _CC_API_PRIVATE(void) dump(const _cc_dns_t *dns) {
     }
 }
 
-_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t which) {
+_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_event_t *e, uint16_t which) {
     if (which & _CC_EVENT_READABLE_) {
         uint16_t i;
         uint8_t *reader;
@@ -345,13 +345,13 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
     }
 
     {
-        _cc_event_cycle_t *cycle = _cc_get_event_cycle();
-        _cc_event_t *e = _cc_event_alloc(cycle, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_);
+        _cc_async_event_t *async = _cc_get_async_event();
+        _cc_event_t *e = _cc_event_alloc(async, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_);
         e->fd = dns_sock;
         e->callback = _dns_response_callback;
         e->timeout = 60000;
         e->args = dns;
-        if (!cycle->attach(cycle, e)) {
+        if (!async->attach(async, e)) {
             _cc_logger_error(_T("thread %d attach socket (%d) event fial."), _cc_get_thread_id(nullptr), dns_sock);
             return _CC_DNS_ERR_SEE_ERRNO_;
         }

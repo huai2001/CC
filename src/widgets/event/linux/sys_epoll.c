@@ -26,7 +26,7 @@
 
 #define _CC_EPOLL_EVENTS_ _CC_MAX_CHANGE_EVENTS_
 
-struct _cc_event_cycle_priv {
+struct _cc_async_event_priv {
     int fd;
 };
 
@@ -102,77 +102,77 @@ _CC_API_PRIVATE(bool_t) _epoll_event_update(int efd, _cc_event_t *e, bool_t rm) 
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _epoll_event_attach(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    _cc_assert(cycle != nullptr && e != nullptr);
+_CC_API_PRIVATE(bool_t) _epoll_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
+    _cc_assert(async != nullptr && e != nullptr);
     e->descriptor = _CC_EVENT_DESC_POLL_EPOLL_ | (e->descriptor & 0xff);
-    return _reset_event(cycle, e);
+    return _reset_event(async, e);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _epoll_event_reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    return _reset_event(cycle, e);
+_CC_API_PRIVATE(bool_t) _epoll_event_reset(_cc_async_event_t *async, _cc_event_t *e) {
+    return _reset_event(async, e);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _epoll_event_disconnect(_cc_event_cycle_t *cycle, _cc_event_t *e) {
-    return _disconnect_event(cycle, e);
+_CC_API_PRIVATE(bool_t) _epoll_event_disconnect(_cc_async_event_t *async, _cc_event_t *e) {
+    return _disconnect_event(async, e);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _epoll_event_connect(_cc_event_cycle_t *cycle, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
+_CC_API_PRIVATE(bool_t) _epoll_event_connect(_cc_async_event_t *async, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
     if (__cc_stdlib_socket_connect(e->fd, sa, sa_len)) {
-        return _epoll_event_attach(cycle, e);
+        return _epoll_event_attach(async, e);
     }
     return false;
 }
 
 /**/
-_CC_API_PRIVATE(_cc_socket_t) _epoll_event_accept(_cc_event_cycle_t *cycle, _cc_event_t *e, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
+_CC_API_PRIVATE(_cc_socket_t) _epoll_event_accept(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
     return _cc_socket_accept(e->fd, sa, sa_len);
 }
 
 /**/
-_CC_API_PRIVATE(void) _reset(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+_CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_DISCONNECT_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         if (_CC_EVENT_IS_SOCKET(e->marks)) {
-            _epoll_event_update(cycle->priv->fd, e, true);
+            _epoll_event_update(async->priv->fd, e, true);
         }
-        _cc_free_event(cycle, e);
+        _cc_free_event(async, e);
         return;
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_PENDING_, e->flags)) {
         if (_CC_EVENT_IS_SOCKET(e->marks)) {
-            _epoll_event_update(cycle->priv->fd, e, true);
+            _epoll_event_update(async->priv->fd, e, true);
         }
 
-        _cc_list_iterator_swap(&cycle->pending, &e->lnk);
+        _cc_list_iterator_swap(&async->pending, &e->lnk);
         return;
     }
 
     /*update event*/
     if (_CC_ISSET_BIT(_CC_EVENT_DESC_SOCKET_, e->descriptor) &&
         _CC_EVENT_IS_SOCKET(e->flags) != _CC_EVENT_IS_SOCKET(e->marks)) {
-        _epoll_event_update(cycle->priv->fd, e, false);
+        _epoll_event_update(async->priv->fd, e, false);
     }
 
-    _reset_event_timeout(cycle, e);
+    _reset_event_timeout(async, e);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_event_cycle_t *cycle, uint32_t timeout) {
+_CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_async_event_t *async, uint32_t timeout) {
     int32_t rc, i;
 
     struct epoll_event actives[_CC_EPOLL_EVENTS_];
-    _cc_event_cycle_priv_t *priv = cycle->priv;
+    _cc_async_event_priv_t *priv = async->priv;
 
     bzero(&actives, sizeof(struct epoll_event) * _CC_EPOLL_EVENTS_);
 
     /**/
-    _reset_event_pending(cycle, _reset);
+    _reset_event_pending(async, _reset);
 
-    if (cycle->diff > 0) {
-        timeout -= cycle->diff;
+    if (async->diff > 0) {
+        timeout -= async->diff;
     }
 
     rc = epoll_wait(priv->fd, actives, _CC_EPOLL_EVENTS_, timeout);
@@ -214,38 +214,38 @@ _CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_event_cycle_t *cycle, uint32_t tim
         }
 
         if (which) {
-            _event_callback(cycle, e, which);
+            _event_callback(async, e, which);
         }
     }
 
 EPOLL_END:
-    _update_event_timeout(cycle, timeout);
+    _update_event_timeout(async, timeout);
     return true;
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _epoll_event_quit(_cc_event_cycle_t *cycle) {
-    _cc_assert(cycle != nullptr);
-    if (cycle == nullptr) {
+_CC_API_PRIVATE(bool_t) _epoll_event_quit(_cc_async_event_t *async) {
+    _cc_assert(async != nullptr);
+    if (async == nullptr) {
         return false;
     }
 
-    if (cycle->priv) {
-        if (cycle->priv->fd != -1) {
-            _cc_close_socket(cycle->priv->fd);
+    if (async->priv) {
+        if (async->priv->fd != -1) {
+            _cc_close_socket(async->priv->fd);
         }
 
-        _cc_free(cycle->priv);
-        cycle->priv = nullptr;
+        _cc_free(async->priv);
+        async->priv = nullptr;
     }
 
-    return _event_cycle_quit(cycle);
+    return _async_event_quit(async);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _epoll_event_init(_cc_event_cycle_t *cycle) {
+_CC_API_PRIVATE(bool_t) _epoll_event_init(_cc_async_event_t *async) {
     _cc_socket_t fd = -1;
-    if (!_event_cycle_init(cycle)) {
+    if (!_async_event_init(async)) {
         return false;
     }
 
@@ -264,24 +264,24 @@ _CC_API_PRIVATE(bool_t) _epoll_event_init(_cc_event_cycle_t *cycle) {
         _cc_set_socket_closeonexec(fd);
     }
 
-    cycle->priv = (_cc_event_cycle_priv_t *)_cc_malloc(sizeof(_cc_event_cycle_priv_t));
-    cycle->priv->fd = fd;
+    async->priv = (_cc_async_event_priv_t *)_cc_malloc(sizeof(_cc_async_event_priv_t));
+    async->priv->fd = fd;
 
     return true;
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_init_event_epoll(_cc_event_cycle_t *cycle) {
-    if (!_epoll_event_init(cycle)) {
+_CC_API_PUBLIC(bool_t) _cc_init_event_epoll(_cc_async_event_t *async) {
+    if (!_epoll_event_init(async)) {
         return false;
     }
-    cycle->reset = _epoll_event_reset;
-    cycle->attach = _epoll_event_attach;
-    cycle->connect = _epoll_event_connect;
-    cycle->disconnect = _epoll_event_disconnect;
-    cycle->accept = _epoll_event_accept;
-    cycle->wait = _epoll_event_wait;
-    cycle->quit = _epoll_event_quit;
-    cycle->reset = _epoll_event_reset;
+    async->reset = _epoll_event_reset;
+    async->attach = _epoll_event_attach;
+    async->connect = _epoll_event_connect;
+    async->disconnect = _epoll_event_disconnect;
+    async->accept = _epoll_event_accept;
+    async->wait = _epoll_event_wait;
+    async->quit = _epoll_event_quit;
+    async->reset = _epoll_event_reset;
     return true;
 }

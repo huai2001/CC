@@ -231,7 +231,7 @@ _CC_API_PRIVATE(bool_t) parse(char_t *buf, size_t length) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) udp(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t which) {
+_CC_API_PRIVATE(bool_t) udp(_cc_async_event_t *async, _cc_event_t *e, uint16_t which) {
     if (which & _CC_EVENT_READABLE_) {
         struct sockaddr_in remote_addr;
         socklen_t addr_len = sizeof(struct sockaddr_in);
@@ -254,17 +254,17 @@ _CC_API_PRIVATE(bool_t) udp(_cc_event_cycle_t *cycle, _cc_event_t *e, uint16_t w
 
 /**/
 _CC_API_PRIVATE(int32_t) thread_running(_cc_thread_t *thread, void *args) {
-    _cc_event_cycle_t *cycle = (_cc_event_cycle_t *)args;
+    _cc_async_event_t *async = (_cc_async_event_t *)args;
     while (running) {
-        cycle->wait(cycle, 100);
+        async->wait(async, 100);
     }
-    cycle->quit(cycle);
+    async->quit(async);
     return 1;
 }
 
 _CC_API_PUBLIC(bool_t) start(int16_t port) {
     struct sockaddr_in sin;
-    _cc_event_cycle_t cycle;
+    _cc_async_event_t async;
     _cc_event_t *event;
     _cc_socket_t io_fd = _CC_INVALID_SOCKET_;
 
@@ -287,9 +287,9 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
 
     _tprintf(_T("UDSysPLog Listen Port: %d\n"), port);
 
-    _cc_init_event_select(&cycle);
+    _cc_init_event_select(&async);
 
-    event = _cc_event_alloc(&cycle,  _CC_EVENT_READABLE_);
+    event = _cc_event_alloc(&async,  _CC_EVENT_READABLE_);
     if (event == nullptr) {
         _cc_close_socket(io_fd);
         return false;
@@ -299,18 +299,18 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
 
     _cc_set_socket_nonblock(io_fd, 1);
 
-    if (!cycle.attach(&cycle, event)) {
+    if (!async.attach(&async, event)) {
         _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), io_fd);
-        _cc_free_event(&cycle, event);
+        _cc_free_event(&async, event);
         return false;
     }
 
     running = true;
-    //running = _cc_thread_start(thread_running, "UDPSyslog", &cycle);
+    //running = _cc_thread_start(thread_running, "UDPSyslog", &async);
     while (running) {
-        cycle.wait(&cycle, 100);
+        async.wait(&async, 100);
     }
-    cycle.quit(&cycle);
+    async.quit(&async);
     return running;
 }
 

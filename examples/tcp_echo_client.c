@@ -31,7 +31,7 @@ tchar_t* get_disk_size_unit(uint64_t disk_size, tchar_t *buf, int32_t size) {
     return buf;
 }
 
-static bool_t send_data(_cc_event_cycle_t *cycle, _cc_event_t *e) {
+static bool_t send_data(_cc_async_event_t *async, _cc_event_t *e) {
 static _cc_Strint_t send_str = _cc_String(\
     _T("GET / HTTP/1.0\r\n")\
     _T("Host: 47.96.85.231\r\n")\
@@ -50,11 +50,11 @@ static _cc_Strint_t send_str = _cc_String(\
     return false;
 }
 
-static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     if (which & _CC_EVENT_CONNECTED_) {
         //_cc_logger_debug(_T("%d connect to server."), e->fd);
         _cc_atomic32_inc(&monitoring.live);
-        return true;//send_data(cycle, e);
+        return true;//send_data(async, e);
     }
 
     if (which & _CC_EVENT_DISCONNECT_) {
@@ -116,7 +116,7 @@ static bool_t network_event_callback(_cc_event_cycle_t *cycle, _cc_event_t *e, c
             _cc_atomic32_dec(&monitoring.live);
             return false;
         }*/
-        return send_data(cycle, e);
+        return send_data(async, e);
     }
     
     return true;
@@ -129,18 +129,18 @@ void testes_connect(const tchar_t* host, const uint16_t port, int32_t count) {
     struct sockaddr_in sa;
     _cc_event_t *e;
     for (c = 0; c < count; c++) {
-        _cc_event_cycle_t *cycle = _cc_get_event_cycle();
+        _cc_async_event_t *async = _cc_get_async_event();
         r = (rand() % 15) + 5;
 
-        e = _cc_event_alloc(cycle,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
+        e = _cc_event_alloc(async,  _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
         if (e == nullptr) {
             return;
         }
         e->callback = network_event_callback;
         e->timeout = r * 1000;
         _cc_inet_ipv4_addr(&sa, host, port);
-        if (!_cc_tcp_connect(cycle, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
-            _cc_free_event(cycle, e);
+        if (!_cc_tcp_connect(async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+            _cc_free_event(async, e);
             return;
         }
         
@@ -157,7 +157,7 @@ void testes_connect(const tchar_t* host, const uint16_t port, int32_t count) {
 int32_t i = 0;
 tchar_t unit_size[2][1024];
 
-bool_t _timeout_callback(_cc_event_cycle_t *event_base, _cc_event_t *e, const uint16_t which) {
+bool_t _timeout_callback(_cc_async_event_t *event_base, _cc_event_t *e, const uint16_t which) {
     uint64_t t = _cc_get_ticks();
     //
     _cc_logger_debug("total:%d,live:%d,send:%s,revice:%s - %d/s tick_timer:%ld",monitoring.total, monitoring.live,
@@ -179,7 +179,7 @@ int _tmain (int argc, tchar_t * const argv[]) {
     char c = 0;
 
     srand((uint32_t)time(nullptr));
-    _cc_event_loop(0, nullptr);
+    _cc_install_async_event(0, nullptr);
 
     bzero(&monitoring, sizeof(monitoring));
 
@@ -195,12 +195,12 @@ int _tmain (int argc, tchar_t * const argv[]) {
 
     testes_connect(monitoring.ip, monitoring.port, _min(max_client_count, TCP_MAX_CONNECT));
     tick_timer = _cc_get_ticks();
-    _cc_add_event_timeout(_cc_get_event_cycle(), 5000, _timeout_callback, nullptr);
+    _cc_add_event_timeout(_cc_get_async_event(), 5000, _timeout_callback, nullptr);
 
     while((c = getchar()) != 'q') {
         _cc_sleep(100);
     }
-    _cc_quit_event_loop();
+    _cc_uninstall_async_event();
     
     return 0;
 }
