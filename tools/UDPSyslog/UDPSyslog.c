@@ -325,8 +325,9 @@ _CC_API_PUBLIC(void) stop(void) {
 int main (int argc, char * const argv[]) {
     char c;
     setlocale( LC_CTYPE, "chs" );
-    //SetConsoleOutputCP(65001);
-
+#ifdef __CC_WINDOWS__
+    SetConsoleOutputCP(65001);
+#endif
     start(_CC_SYSLOG_PORT_);
 
     while((c = getchar()) != 'q') {
