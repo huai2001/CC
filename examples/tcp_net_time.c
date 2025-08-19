@@ -45,7 +45,7 @@ void ConvertTime(time_t ulTime) {
     }
 }
 
-static bool_t network_event_callback(_cc_async_event_t *event_base, _cc_event_t *ev, const uint16_t which) {
+static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *ev, const uint16_t which) {
     if (which & _CC_EVENT_CONNECT_) {
         start_time = time(nullptr);
         _tprintf(_T(" connect to server!\n"));
@@ -70,7 +70,7 @@ static bool_t network_event_callback(_cc_async_event_t *event_base, _cc_event_t 
         }
         _cc_loggerA_error("test", "test");
         ConvertTime(ntohl(ulTime));
-        return true;//send_data(event_base, ev);;
+        return true;//send_data(async, ev);;
     }
 
     if (which & _CC_EVENT_WRITABLE_) {

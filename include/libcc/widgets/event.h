@@ -80,7 +80,7 @@ typedef struct _cc_event_buffer _cc_event_buffer_t;
 typedef struct _cc_event_rbuf _cc_event_rbuf_t;
 typedef struct _cc_event_wbuf _cc_event_wbuf_t;
 typedef struct _cc_async_event_priv _cc_async_event_priv_t;
-typedef struct _cc_event_cycle _cc_async_event_t;
+typedef struct _cc_async_event _cc_async_event_t;
 
 typedef bool_t (*_cc_event_callback_t)(_cc_async_event_t *, _cc_event_t *, const uint16_t);
 
@@ -134,7 +134,7 @@ struct _cc_event {
     pvoid_t args;
 };
 
-struct _cc_event_cycle {
+struct _cc_async_event {
     byte_t running;
     /**/
     byte_t ident;
@@ -200,7 +200,7 @@ _CC_WIDGETS_API(_cc_event_t*) _cc_event_alloc(_cc_async_event_t *async, const ui
  */
 _CC_WIDGETS_API(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e);
 /**
- * @brief Get event async handle
+ * @brief Get async event handle
  *
  * @return _cc_async_event_t structure
  */
@@ -216,7 +216,7 @@ _CC_WIDGETS_API(_cc_async_event_t *) _cc_get_async_event(void);
 _CC_WIDGETS_API(_cc_event_t *) _cc_get_event_by_id(uint32_t ident);
 
 /**
- * @brief Get event_cycle handle
+ * @brief Get async event handle
  *
  * @param ident
  *

@@ -157,7 +157,7 @@ void testes_connect(const tchar_t* host, const uint16_t port, int32_t count) {
 int32_t i = 0;
 tchar_t unit_size[2][1024];
 
-bool_t _timeout_callback(_cc_async_event_t *event_base, _cc_event_t *e, const uint16_t which) {
+bool_t _timeout_callback(_cc_async_event_t *async, _cc_event_t *e, const uint16_t which) {
     uint64_t t = _cc_get_ticks();
     //
     _cc_logger_debug("total:%d,live:%d,send:%s,revice:%s - %d/s tick_timer:%ld",monitoring.total, monitoring.live,
