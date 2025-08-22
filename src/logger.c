@@ -68,7 +68,7 @@ const char  SYSLOG_LEVEL_CODE[_CC_LOG_LEVEL_DEBUG_ + 1] = {
     'G', 'A', 'C', 'E', 'W', 'N', 'I', 'D'
 };
 
-_CC_API_PRIVATE(void) _outputA_log(const tchar_t *file, int line, uint8_t level, const char_t *msg, size_t length) {
+_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t *msg, size_t length) {
 #ifndef __CC_ANDROID__
     tchar_t buffer[_CC_1K_BUFFER_SIZE_];
     struct tm tm_now;
@@ -139,7 +139,7 @@ _CC_API_PRIVATE(void) _outputA_log(const tchar_t *file, int line, uint8_t level,
 "\033[36m Sky blue  \033[0m"
 "\033[37m White     \033[0m"
 */
-_CC_API_PRIVATE(void) _outputW_log(const tchar_t *file, int line, uint8_t level, const wchar_t *msg, size_t length) {
+_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t *msg, size_t length) {
 #ifndef __CC_ANDROID__
     tchar_t buffer[_CC_1K_BUFFER_SIZE_];
     struct tm tm_now;
@@ -202,14 +202,6 @@ _CC_API_PRIVATE(void) _outputW_log(const tchar_t *file, int line, uint8_t level,
     _cc_syslogW(level, msg, length);
 }
 
-_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t *msg) {
-    _outputA_log(file, line, level, msg, strlen(msg));
-}
-
-_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t *msg) {
-    _outputW_log(file, line, level, msg, wcslen(msg));
-}
-
 _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t level, const char_t *fmt, va_list arg) {
     char_t buf[_CC_LOG_BUFFER_SIZE_];
     size_t fmt_length, empty_len;
@@ -239,7 +231,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
 
         /* SUCCESS */
         if (fmt_length < empty_len) {
-            _outputA_log(file, line, level, ptr, fmt_length);
+            _cc_loggerA(file, line, level, ptr, fmt_length);
             break;
         }
         empty_len = _cc_aligned_alloc_opt(fmt_length + 10, 32);
@@ -280,7 +272,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t 
 
         /* SUCCESS */
         if (fmt_length < empty_len) {
-            _outputW_log(file, line, level, ptr, fmt_length);
+            _cc_loggerW(file, line, level, ptr, fmt_length);
             break;
         }
 

@@ -12,11 +12,8 @@ endif
 MACROS	+= _CC_WIDGETS_EXPORT_SHARED_LIBRARY_=1
 
 ifeq ($(PLATFORM), osx)
-	INCLUDE_PATH	+= /opt/homebrew/opt/openssl/include
-	LIBRARY_PATH	+= /opt/homebrew/opt/openssl/lib
-
-	INCLUDE_PATH	+= /opt/homebrew/opt/mysql-client/include
-	LIBRARY_PATH	+= /opt/homebrew/opt/mysql-client/lib
+	INCLUDE_PATH	+= /opt/homebrew/include
+	LIBRARY_PATH	+= /opt/homebrew/lib
 endif
 
 ifdef shared
@@ -52,21 +49,28 @@ endif
 # sudo apt-get install libmysqlclient-dev
 
 #macOS Homebrew
+# brew install unixodbc
 # brew install sqlite
 # brew install mysql-client
 
+#下载ODBC驱动
+#https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver17&redirectedfrom=MSDN
+#brew tap microsoft/mssql-release https://github.com/Microsoft/homebrew-mssql-release
+#brew update
+#HOMEBREW_ACCEPT_EULA=Y brew install msodbcsql18 mssql-tools18
 
 # 安装 64 位版本的 MySQL 客户端库
 # pacman -S mingw-w64-x86_64-mysql
 ifdef db
 ifeq ($(PLATFORM), osx)
 	MACROS			+= _CC_ENABLE_UNIXODBC_=1
-	#INCLUDE_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/include
-	#LIBRARY_PATH	+= /usr/local/Cellar/unixodbc/2.3.9_1/lib
 
-	#LOCAL_SRC_FILES += $(SRCROOT)/src/db/sqlsvr.o
+	LOCAL_SRC_FILES += $(SRCROOT)/src/widgets/db/sqlsvr.o
 
-	#LIBS			+= odbc
+	LIBS			+= odbc
+
+	INCLUDE_PATH	+= /opt/homebrew/opt/mysql-client/include
+	LIBRARY_PATH	+= /opt/homebrew/opt/mysql-client/lib
 endif
 
 INCLUDE_PATH	+= /usr/local/include /usr/include

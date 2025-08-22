@@ -4,21 +4,25 @@
 #include <libcc.h>
 #include <libcc/widgets/sql.h>
 
+#include <sql.h>
+#include <odbcinst.H>
 #include <sqlext.h>
-#include <ODBCINST.H>
+
+#ifdef __CC_WINDOWS__
 #pragma comment(lib,"odbccp32.lib")
 #pragma comment(lib,"odbc32.lib")
 #pragma comment(lib, "legacy_stdio_definitions.lib")
+#endif
 
 tchar_t table_name[128];
 void GetSQLDriverList()
 {
 	WORD wRet = 0;
-	TCHAR szdelegates[4096];
-	memset(szdelegates, 0, sizeof(szdelegates));
-	if(SQLGetInstalledDrivers(szdelegates, _countof(szdelegates), &wRet))
+	TCHAR szDrivers[4096];
+	memset(szDrivers, 0, sizeof(szDrivers));
+	if(SQLGetInstalledDrivers(szDrivers, _countof(szDrivers), &wRet))
 	{
-		LPTSTR pszDrv = szdelegates;
+		LPTSTR pszDrv = szDrivers;
 		puts(_T("Installed delegator list:\n"));
 		while(*pszDrv)
 		{
@@ -37,7 +41,7 @@ BOOL GetExcelAllTableNames( const tchar_t *sExcelFile )
 	SWORD nResult;
 	SQLHSTMT hstmt = nullptr;
 	tchar_t strConnect[1024];
-	SDWORD cb;
+	SQLLEN cb;
 	char szTable[255];
 	char szTableType[255];
 
@@ -106,10 +110,10 @@ int main(int argc, char *const arvg[])
 	// 		file_name,file_name);
 
 	GetSQLDriverList();
-    GetExcelAllTableNames("C:\\data.xls");
+    GetExcelAllTableNames("./data.xls");
     _cc_init_sqlsvr(&sql_delegate);
 
-    conn_ptr = sql_delegate.connect("Driver={Microsoft Excel Driver (*.xls)};DBQ=C:\\data.xls;ReadOnly=0;");
+    conn_ptr = sql_delegate.connect("Driver={Microsoft Excel Driver (*.xls)};DBQ=./data.xls;ReadOnly=0;");
     if(conn_ptr) {
         printf("connection succed\n");
     } else {

@@ -1,10 +1,10 @@
 #include <stdio.h>
 
 #include <locale.h>
-#include <libcc/base64.h>
-#include <libcc/base16.h>
-#include <libcc/base58.h>
-#include <libcc/sha.h>
+#include <libcc/crypto/base64.h>
+#include <libcc/crypto/base16.h>
+#include <libcc/crypto/base58.h>
+#include <libcc/crypto/sha.h>
 #include <libcc/url.h>
 #include <libcc/buf.h>
 #include <libcc/alloc.h>
@@ -43,9 +43,10 @@ int main (int argc, char * const argv[]) {
     tchar_t baseX_de[256];
     
 	setlocale(LC_ALL, "chs");
+#ifdef __CC_WINDOWS__
     SetConsoleOutputCP(65001);
-
-    base58Address(_T("4105ab06be97f2360d6fd2ea811233410d02f9f477"));
+#endif
+    base58Address(_T("41079735aa4df8538e8ba945d184d8905a22a15194"));
     
     outlen = _cc_base16_encode((byte_t*)in, len * sizeof(tchar_t), baseX_en, 256);
     

@@ -39,13 +39,13 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
 /**/
 _CC_API_PUBLIC(void) _cc_loggerA_format(const tchar_t *file, int line, uint8_t level, const char_t* fmt, ...);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t* str);
+_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t* msg, size_t length);
 /**/
 _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, va_list arg);
 /**/
 _CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, ...);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t* str);
+_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t* msg, size_t length);
 
 #ifdef _CC_MSVC_
     #define _cc_loggerW_alert(FMT, ...) \
@@ -102,7 +102,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 /**/
 #ifdef _CC_UNICODE_
 #define _cc_logger_format _cc_loggerW_format
-#define _cc_logger(LEVEL, MSG) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, MSG)
+#define _cc_logger(LEVEL, MSG) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, MSG, wcslen(MSG))
 #define _cc_logger_warin _cc_loggerW_warin
 #define _cc_logger_debug _cc_loggerW_debug
 #define _cc_logger_info _cc_loggerW_info
@@ -111,7 +111,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 #define _cc_logger_syslog _cc_loggerW_syslog
 #else
 #define _cc_logger_format _cc_loggerA_format
-#define _cc_logger(LEVEL, MSG) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, MSG)
+#define _cc_logger(LEVEL, MSG) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, MSG, strlen(MSG))
 #define _cc_logger_warin _cc_loggerA_warin
 #define _cc_logger_debug _cc_loggerA_debug
 #define _cc_logger_info _cc_loggerA_info

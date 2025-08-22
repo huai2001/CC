@@ -346,7 +346,11 @@ _CC_API_PRIVATE(bool_t) _oci8_rollback(_cc_sql_t *ctx) {
     }
     return true;
 }
-
+/**/
+_CC_API_PRIVATE(bool_t) _oci8_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
+    _cc_logger_debug(_T("OCI8 _oci8_bind: Not implemented yet"));
+    return false;
+}
 /**/
 _CC_API_PRIVATE(bool_t) _oci8_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     _cc_assert(ctx != nullptr && result != nullptr);

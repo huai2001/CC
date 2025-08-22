@@ -27,7 +27,17 @@
         "widgets.h": "c",
         "type_traits": "c",
         "any": "c",
-        "complex": "c"
+        "complex": "c",
+        "__locale": "c",
+        "string": "c",
+        "__bit_reference": "c",
+        "__node_handle": "c",
+        "deque": "c",
+        "limits": "c",
+        "locale": "c",
+        "optional": "c",
+        "ratio": "c",
+        "vector": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     //"C_Cpp.clang_format_style": "{ BasedOnStyle: Microsoft, UseTab: Never, IndentWidth: 4, TabWidth: 4, }",

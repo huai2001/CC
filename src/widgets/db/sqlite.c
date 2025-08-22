@@ -525,6 +525,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, co
     int res;
     _cc_assert(result != nullptr);
 
+    /*List the serial numbers (starting from 1)*/
     index++;
     switch(type) {
         case _CC_SQL_TYPE_INT8_:
@@ -564,10 +565,10 @@ _CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, co
             break;
         case _CC_SQL_TYPE_DATETIME_: {
             tchar_t datetime[32];
-            struct tm *timeinfo = (struct tm *)value;
+            struct tm *tm_v = (struct tm *)value;
             length = _sntprintf(datetime,_cc_countof(datetime), _T("%4d-%02d-%02d %02d:%02d:%02d"), 
-                                timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, 
-                                timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+                                tm_v->tm_year + 1900, tm_v->tm_mon + 1, tm_v->tm_mday, 
+                                tm_v->tm_hour, tm_v->tm_min, tm_v->tm_sec);
             res = _sqlite3_bind_text(result->stmt, index, datetime, (int)length, SQLITE_TRANSIENT);
             break;
         }
