@@ -29,31 +29,31 @@ extern "C" {
 #endif
 
 /**/
-#define _cc_hmap_for_each(__TYPE, __VAL, __FIRST, __OP)       \
-    do {                                                           \
-        _cc_list_iterator_t* __NEXT = _cc_list_iterator_first( \
-            (_cc_list_iterator_t*)&(__FIRST)->list);             \
-        __TYPE* __VAL = nullptr;                                      \
-        while (nullptr != __NEXT) {                                   \
-            __VAL = (__TYPE*)_cc_hmap_value(__NEXT);          \
-            __NEXT = __NEXT->next;                                 \
-            __OP                                                   \
-        }                                                          \
+#define _cc_hmap_for_each(__TYPE, __VAL, __FIRST, __OP)                 \
+    do {                                                                \
+        _cc_list_iterator_t* __NEXT = _cc_list_iterator_first(          \
+            (_cc_list_iterator_t*)&(__FIRST)->list);                    \
+        __TYPE* __VAL = nullptr;                                        \
+        while (nullptr != __NEXT) {                                     \
+            __VAL = (__TYPE*)_cc_hmap_value(__NEXT);                    \
+            __NEXT = __NEXT->next;                                      \
+            __OP                                                        \
+        }                                                               \
     } while (0)
 
 /**/
-typedef bool_t (*_cc_hmap_keyword_equals_func_t)(const intptr_t custom, const intptr_t keyword);
+typedef bool_t (*_cc_hmap_keyword_equals_func_t)(const uintptr_t custom, const uintptr_t keyword);
 /**/
-typedef uint32_t (*_cc_hmap_keyword_hash_func_t)(const intptr_t keyword);
+typedef intptr_t (*_cc_hmap_keyword_hash_func_t)(const uintptr_t keyword);
 /**/
 typedef struct _cc_hmap_element _cc_hmap_element_t;
 
 /* A hmap has some maximum size and current size,
  * as well as the data to hold. */
 typedef struct _cc_hmap {
-    uint32_t slots;
+    uint32_t limit;
     uint32_t count;
-    _cc_hmap_element_t *data;
+    _cc_hmap_element_t *slots;
     _cc_list_iterator_t list;
 
     _cc_hmap_keyword_equals_func_t equals_func;
@@ -83,14 +83,14 @@ _CC_FORCE_INLINE_ uint32_t _cc_hmap_length(_cc_hmap_t *ctx) {
  * @brief Initialize a new empty hmap.
  *
  * @param ctx hmap context
- * @param initial_size buffer count(!= 0. Creates a new memory buffer)
+ * @param capacity buffer count(!= 0. Creates a new memory buffer)
  * @param equals_func keywork equals callback function
  * @param hash_func keywork hash code callback function
  *
  * @return a new empty hmap
  */
 _CC_API_PUBLIC(bool_t)
-_cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t initial_size,
+_cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity,
     _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func);
 /**
  * @brief Free a hmap.
@@ -99,17 +99,17 @@ _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t initial_size,
  */
 _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx);
 /**/
-_CC_API_PUBLIC(intptr_t) _cc_hmap_value(intptr_t);
+_CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_iterator_t*);
 /**
  * @brief Removes all items.
  */
 _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *);
 /**/
-_CC_API_PUBLIC(bool_t) _cc_hmap_push(_cc_hmap_t *, const intptr_t keyword, const intptr_t custom);
+_CC_API_PUBLIC(bool_t) _cc_hmap_push(_cc_hmap_t *, const uintptr_t keyword, const uintptr_t custom);
 /**/
-_CC_API_PUBLIC(intptr_t) _cc_hmap_find(_cc_hmap_t *, const intptr_t keyword);
+_CC_API_PUBLIC(uintptr_t) _cc_hmap_find(_cc_hmap_t *, const uintptr_t keyword);
 /**/
-_CC_API_PUBLIC(intptr_t) _cc_hmap_pop(_cc_hmap_t *, const intptr_t keyword);
+_CC_API_PUBLIC(uintptr_t) _cc_hmap_pop(_cc_hmap_t *, const uintptr_t keyword);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
