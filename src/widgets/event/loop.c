@@ -33,6 +33,7 @@ static struct {
 /**/
 _CC_API_PRIVATE(int32_t) _running(_cc_thread_t *thread, void *args) {
     _cc_async_event_t *async = (_cc_async_event_t *)args;
+    
     if (g.callback) {
         g.callback(async, true);
     }

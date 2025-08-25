@@ -97,7 +97,7 @@ _CC_API_PUBLIC(bool_t) _cc_thread_start(_cc_thread_callback_t callback, const tc
 }
 
 /**/
-_CC_API_PUBLIC(int32_t) _cc_get_thread_id(_cc_thread_t *self) {
+_CC_API_PUBLIC(size_t) _cc_get_thread_id(_cc_thread_t *self) {
     return _cc_get_sys_thread_id(self);
 }
 

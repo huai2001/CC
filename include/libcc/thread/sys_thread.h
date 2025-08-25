@@ -36,29 +36,29 @@ typedef struct _cc_thread _cc_thread_t;
 /**
  * @brief Create a thread
  *
- * @param thrd Thread handle
+ * @param self Thread handle
  * @param args Thread user data
  *
  * @return true if successful or false on error.
  */
-extern bool_t _cc_create_sys_thread(_cc_thread_t* thrd);
+extern bool_t _cc_create_sys_thread(_cc_thread_t* self);
 
 /**
- * @brief Get the 32-bit thread identifier for the current thread
+ * @brief Get the thread identifier for the current thread
  *
  * @return Get current thread id
  */
-extern uint32_t _cc_get_current_sys_thread_id(void);
+extern size_t _cc_get_current_sys_thread_id(void);
 
 /**
- * @brief Get the 32-bit thread identifier for the specified thread,
- *        equivalent to get_thread_id() if the specified thread is nullptr.
+ * @brief Get the thread identifier for the specified thread,
+ *        equivalent to _cc_get_current_sys_thread_id() if the specified thread is nullptr.
  *
- * @param thrd Thread handle
+ * @param self Thread handle
  *
  * @return Get thread id
  */
-extern uint32_t _cc_get_sys_thread_id(_cc_thread_t* thrd);
+extern size_t _cc_get_sys_thread_id(_cc_thread_t* self);
 
 /**
  * @brief This function does any necessary setup in the child thread
@@ -71,16 +71,16 @@ extern void _cc_setup_sys_thread(const tchar_t* name);
  *        The return code for the thread function is placed in the area
  *        pointed to by 'status', if 'status' is not nullptr.
  *
- * @param thrd Thread handle
+ * @param self Thread handle
  */
-extern void _cc_wait_sys_thread(_cc_thread_t* thrd);
+extern void _cc_wait_sys_thread(_cc_thread_t* self);
 
 /**
  * @brief Mark thread as cleaned up as soon as it exits, without joining.
  *
- * @param thrd Thread handle
+ * @param self Thread handle
  */
-extern void _cc_detach_sys_thread(_cc_thread_t* thrd);
+extern void _cc_detach_sys_thread(_cc_thread_t* self);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

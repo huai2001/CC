@@ -173,11 +173,6 @@ do { \
 #define _CC_LO_UINT8(_l)        ((uint8_t)((uint32_t)(_l) & 0xff))
 #define _CC_HI_UINT8(_h)        ((uint8_t)(((uint32_t)(_h) >> 8) & 0xff))
 
-/* Set up for C function definitions, even when using C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define _CC_ISDIGIT(V)   ((unsigned)(V) - '0' < 10u)
 #define _CC_ISLOWER(V)   ((unsigned)(V) - 'a' < 26u)
 #define _CC_ISUPPER(V)   ((unsigned)(V) - 'A' < 26u)
@@ -191,6 +186,11 @@ extern "C" {
 /*('\f')0x0c    feed (FF)               */
 /*('\r')0x0d    carriage return (CR)    */
 #define _CC_ISSPACE(V) ((unsigned)((V) - 0x09) < 5u || (V) == 0x20)
+
+/* Set up for C function definitions, even when using C++ */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 _CC_FORCE_INLINE_ bool_t _cc_isdigit(int c) {
     return _CC_ISDIGIT(c);

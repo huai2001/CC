@@ -70,18 +70,14 @@ _CC_API_PRIVATE(void) _logger_fail_message_from_odbc(const SQLSMALLINT type, con
     _cc_logger_error(_T("Error in : %s SQLSTATE: %s Message: %s"), action, sqlstate, message);
 }
 
-_CC_API_PRIVATE(bool_t) _init_sqlsvr(void) {
+_CC_API_PRIVATE(void) _init_sqlsvr(void) {
     int request = 0;
-
-    if (_cc_unlikely(hEnv != SQL_NULL_HENV)) {
-        return true;
-    }
-
     /*Allocate the ODBC environment and save handle.*/
     request = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &hEnv);
     if ((request != SQL_SUCCESS_WITH_INFO) && (request != SQL_SUCCESS)) {  
         _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("SQLAllocHandle(Env) Failed"));
-        return false;
+        hEnv = SQL_NULL_HENV;
+        return;
     }
 
     /*Notify ODBC that this is an ODBC 3.0 app.*/
@@ -90,9 +86,8 @@ _CC_API_PRIVATE(bool_t) _init_sqlsvr(void) {
         _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("SQLSetEnvAttr(ODBC version) Failed"));
         SQLFreeEnv(hEnv);
         hEnv = SQL_NULL_HENV;
-        return false;
+        return;
    }
-    return true;
 }
 
 _CC_API_PRIVATE(bool_t) _quit_sqlsvr(void) {
@@ -105,13 +100,15 @@ _CC_API_PRIVATE(bool_t) _quit_sqlsvr(void) {
 }
 
 _CC_API_PRIVATE(_cc_sql_t*) _sqlsvr_connect(const tchar_t *sql_connection_string) {
+    static _cc_once_t once_sqlsvr = _CC_ONCE_INIT_;
     SQLTCHAR OutConnStr[1024] = {0};
     SQLSMALLINT OutConnStrLen;
     _cc_sql_t *ctx = nullptr;
 
     int request = SQL_SUCCESS;
 
-    if (!_init_sqlsvr()) {
+    _cc_once(&once_sqlsvr,_init_sqlsvr);
+    if (hEnv == SQL_NULL_HENV) {
         return nullptr;
     }
 

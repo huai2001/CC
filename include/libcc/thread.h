@@ -37,6 +37,7 @@
 extern "C" {
 #endif
 
+typedef void (*_cc_once_callback_t)(void);
 /**/
 typedef int32_t (*_cc_thread_callback_t)(_cc_thread_t *, pvoid_t);
 
@@ -49,7 +50,7 @@ typedef enum {
 
 struct _cc_thread {
     int32_t status;
-    uint32_t thread_id;
+    size_t thread_id;
     /* 0 for default, >0 for user-specified stack size. */
     size_t stacksize;
     _cc_atomic32_t state;
@@ -72,6 +73,8 @@ typedef enum {
 /* This is the function called to run a thread */
 extern void _cc_thread_running_function(pvoid_t);
 
+_CC_API_PUBLIC(void) 
+_cc_once(_cc_once_t* guard, _cc_once_callback_t callback);
 /**
  * @brief Create a thread with a default stack size.
  *
@@ -115,7 +118,7 @@ _CC_API_PUBLIC(void) _cc_wait_thread(_cc_thread_t *, int32_t *);
 /**/
 _CC_API_PUBLIC(void) _cc_detach_thread(_cc_thread_t *);
 /**/
-_CC_API_PUBLIC(int32_t) _cc_get_thread_id(_cc_thread_t *);
+_CC_API_PUBLIC(size_t) _cc_get_thread_id(_cc_thread_t *);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

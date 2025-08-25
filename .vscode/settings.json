@@ -37,7 +37,8 @@
         "locale": "c",
         "optional": "c",
         "ratio": "c",
-        "vector": "c"
+        "vector": "c",
+        "ios": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     //"C_Cpp.clang_format_style": "{ BasedOnStyle: Microsoft, UseTab: Never, IndentWidth: 4, TabWidth: 4, }",

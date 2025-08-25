@@ -20,8 +20,8 @@
 */
 #include <libcc/logger.h>
 #include <libcc/time.h>
+#include <libcc/thread.h>
 #include <errno.h>
-#include <pthread.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -42,7 +42,7 @@ static mach_timebase_info_data_t mach_base_info;
 #endif
 
 static bool_t has_monotonic_time = false;
-static bool_t checked_monotonic_time = false;
+static _cc_once_t checked_monotonic_time = _CC_ONCE_INIT_;
 
 static void CheckMonotonicTime(void) {
 #ifdef _CC_HAVE_CLOCK_GETTIME_
@@ -55,15 +55,11 @@ static void CheckMonotonicTime(void) {
         has_monotonic_time = true;
     }
 #endif
-    checked_monotonic_time = true;
 }
 
 _CC_API_PUBLIC(uint64_t) _cc_query_performance_counter(void) {
     uint64_t ticks;
-
-    if (!checked_monotonic_time) {
-        CheckMonotonicTime();
-    }
+    _cc_once(&checked_monotonic_time, CheckMonotonicTime);
 
     if (has_monotonic_time) {
 #ifdef _CC_HAVE_CLOCK_GETTIME_
@@ -91,9 +87,7 @@ _CC_API_PUBLIC(uint64_t) _cc_query_performance_counter(void) {
 }
 
 _CC_API_PUBLIC(uint64_t) _cc_query_performance_frequency(void) {
-    if (!checked_monotonic_time) {
-        CheckMonotonicTime();
-    }
+    _cc_once(&checked_monotonic_time, CheckMonotonicTime);
     if (has_monotonic_time) {
 #ifdef _CC_HAVE_CLOCK_GETTIME_
         return _CC_NS_PER_SECOND_;

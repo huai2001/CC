@@ -124,47 +124,47 @@ _CC_API_PUBLIC(uint8_t) _cc_hex2(const tchar_t *input) {
     return (uint8_t)(ch & 0xff);
 }
 
-_CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *in, size_t in_len, tchar_t *out, size_t out_max_len) {
+_CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *src, size_t src_len, tchar_t *dst, size_t dst_capacity) {
     size_t k = 0;
     size_t i = 0;
     byte_t ch = 0;
 
-    _cc_assert(in != nullptr && out != nullptr);
-    out_max_len -= 1;
+    _cc_assert(src != nullptr && dst != nullptr);
+    dst_capacity -= 1;
 
-    while (i < in_len && k < out_max_len) {
-        ch = *(in + i++);
+    while (i < src_len && k < dst_capacity) {
+        ch = *(src + i++);
 
-        out[k++] = _lower_xdigits[ch / 16];
-        out[k++] = _lower_xdigits[ch & 15]; /*ch & 15 == ch % 16*/
+        dst[k++] = _lower_xdigits[ch / 16];
+        dst[k++] = _lower_xdigits[ch & 15]; /*ch & 15 == ch % 16*/
     }
 
-    out[k] = 0;
+    dst[k] = 0;
 
     return k;
 }
 
 /* ascii to bytes*/
-_CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *in, size_t in_len, byte_t *out, size_t out_max_len) {
+_CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *src, size_t src_len, byte_t *dst, size_t dst_capacity) {
     int ch = 0;
     size_t i = 0, k = 0;
 
-    _cc_assert(in != nullptr && out != nullptr);
+    _cc_assert(src != nullptr && dst != nullptr);
 
-    if (_cc_unlikely(!in || !out)) {
+    if (_cc_unlikely(!src || !dst)) {
         return 0;
     }
 
-    if (_cc_unlikely(in_len > (out_max_len * 2))) {
+    if (_cc_unlikely(src_len > (dst_capacity * 2))) {
         return 0;
     }
 
-    while (i < in_len && k <= out_max_len) {
-        ch = _cc_char2hex(in[i]);
+    while (i < src_len && k <= dst_capacity) {
+        ch = _cc_char2hex(src[i]);
         ch <<= 4;
-        ch += _cc_char2hex(in[i + 1]);
+        ch += _cc_char2hex(src[i + 1]);
 
-        out[k++] = ch & 0xff;
+        dst[k++] = ch & 0xff;
 
         i += 2;
     }

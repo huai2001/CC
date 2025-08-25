@@ -21,6 +21,7 @@
 #include <libcc/logger.h>
 #include <libcc/socket/windows/sys_socket.h>
 #include <libcc/time.h>
+#include <libcc/thread.h>
 
 #ifndef __CC_WINRT__
     #include <mmsystem.h>
@@ -100,6 +101,7 @@ _CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
     FILETIME ft;
     unsigned __int64 ff = 0;
     ULARGE_INTEGER fft;
+    
     if (_getSystemTimeAsFileTimeFunc == nullptr) {
         HMODULE hMod = _cc_load_windows_kernel32();
         if (hMod) {

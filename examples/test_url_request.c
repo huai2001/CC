@@ -63,7 +63,6 @@ static bool_t url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
 }
 
 static bool_t url_request_success(_cc_url_request_t *request) {
-    _cc_file_t *fp = (_cc_file_t *)request->args;
     _cc_http_response_header_t *response = request->response;
     switch (response->status) {
     case HTTP_STATUS_OK:

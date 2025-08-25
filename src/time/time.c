@@ -20,6 +20,7 @@
 */
 #include <libcc/time.h>
 #include <libcc/logger.h>
+#include <libcc/thread.h>
 #ifdef __CC_WINDOWS__
 #include <WinSock.h>
 #else
@@ -28,7 +29,7 @@
 
 /* The first (low-resolution) ticks value of the application */
 static uint64_t ticks_start = 0;
-static bool_t ticks_started = false;
+static _cc_once_t ticks_once = _CC_ONCE_INIT_;
 
 static uint32_t tick_numerator_ns;
 static uint32_t tick_denominator_ns;
@@ -46,10 +47,6 @@ _CC_API_PRIVATE(void) _tick_init(void) {
     uint64_t tick_freq;
     uint32_t gcd;
 
-    if (ticks_started) {
-        return;
-    }
-
     tick_freq = _cc_query_performance_frequency();
     _cc_assert(tick_freq > 0 && tick_freq <= (uint64_t)0xFFFFFFFFu);
 
@@ -65,7 +62,6 @@ _CC_API_PRIVATE(void) _tick_init(void) {
     if (!ticks_start) {
         --ticks_start;
     }
-    ticks_started = true;
 }
 
 // _CC_API_PRIVATE(void) _tick_quit() {
@@ -74,9 +70,8 @@ _CC_API_PRIVATE(void) _tick_init(void) {
 
 _CC_API_PUBLIC(uint64_t) _cc_get_ticks_ns(void) {
     uint64_t starting_value, value;
-    if (!ticks_started) {
-        _tick_init();
-    }
+
+    _cc_once(&ticks_once,_tick_init);
 
     value = _cc_query_performance_counter();
     starting_value = (value - ticks_start);
@@ -92,10 +87,9 @@ _CC_API_PUBLIC(uint64_t) _cc_get_ticks_ns(void) {
  */
 _CC_API_PUBLIC(uint64_t) _cc_get_ticks(void) {
     uint64_t starting_value, value;
-    if (!ticks_started) {
-        _tick_init();
-    }
 
+    _cc_once(&ticks_once,_tick_init);
+    
     value = _cc_query_performance_counter();
     starting_value = (value - ticks_start);
     value = (starting_value * tick_numerator_ms);

@@ -57,6 +57,23 @@ typedef uintptr_t (__cdecl * _begin_thread_func_t)
 static _begin_thread_func_t pfnBeginThread = _beginthreadex;
 static _end_thread_func_t pfnEndThread = _endthreadex;
 
+typedef struct {
+    _cc_once_callback_t callback;
+} _os_once_data_t;
+
+static BOOL WINAPI _os_once_inner(INIT_ONCE *once, void* args, void** context) {
+    _os_once_data_t* data = args;
+    data->callback();
+    return TRUE;
+}
+
+_CC_API_PUBLIC(void) _cc_once(_cc_once_t* guard, _cc_once_callback_t callback) {
+    _os_once_data_t data = { 
+        .callback = callback
+    };
+    InitOnceExecuteOnce(&guard->init_once, _os_once_inner, (void*)&data, NULL);
+}
+
 static DWORD RunThread(LPVOID args) {
     _cc_thread_running_function(args);
 
@@ -78,23 +95,23 @@ static unsigned __stdcall MINGW32_FORCEALIGN RunThreadViaBeginThreadEx(LPVOID ar
 #define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
 #endif
 /**/
-_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t* thrd) {
-    int flags = thrd->stacksize ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0;
+_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t* self) {
+    int flags = self->stacksize ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0;
     DWORD thread_id = 0;
-    // thrd->stacksize == 0 means "system default", same as win32 expects
+    // self->stacksize == 0 means "system default", same as win32 expects
     if (pfnBeginThread) {
-        thrd->handle = (_cc_thread_handle_t)((size_t)pfnBeginThread(nullptr, (unsigned int)thrd->stacksize,
-                                                                   (_beginthreadex_proc_type)RunThreadViaBeginThreadEx, thrd, flags, (unsigned*)&thread_id));
+        self->handle = (_cc_thread_handle_t)((size_t)pfnBeginThread(nullptr, (unsigned int)self->stacksize,
+                                                                   (_beginthreadex_proc_type)RunThreadViaBeginThreadEx, self, flags, (unsigned*)&thread_id));
     } else {
-        thrd->handle = CreateThread(nullptr, thrd->stacksize, RunThreadViaCreateThread, thrd, flags, &thread_id);
+        self->handle = CreateThread(nullptr, self->stacksize, RunThreadViaCreateThread, self, flags, &thread_id);
         pfnEndThread = nullptr;
     }
     
-    if (thrd->handle == nullptr) {
+    if (self->handle == nullptr) {
         _cc_logger_error(_T("Not enough resources to create thread"));
         return false;
     }
-    thrd->thread_id = thread_id;
+    self->thread_id = thread_id;
     return true;
 }
 
@@ -126,7 +143,7 @@ _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t* name) {
     pfnSetThreadDescription pSetThreadDescription = nullptr;
     HMODULE kernel32 = 0;
 #ifndef _CC_UNICODE_
-    wchar_t buf[256];
+    wchar_t buf[512];
 #endif
     if (name == nullptr) {
         return;
@@ -134,8 +151,7 @@ _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t* name) {
 
     kernel32 = _cc_load_windows_kernel32();
     if (kernel32) {
-        pSetThreadDescription = (pfnSetThreadDescription)_cc_load_function(
-            kernel32, "SetThreadDescription");
+        pSetThreadDescription = (pfnSetThreadDescription)_cc_load_function(kernel32, "SetThreadDescription");
         if (pSetThreadDescription == nullptr) {
             return;
         }
@@ -170,8 +186,8 @@ _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t* name) {
 }
 
 /**/
-_CC_API_PUBLIC(uint32_t) _cc_get_current_sys_thread_id(void) {
-    return ((uint32_t)GetCurrentThreadId());
+_CC_API_PUBLIC(size_t) _cc_get_current_sys_thread_id(void) {
+    return ((size_t)GetCurrentThreadId());
 }
 
 /**/
@@ -193,11 +209,11 @@ _CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ pri
 }
 
 /**/
-_CC_API_PUBLIC(uint32_t) _cc_get_sys_thread_id(_cc_thread_t* thrd) {
-    uint32_t id;
+_CC_API_PUBLIC(size_t) _cc_get_sys_thread_id(_cc_thread_t* self) {
+    size_t id;
 
-    if (thrd) {
-        id = thrd->thread_id;
+    if (self) {
+        id = self->thread_id;
     } else {
         id = _cc_get_current_sys_thread_id();
     }
@@ -205,16 +221,16 @@ _CC_API_PUBLIC(uint32_t) _cc_get_sys_thread_id(_cc_thread_t* thrd) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t* thrd) {
-    if (thrd->handle != nullptr) {
-        WaitForSingleObject(thrd->handle, INFINITE);
-        CloseHandle(thrd->handle);
-        thrd->thread_id = 0;
-        thrd->handle = nullptr;
+_CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t* self) {
+    if (self->handle != nullptr) {
+        WaitForSingleObject(self->handle, INFINITE);
+        CloseHandle(self->handle);
+        self->thread_id = 0;
+        self->handle = nullptr;
     }
 }
 
-_CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t* thrd) {
-    CloseHandle(thrd->handle);
-    thrd->handle = nullptr;
+_CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t* self) {
+    CloseHandle(self->handle);
+    self->handle = nullptr;
 }

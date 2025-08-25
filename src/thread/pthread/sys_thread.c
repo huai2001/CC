@@ -46,6 +46,12 @@
 static int sig_list[] = {SIGHUP, SIGINT, SIGQUIT, SIGPIPE, SIGALRM, SIGTERM, SIGCHLD, SIGWINCH, SIGVTALRM, SIGPROF, 0};
 #endif
 
+_CC_API_PUBLIC(void) _cc_once(_cc_once_t* guard, _cc_once_callback_t callback) {
+    if (pthread_once(guard, callback)) {
+        abort();
+    }
+}
+
 _CC_API_PRIVATE(void *) RunThread(pvoid_t args) {
 #ifdef __CC_ANDROID__
     Android_JNI_SetupThread();
@@ -67,7 +73,7 @@ static bool_t checked_setname = false;
 static int (*ppthread_setname_np)(pthread_t, const char *) = nullptr;
 #endif
 
-_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *thrd) {
+_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *self) {
     pthread_attr_t type;
 /* do this here before any threads exist, so there's no race condition. */
 #if defined(__CC_LINUX__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -89,11 +95,11 @@ _CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *thrd) {
     }
     pthread_attr_setdetachstate(&type, PTHREAD_CREATE_JOINABLE);
     /* Set caller-requested stack size. Otherwise: use the system default. */
-    if (thrd->stacksize) {
-        pthread_attr_setstacksize(&type, thrd->stacksize);
+    if (self->stacksize) {
+        pthread_attr_setstacksize(&type, self->stacksize);
     }
     /* Create the thread and go! */
-    if (pthread_create(&(thrd->handle), &type, RunThread, thrd) != 0) {
+    if (pthread_create(&(self->handle), &type, RunThread, self) != 0) {
         _cc_logger_error(_T("Not enough resources to create thread"));
         return false;
     }
@@ -189,26 +195,26 @@ _CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ pri
 #endif /* __CC_LINUX__ */
 }
 
-_CC_API_PUBLIC(uint32_t) _cc_get_current_sys_thread_id(void) {
-    return ((uint32_t)((size_t)pthread_self()));
+_CC_API_PUBLIC(size_t) _cc_get_current_sys_thread_id(void) {
+    return (size_t)pthread_self();
 }
 
-_CC_API_PUBLIC(uint32_t) _cc_get_sys_thread_id(_cc_thread_t *thrd) {
-    uint32_t id;
+_CC_API_PUBLIC(size_t) _cc_get_sys_thread_id(_cc_thread_t *self) {
+    size_t id;
 
-    if (thrd) {
-        id = thrd->thread_id;
+    if (self) {
+        id = self->thread_id;
     } else {
         id = _cc_get_current_sys_thread_id();
     }
     return (id);
 }
 
-_CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t *thrd) {
-    pthread_join(thrd->handle, 0);
-    pthread_detach(thrd->handle);
+_CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t *self) {
+    pthread_join(self->handle, 0);
+    pthread_detach(self->handle);
 }
 
-_CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t *thrd) {
-    pthread_detach(thrd->handle);
+_CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t *self) {
+    pthread_detach(self->handle);
 }

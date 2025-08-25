@@ -23,7 +23,7 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}/bin/aarch64/",
-            "program": "${workspaceFolder}/bin/aarch64/debug/test_sqlserver",
+            "program": "${workspaceFolder}/bin/aarch64/debug/ed2k",
             "args": [],
             "stopAtEntry": false,
             "environment": [],

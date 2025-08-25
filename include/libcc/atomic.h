@@ -139,6 +139,7 @@ _CC_FORCE_INLINE_ bool_t _cc_try_lock(_cc_atomic_lock_t *lock) {
 
 /**/
 _CC_FORCE_INLINE_ void _cc_unlock(_cc_atomic_lock_t *lock) {
+    //_cc_atomic32_set(lock, 0);
     *lock = 0;
 }
 

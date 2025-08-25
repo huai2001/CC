@@ -102,7 +102,7 @@ oci8_error(const wchar_t *file, const int32_t line, const wchar_t *func, sword s
 
 _CC_API_PRIVATE(bool_t) error_handle_alloc(OCIError **errhp) {
     /* allocate an error handle */
-    sword res = OCIHandleAlloc((dvoid *) sql_envhp, (dvoid **)errhp), 
+    sword res = OCIHandleAlloc((dvoid *) sql_envhp, (dvoid **)errhp, 
         (ub4) OCI_HTYPE_ERROR, (size_t) 0, (dvoid **) 0);
 
     if (res != OCI_SUCCESS) {
@@ -113,10 +113,7 @@ _CC_API_PRIVATE(bool_t) error_handle_alloc(OCIError **errhp) {
 }
 
 _CC_API_PRIVATE(bool_t) _init_oci8(void) {
-    sword s = 0;
-    if (sql_envhp) {
-        return true;
-    }
+    sword res = 0;
 
     /* Create a thread-safe OCI environment with N' substitution turned on. */
     res = OCIEnvCreate(&sql_envhp, OCI_THREADED | OCI_OBJECT | OCI_NCHAR_LITERAL_REPLACE_ON, (dvoid *)0,
@@ -125,10 +122,10 @@ _CC_API_PRIVATE(bool_t) _init_oci8(void) {
 
     if (res) {
         sql_error(res, nullptr);
-        return false;
+        return;
     }
 
-    return error_handle_alloc(sql_errhp);
+    error_handle_alloc(sql_errhp);
 }
 
 _CC_API_PRIVATE(bool_t) _quit_oci8(void) {
@@ -143,12 +140,14 @@ _CC_API_PRIVATE(bool_t) _quit_oci8(void) {
 }
 
 _CC_API_PRIVATE(_cc_sql_t *) _oci8_connect(const tchar_t *sql_connection_string) {
+    static _cc_once_t once_oci8 = _CC_ONCE_INIT_;
     sword res;
     _cc_url_t params;
     _cc_sql_t *ctx = nullptr;
     char_t host[1024];
 
-    if (!_init_oci8()) {
+    _cc_once(&once_oci8,_init_oci8);
+    if (!sql_envhp) {
         return nullptr;
     }
 
