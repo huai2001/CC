@@ -97,7 +97,7 @@ static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, co
     return (url_request_connect(request))?false:true;
 }
 
-static bool_t _handshaking(_cc_event_t *e) {
+static bool_t _handshaking(_cc_event_t *e, _cc_url_request_t *request) {
     request->handshake = _SSL_do_handshake(request->io->ssl);
     if (request->handshake == _CC_SSL_HS_ESTABLISHED_) {
         e->timeout = 10000;
@@ -124,7 +124,7 @@ static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, co
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {    
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->handshake != _CC_SSL_HS_ESTABLISHED_) {
-            return _handshaking(e);
+            return _handshaking(e, request);
         }
         if (request->response && request->response->keep_alive && request->state == _CC_HTTP_STATUS_ESTABLISHED_) {
             return url_request_header(request, e);;
@@ -133,7 +133,7 @@ static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, co
     } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
         _cc_logger_info(_T("url_request connected,%s"), request->url.host);
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
-            return _handshaking(e);
+            return _handshaking(e, request);
         }
         _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
         return url_request_header(request, e);
