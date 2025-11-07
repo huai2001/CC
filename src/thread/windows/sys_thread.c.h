@@ -2,7 +2,7 @@
 #define _C_CC_SYS_WINDOWS_THREAD_C_H_INCLUDED_
 
 #include <libcc/alloc.h>
-#include <libcc/platform/windows.h>
+#include <libcc/os/windows.h>
 #include <libcc/logger.h>
 #include <libcc/thread.h>
 
@@ -66,11 +66,12 @@ struct _cc_mutex_cs {
 };
 
 #ifndef SRWLOCK_INIT
-#define SRWLOCK_INIT                                                                                                   \
-    { 0 }
+#define SRWLOCK_INIT { 0 }
+
 typedef struct _SRWLOCK {
     PVOID Ptr;
 } SRWLOCK, *PSRWLOCK;
+
 #endif
 
 struct _cc_mutex_srw {

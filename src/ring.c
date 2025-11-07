@@ -24,7 +24,7 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_ring(_cc_ring_t *ctx, int32_t slot_size) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_free_ring(_cc_ring_t *ctx) {
     _cc_assert(ctx != nullptr);
-    _cc_safe_free(ctx->data);
+    _cc_if_free(ctx->data);
     return true;
 }
 

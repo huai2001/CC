@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-const _cc_String_t ini_content = _cc_String("[section1]\nkey1 = value1 #adfsd\n;abcd  \nkey2 = \"value2  \"\n[section2]\nkey3 = value3");
+const _cc_string_t ini_content = _cc_string("[section1]\nkey1 = value1 #adfsd\n;abcd  \nkey2 = \"value2  \"\n[section2]\nkey3 = value3");
 
 static void test_ini_parse() {
     _cc_ini_t* ini = _cc_parse_ini(ini_content.data, ini_content.length);

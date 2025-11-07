@@ -141,9 +141,11 @@ _CC_FORCE_INLINE_ size_t _cc_sds_available(const _cc_sds_t s) {
     }
     return 0;
 }
+
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_empty_alloc(size_t length);
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_alloc(const tchar_t *s, size_t size);
 _CC_API_PUBLIC(void) _cc_sds_free(_cc_sds_t s);
+
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_vformat(const tchar_t *format, va_list ap);
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_format(const tchar_t *format, ...);
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_cat(_cc_sds_t s, const tchar_t *t, size_t length);

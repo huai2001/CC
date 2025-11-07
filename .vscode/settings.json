@@ -66,7 +66,9 @@
         "*.inc": "c",
         "rand.h": "c",
         "platform.h": "c",
-        "url_request.h": "c"
+        "url_request.h": "c",
+        "json.h": "c",
+        "http2.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     //"C_Cpp.clang_format_style": "{ BasedOnStyle: Microsoft, UseTab: Never, IndentWidth: 4, TabWidth: 4, }",

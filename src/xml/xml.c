@@ -58,7 +58,7 @@ bool_t _XML_attr_push(_cc_rbtree_t *ctx, _cc_sds_t name, _cc_sds_t value) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_xml_t*) _cc_new_xml_element(byte_t type) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_alloc_xml_element(byte_t type) {
     _cc_xml_t *xml = (_cc_xml_t *)_cc_malloc(sizeof(_cc_xml_t));
     _XML_NODE_INIT(xml, type);
 
@@ -158,9 +158,9 @@ _CC_API_PRIVATE(_cc_xml_t*) XML_find(_cc_xml_t *ctx, tchar_t *name, size_t len) 
 }
 
 /**/
-_CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_find(_cc_xml_t *ctx, tchar_t *item) {
+_CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_find(_cc_xml_t *ctx, tchar_t *name) {
     tchar_t *p;
-    tchar_t *pp = item;
+    tchar_t *pp = name;
 
     if (ctx->type != _CC_XML_CHILD_) {
         return nullptr;

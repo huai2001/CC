@@ -2,7 +2,7 @@
 #define _C_CC_XML_C_H_INCLUDED_
 
 #include <libcc/xml.h>
-#include "../generic/generic.c.h"
+#include "../misc/misc.c.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {

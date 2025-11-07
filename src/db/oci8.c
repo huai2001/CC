@@ -189,7 +189,7 @@ _CC_API_PRIVATE(bool_t) reconnect(_cc_sql_t *ctx) {
     return (bool_t)(OCIPing(ctx->svchp, ctx->errhp, OCI_DEFAULT) == OCI_SUCCESS);
 }
 
-_CC_API_PRIVATE(bool_t) _oci8_execute(_cc_sql_t *ctx, const _cc_String_t *sql, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _oci8_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
     int t = 0;
     sword res;
     OCIStmt *stmthp;
@@ -214,7 +214,7 @@ _CC_API_PRIVATE(bool_t) _oci8_execute(_cc_sql_t *ctx, const _cc_String_t *sql, _
         return false;
     }
 
-    res = OCIStmtPrepare(stmthp, ctx->errhp, (text *)sql->data, (ub4)sql->length, (ub4)OCI_NTV_SYNTAX,
+    res = OCIStmtPrepare(stmthp, ctx->errhp, (text *)sql->ptr, (ub4)sql->length, (ub4)OCI_NTV_SYNTAX,
                          (ub4)OCI_DEFAULT);
     if (res != OCI_SUCCESS && res != OCI_SUCCESS_WITH_INFO) {
         OCIHandleFree(stmtp, OCI_HTYPE_STMT);
@@ -326,7 +326,7 @@ _CC_API_PRIVATE(bool_t) _oci8_rollback(_cc_sql_t *ctx) {
     return true;
 }
 /**/
-_CC_API_PRIVATE(bool_t) _oci8_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
+_CC_API_PRIVATE(bool_t) _oci8_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, uint8_t type) {
     _cc_logger_debug(_T("OCI8 _oci8_bind: Not implemented yet"));
     return false;
 }

@@ -339,8 +339,8 @@ _CC_API_PUBLIC(bool_t) _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224) {
 /*
     Digests a file.
  */
-_CC_API_PUBLIC(bool_t) _cc_sha256file(const tchar_t *filename, tchar_t *output, bool_t is224) {
-    FILE *fp = _tfopen(filename, _T("rb"));
+_CC_API_PUBLIC(bool_t) _cc_sha256_from_file(const tchar_t *file, tchar_t *output, bool_t is224) {
+    FILE *fp = _tfopen(file, _T("rb"));
 
     if (fp) {
         _cc_sha256_fp(fp, output, is224);

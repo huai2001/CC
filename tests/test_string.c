@@ -98,14 +98,14 @@ static const tchar_t* fn(const tchar_t *ptr, int32_t *offset) {
 
 void test_cc_split() {
     const tchar_t *src = "123||456||898||232||";
-    _cc_String_t sp[6];
+    _cc_string_t sp[6];
     int32_t i;
     int32_t count = _cc_split(sp,_cc_countof(sp),src, fn);
 
     assert(count != 4);
     
     for (i = 0; i < count; i++) {
-        _cc_String_t *r = &sp[i];
+        _cc_string_t *r = &sp[i];
         printf("split:%d, %.*s\n",i,(int)r->length,r->data);
     }
     printf("_cc_cc_split test passed!\n");

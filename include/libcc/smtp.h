@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#define _CC_LIBSMTP_VERSION_INFO  "libSTMP Release 1.0,* Copyright 2018-2019 libcc.cn@gmail.com"
+#define _CC_LIBSMTP_VERSION_INFO  "libSTMP Release 1.0,* Copyright 2018-2025 libcc.cn@gmail.com"
 
 enum {
     _CC_SMTP_TEXT_ = 0,
@@ -32,11 +32,11 @@ enum {
     _CC_LIBSMTP_RESP_SEND_EMAIL_,
     _CC_LIBSMTP_RESP_LOGOUT_
 };
-
+/**/
 typedef struct _cc_smtp _cc_smtp_t;
 /**/
 typedef bool_t (*_cc_smtp_response_callback_t)(_cc_smtp_t*, const byte_t *buf, uint32_t length);
-
+/**/
 typedef struct {
     byte_t mail_type;
     _cc_sds_t from_name;
@@ -69,9 +69,13 @@ struct _cc_smtp {
 
 /**/
 void libsmtp_setup(_cc_smtp_t *smtp, uint16_t state, _cc_smtp_response_callback_t cb);
+/**/
 bool_t libsmtp_command(_cc_smtp_t* smtp, const tchar_t *fmt, ...);
+/**/
 bool_t libsmtp_login(_cc_smtp_t* smtp);
+/**/
 bool_t libsmtp_from_to(_cc_smtp_t* smtp);
+/**/
 bool_t libsmtp_send_email(_cc_smtp_t* smtp);
 
 /**/

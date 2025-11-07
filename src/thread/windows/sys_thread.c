@@ -116,7 +116,7 @@ static LONG NTAPI EmptyVectoredExceptionHandler(EXCEPTION_POINTERS *info) {
 /**/
 void _cc_setup_sys_thread(const tchar_t* name) {
 /* Visual Studio 2015, MSVC++ 14.0*/
-//#if (_CC_MSVC_ >= 1900) || (defined(__GNUC__) && defined(__i386__))
+//#if (__CC_MSVC__ >= 1900) || (defined(__GNUC__) && defined(__i386__))
     PVOID exceptionHandlerHandle;
     pfnSetThreadDescription pSetThreadDescription = nullptr;
     HMODULE kernel32 = 0;

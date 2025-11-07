@@ -2,7 +2,6 @@
 #ifndef _C_CC_BUFFER_H_INCLUDED_
 #define _C_CC_BUFFER_H_INCLUDED_
 
-#include <stdio.h>
 #include "types.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -36,8 +35,7 @@ typedef _cc_sbuf_wchar_t _cc_sbuf_t;
  * @brief check if the given size is left to read in a given parse buffer
  * (starting with 1)
  */
-#define _cc_sbuf_can_read(BUFFER, SIZE) \
-    (((BUFFER)->offset + (SIZE)) <= (BUFFER)->length)
+#define _cc_sbuf_can_read(BUFFER, SIZE) (((BUFFER)->offset + (SIZE)) <= (BUFFER)->length)
 /**
  * @brief check if the BUFFER can be accessed
  */
@@ -46,8 +44,7 @@ typedef _cc_sbuf_wchar_t _cc_sbuf_t;
  * @brief check if the BUFFER can be accessed at the given index (starting with
  * 0)
  */
-#define _cc_sbuf_access_offset(BUFFER, OFFSET) \
-    (((BUFFER)->offset + (OFFSET)) < (BUFFER)->length)
+#define _cc_sbuf_access_offset(BUFFER, OFFSET) (((BUFFER)->offset + (OFFSET)) < (BUFFER)->length)
 
 /**
  * @brief get a pointer to the BUFFER at the position
@@ -63,18 +60,11 @@ typedef _cc_sbuf_wchar_t _cc_sbuf_t;
         (BUFFER)->offset++;\
     }\
 } while(0)
-/**
- * @brief Skips spaces and comments as many as possible.
- *
- * @param buffer _cc_sbuf_t
- *
- * @return true if successful or false on error.
- */
+
+/**/
 _CC_API_PUBLIC(bool_t) _cc_buf_jump_comment(_cc_sbuf_t* const buffer);
 
-/**
- * @brief buf structure
- */
+/**/
 typedef struct _cc_buf {
     size_t limit;
     size_t length;
@@ -84,15 +74,14 @@ typedef struct _cc_buf {
 #define _cc_buf_bytes(buffer) ((buffer)->bytes)
 #define _cc_buf_length(buffer) ((buffer)->length)
 #define _cc_buf_cleanup(buffer) ((buffer)->length = 0)
-/**
- * @brief Return bytes remaining in the buffer
- */
+
+/* @brief Return bytes remaining in the buffer */
 #define _cc_buf_remaining(buffer) ((buffer)->limit - (buffer)->length)
 
 _CC_FORCE_INLINE_ void _cc_dump(const byte_t *bytes, size_t length) {
     size_t i;
     for (i = 0; i < length; i++) {
-        _ftprintf(stdout, _T("%02X,"), bytes[i] & 0xff);
+        _ftprintf(stdout, _T("%02X"), bytes[i] & 0xff);
     }
     putc('\n',stdout);
 }
@@ -104,126 +93,35 @@ _CC_FORCE_INLINE_ void _cc_buf_reset(_cc_buf_t *buf) {
     buf->length = 0;
 }
 
-/**
- * @brief Create buf
- *
- * @param ctx _cc_buf_t structure
- * @param file_name file path
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_buf_from_file(_cc_buf_t* buf,const tchar_t* file_name);
-/**
- * @brief Initialize buf
- *
- * @param ctx _cc_buf_t structure
- * @param initial Size of buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_alloc_buf(_cc_buf_t* ctx, size_t initial);
-/**
- * @brief free buf
- *
- * @param ctx _cc_buf_t structure
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_free_buf(_cc_buf_t* ctx);
 /**/
 _CC_API_PUBLIC(const tchar_t*) _cc_buf_stringify(_cc_buf_t *ctx, size_t *length);
-/**
- * @brief Expand buf
- *
- * @param ctx _cc_buf_t structure
- * @param size Size of buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_buf_expand(_cc_buf_t* ctx, size_t size);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_buf_expand_factor(_cc_buf_t *ctx, float32_t factor);
-/**
- * @brief Written buf
- *
- * @param ctx _cc_buf_t structure
- * @param data Written data
- * @param size Size of Written data
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_buf_append(_cc_buf_t* ctx, const void* data, size_t size);
-/**
- * @brief Written the string to buf
- *
- * @param ctx _cc_buf_t structure
- * @param s String buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_puts(_cc_buf_t* ctx, const char_t* s);
-/**
- * @brief Written the foramt string to buf
- *
- * @param ctx _cc_buf_t structure
- * @param fmt Format string buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_appendvf(_cc_buf_t* ctx, const char_t* fmt, va_list arg);
-/**
- * @brief Written the foramt string to buf
- *
- * @param ctx _cc_buf_t structure
- * @param fmt Format string buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_appendf(_cc_buf_t* ctx, const char_t* fmt, ...);
-/**
- * @brief Written the string to buf
- *
- * @param ctx _cc_buf_t structure
- * @param s string buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufW_puts(_cc_buf_t* ctx, const wchar_t* s);
-/**
- * @brief Written the foramt string to buf
- *
- * @param ctx _cc_buf_t structure
- * @param fmt Format string buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufW_appendvf(_cc_buf_t* ctx, const wchar_t* fmt, va_list arg);
-/**
- * @brief Written the foramt string to buf
- *
- * @param ctx _cc_buf_t structure
- * @param fmt Format string buffer
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufW_appendf(_cc_buf_t* ctx, const wchar_t* fmt, ...);
-/**
- * @brief Transform coding
- *
- * @param ctx _cc_buf_t structure
- * @param offset buffer start offset
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset);
-/**
- * @brief Transform coding
- *
- * @param ctx _cc_buf_t structure
- * @param offset buffer start offset
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset);
 
 #ifdef _CC_UNICODE_

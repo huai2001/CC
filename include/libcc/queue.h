@@ -1,7 +1,7 @@
 #ifndef _C_CC_QUEUE_ITERATOR_H_INCLUDED_
 #define _C_CC_QUEUE_ITERATOR_H_INCLUDED_
 
-#include "platform.h"
+#include "os.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -30,6 +30,7 @@ struct _cc_queue_iterator {
     _cc_queue_iterator_t *next;
 };
 
+/**/
 _CC_FORCE_INLINE_ _cc_queue_iterator_t *_cc_queue_iterator_first(_cc_queue_iterator_t *lnk) {
     return lnk->next;
 }
@@ -39,13 +40,7 @@ _CC_FORCE_INLINE_ void _cc_queue_iterator_cleanup(_cc_queue_iterator_t *lnk) {
     lnk->next = lnk;
 }
 
-/**
- * @brief Link empty
- *
- * @param lnk link context
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_FORCE_INLINE_ bool_t _cc_queue_iterator_empty(_cc_queue_iterator_t *lnk) {
     _cc_assert(lnk != nullptr);
     return (lnk->next == lnk || lnk->next == nullptr);
@@ -76,6 +71,7 @@ _CC_FORCE_INLINE_ _cc_queue_iterator_t *_cc_queue_iterator_pop(_cc_queue_iterato
 _CC_API_PUBLIC(void) _cc_queue_sync_push(_cc_queue_iterator_t *head, _cc_queue_iterator_t *lnk);
 /**/
 _CC_API_PUBLIC(_cc_queue_iterator_t*) _cc_queue_sync_pop(_cc_queue_iterator_t *head);
+
 /* Return the element at the specified zero-based index
  * where 0 is the head, 1 is the element next to head
  * and so on. If the index is out of range nullptr is returned. */

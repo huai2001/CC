@@ -1,4 +1,4 @@
-#include <libcc/platform.h>
+#include <libcc/os.h>
 #include <libcc/string.h>
 
 #ifdef _CC_HAVE_SYSCONF_

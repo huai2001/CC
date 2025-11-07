@@ -2,7 +2,7 @@
 #include <libcc/list.h>
 
 #ifdef __CC_ANDROID__
-#include <libcc/platform/android.h>
+#include <libcc/os/android.h>
 #endif
 
 #include "debug.tracked.c.h"

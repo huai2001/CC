@@ -1,16 +1,15 @@
 ##################################################
-#make .dll liburl_request=1 libmysql=1 libsmtp=1 libopenssl=1
+
 SRCROOT	:= $(abspath .)
 #生成的文件名
 TARGET_NAME ?= cc
 
-LIBCC_SRC_ROOT := $(SRCROOT)
+USE_LIB_OPENSSL=1
+USE_LIB_SMTP=1
+# USE_LIB_MYSQL=1
+# USE_LIB_SQLITE3=1
+USE_LIB_URL_REQUEST=1
 
-liburl_request=1 
-libmysql=1
-libsqlite3=1
-libsmtp=1 
-libopenssl=1
-
-include $(SRCROOT)/build/Makefile.mak
-include $(SRCROOT)/build/libcc-files.mak
+include $(SRCROOT)/build/local-init.mk
+include $(SRCROOT)/build/local-files.mk
+include $(SRCROOT)/build/Makefile.mk

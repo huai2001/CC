@@ -45,7 +45,8 @@ _CC_API_PUBLIC(bool_t) _cc_smtp_connected(_cc_smtp_t* smtp) {
     if (smtp == nullptr) {
         return false;
     }
-
+    smtp->io->w.off = 0;
+    smtp->io->r.off = 0;
     libsmtp_setup(smtp, _CC_LIBSMTP_RESP_CONNECTED_, libsmtp_connected);
     return true;
 }

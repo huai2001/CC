@@ -171,7 +171,7 @@ _CC_API_PRIVATE(bool_t) SQLExecute_ex(SQLHSTMT hSTMT) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_String_t *sql, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
     SQLHSTMT hSTMT = SQL_NULL_HSTMT;
     _cc_assert(ctx != nullptr && ctx->hDBC != SQL_NULL_HSTMT);
 
@@ -184,7 +184,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_String_t *sql,
         return false;
     }
 
-    if (is_odbc_error(SQLPrepare(hSTMT, (SQLTCHAR *)sql->data, SQL_NTS))) {
+    if (is_odbc_error(SQLPrepare(hSTMT, (SQLTCHAR *)sql->ptr, SQL_NTS))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, hSTMT, _T("SQLPrepare"));
         SQLCloseCursor(hSTMT);
         SQLFreeStmt(hSTMT, SQL_CLOSE);
@@ -400,7 +400,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_free_result(_cc_sql_t *ctx, _cc_sql_result_t *re
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, uint8_t type) {
     SQLRETURN res;
     SQLLEN length_ind = 0;
     _cc_assert(result != nullptr);

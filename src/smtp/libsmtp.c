@@ -177,6 +177,7 @@ _CC_API_PUBLIC(bool_t) _cc_smtp_set_login(_cc_smtp_t *smtp, byte_t login_mode, c
 _CC_API_PUBLIC(_cc_email_t*) _cc_alloc_email(byte_t mail_type, const char_t *from_name, const char_t *to) {
     _cc_email_t *email = (_cc_email_t *)_cc_malloc(sizeof(_cc_email_t));
     email->to = _cc_sds_alloc(to,0);
+    email->mail_type = mail_type;
     if (from_name) {
         email->from_name = _cc_sds_alloc(from_name,0);
     } else {

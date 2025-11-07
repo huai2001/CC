@@ -1,7 +1,7 @@
 #ifndef _C_CC_LIST_ITERATOR_H_INCLUDED_
 #define _C_CC_LIST_ITERATOR_H_INCLUDED_
 
-#include "platform.h"
+#include "os.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -62,25 +62,14 @@ _CC_FORCE_INLINE_ void _cc_list_iterator_cleanup(_cc_list_iterator_t *lnk) {
     lnk->prev = lnk;
     lnk->next = lnk;
 }
-/**
- * @brief Link empty
- *
- * @param lnk link context
- *
- * @return true if successful or false on error.
- */
+
+/**/
 _CC_FORCE_INLINE_ bool_t _cc_list_iterator_empty(_cc_list_iterator_t *lnk) {
     _cc_assert(lnk != nullptr);
     return (lnk->next == lnk || lnk->next == nullptr);
 }
 
-/*
- * @brief insert link
- *
- * @param lnk New link context
- * @param prev iterator context
- * @param next iterator context
- */
+/**/
 _CC_FORCE_INLINE_ void _cc_list_iterator_insert(_cc_list_iterator_t *lnk, _cc_list_iterator_t *prev,
         _cc_list_iterator_t *next) {
     lnk->next = next;
@@ -89,12 +78,7 @@ _CC_FORCE_INLINE_ void _cc_list_iterator_insert(_cc_list_iterator_t *lnk, _cc_li
     prev->next = lnk;
 }
 
-/*
- * @brief delete link
- *
- * @param prev iterator context
- * @param next iterator context
- */
+/**/
 _CC_FORCE_INLINE_ void _cc_list_iterator_delete(_cc_list_iterator_t *prev, _cc_list_iterator_t *next) {
     prev->next = next;
     next->prev = prev;
@@ -160,27 +144,18 @@ _CC_FORCE_INLINE_ void _cc_list_iterator_swap(_cc_list_iterator_t *head, _cc_lis
     _cc_list_iterator_push_front(head, lnk);
 }
 
-/*
- * @brief join two lists, this is designed for stacks
- *
- * @param head the place to add it in the first list.
- * @param add the new list to add.
- */
-_CC_API_PUBLIC(void)
-_cc_list_iterator_append(_cc_list_iterator_t *head, _cc_list_iterator_t *add);
+/**/
+_CC_API_PUBLIC(void) _cc_list_iterator_append(_cc_list_iterator_t *head, _cc_list_iterator_t *add);
 
 /* Return the element at the specified zero-based index
  * where 0 is the head, 1 is the element next to head
  * and so on. Negative integers are used in order to count
  * from the tail, -1 is the last element, -2 the penultimate
  * and so on. If the index is out of range nullptr is returned. */
-_CC_API_PUBLIC(_cc_list_iterator_t *)
-_cc_list_iterator_index(_cc_list_iterator_t *lnk, long index);
+_CC_API_PUBLIC(_cc_list_iterator_t *) _cc_list_iterator_index(_cc_list_iterator_t *lnk, long index);
 
 /* the stable insertion sort */
-_CC_API_PUBLIC(void)
-_cc_list_iterator_sort(_cc_list_iterator_t *lnk,
-                       int32_t (*_cmp)(const _cc_list_iterator_t *, const _cc_list_iterator_t *));
+_CC_API_PUBLIC(void) _cc_list_iterator_sort(_cc_list_iterator_t *lnk, int32_t (*_cmp)(const _cc_list_iterator_t *, const _cc_list_iterator_t *));
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

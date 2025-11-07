@@ -64,8 +64,10 @@ extern "C" {
 
 _CC_API_PUBLIC(void) _cc_sleep(uint32_t);
 _CC_API_PUBLIC(void) _cc_nsleep(uint64_t);
+
 _CC_API_PUBLIC(uint64_t) _cc_get_ticks(void);
 _CC_API_PUBLIC(uint64_t) _cc_get_ticks_ns(void);
+
 _CC_API_PUBLIC(uint64_t) _cc_query_performance_counter(void);
 _CC_API_PUBLIC(uint64_t) _cc_query_performance_frequency(void);
 
@@ -84,20 +86,20 @@ _CC_API_PUBLIC(struct tm*) localtime(const time_t*);
 
 #ifdef __CC_WINDOWS__
 
-#ifdef _CC_MSVC_
+#ifdef __CC_MSVC__
 struct timezone {
     int tz_minuteswest;
     int tz_dsttime;
 };
 
-#if _CC_MSVC_ < 1900
+#if __CC_MSVC__ < 1900
 struct timespec {
     time_t tv_sec; /* seconds */
     long tv_nsec;  /* nanoseconds */
 };
-#endif /* _CC_MSVC_ < 1900 */
+#endif /* __CC_MSVC__ < 1900 */
 
-#endif /* _CC_MSVC_ */
+#endif /* __CC_MSVC__ */
 
 _CC_API_PUBLIC(int) gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info);
 
@@ -105,13 +107,11 @@ _CC_API_PUBLIC(int) gettimeofday(struct timeval *time_Info, struct timezone *tim
 #else
 #define _cc_gmtime(t, result) gmtime_r((t), (result))
 #endif /* __CC_WINDOWS__ */
-
-_CC_API_PUBLIC(const tchar_t *)
-_cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *tm);
-
-_CC_API_PUBLIC(time_t)
-_cc_mktime(int32_t year, int32_t mon, int32_t day, int32_t hour, int32_t min, int32_t sec, int32_t utc);
-
+/**/
+_CC_API_PUBLIC(const tchar_t *) _cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *tm);
+/**/
+_CC_API_PUBLIC(time_t) _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_t hour, int32_t min, int32_t sec, int32_t utc);
+/**/
 _CC_API_PUBLIC(uint64_t) _cc_timestamp(void);
 /**
  * @brief Compare ticks values, and return true if A has passed B

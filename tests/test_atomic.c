@@ -107,15 +107,15 @@ void test_atomic64_cas() {
 }
 
 int main() {
-    #if _CC_STDC_VERSION_ >= 11
+    #if __CC_STDC_VERSION__ >= 11
         printf("Use C++11 standard\n");
-    #elif defined(_CC_MSVC_)
+    #elif defined(__CC_MSVC__)
         printf("Use MSVC\n");
-    #elif defined(_CC_GNUC_)
+    #elif defined(__CC_GNUC__)
         printf("Use GCC/Clang\n");
     #else
         return __sync_fetch_and_add(a, v);
-    #endif/*_CC_STDC_VERSION_ >= 11*/
+    #endif/*__CC_STDC_VERSION__ >= 11*/
 
     test_atomic32_load();
     test_atomic64_load();

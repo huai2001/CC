@@ -23,7 +23,7 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}/bin/aarch64/",
-            "program": "${workspaceFolder}/bin/aarch64/debug/smtp_client",
+            "program": "${workspaceFolder}/bin/aarch64/debug/http2_client",
             "args": [],
             "stopAtEntry": false,
             "environment": [],

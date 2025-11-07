@@ -1,7 +1,7 @@
 #ifndef _C_CC_TCHAR_H_INCLUDED_
 #define _C_CC_TCHAR_H_INCLUDED_
 
-#include "platform/compiler.h"
+#include "os/compiler.h"
  
 #ifndef __CC_WINDOWS__
 #include <ctype.h>
@@ -11,7 +11,7 @@
 /* __AUTO_TCHAR_H_USESYS__ */
 #undef __AUTO_TCHAR_H_USESYS__
 
-#if defined(_CC_MSVC_) /* MSVC. */
+#if defined(__CC_MSVC__) /* MSVC. */
     #define __AUTO_TCHAR_H_USESYS__
 #elif defined(__BORLANDC__) /* BCB. */
     #define __AUTO_TCHAR_H_USESYS__

@@ -60,9 +60,8 @@ enum _CC_SCHEME_TYPES_ {
 };
 
 typedef struct _cc_fields {
-    tchar_t *name;
-    tchar_t *value;
-
+    _cc_sds_t name;
+    _cc_sds_t value;
     _cc_rbtree_iterator_t lnk;
 } _cc_fields_t;
 
@@ -76,13 +75,14 @@ typedef struct _cc_fields {
  Fragment   URL-FRAGMENT
 */
 
-/* http://user_name:user_password@localhost/index.html?id=1&tid=2#abc */
+/* http://user_name:user_password@localhost/index.html?id=1&tid=2#top */
 typedef struct _cc_url {
     /* (eg: http,ftp,maito) */
     struct {
         uint32_t ident;
         _cc_sds_t value;
     } scheme;
+
     /* host IPv6*/
     bool_t ipv6;
     /* (eg: port) */
@@ -92,11 +92,11 @@ typedef struct _cc_url {
     _cc_sds_t host;
     /* (eg: /v1/index.html) */
     _cc_sds_t path;
-    /* (eg: /v1/index.html?id=1&tid=2#abc) */
+    /* (eg: /v1/index.html?id=1&tid=2#top) */
     _cc_sds_t request;
     /* (eg: id=1&tid=2) */
     _cc_sds_t query;
-    /* (eg: abc) */
+    /* (eg: top) */
     _cc_sds_t fragment;
     /* (eg: user_name) */
     _cc_sds_t username;
@@ -111,6 +111,7 @@ typedef struct _cc_url {
 _CC_API_PUBLIC(bool_t) _cc_alloc_url(_cc_url_t*, const tchar_t *);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t*);
+
 /* examples 1:
 char_t *urls = "http://www.domain.com/index.php?id=1&tid=2#top";
 _cc_url_t url;
@@ -120,17 +121,13 @@ _cc_free_url(&url);
 */
 
 /**/
-_CC_API_PUBLIC(int32_t)
-_cc_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
+_CC_API_PUBLIC(int32_t) _cc_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 /**/
-_CC_API_PUBLIC(int32_t)
-_cc_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
+_CC_API_PUBLIC(int32_t) _cc_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 /**/
-_CC_API_PUBLIC(int32_t)
-_cc_raw_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
+_CC_API_PUBLIC(int32_t) _cc_raw_url_encode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 /**/
-_CC_API_PUBLIC(int32_t)
-_cc_raw_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
+_CC_API_PUBLIC(int32_t) _cc_raw_url_decode(const tchar_t *src, int32_t src_len, tchar_t *dst, int32_t dst_len);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

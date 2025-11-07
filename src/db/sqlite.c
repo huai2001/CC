@@ -313,11 +313,11 @@ _CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const _cc_String_t *sql, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
     int res = SQLITE_OK;
     sqlite3_stmt *stmt = nullptr;
     const tchar_t *tail;
-    const tchar_t *sql_string = sql->data;
+    const tchar_t *sql_string = sql->ptr;
     size_t sql_length = sql->length;
 
 
@@ -502,7 +502,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_free_result(_cc_sql_t *ctx, _cc_sql_result_t *re
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, _sql_enum_field_types_t type) {
+_CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, uint8_t type) {
     int res;
     _cc_assert(result != nullptr);
 

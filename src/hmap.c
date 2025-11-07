@@ -282,7 +282,7 @@ _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *ctx) {
 _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx) {
     _cc_assert(ctx != nullptr);
 
-    _cc_safe_free(ctx->slots);
+    _cc_if_free(ctx->slots);
 
     return true;
 }

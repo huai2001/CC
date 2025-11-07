@@ -12,27 +12,27 @@ extern "C" {
 
 typedef struct {
     size_t length;
-    char_t* data;
-} _cc_AString_t;
+    char_t* ptr;
+} _cc_astring_t;
 
 typedef struct {
     size_t length;
-    wchar_t* data;
-} _cc_WString_t;
+    wchar_t* ptr;
+} _cc_wstring_t;
 
-#define _cc_String(_str) {sizeof(_str) - 1, _str}
-#define _cc_String_Set(x, _str) do { \
+#define _cc_string(_str) { sizeof(_str) - 1, (_str) }
+#define _cc_string_set(x, _str) do { \
     (x).length = sizeof(_str) - 1;\
-    (x).data = _str;\
+    (x).ptr = _str;\
 } while (0)
 
-#define _cc_String_Null(_str) do { \
+#define _cc_string_null(_str) do { \
     (_str)->length = 0;\
-    (_str)->data = nullptr;\
+    (_str)->ptr = nullptr;\
 } while(0)
 
 /*for porting from GCC compilers*/
-#ifndef _CC_MSVC_
+#ifndef __CC_MSVC__
     #include <stdarg.h>
     #include <wchar.h>
     #define _snprintf snprintf
@@ -62,7 +62,7 @@ typedef struct {
 
     #define atoll _atoi64
     #define wtoll _wtoi64
-#endif /* ndef _CC_MSVC_ */
+#endif /* ndef __CC_MSVC__ */
 
 extern const wchar_t _w_lower_xdigits[];
 extern const wchar_t _w_upper_xdigits[];
@@ -74,13 +74,13 @@ extern const char_t _a_upper_xdigits[];
     #define _upper_xdigits      _w_upper_xdigits
     #define _cc_trim_copy       _cc_trimW_copy
     #define _cc_split           _cc_splitW
-    typedef _cc_WString_t       _cc_String_t;
+    typedef _cc_wstring_t       _cc_string_t;
 #else
     #define _lower_xdigits      _a_lower_xdigits
     #define _upper_xdigits      _a_upper_xdigits
     #define _cc_trim_copy       _cc_trimA_copy
     #define _cc_split           _cc_splitA
-    typedef _cc_AString_t       _cc_String_t;
+    typedef _cc_astring_t       _cc_string_t;
 #endif
 
 #define _cc_first_index_of(FIRST, LAST, FN) do {\
@@ -116,10 +116,10 @@ _CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *, size_t, tchar_t *, size_t);
 _CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *, size_t, byte_t *, size_t);
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_splitA(_cc_AString_t *dst, int32_t count, const char_t *src, const char_t*(cb)(const char_t *, int32_t*));
+_cc_splitA(_cc_astring_t *dst, int32_t count, const char_t *src, const char_t*(cb)(const char_t *, int32_t*));
 /**/
 _CC_API_PUBLIC(int32_t)
-_cc_splitW(_cc_WString_t *dst, int32_t count, const wchar_t *src, const wchar_t*(cb)(const wchar_t *, int32_t*));
+_cc_splitW(_cc_wstring_t *dst, int32_t count, const wchar_t *src, const wchar_t*(cb)(const wchar_t *, int32_t*));
 /**/
 _CC_API_PUBLIC(tchar_t *) _cc_substr(tchar_t *, const tchar_t *, uint32_t, int32_t);
 /**/

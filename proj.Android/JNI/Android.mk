@@ -73,18 +73,18 @@ LOCAL_SRC_FILES := \
     ../../src/ini/ini.parser.c\
     ../../src/xml/xml.c \
     ../../src/xml/xml.parser.c \
-    ../../src/generic/strptime.c \
-    ../../src/generic/tick.c \
-    ../../src/generic/time.c \
-    ../../src/generic/inet.c \
-    ../../src/generic/socket.c \
-    ../../src/generic/power.c  \
-    ../../src/generic/generic.c \
-    ../../src/generic/WS.c \
-    ../../src/generic/gzip.c \
-    ../../src/http/header.c \
-    ../../src/http/request.parser.c \
-    ../../src/http/response.parser.c \
+    ../../src/misc/strptime.c \
+    ../../src/misc/tick.c \
+    ../../src/misc/time.c \
+    ../../src/misc/inet.c \
+    ../../src/misc/socket.c \
+    ../../src/misc/power.c  \
+    ../../src/misc/misc.c \
+    ../../src/misc/WS.c \
+    ../../src/misc/gzip.c \
+    ../../src/http/http-v1.x/header.c \
+    ../../src/http/http-v1.x/request.parser.c \
+    ../../src/http/http-v1.x/response.parser.c \
     ../../src/url_request/http/url_request.c \
     ../../src/url_request/http/url_response.c \
     ../../src/smtp/libsmtp.c \
@@ -95,17 +95,17 @@ LOCAL_SRC_FILES := \
     ../../src/thread/pthread/sys_cond.c \
     ../../src/thread/pthread/sys_mutex.c \
     ../../src/thread/pthread/sys_sem.c \
-    ../../src/platform/platform.c \
-    ../../src/platform/linux/sys_epoll.c \
-    ../../src/platform/linux/sys_socket.c \
-    ../../src/platform/linux/sys_time.c \
-    ../../src/platform/unix/sys_loadso.c \
-    ../../src/platform/android/sys_clipboard.c \
-    ../../src/platform/android/sys_android.c \
-    ../../src/platform/android/sys_dirent.c \
-    ../../src/platform/android/sys_file.c \
-    ../../src/platform/android/sys_locale.c \
-    ../../src/platform/android/sys_power.c \
+    ../../src/os/os.c \
+    ../../src/os/linux/sys_epoll.c \
+    ../../src/os/linux/sys_socket.c \
+    ../../src/os/linux/sys_time.c \
+    ../../src/os/unix/sys_loadso.c \
+    ../../src/os/android/sys_clipboard.c \
+    ../../src/os/android/sys_android.c \
+    ../../src/os/android/sys_dirent.c \
+    ../../src/os/android/sys_file.c \
+    ../../src/os/android/sys_locale.c \
+    ../../src/os/android/sys_power.c \
     ../../src/main.c
 
 LOCAL_EXPORT_LDLIBS := $(LOCAL_LDLIBS)

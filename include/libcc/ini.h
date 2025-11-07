@@ -2,6 +2,7 @@
 #define _C_CC_INI_H_INCLUDED_
 
 #include "sds.h"
+#include "buf.h"
 #include "rbtree.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -43,15 +44,16 @@ _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_from_file(const tchar_t* file_name);
 /**/
 _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_parser(_cc_sbuf_t* const buffer);
 /**/
-_CC_API_PUBLIC(_cc_ini_t*) _cc_ini_find(_cc_ini_t* item, const tchar_t* name);
+_CC_API_PUBLIC(_cc_ini_t*) _cc_ini_find(_cc_ini_t* ctx, const tchar_t* name);
 /**/
-_CC_API_PUBLIC(const tchar_t*) _cc_ini_find_string(_cc_ini_t* item, const tchar_t* name);
+_CC_API_PUBLIC(_cc_sds_t) _cc_ini_find_string(_cc_ini_t* ctx, const tchar_t* name);
 /**/
 _CC_API_PUBLIC(void) _cc_free_ini(_cc_ini_t* ctx);
 /**/
 _CC_API_PUBLIC(const tchar_t*) _cc_ini_error(void);
 /**/
-_CC_API_PUBLIC(void) _cc_dump_ini(_cc_ini_t* item, _cc_buf_t* buf);
+_CC_API_PUBLIC(void) _cc_dump_ini(_cc_ini_t* ctx, _cc_buf_t* buf);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

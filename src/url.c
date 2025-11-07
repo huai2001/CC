@@ -7,7 +7,7 @@
 #ifndef __CC_WINDOWS__
 #include <arpa/inet.h>
 #else
-#include <libcc/platform/windows.h>
+#include <libcc/os/windows.h>
 #endif
 
 /* POST PORT*/
@@ -59,14 +59,12 @@ const _cc_url_scheme_t _url_supported_schemes[] = {
 /**/
 _CC_API_PRIVATE(bool_t) _url_exists_user_password(const tchar_t *s) {
     const tchar_t *p = s;
-
     while (*p != '\0' && *p != _T('/')) {
         if (*p == _T('@')) {
             return true;
         }
         ++p;
     }
-
     return false;
 }
 
@@ -372,7 +370,7 @@ _CC_API_PUBLIC(int32_t) _cc_url_encode(const tchar_t *src, int32_t src_len, tcha
             y += _sntprintf(dst + y, dst_len - y, _T("%%u%04X"), c);
         } else
 #endif
-            if (c == 0x20) {
+        if (c == 0x20) {
             *(dst + y++) = _T('+');
         } else if ((c < '0' && c != '-' && c != '.') || (c < 'A' && c > '9') || (c > 'Z' && c < 'a' && c != '_') ||
                    (c > 'z')) {
@@ -405,8 +403,8 @@ _CC_API_PUBLIC(int32_t) _cc_url_decode(const tchar_t *src, int32_t src_len, tcha
 
         if (*s == _T('%')) {
             if (*(s + 1) == 'u' && e >= (s + 6)) {
-                /*skip %u*/
                 int32_t convert_bytes;
+                /*skip %u*/
                 s += 2;
                 convert_bytes = _cc_convert_utf16_literal_to_utf8(&s, e, dst + i, dst_len - i);
                 if (_cc_unlikely(convert_bytes == 0)) {

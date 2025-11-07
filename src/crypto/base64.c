@@ -1,6 +1,8 @@
 #include <libcc/alloc.h>
 #include <libcc/crypto/base64.h>
-
+#ifdef _CC_USE_OPENSS_
+#include "openssl/openssl_base64.c"
+#else
 /** @var base64_chars
  *   A 64 character alphabet.
  *
@@ -173,3 +175,4 @@ _CC_API_PUBLIC(size_t) _cc_base64_decode(const tchar_t *input, size_t length, by
 
     return k;
 }
+#endif

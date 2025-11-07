@@ -81,8 +81,10 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
     _cc_async_event_t *async = nullptr;
     static uint16_t index = 0;
     int32_t i;
-    for (i = 0; i < (int32_t)g.async_limit; i++,index++) {
-        async = g.async[index % g.async_limit];
+
+    int32_t limit = (int32_t)g.async_limit;
+    for (i = 0; i < limit; i++,index++) {
+        async = g.async[index % limit];
         if (async && async->running != 0) {
             break;
         }
@@ -90,16 +92,6 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
 
 #if 0
     _cc_async_event_t *n;
-    int32_t i, count;
-
-    async = nullptr;
-    if (g.async_limit > 1) {
-        i = (int32_t)(rand() % g.async_limit);
-        count = (int32_t)(g.async_limit + i);
-    } else {
-        i = 0;
-        count = (int32_t)g.async_limit;
-    }
 
     for (; i < count; i++) {
         n = (_cc_async_event_t *)g.async[i % g.async_limit];
@@ -467,38 +459,3 @@ bool_t _disconnect_event(_cc_async_event_t *async, _cc_event_t *e) {
 
     return async->reset(async, e);
 }
-
-#ifdef _CC_USE_OPENSSL2_
-_CC_API_PUBLIC(bool_t) _cc_setup_ssl_accept(_cc_OpenSSL_t *ctx, _cc_event_t *e) {
-    int flag = 0;
-    _cc_SSL_t *ssl = _SSL_accept(ctx, e->fd, &flag);
-    if (ssl == nullptr) {
-        return false;
-    }
-
-    _cc_assert(e->ssl != nullptr);
-    e->ssl = ssl;
-    _CC_SET_BIT(_CC_EVENT_OPENSSL_, e->flags);
-
-    if (flag != _CC_SSL_HS_ESTABLISHED_) {
-        _CC_SET_BIT(_CC_EVENT_PENDING_, e->flags);
-    }
-    return true;
-}
-_CC_API_PUBLIC(bool_t) _cc_setup_ssl_connect(_cc_OpenSSL_t *ctx, _cc_event_t *e) {
-    int flag = 0;
-    _cc_SSL_t *ssl = _SSL_connect(ctx, e->fd, &flag);
-    if (ssl == nullptr) {
-        return false;
-    }
-
-    _cc_assert(e->ssl != nullptr);
-    e->ssl = ssl;
-    _CC_SET_BIT(_CC_EVENT_OPENSSL_, e->flags);
-
-    if (flag != _CC_SSL_HS_ESTABLISHED_) {
-        _CC_SET_BIT(_CC_EVENT_PENDING_, e->flags);
-    }
-    return true;
-}
-#endif

@@ -19,15 +19,7 @@ _CC_API_PUBLIC(void) _cc_srand(uint64_t);
 /**/
 _CC_API_PUBLIC(int32_t) _cc_rand(int32_t);
 /**/
-_CC_API_PUBLIC(int32_t) _cc_rand_bits(void);
-/**/
 _CC_API_PUBLIC(float32_t) _cc_randf(void);
-/**/
-_CC_API_PUBLIC(int32_t) _cc_rand_bits_r(uint64_t *state);
-/**/
-_CC_API_PUBLIC(int32_t) _cc_rand_r(uint64_t *state, int32_t n);
-/**/
-_CC_API_PUBLIC(float32_t) _cc_randf_r(uint64_t *state);
 /**/
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes);
 

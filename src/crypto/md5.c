@@ -235,6 +235,7 @@ _CC_API_PRIVATE(void) __md5_init(_cc_hash_t *ctx) {
     _cc_md5_init((_cc_md5_t*)ctx->handle);
     ctx->method = _CC_MD5_;
 }
+
 _CC_API_PRIVATE(void) __md5_update(_cc_hash_t *ctx, const byte_t *input, size_t length) {
     _cc_md5_update((_cc_md5_t*)ctx->handle, input, length);
 }
@@ -245,6 +246,7 @@ _CC_API_PRIVATE(void) __md5_final(_cc_hash_t *ctx, byte_t *digest, int32_t *dige
         *digest_length = _CC_MD5_DIGEST_LENGTH_;
     }
 }
+
 _CC_API_PRIVATE(void) __free_md5(_cc_hash_t *ctx) {
     if (ctx->handle) {
         _cc_free((_cc_md5_t*)ctx->handle);
@@ -261,9 +263,7 @@ _CC_API_PUBLIC(void) _cc_md5_hash_init(_cc_hash_t *ctx) {
     __md5_init(ctx);
 }
 
-/*
-    Digests a file.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_md5_fp(FILE *fp, tchar_t *output) {
     byte_t md[_CC_MD5_DIGEST_LENGTH_];
     byte_t buf[1024 * 16];
@@ -293,11 +293,9 @@ _CC_API_PUBLIC(bool_t) _cc_md5_fp(FILE *fp, tchar_t *output) {
     return true;
 }
 
-/*
-    Digests a file.
- */
-_CC_API_PUBLIC(bool_t) _cc_md5file(const tchar_t *filename, tchar_t *output) {
-    FILE *fp = _tfopen(filename, _T("rb"));
+/**/
+_CC_API_PUBLIC(bool_t) _cc_md5_from_file(const tchar_t *file, tchar_t *output) {
+    FILE *fp = _tfopen(file, _T("rb"));
 
     if (fp) {
         _cc_md5_fp(fp, output);
@@ -307,9 +305,7 @@ _CC_API_PUBLIC(bool_t) _cc_md5file(const tchar_t *filename, tchar_t *output) {
     return false;
 }
 
-/*
- * output = MD5( input buffer )
- */
+/**/
 _CC_API_PUBLIC(void) _cc_md5(const byte_t *input, size_t length, tchar_t *output) {
     _cc_md5_t c;
     byte_t md[_CC_MD5_DIGEST_LENGTH_];

@@ -97,12 +97,11 @@ typedef struct _cc_ws_header {
     byte_t mask;
     byte_t state;
     byte_t hash[_WS_MASK_SIZE_];
-    int64_t length;
     int64_t payload;
 } _cc_ws_header_t;
 
 /**/
-_CC_API_PUBLIC(void) _cc_ws_mask(byte_t *data, int64_t length, byte_t *mask);
+_CC_API_PUBLIC(void) _cc_ws_mask(byte_t *data, int64_t length, byte_t *mask, int64_t offset);
 /**/
 _CC_API_PUBLIC(int32_t) _cc_ws_header(byte_t *header, byte_t operation, int64_t length, byte_t *mask);
 /**/

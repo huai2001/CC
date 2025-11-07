@@ -1,7 +1,7 @@
 #ifndef _C_CC_CRYPTO_HASH_H_INCLUDED_
 #define _C_CC_CRYPTO_HASH_H_INCLUDED_
 
-#include "../platform.h"
+#include "../os.h"
 
 #define _CC_SHA1_              1
 #define _CC_SHA224_            2

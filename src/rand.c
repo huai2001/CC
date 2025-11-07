@@ -1,4 +1,4 @@
-#include <libcc/platform.h>
+#include <libcc/os.h>
 #include <libcc/math.h>
 #include <libcc/time.h>
 #include <libcc/rand.h>
@@ -48,88 +48,37 @@
     #endif
 #endif
 
-static uint64_t _rand_state;
-static bool_t _rand_initialized = false;
+#ifndef ARC4RANDOM
+static int _rand_initialized = 0;
+#endif
 
 _CC_API_PUBLIC(void) _cc_srand(uint64_t seed) {
-    if (!seed) {
-        seed = _cc_query_performance_counter();
-    }
-    _rand_state = seed;
-    _rand_initialized = true;
+#ifndef ARC4RANDOM
+    srand((unsigned int)(seed & 0xFFFFFFFF));
+    _rand_initialized = (unsigned int)seed;
+#endif
 }
 
 _CC_API_PUBLIC(int32_t) _cc_rand(int32_t n) {
-
+#ifdef ARC4RANDOM
+    return arc4random_uniform(n);  
+#else
     if (!_rand_initialized) {
-        _cc_srand(0);
+        _cc_srand(time(NULL));
     }
 
-    return _cc_rand_r(&_rand_state, n);
+    return rand() % n;
+#endif
 }
 _CC_API_PUBLIC(float32_t) _cc_randf(void) {
+#ifdef ARC4RANDOM
+    return (double)arc4random() / 0x100000000;
+#else
     if (!_rand_initialized) {
         _cc_srand(0);
     }
-
-    return _cc_randf_r(&_rand_state);
-}
-
-_CC_API_PUBLIC(int32_t) _cc_rand_bits(void) {
-    if (!_rand_initialized) {
-        _cc_srand(0);
-    }
-
-    return _cc_rand_bits_r(&_rand_state);
-}
-
-_CC_API_PUBLIC(int32_t) _cc_rand_bits_r(uint64_t *state) {
-    if (!state) {
-        return 0;
-    }
-    // The C and A parameters of this LCG have been chosen based on hundreds
-    // of core-hours of testing with PractRand and TestU01's Crush.
-    // Using a 32-bit A improves performance on 32-bit architectures.
-    // C can be any odd number, but < 256 generates smaller code on ARM32
-    // These values perform as well as a full 64-bit implementation against
-    // Crush and PractRand. Plus, their worst-case performance is better
-    // than common 64-bit constants when tested against PractRand using seeds
-    // with only a single bit set.
-
-    // We tested all 32-bit and 33-bit A with all C < 256 from a v2 of:
-    // Steele GL, Vigna S. Computationally easy, spectrally good multipliers
-    // for congruential pseudorandom number generators.
-    // Softw Pract Exper. 2022;52(2):443-458. doi: 10.1002/spe.3030
-    // https://arxiv.org/abs/2001.05304v2
-
-    *state = *state * 0xff1cd035ul + 0x05;
-
-    // Only return top 32 bits because they have a longer period
-    return (int32_t)(*state >> 32);
-}
-
-_CC_API_PUBLIC(int32_t) _cc_rand_r(uint64_t *state, int32_t n) {
-    int64_t val;
-    // Algorithm: get 32 bits from _cc_rand_bits() and treat it as a 0.32 bit
-    // fixed point number. Multiply by the 31.0 bit n to get a 31.32 bit
-    // result. Shift right by 32 to get the 31 bit integer that we want.
-
-    if (n < 0) {
-        // The algorithm looks like it works for numbers < 0 but it has an
-        // infinitesimal chance of returning a value out of range.
-        // Returning -_cc_rand(abs(n)) blows up at INT_MIN instead.
-        // It's easier to just say no.
-        return 0;
-    }
-
-    // On 32-bit arch, the compiler will optimize to a single 32-bit multiply
-    val = (uint64_t)_cc_rand_bits_r(state) * n;
-    return (int32_t)(val >> 32);
-}
-
-_CC_API_PUBLIC(float32_t) _cc_randf_r(uint64_t *state) {
-    // Note: its using 24 bits because float has 23 bits significand + 1 implicit bit
-    return (_cc_rand_bits_r(state) >> (32 - 24)) * 1.0e-24f;
+    return rand() / (float32_t)RAND_MAX;
+#endif
 }
 
 #define _random()                                                          \

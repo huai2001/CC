@@ -97,6 +97,19 @@ static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, co
     return (url_request_connect(request))?false:true;
 }
 
+static bool_t _handshaking(_cc_event_t *e) {
+    request->handshake = _SSL_do_handshake(request->io->ssl);
+    if (request->handshake == _CC_SSL_HS_ESTABLISHED_) {
+        e->timeout = 10000;
+        _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
+        return url_request_header(request, e);
+    } else if (request->handshake == _CC_SSL_HS_ERROR_) {
+        return false;
+    }
+    //wait SSL handshake complete
+    return true;
+}
+
 static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     _cc_url_request_t *request = (_cc_url_request_t *)e->data;
 
@@ -110,38 +123,18 @@ static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, co
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {    
-#ifdef _CC_USE_OPENSSL_
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->handshake != _CC_SSL_HS_ESTABLISHED_) {
-            request->handshake = _SSL_do_handshake(request->io->ssl);
-            if (request->handshake == _CC_SSL_HS_ESTABLISHED_) {
-                e->timeout = 10000;
-                _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
-                return url_request_header(request, e);
-            } else if (request->handshake == _CC_SSL_HS_ERROR_) {
-                return false;
-            }
-            //wait SSL handshake complete
-            return true;
+            return _handshaking(e);
         }
-#endif
         if (request->response && request->response->keep_alive && request->state == _CC_HTTP_STATUS_ESTABLISHED_) {
             return url_request_header(request, e);;
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
         _cc_logger_info(_T("url_request connected,%s"), request->url.host);
-    #ifdef _CC_USE_OPENSSL_
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
-            request->handshake = _SSL_do_handshake(request->io->ssl);
-            if (request->handshake != _CC_SSL_HS_ESTABLISHED_) {
-                //wait SSL handshake complete
-                e->timeout = 1000;
-                return true;
-            } else if (request->handshake == _CC_SSL_HS_ERROR_) {
-                return false;
-            }
+            return _handshaking(e);
         }
-    #endif
         _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
         return url_request_header(request, e);
     }

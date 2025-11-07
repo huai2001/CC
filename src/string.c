@@ -214,7 +214,7 @@ _CC_API_PUBLIC(size_t) _cc_trimW_copy(wchar_t *dst, size_t dst_capacity,  const 
 
 
 _CC_API_PUBLIC(int32_t)
-_cc_splitA(_cc_AString_t *dst, int32_t count, const char_t *src, const char_t* (cb)(const char_t *, int32_t*)) {
+_cc_splitA(_cc_astring_t *dst, int32_t count, const char_t *src, const char_t* (cb)(const char_t *, int32_t*)) {
     int32_t offset = 0;
     int32_t i = 0;
     const char_t *ptr = src;
@@ -225,8 +225,8 @@ _cc_splitA(_cc_AString_t *dst, int32_t count, const char_t *src, const char_t* (
     }
 
     while((p = cb(ptr, &offset)) != nullptr) {
-        _cc_AString_t *r = &dst[i++];
-        r->data = (char_t*)ptr;
+        _cc_astring_t *r = &dst[i++];
+        r->ptr = (char_t*)ptr;
         r->length = (size_t)(p - ptr);
         ptr = (p + offset);
 
@@ -236,15 +236,15 @@ _cc_splitA(_cc_AString_t *dst, int32_t count, const char_t *src, const char_t* (
     }
 
     if (*ptr && count > i) {
-        _cc_AString_t *r = &dst[i++];
-        r->data = (char_t*)ptr;
+        _cc_astring_t *r = &dst[i++];
+        r->ptr = (char_t*)ptr;
         r->length = strlen(ptr);
     }
     return i;
 }
 
 _CC_API_PUBLIC(int32_t)
-_cc_splitW(_cc_WString_t *dst, int32_t count, const wchar_t *src, const wchar_t* (cb)(const wchar_t *, int32_t*)) {
+_cc_splitW(_cc_wstring_t *dst, int32_t count, const wchar_t *src, const wchar_t* (cb)(const wchar_t *, int32_t*)) {
     int32_t offset = 0;
     int32_t i = 0;
     const wchar_t *ptr = src;
@@ -255,8 +255,8 @@ _cc_splitW(_cc_WString_t *dst, int32_t count, const wchar_t *src, const wchar_t*
     }
 
     while((p = cb(ptr, &offset)) != nullptr) {
-        _cc_WString_t *r = &dst[i++];
-        r->data = (wchar_t*)ptr;
+        _cc_wstring_t *r = &dst[i++];
+        r->ptr = (wchar_t*)ptr;
         r->length = (size_t)(p - ptr);
         ptr = (p + offset);
 
@@ -266,8 +266,8 @@ _cc_splitW(_cc_WString_t *dst, int32_t count, const wchar_t *src, const wchar_t*
     }
 
     if (*ptr && count > i) {
-        _cc_WString_t *r = &dst[i++];
-        r->data = (wchar_t*)ptr;
+        _cc_wstring_t *r = &dst[i++];
+        r->ptr = (wchar_t*)ptr;
         r->length = wcslen(ptr);
     }
     return i;

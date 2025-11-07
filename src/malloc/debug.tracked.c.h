@@ -1,7 +1,7 @@
 #ifndef _C_CC_MEMORY_TRACKED_C_H_INCLUDED_
 #define _C_CC_MEMORY_TRACKED_C_H_INCLUDED_
 
-#include <libcc/types.h>
+#include <libcc/alloc.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

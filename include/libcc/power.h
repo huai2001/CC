@@ -1,7 +1,7 @@
 #ifndef _C_CC_POWER_H_INCLUDED_
 #define _C_CC_POWER_H_INCLUDED_
 
-#include "platform.h"
+#include "os.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

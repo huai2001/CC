@@ -3,7 +3,7 @@
 
 #include <libcc/json.h>
 #include <libcc/alloc.h>
-#include "../generic/generic.c.h"
+#include "../misc/misc.c.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

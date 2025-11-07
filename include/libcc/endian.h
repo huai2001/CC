@@ -1,7 +1,7 @@
 #ifndef _C_CC_ENDIAN_H_INCLUDED_
 #define _C_CC_ENDIAN_H_INCLUDED_
 
-#include "platform.h"
+#include "os.h"
 
 #ifdef __CC_LINUX__
     #include <endian.h>

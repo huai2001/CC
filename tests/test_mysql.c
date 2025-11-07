@@ -9,7 +9,7 @@
 _cc_sql_delegate_t sql_delegate;
 
 int main(int argc, char *const arvg[]) {
-    _cc_String_t sql_str;
+    _cc_string_t sql_str;
     _cc_sql_t *conn_ptr1 = nullptr;
     _cc_sql_t *conn_ptr2 = nullptr;
     _cc_sql_result_t *sql_result = nullptr;
@@ -32,36 +32,36 @@ int main(int argc, char *const arvg[]) {
         return 1;
     }
     
-    _cc_String_Set(sql_str,"TRUNCATE TABLE `test`.`test`");
+    _cc_string_set(sql_str,"TRUNCATE TABLE `test`.`test`");
     sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
-    _cc_String_Set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '1',now(),now())");
+    _cc_string_set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '1',now(),now())");
     sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
-    _cc_String_Set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '2',now(),now())");
+    _cc_string_set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '2',now(),now())");
     sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
-    _cc_String_Set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '3',now(),now())");
+    _cc_string_set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '3',now(),now())");
     sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
     
     sql_delegate.begin_transaction(conn_ptr2);
-    _cc_String_Set(sql_str,"update test set mid=100 where id=1");
+    _cc_string_set(sql_str,"update test set mid=100 where id=1");
     sql_delegate.execute(conn_ptr2, &sql_str, nullptr);
-    _cc_String_Set(sql_str,"update test set mid=200 where id=2");
+    _cc_string_set(sql_str,"update test set mid=200 where id=2");
     sql_delegate.execute(conn_ptr2, &sql_str, nullptr);
-    _cc_String_Set(sql_str,"update test set mid=300 where id=3");
+    _cc_string_set(sql_str,"update test set mid=300 where id=3");
     sql_delegate.execute(conn_ptr2, &sql_str, nullptr);
     sql_delegate.commit(conn_ptr2);
     
     sql_delegate.begin_transaction(conn_ptr1);
-    _cc_String_Set(sql_str,"update test set mid=101 where id=1");
+    _cc_string_set(sql_str,"update test set mid=101 where id=1");
     sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
-    _cc_String_Set(sql_str,"update test set mid=201 where id=1");
+    _cc_string_set(sql_str,"update test set mid=201 where id=1");
     sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
     sql_delegate.rollback(conn_ptr1);
-    _cc_String_Set(sql_str,"update test set mid=301 where id=3");
+    _cc_string_set(sql_str,"update test set mid=301 where id=3");
     sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
     sql_delegate.commit(conn_ptr1);
     
     
-    _cc_String_Set(sql_str,_T("call `UpdateDevice`(?,?,?,?);"));
+    _cc_string_set(sql_str,_T("call `UpdateDevice`(?,?,?,?);"));
     if (sql_delegate.execute(conn_ptr1, &sql_str, &sql_result)) {
         uint32_t update_time = 100000;
         int a = 0;
@@ -73,7 +73,7 @@ int main(int argc, char *const arvg[]) {
         sql_delegate.free_result(conn_ptr1, sql_result);
     }
 
-    _cc_String_Set(sql_str,_T("select `id`,`mid`,`update_time`,`text`,`desc` from test where text like ?;"));
+    _cc_string_set(sql_str,_T("select `id`,`mid`,`update_time`,`text`,`desc` from test where text like ?;"));
     if (sql_delegate.execute(conn_ptr1, &sql_str, &sql_result)) {
         //int v = 1;
         char *date = "2023%%";
@@ -99,7 +99,7 @@ int main(int argc, char *const arvg[]) {
     
     puts("-----------\n");
     
-    _cc_String_Set(sql_str,_T("select `id`,`mid`,`update_time`,`text`,`desc` from test;"));
+    _cc_string_set(sql_str,_T("select `id`,`mid`,`update_time`,`text`,`desc` from test;"));
     if (sql_delegate.execute(conn_ptr1, &sql_str, &sql_result)) {
         //int num_fields = sql_delegate.get_num_fields(sql_result);
         while(sql_delegate.fetch(sql_result)) {

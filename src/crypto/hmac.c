@@ -120,8 +120,7 @@ _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hash_t *ctx, byte_t method, const byte_t 
 /*
  *
  */
-_CC_API_PUBLIC(int)
-_cc_hmac(byte_t type, const byte_t *input, size_t length, const byte_t *key, size_t key_length, tchar_t *output) {
+_CC_API_PUBLIC(int) _cc_hmac(byte_t type, const byte_t *input, size_t length, const byte_t *key, size_t key_length, tchar_t *output) {
     byte_t digest[MAX_BLOCKLEN];
     _cc_hash_t hmac;
     int32_t digest_length = MAX_BLOCKLEN;

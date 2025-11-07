@@ -1,7 +1,7 @@
 #ifndef _C_CC_VERSION__H_INCLUDED_
 #define _C_CC_VERSION__H_INCLUDED_
 
-#include "platform/compiler.h"
+#include "os/compiler.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +32,7 @@ extern "C" {
 _CC_FORCE_INLINE_ int _cc_get_version(void) {
     return _CC_VERSIONNUM(_CC_MAJOR_VERSION_, _CC_MINOR_VERSION_, _CC_MICRO_VERSION_);
 }
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

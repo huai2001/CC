@@ -3,16 +3,9 @@
 
 #include "types.h"
 #include <string.h>
-#include <stdio.h>
 
 #ifdef __CC_WINDOWS__
-#include "./windows.h"
-#endif
-
-
-/* Set up for C function definitions, even when using C++ */
-#ifdef __cplusplus
-extern "C" {
+#include "./os/windows.h"
 #endif
 
 #define _CC_FILE_SEEK_SET_ 0       /**< Seek from the beginning of data */
@@ -39,6 +32,11 @@ extern "C" {
     #endif
     #define _cc_fseek_off fseek
     #define _cc_ftell_off ftell
+#endif
+
+/* Set up for C function definitions, even when using C++ */
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef struct _cc_file _cc_file_t;
@@ -100,11 +98,16 @@ struct _cc_file {
 #endif
     pvoid_t fp;
 };
-/* @{ */
-/**
- * @brief name Read/write macros
- *        Macros to easily read and write from an _cc_file structure.
- */
+
+/**/
+_CC_API_PUBLIC(_cc_file_t*) _cc_open_file(const tchar_t *filename, const tchar_t *mode);
+
+/* Ends C function definitions when using C++ */
+#ifdef __cplusplus
+}
+#endif
+
+/* {{{ */
 #define _cc_file_size(ctx) (ctx)->size(ctx)
 #define _cc_file_seek(ctx, offset, whence) (ctx)->seek(ctx, offset, whence)
 #define _cc_file_read(ctx, ptr, size, n) (ctx)->read(ctx, ptr, size, n)
@@ -114,26 +117,11 @@ struct _cc_file {
 
 #define _cc_fopen   _cc_open_file
 #define _cc_fseek   _cc_file_seek
-#define _cc_feof   _cc_file_eof
+#define _cc_feof    _cc_file_eof
 #define _cc_fwrite  _cc_file_write
 #define _cc_fread   _cc_file_read
 #define _cc_fclose  _cc_file_close
-/* @} *//* Read/write macros */
-
-/**
- * @brief Open file
- *
- * @param filename file path
- * @param mode Open file mode
- *
- * @return _cc_file structure
-*/
-_CC_API_PUBLIC(_cc_file_t*) _cc_open_file(const tchar_t *filename, const tchar_t *mode);
-
-/* Ends C function definitions when using C++ */
-#ifdef __cplusplus
-}
-#endif
+/* }}} */
 
 #endif /*_C_CC_FILE_HEAD_FILE_*/
 

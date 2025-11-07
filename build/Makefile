@@ -1,17 +1,12 @@
 ##################################################
 SRCROOT	:= $(abspath ..)
 
-ifdef debug
-	MACROS += _CC_USE_DEBUG_MALLOC_
-endif
+TARGET_NAME ?= cc
 
-#指定第三方库安装路径
-THIRD_PARTY_PATH = $(abspath $(SRCROOT)/..)/third-party
-INCLUDE_PATH += $(THIRD_PARTY_PATH)
-LIBRARY_PATH += $(THIRD_PARTY_PATH)/lib/$(ARCH)/
-
-include $(SRCROOT)/build/Makefile.mak
+include $(SRCROOT)/build/local-init.mk
 
 ifdef target
-	include $(SRCROOT)/build/$(target).mak
+	include $(SRCROOT)/build/$(target).mk
 endif
+
+include $(SRCROOT)/build/Makefile.mk

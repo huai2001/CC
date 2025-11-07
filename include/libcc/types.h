@@ -3,6 +3,7 @@
 
 #define HAVE_ASSERT_H
 
+#include <stdio.h>
 #include <stddef.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -26,15 +27,6 @@ extern "C" {
     #endif
 #endif /* NULL */
 
-#if _CC_STDC_VERSION_ >= 98
-    #define _cc_thread_local_t _Thread_local
-#elif defined(_CC_GNUC_)
-    #define _cc_thread_local_t __thread
-#elif defined(_CC_MSVC_)
-    #define _cc_thread_local_t __declspec(thread)
-#else
-    #define _cc_thread_local_t "Unsupported thread-local storage"
-#endif
 /**
  *  name Basic data types
  */
@@ -45,9 +37,9 @@ typedef unsigned char uchar_t;
 typedef uchar_t byte_t;
 
 #ifdef __CC_WINDOWS__
-#if _CC_MSVC_ >= 1700
+#if __CC_MSVC__ >= 1700
     #include <stdint.h>
-#elif _CC_MSVC_ < 1300
+#elif __CC_MSVC__ < 1300
     typedef signed char int8_t;
     typedef signed short int16_t;
     typedef signed int int32_t;
@@ -118,19 +110,10 @@ uint64_t - [0 : 18446744073709551615]
 
 /**/
 #ifndef _CC_UNICODE_
-    typedef char_t tchar_t;
+    typedef char_t      tchar_t;
 #else
-    typedef wchar_t tchar_t;
+    typedef wchar_t     tchar_t;
 #endif
-
-/**/
-typedef uint16_t us2_t;
-typedef uint32_t us4_t;
-
-#define _CC_RC_ERROR_    0
-#define _CC_RC_OK_       1
-#define _CC_YES_         _CC_RC_OK_
-#define _CC_NO_          _CC_RC_ERROR_
 
 /*@}*//*Basic data types*/
 

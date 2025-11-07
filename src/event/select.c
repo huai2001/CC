@@ -208,7 +208,7 @@ _CC_API_PRIVATE(bool_t) _select_event_free(_cc_async_event_t *async) {
         return false;
     }
 
-    _cc_safe_free(async->priv);
+    _cc_if_free(async->priv);
 
     return _unregister_async_event(async);
 }

@@ -23,10 +23,10 @@ typedef struct {
     time_t timestamp;
     int32_t pid;
     int32_t mid;
-    _cc_String_t host;
-    _cc_String_t app;
-    _cc_String_t sd;
-    _cc_String_t msg;
+    _cc_string_t host;
+    _cc_string_t app;
+    _cc_string_t sd;
+    _cc_string_t msg;
 } _syslog_t;
 
 

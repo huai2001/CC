@@ -11,7 +11,7 @@
 #endif /* __CC_LINUX__ */
 
 #ifdef __CC_ANDROID__
-#include <libcc/platform/android.h>
+#include <libcc/os/android.h>
 #endif
 
 #if defined(__CC_LINUX__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)

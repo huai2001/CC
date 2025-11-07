@@ -5,6 +5,10 @@
 #include "list.h"
 #include "string.h"
 
+#if defined(_CC_DEBUG_)
+#define _CC_USE_DEBUG_MALLOC_ 1
+#endif
+
 #ifdef _CC_USE_DEBUG_MALLOC_
 
 #if defined(__CC_USE_TCMALLOC__)
@@ -43,6 +47,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_debug_calloc(size_t c, size_t n, const tchar_t *file
 _CC_API_PUBLIC(pvoid_t) _cc_debug_realloc(pvoid_t d, size_t n, const tchar_t *file, const int line);
 /**/
 _CC_API_PUBLIC(void) _cc_debug_free(pvoid_t p);
+
 /**/
 #define _cc_malloc(N) _cc_debug_malloc((N), _CC_FILE_, _CC_LINE_)
 /**/
@@ -66,7 +71,7 @@ _CC_API_PUBLIC(void) _cc_free(pvoid_t);
 #endif /* _CC_USE_DEBUG_MALLOC_ */
 
 /**/
-#define _cc_safe_free(d) do {\
+#define _cc_if_free(d) do {\
     if ((d)) {\
         _cc_free((d));\
         (d) = nullptr;\

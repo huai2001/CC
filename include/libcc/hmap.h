@@ -45,44 +45,23 @@ _CC_FORCE_INLINE_ _cc_list_iterator_t *_cc_hmap_link(_cc_hmap_t *ctx) {
     _cc_assert(ctx != nullptr);
     return &ctx->list;
 }
-/**
- *
- * @param ctx hmap context
- *
- * @return Return the length of the hmap
- */
+
+/**/
 _CC_FORCE_INLINE_ uint32_t _cc_hmap_length(_cc_hmap_t *ctx) {
     _cc_assert(ctx != nullptr);
     if (ctx == nullptr) {
         return 0;
     }
-
     return ctx->count;
 }
-/**
- * @brief Initialize a new empty hmap.
- *
- * @param ctx hmap context
- * @param capacity buffer count(!= 0. Creates a new memory buffer)
- * @param equals_func keywork equals callback function
- * @param hash_func keywork hash code callback function
- *
- * @return a new empty hmap
- */
-_CC_API_PUBLIC(bool_t)
-_cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity,
-    _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func);
-/**
- * @brief Free a hmap.
- *
- * @param ctx hmap context
- */
+
+/**/
+_CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity, _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func);
+/**/
 _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx);
 /**/
 _CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_iterator_t*);
-/**
- * @brief Removes all items.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_hmap_push(_cc_hmap_t *, const uintptr_t keyword, const uintptr_t custom);

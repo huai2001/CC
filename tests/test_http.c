@@ -111,7 +111,7 @@ static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e) {
 }
 
 _CC_API_PRIVATE(void) bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_String_t body = _cc_String("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>");
+    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>");
 
     io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
     memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
@@ -120,7 +120,7 @@ _CC_API_PRIVATE(void) bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
 }
 
 _CC_API_PRIVATE(void) not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_String_t body = _cc_String("<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY><p>The server could not find the requested URL.</p></BODY></HTML>");
+    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY><p>The server could not find the requested URL.</p></BODY></HTML>");
 
     io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 404 NOT FOUND\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
     memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
@@ -129,7 +129,7 @@ _CC_API_PRIVATE(void) not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
 }
 #if 0
 _CC_API_PRIVATE(void) unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_String_t body = _cc_String("<HTML><HEAD><TITLE>Method Not Implemented</TITLE></HEAD><BODY><p>HTTP request method not supported.</p></BODY></HTML>");
+    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Method Not Implemented</TITLE></HEAD><BODY><p>HTTP request method not supported.</p></BODY></HTML>");
     
     io->w.off = _sntprintf(io->w.bytes,io->w.limit,"HTTP/1.1 501 Method Not Implemented\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
     memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
@@ -138,7 +138,7 @@ _CC_API_PRIVATE(void) unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
 }
 #endif
 _CC_API_PRIVATE(void) request_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_String_t body = _cc_String("<HTML><HEAD><TITLE>Welcome to HTTP</TITLE></HEAD><BODY><p>If you see this page, the web server is successfully</p></BODY></HTML>");
+    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Welcome to HTTP</TITLE></HEAD><BODY><p>If you see this page, the web server is successfully</p></BODY></HTML>");
     
     io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
     memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));

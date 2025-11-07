@@ -1,7 +1,7 @@
 #ifndef _C_CC_RB_TREE_H_INCLUDED_
 #define _C_CC_RB_TREE_H_INCLUDED_
 
-#include "platform.h"
+#include "os.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -56,10 +56,8 @@ typedef struct _cc_rbtree _cc_rbtree_t;
 
 _CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
 _CC_API_PUBLIC(void) _cc_rbtree_erase(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
-_CC_API_PUBLIC(void)
-_cc_rbtree_destroy(_cc_rbtree_t *, void (*cb)(_cc_rbtree_iterator_t *));
-_CC_API_PUBLIC(void)
-_cc_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rbtree_iterator_t *, pvoid_t), pvoid_t args);
+_CC_API_PUBLIC(void) _cc_rbtree_destroy(_cc_rbtree_t *, void (*cb)(_cc_rbtree_iterator_t *));
+_CC_API_PUBLIC(void) _cc_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rbtree_iterator_t *, pvoid_t), pvoid_t args);
 
 /* Find logical next and previous nodes in a tree */
 _CC_API_PUBLIC(_cc_rbtree_iterator_t *) _cc_rbtree_next(const _cc_rbtree_iterator_t *);
@@ -72,28 +70,24 @@ _CC_API_PUBLIC(void)
 _cc_rbtree_replace_node(_cc_rbtree_t *root, _cc_rbtree_iterator_t *victim, _cc_rbtree_iterator_t *replacement);
 
 /**/
-_CC_API_PUBLIC(_cc_rbtree_iterator_t *)
-_cc_rbtree_get(const _cc_rbtree_t *root, uintptr_t keyword, 
-                int32_t (*cb)(_cc_rbtree_iterator_t *, uintptr_t));
+_CC_API_PUBLIC(_cc_rbtree_iterator_t *) _cc_rbtree_get(const _cc_rbtree_t *root, uintptr_t keyword, int32_t (*cb)(_cc_rbtree_iterator_t *, uintptr_t));
 /**/
-_CC_API_PUBLIC(bool_t)
-_cc_rbtree_push(_cc_rbtree_t *root, _cc_rbtree_iterator_t *data,
-                int32_t (*cb)(_cc_rbtree_iterator_t *, _cc_rbtree_iterator_t *));
+_CC_API_PUBLIC(bool_t) _cc_rbtree_push(_cc_rbtree_t *root, _cc_rbtree_iterator_t *data, int32_t (*cb)(_cc_rbtree_iterator_t *, _cc_rbtree_iterator_t *));
+
 /**/
 _CC_FORCE_INLINE_ void _cc_rbtree_cleanup(_cc_rbtree_t *root) {
     root->rb_node = nullptr;
 }
+
 /**/
 _CC_FORCE_INLINE_ void _cc_rbtree_iterator_cleanup(_cc_rbtree_iterator_t *rb) {
     rb->right = nullptr;
     rb->left = nullptr;
     rb->parent_color = 0;
 }
+
 /**/
-_CC_FORCE_INLINE_ void _cc_rbtree_insert(_cc_rbtree_t *root, 
-                                         _cc_rbtree_iterator_t *node,
-                                         _cc_rbtree_iterator_t *parent,
-                                         _cc_rbtree_iterator_t **link) {
+_CC_FORCE_INLINE_ void _cc_rbtree_insert(_cc_rbtree_t *root, _cc_rbtree_iterator_t *node, _cc_rbtree_iterator_t *parent, _cc_rbtree_iterator_t **link) {
     node->parent_color = (uintptr_t)parent;
     node->left = node->right = nullptr;
 

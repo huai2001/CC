@@ -1,14 +1,14 @@
 #ifndef _C_CC_DIRENT_H_INCLUDED_
 #define _C_CC_DIRENT_H_INCLUDED_
 
-#include "platform.h"
+#include "os.h"
 
 #if defined(__CC_WINDOWS__)
     #ifndef __CC_WIN32_CE__
         #include <direct.h>
         #include <sys/stat.h>
     #endif
-#elif defined(_CC_GNUC_) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
+#elif defined(__CC_GNUC__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
     #include <dirent.h>
     #include <sys/stat.h>
     #define _mkdir(file) mkdir(file, 0777)
@@ -20,12 +20,18 @@
     #define _mkdir(file) mkdir(file, 0777)
 #endif
 
+#define _CC_ACCESS_F_       0x00
+#define _CC_ACCESS_W_       0x02
+#define _CC_ACCESS_R_       0x04
+#define _CC_ACCESS_X_       0x06
+
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if defined(__CC_WINDOWS__)
+
 #ifdef __CC_WIN32_CE__
     #ifndef _MAX_FNAME
         #define _MAX_FNAME MAX_PATH
@@ -49,7 +55,7 @@ extern "C" {
     #define S_IEXEC  _S_IEXEC
 
     struct stat {
-        long     st_dev;
+        long   st_dev;
         unsigned short st_ino;
         unsigned short st_mode;
         short  st_nlink;
@@ -98,6 +104,7 @@ extern "C" {
 #define S_ISLNK(m)       /* symbolic link */
 #define S_ISSOCK(m)      /* socket */
 #endif
+
 /* struct dirent - same as Unix */
 struct dirent {
     long d_ino;                     /* inode (always 1 in WIN32) */
@@ -106,7 +113,6 @@ struct dirent {
     uint8_t d_type;                 /* file type, see below */
     tchar_t d_name[_MAX_FNAME + 1]; /* filename (nullptr terminated) */
 };
-
 
 /* typedef DIR - not the same as Unix */
 typedef struct _dir {
@@ -118,55 +124,18 @@ typedef struct _dir {
     struct dirent dent;             /* the dirent to return */
 } DIR;
 
-/**
- * @brief read dir
- *
- * @param dp DIR context
- * 
- * @return struct dirent context
- */
+/**/
 _CC_API_PUBLIC(struct dirent *) readdir(DIR *dp);
-
-/**
- * @brief read reverse dir
- *
- * @param dp DIR context
- * @param entry struct dirent context
- * @param result struct dirent context
- * 
- * @return 0 if successful or system on error.
- */
+/**/
 _CC_API_PUBLIC(int) readdir_r(DIR *dp, struct dirent *entry, struct dirent **result);
-/**
- * @brief open dir
- *
- * @param dir_path dir path
- * 
- * @return DIR context
- */
+/**/
 _CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path);
-/**
- * @brief close dir
- *
- * @param 1 DIR context
- * 
- * @return 0 if successful or system on error.
- */
+/**/
 _CC_API_PUBLIC(int) closedir(DIR *);
 
 #endif /* __CC_WINDOWS__ */
 
-#define _CC_ACCESS_F_       0x00
-#define _CC_ACCESS_W_       0x02
-#define _CC_ACCESS_R_       0x04
-#define _CC_ACCESS_X_       0x06
-/**
- * @brief is dir
- *
- * @param dir_path dir path
- * 
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_isdir(const tchar_t* dir_path);
 
 /* Ends C function definitions when using C++ */

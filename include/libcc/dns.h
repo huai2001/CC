@@ -95,29 +95,15 @@ typedef struct _cc_dns {
 #define _CC_DNS_ERR_TIMEDOUT_               14  /* Timed out waiting for reply */
 #define _CC_DNS_ERR_ENOMEM_                 15  /* Out of memory*/
 
-/**
- * @brief lookup a dns
- *
- * @param dns _cc_dns_t
- * @param host domain string
- * @param type length of domain
- */
+/**/
 _CC_API_PUBLIC(int) _cc_dns_lookup(_cc_dns_t* dns, const char_t* host, int type);
-/**
- * @brief free a dns structure
- *
- * @param dns _cc_dns_t
- */
+/**/
 _CC_API_PUBLIC(void) _cc_dns_free(_cc_dns_t* dns);
-/**
- * @brief Set DNS Server
- *
- * @param servers NDS server address array
- * @param count The length of the  array
- */
+/**/
 _CC_API_PUBLIC(void) _cc_dns_servers(const tchar_t* servers[], int count);
-
+/**/
 _CC_API_PUBLIC(bool_t) _cc_dns_listen(void);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

@@ -2,6 +2,20 @@
 #include <libcc/array.h>
 #include <libcc/string.h>
 #include <libcc/thread.h>
+
+/**/
+bool_t _cc_create_sys_thread(_cc_thread_t* self);
+/**/
+size_t _cc_get_current_sys_thread_id(void);
+/**/
+size_t _cc_get_sys_thread_id(_cc_thread_t* self);
+/**/
+void _cc_setup_sys_thread(const tchar_t* name);
+/**/
+void _cc_wait_sys_thread(_cc_thread_t* self);
+/**/
+void _cc_detach_sys_thread(_cc_thread_t* self);
+
 /**/
 void _cc_thread_running_function(void *args) {
     _cc_thread_t *self;
@@ -14,7 +28,7 @@ void _cc_thread_running_function(void *args) {
 
     /* Figure out what function to run */
     user_func = self->callback;
-    user_args = self->user_args;
+    user_args = self->args;
 
     /* Perform any system-dependent setup - this function may not fail */
     if (self->name) {
@@ -40,8 +54,7 @@ _CC_API_PUBLIC(_cc_thread_t*) _cc_thread(_cc_thread_callback_t callback, const t
     return _cc_thread_with_stacksize(callback, name, 0, args);
 }
 /**/
-_CC_API_PUBLIC(_cc_thread_t*) _cc_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize,
-                                               pvoid_t args) {
+_CC_API_PUBLIC(_cc_thread_t*) _cc_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize, pvoid_t args) {
     _cc_thread_t *self;
     if (!callback) {
         _cc_logger(_CC_LOG_LEVEL_ERROR_,_T("Thread entry function is NULL"));
@@ -59,7 +72,7 @@ _CC_API_PUBLIC(_cc_thread_t*) _cc_thread_with_stacksize(_cc_thread_callback_t ca
 
     /* Set up the arguments for the thread */
     self->callback = callback;
-    self->user_args = args;
+    self->args = args;
 
     /* Create the thread and go! */
     if (_cc_unlikely(!_cc_create_sys_thread(self))) {

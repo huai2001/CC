@@ -336,8 +336,8 @@ _CC_API_PUBLIC(bool_t) _cc_sha1_fp(FILE *fp, tchar_t *output) {
 /*
     Digests a file.
  */
-_CC_API_PUBLIC(bool_t) _cc_sha1file(const tchar_t *filename, tchar_t *output) {
-    FILE *fp = _tfopen(filename, _T("rb"));
+_CC_API_PUBLIC(bool_t) _cc_sha1_from_file(const tchar_t *file, tchar_t *output) {
+    FILE *fp = _tfopen(file, _T("rb"));
 
     if (fp) {
         _cc_sha1_fp(fp, output);

@@ -53,19 +53,15 @@ typedef struct _cc_async_event _cc_async_event_t;
 
 typedef bool_t (*_cc_event_callback_t)(_cc_async_event_t*, _cc_event_t*, const uint32_t);
 
+typedef struct _cc_io_data {
+    int32_t limit;
+    int32_t off;
+    byte_t *bytes;
+} _cc_io_data_t;
+
 struct _cc_io_buffer {
-    struct {
-        int32_t limit;
-        int32_t off;
-        byte_t *bytes;
-    } r;
-
-    struct {
-        int32_t limit;
-        int32_t off;
-        byte_t *bytes;
-    } w;
-
+    _cc_io_data_t r;
+    _cc_io_data_t w;
     _cc_atomic_lock_t lock_of_writable;
     _cc_SSL_t *ssl;
 };
@@ -145,78 +141,43 @@ struct _cc_async_event {
     bool_t (*free)(_cc_async_event_t *async);
 };
 
-/**
- * @brief Initializes an event class
- *
- * @param async _cc_async_event_t handle
- * @param flags current event flag
- *
- * @return true if successful or false on error.
- */
+/* {{{ event */
+/**/
 _CC_API_PUBLIC(_cc_event_t*) _cc_event_alloc(_cc_async_event_t *async, const uint32_t flags);
-
-/**
- * @brief Free event
- *
- * @param async _cc_async_event_t handle
- * @param e _cc_event_t handle
- */
+/**/
 _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e);
-/**
- * @brief Get async event handle
- *
- * @return _cc_async_event_t handle
- */
+/**/
 _CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event(void);
-
-/**
- * @brief Get event handle
- *
- * @param ident
- *
- * @return _cc_event_t handle
- */
+/**/
 _CC_API_PUBLIC(_cc_event_t *) _cc_get_event_by_id(uint32_t ident);
-
-/**
- * @brief Get async event handle
- *
- * @param ident
- *
- * @return _cc_async_event_t handle
- */
+/**/
 _CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event_by_id(uint32_t ident);
+/* }}} */
 
-/**
-* @brief Allocate an I/O buffer and set its size limit
- *
- * @param limit buffer size limit
- * 
- */
+/* {{{ io buffer */
+/**/
 _CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit);
-
-/**
- * @brief free a read/write socket buffer
- *
- * @param io _cc_io_buffer_t handle
- *
- */
+/**/
 _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io);
 /**/
 _CC_API_PUBLIC(void) _cc_realloc_read_buffer(_cc_io_buffer_t *io,int32_t limit);
 /**/
 _CC_API_PUBLIC(void) _cc_realloc_write_buffer(_cc_io_buffer_t *io,int32_t limit);
 /**/
-_CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *data);
+_CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *io);
 /**/
-_CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data, const byte_t *bytes, int32_t length);
+_CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *io, const byte_t *bytes, int32_t length);
 /**/
-_CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *data);
+_CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *io);
+/* }}} */
 
+
+/* @{ */
 /**/
 _CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_tcp_connect(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen);
+/* }}} */
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_register_select(_cc_async_event_t*);
@@ -231,7 +192,7 @@ _CC_API_PUBLIC(bool_t) _cc_register_select(_cc_async_event_t*);
 #elif defined(__CC_LINUX__)
     _CC_API_PUBLIC(bool_t) _cc_register_poll(_cc_async_event_t*);
     _CC_API_PUBLIC(bool_t) _cc_register_epoll(_cc_async_event_t*);
-    _CC_API_PUBLIC(bool_t) _cc_register_io_uring(_cc_async_event_t*);
+    //_CC_API_PUBLIC(bool_t) _cc_register_io_uring(_cc_async_event_t*);
     #define _cc_register_poller _cc_register_epoll
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__) || \
     defined(__CC_FREEBSD__) || defined(__CC_OPENBSD__) ||   \

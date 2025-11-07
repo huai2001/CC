@@ -7,6 +7,7 @@ typedef struct __array_hdr {
     size_t limit;
     size_t length;
 } __array_hdr_t;
+
 /**/
 _CC_API_PUBLIC(_cc_array_t) _cc_alloc_array(size_t capacity) {
     __array_hdr_t *hdr = (__array_hdr_t*)_cc_malloc(sizeof(__array_hdr_t) + capacity * sizeof(uintptr_t));

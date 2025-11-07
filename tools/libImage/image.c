@@ -479,7 +479,7 @@ bool_t _cc_free_image( _cc_image_t* image ) {
         return false;
     }
 
-    _cc_safe_free(image->data);
+    _cc_if_free(image->data);
 
     if (image->palette.data && image->palette.size > 0) {
         _cc_free(image->palette.data);

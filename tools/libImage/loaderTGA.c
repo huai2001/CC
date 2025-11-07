@@ -199,7 +199,7 @@ _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
         break;
     }
 
-    _cc_safe_free(tgaData);
+    _cc_if_free(tgaData);
 
     image->palette.data = PaletteData;
     image->palette.size = tgaHeader.ColorMapLength;

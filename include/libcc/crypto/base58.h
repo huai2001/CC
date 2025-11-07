@@ -1,48 +1,21 @@
 #ifndef _C_CC_BASE58_H_INCLUDED_
 #define _C_CC_BASE58_H_INCLUDED_
 
-#include "../platform.h"
+#include "../os.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
 #endif
-/** Compute size of needed storage for encoding. This function computes the
- *  exact size of a memory area needed to hold the result of an encoding
- *  operation, not including the terminating nullptr character.
- */
-#define _CC_BASE58_EN_LEN(x) (x * 2)
-/*
- * Compute size of needed storage for decoding. This function computes the
- *  estimated size of a memory area needed to hold the result of a decoding
- *  operation, not including the terminating nullptr character. Note that this
- *  function may return up to two bytes more due to the nature of Base64.
- */
-#define _CC_BASE58_DE_LEN(x) ((x / 2))
-/**
- * @brief     Encode a buffer into base58 format
- *
- * @param input   buffer holding the data
- * @param length   length of the input data
- * @param output   destination buffer
- * @param output_length   amount of data to be encoded
- *
- * @return    Encode a buffer into base58 format.
- */
-_CC_API_PUBLIC(size_t)
-_cc_base58_encode(const byte_t *input, size_t length, tchar_t *output, size_t output_length);
-/**
- * @brief     Decode a base58-formatted buffer
- *
- * @param input   buffer holding the  data
- * @param length   length of the input data
- * @param output   destination buffer
- * @param output_length   amount of data to be decoded
- *
- * @return    Decode a base58-formatted buffer.
- */
-_CC_API_PUBLIC(size_t)
-_cc_base58_decode(const tchar_t *input, size_t length, byte_t *output, size_t output_length);
+/**/
+#define _CC_BASE58_EN_LEN(N) (N * 2)
+/**/
+#define _CC_BASE58_DE_LEN(N) ((N / 2))
+
+/**/
+_CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tchar_t *output, size_t output_length);
+/**/
+_CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, byte_t *output, size_t output_length);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

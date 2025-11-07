@@ -22,21 +22,21 @@ LIBCCSources = [
 	"src/cpu.c",
 	"src/atomic/atomic.c",
 	"src/atomic/rwlock.c",
-	"src/platform/platform.c",
-	"src/platform/windows/sys_mmap.c",
-	"src/platform/windows/sys_pipe.c",
-	"src/platform/windows/sys_windows.c",
-	"src/platform/windows/sys_clipboard.c",
-	"src/platform/windows/sys_dirent.c",
-	"src/platform/windows/sys_file.c",
-	"src/platform/windows/sys_locale.c",
-	"src/platform/windows/sys_time.c",
-	"src/platform/windows/sys_iocp.c",
-	"src/platform/windows/sys_io_context.c",
-	"src/platform/windows/sys_WSA.c",
-	"src/platform/windows/sys_loadso.c",
-	"src/platform/windows/sys_socket.c",
-	"src/platform/windows/sys_power.c",
+	"src/os/os.c",
+	"src/os/windows/sys_mmap.c",
+	"src/os/windows/sys_pipe.c",
+	"src/os/windows/sys_windows.c",
+	"src/os/windows/sys_clipboard.c",
+	"src/os/windows/sys_dirent.c",
+	"src/os/windows/sys_file.c",
+	"src/os/windows/sys_locale.c",
+	"src/os/windows/sys_time.c",
+	"src/os/windows/sys_iocp.c",
+	"src/os/windows/sys_io_context.c",
+	"src/os/windows/sys_WSA.c",
+	"src/os/windows/sys_loadso.c",
+	"src/os/windows/sys_socket.c",
+	"src/os/windows/sys_power.c",
 	"src/crypto/des.c",
 	"src/crypto/aes.c",
 	"src/crypto/base16.c",
@@ -55,16 +55,15 @@ LIBCCSources = [
 	"src/thread/windows/sys_mutex.c",
 	"src/thread/windows/sys_sem.c",
 	"src/thread/windows/sys_thread.c",
-	"src/generic/generic.c.h",
-	"src/generic/inet.c",
-	"src/generic/socket.c",
-	"src/generic/power.c",
-	"src/generic/strptime.c",
-	"src/generic/tick.c",
-	"src/generic/time.c",
-	"src/generic/generic.c",
-	"src/generic/gzip.c",
-	"src/generic/WS.c",
+	"src/misc/inet.c",
+	"src/misc/socket.c",
+	"src/misc/power.c",
+	"src/misc/strptime.c",
+	"src/misc/tick.c",
+	"src/misc/time.c",
+	"src/misc/misc.c",
+	"src/misc/gzip.c",
+	"src/misc/WS.c",
 	"src/malloc/alloc.c",
 	"src/malloc/debug.malloc.c",
 	"src/malloc/debug.tracked.c",
@@ -99,7 +98,7 @@ LIBCCHeaders = [
 	"include/libcc/array.h",
 	"include/libcc/atomic.h",
 	"include/libcc/buf.h",
-	"include/libcc/platform.h",
+	"include/libcc/os.h",
 	"include/libcc/dirent.h",
 	"include/libcc/list.h",
 	"include/libcc/endian.h",
@@ -120,10 +119,10 @@ LIBCCHeaders = [
 	"include/libcc/tchar.h",
 	"include/libcc/thread.h",
 	"include/libcc/socket.h",
-	"include/libcc/platform/windows.h",
-	"include/libcc/platform/compiler.h",
-	"include/libcc/platform/platform.h",
-	"include/libcc/platform/windows/sys_socket.h",
+	"include/libcc/os/windows.h",
+	"include/libcc/os/compiler.h",
+	"include/libcc/os/os.h",
+	"include/libcc/os/windows/sys_socket.h",
 	"include/libcc/thread/sys_thread.h",
 	"include/libcc/thread/windows/sys_thread.h",
 	"include/libcc/time.h",
@@ -159,25 +158,25 @@ LIBCCHeaders = [
 	"include/libcc/OpenSSL.h",
 	"include/libcc/gzip.h",
 	"include/libcc/url_request.h",
+	"src/misc/misc.c.h",
 	"src/xml/xml.c.h",
 	"src/ini/ini.c.h",
 	"src/json/json.c.h",
 	"src/malloc/debug.tracked.c.h",
-	"src/platform/windows/sys_iocp.h",
+	"src/os/windows/sys_iocp.h",
 	"src/event/event.c.h"
 ]
 
 if __name__ == "__main__":
 	vcxproj = VCXProj("libcc","DynamicLibrary","../../proj.Win/")
-	#vcxproj.OutDir = "..\\lib"	
 	vcxproj.OutDir = "..\\bin"
 	vcxproj.ImportLibrary = "..\\lib"
 
 	Librarys = ["libmysql.lib","sqlite3.lib","zlib.lib","libssl.lib","libcrypto.lib"]
 	Macros = ["_CC_API_USE_DYNAMIC_","_CC_USE_OPENSSL_","_WINDOWS","_USRDLL"]
 
-	vcxproj.addIncludePath(["C:\\0216\\third-party","C:\\0216\\libcc\\include"])
-	vcxproj.addLibraryPath(["C:\\0216\\third-party\\lib\\$(Platform)\\$(Configuration)","C:\\0216\\libcc\\lib\\$(Platform)\\$(Configuration)"])
+	vcxproj.addIncludePath(["C:\\libcc\\include"])
+	vcxproj.addLibraryPath(["C:\\libcc\\lib\\$(Platform)\\$(Configuration)"])
 	vcxproj.addSource(LIBCCSources)
 	vcxproj.addHeader(LIBCCHeaders)
 	vcxproj.addLibrarys("Debug",Librarys)

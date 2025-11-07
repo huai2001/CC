@@ -1,7 +1,7 @@
 #ifndef _C_CC_DNS_H_INCLUDED_
 #define _C_CC_DNS_H_INCLUDED_
 
-#include "types.h"
+#include <libcc/dns.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

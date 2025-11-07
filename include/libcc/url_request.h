@@ -86,14 +86,7 @@ struct _cc_url_request {
     pvoid_t args;
 };
 
-/**
- * @brief An URL HTTP request
- *
- * @param url address string
- * @param args A user-supplied argument
- *
- * @return _cc_url_request_t
- */
+/**/
 _CC_API_PUBLIC(_cc_url_request_t*) _cc_url_request(const tchar_t *url, pvoid_t args);
 /**/
 _CC_API_PUBLIC(void) _cc_reset_url_request(_cc_url_request_t *request);

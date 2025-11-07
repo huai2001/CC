@@ -1,7 +1,7 @@
 #ifndef _C_CC_MD2_H_INCLUDED_
 #define _C_CC_MD2_H_INCLUDED_
 
-#include "../platform.h"
+#include "../os.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -9,9 +9,7 @@ extern "C" {
 #endif
 
 #define _CC_MD2_DIGEST_LENGTH_ 16
-/**
- * @brief          MD2 context structure
- */
+/**/
 typedef struct _cc_md2 {
     byte_t cksum[16];  /*!< checksum of the data block */
     byte_t state[48];  /*!< intermediate digest state  */
@@ -19,49 +17,17 @@ typedef struct _cc_md2 {
     size_t left;       /*!< amount of data in buffer   */
 } _cc_md2_t;
 
-/**
- * @brief          MD2 context setup
- *
- * @param ctx      context to be initialized
- */
+/**/
 _CC_API_PUBLIC(void) _cc_md2_init(_cc_md2_t* ctx);
-/**
- * @brief          MD2 process buffer
- *
- * @param ctx      MD2 context
- * @param input    buffer holding the  data
- * @param ilen     length of the input data
- */
-_CC_API_PUBLIC(void) _cc_md2_update(_cc_md2_t* ctx, const byte_t* input, size_t ilen);
-/**
- * @brief          MD2 final digest
- *
- * @param ctx      MD2 context
- * @param output   MD2 checksum result
- */
+/**/
+_CC_API_PUBLIC(void) _cc_md2_update(_cc_md2_t* ctx, const byte_t* input, size_t length);
+/**/
 _CC_API_PUBLIC(void) _cc_md2_final(_cc_md2_t* ctx, byte_t* output);
-
-/**
- * @brief          Digests a file.
- *
- * @param fp       FILE handle
- * @param output   MD2 checksum result
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_md2_fp(FILE* fp, tchar_t* output);
-/**
- * @brief         Digests a file.
- *
- * @param filename       FILE handle
- * @param output   MD2 checksum result
- */
-_CC_API_PUBLIC(bool_t) _cc_md2file(const tchar_t* filename, tchar_t* output);
-/**
- * @brief          Output = MD2( input buffer )
- *
- * @param input    buffer holding the  data
- * @param length   length of the input data
- * @param output   MD2 checksum result
- */
+/**/
+_CC_API_PUBLIC(bool_t) _cc_md2_from_file(const tchar_t* file, tchar_t* output);
+/**/
 _CC_API_PUBLIC(void) _cc_md2(const byte_t* input, size_t length, tchar_t* output);
 
 /* Ends C function definitions when using C++ */

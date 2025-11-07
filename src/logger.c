@@ -6,13 +6,13 @@
 #include <time.h>
 
 #ifdef __CC_WINDOWS__
-#include <libcc/platform/windows.h>
+#include <libcc/os/windows.h>
 #endif
 
 #define _CC_LOG_BUFFER_SIZE_ _CC_2K_BUFFER_SIZE_
 
 #ifdef __CC_ANDROID__
-#include <libcc/platform/android.h>
+#include <libcc/os/android.h>
 
 _CC_API_PRIVATE(void) _output_android(const tchar_t *fname, int line, uint8_t level, const char_t *msg) {
     switch(level) {
@@ -78,7 +78,7 @@ _CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, c
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, 
                                 _cc_getpid(), fname, line);
-#ifdef _CC_MSVC_
+#ifdef __CC_MSVC__
     OutputDebugString(buffer);
     OutputDebugStringA(msg);
     OutputDebugStringA("\n");
@@ -148,7 +148,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec,
                                 _cc_getpid(), fname, line);
-#ifdef _CC_MSVC_
+#ifdef __CC_MSVC__
     OutputDebugString(buffer);
     OutputDebugStringW(msg);
     OutputDebugStringW(L"\n");

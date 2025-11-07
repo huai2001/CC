@@ -19,8 +19,7 @@ extern "C" {
         }                                                           \
     } while (0)
 
-/*
- */
+/**/
 typedef uintptr_t _cc_array_t;
 
 #define _cc_array_value(CTX,INDEX)  (*((uintptr_t*)(CTX) + (INDEX)));
@@ -53,7 +52,7 @@ _CC_API_PUBLIC(uintptr_t*) _cc_array_end(const _cc_array_t);
 _CC_API_PUBLIC(size_t) _cc_array_length(const _cc_array_t);
 /**/
 _CC_API_PUBLIC(size_t) _cc_array_available(const _cc_array_t);
-/** @} */
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

@@ -19,10 +19,7 @@ struct _cc_ip_locator {
     uint32_t cur_end_ip_offset;
     uint32_t record_count;
 
-    int32_t (*query)(_cc_ip_locator_t* f,
-                     uint32_t ip,
-                     byte_t* addr,
-                     int32_t len);
+    int32_t (*query)(_cc_ip_locator_t* f, uint32_t ip, byte_t* addr, int32_t len);
     int32_t (*get_version)(_cc_ip_locator_t* f, byte_t* version, int32_t len);
     void (*quit)(_cc_ip_locator_t* f);
 };

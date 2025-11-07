@@ -16,8 +16,7 @@ typedef struct _cc_sql_delegate _cc_sql_delegate_t;
 typedef struct _cc_sql _cc_sql_t;
 typedef struct _cc_sql_result _cc_sql_result_t;
 
-
-typedef enum _sql_enum_field_types {
+enum {
     _CC_SQL_TYPE_NULL_ = 0,
     _CC_SQL_TYPE_INT8_,
     _CC_SQL_TYPE_INT16_,
@@ -34,7 +33,7 @@ typedef enum _sql_enum_field_types {
     _CC_SQL_TYPE_DATETIME_,
     _CC_SQL_TYPE_TIMESTAMP_,
     _CC_SQL_TYPE_JSON_
-}_sql_enum_field_types_t;
+};
 
 struct _cc_sql_delegate {
     /**/
@@ -46,7 +45,7 @@ struct _cc_sql_delegate {
     /**/
     bool_t (*step)(_cc_sql_t *, _cc_sql_result_t *);
     /**/
-    bool_t (*execute)(_cc_sql_t *, const _cc_String_t *, _cc_sql_result_t **);
+    bool_t (*execute)(_cc_sql_t *, const _cc_string_t *, _cc_sql_result_t **);
     /**/
     bool_t (*auto_commit)(_cc_sql_t *, bool_t);
     /**/
@@ -69,10 +68,8 @@ struct _cc_sql_delegate {
     pvoid_t (*get_stmt)(_cc_sql_result_t *);
     /**/
     uint64_t (*get_last_id)(_cc_sql_t *, _cc_sql_result_t *);
-
     /**/
-    bool_t (*bind)(_cc_sql_result_t *, int32_t, const void *, size_t, _sql_enum_field_types_t);
-
+    bool_t (*bind)(_cc_sql_result_t *, int32_t, const void *, size_t, uint8_t);
     /**/
     int32_t (*get_int)(_cc_sql_result_t *, int32_t);
     /**/
@@ -87,37 +84,13 @@ struct _cc_sql_delegate {
     bool_t (*get_datetime)(_cc_sql_result_t *, int32_t, struct tm*);
 };
 
-/**
- * @brief Initialize mysql _cc_sql_delegate structure
- *
- * @param delegator _cc_sql_delegate structure
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_register_mysql(_cc_sql_delegate_t *delegator);
-/**
- * @brief Initialize SQLServer _cc_sql_delegate structure
- *
- * @param delegator _cc_sql_delegate structure
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_register_sqlsvr(_cc_sql_delegate_t *delegator);
-/**
- * @brief Initialize SQLite3 _cc_sql_delegate structure
- *
- * @param delegator _cc_sql_delegate structure
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_register_sqlite(_cc_sql_delegate_t *delegator);
-/**
- * @brief Initialize Oracle _cc_sql_delegate structure
- *
- * @param delegator _cc_sql_delegate structure
- *
- * @return true if successful or false on error.
- */
+/**/
 _CC_API_PUBLIC(bool_t) _cc_register_oci8(_cc_sql_delegate_t *delegator);
 
 /* Ends C function definitions when using C++ */

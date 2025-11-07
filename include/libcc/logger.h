@@ -27,7 +27,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t l
 /**/
 _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t* msg, size_t length);
 
-#ifdef _CC_MSVC_
+#ifdef __CC_MSVC__
     #define _cc_loggerW_alert(FMT, ...) \
         _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, _CC_LOG_LEVEL_ALERT_, FMT, ##__VA_ARGS__)
     #define _cc_loggerA_alert(FMT, ...) \
@@ -89,7 +89,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 #define _cc_logger_info _cc_loggerW_info
 #define _cc_logger_error _cc_loggerW_error
 #define _cc_logger_alert _cc_loggerW_alert
-#define _cc_logger_syslog _cc_loggerW_syslog
+#define _cc_logger_syslog _cc_syslogW
 #else
 #define _cc_logger_format _cc_loggerA_format
 #define _cc_logger(LEVEL, MSG) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, MSG, strlen(MSG))
@@ -99,7 +99,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 #define _cc_logger_info _cc_loggerA_info
 #define _cc_logger_error _cc_loggerA_error
 #define _cc_logger_alert _cc_loggerA_alert
-#define _cc_logger_syslog _cc_loggerA_syslog
+#define _cc_logger_syslog _cc_syslogA
 #endif
 
 /* Ends C function definitions when using C++ */

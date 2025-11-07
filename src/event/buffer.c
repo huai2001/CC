@@ -121,6 +121,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *dat
     } else {
         data->w.off -= off;
         memmove(data->w.bytes, data->w.bytes + off, data->w.off);
+        _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
     _cc_unlock(&data->lock_of_writable);
     return off;
@@ -142,12 +143,12 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *data
 
 #ifdef __CC_ANDROID__
     off = (int32_t)recv(e->fd, (char *)data->r.bytes + data->r.off, data->r.limit - data->r.off, MSG_NOSIGNAL);
-#elif defined(__CC_WINDOWS__)
-    off = _win_recv(e->fd, data->r.bytes + data->r.off, data->r.limit - data->r.off);
 #else
     off = (int32_t)recv(e->fd, (char *)data->r.bytes + data->r.off, data->r.limit - data->r.off, 0);
 #endif
-    if (off > 0) {
+    if (off == 0) {
+        return -1;
+    } else if (off > 0) {
         data->r.off += off;
     } else if (off < 0) {
         int er = _cc_last_errno();

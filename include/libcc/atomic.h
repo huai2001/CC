@@ -1,18 +1,18 @@
 #ifndef _C_CC_ATOMIC_H_INCLUDED_
 #define _C_CC_ATOMIC_H_INCLUDED_
 
-#include "platform.h"
+#include "os.h"
 #include <libcc/time.h>
 
-#if _CC_STDC_VERSION_ >= 2011
+#if __CC_STDC_VERSION__ >= 2011
 #include <stdatomic.h>
 #endif
 
 #if defined(__CC_WINDOWS__)
-    #include <libcc/platform/windows.h>
+    #include <libcc/os/windows.h>
     /* Need to do this here because intrin.h has C++ code in it */
     /* Visual Studio 2005 has a bug where intrin.h conflicts with winnt.h */
-    #if defined(_CC_MSVC_) && (_CC_MSVC_ >= 1500)
+    #if defined(__CC_MSVC__) && (__CC_MSVC__ >= 1500)
     #include <intrin.h>
     #endif
 #elif defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -27,10 +27,10 @@
 extern "C" {
 #endif
 
-#if _CC_STDC_VERSION_ >= 2011
+#if __CC_STDC_VERSION__ >= 2011
     typedef volatile _Atomic(int32_t) _cc_atomic32_t;
     typedef volatile _Atomic(int64_t) _cc_atomic64_t;
-#elif defined(__GNUC__)
+#elif defined(__CC_GNUC__)
     typedef volatile int_least32_t _cc_atomic32_t;
     typedef volatile int_least64_t _cc_atomic64_t;
 #elif defined(__CC_WINDOWS__)
@@ -39,7 +39,7 @@ extern "C" {
 #else
     typedef volatile _cc_alignas(4) int _cc_atomic32_t;
     typedef volatile _cc_alignas(8) long long int _cc_atomic64_t;
-#endif/*_CC_STDC_VERSION_ >= 2011*/
+#endif/*__CC_STDC_VERSION__ >= 2011*/
 /*/////////////////////////////////////////////////////////////////////////*/
 #define _cc_atomic32_inc(a) _cc_atomic32_add(a, 1)
 #define _cc_atomic32_dec(a) _cc_atomic32_sub(a, 1)
@@ -72,8 +72,7 @@ _CC_API_PUBLIC(bool_t) _cc_atomic64_cas(_cc_atomic64_t*,int64_t,int64_t);
 /**
  * @brief Decrement an atomic variable used as a reference count.
  *
- * @return true if the variable reached zero after decrementing,
- *         false otherwise
+ * @return true if the variable reached zero after decrementing, false otherwise
  */
 #define _cc_atomic32_dec_ref(a) (_cc_atomic32_dec(a) == 1)
 #define _cc_atomic64_dec_ref(a) (_cc_atomic64_dec(a) == 1)
@@ -136,9 +135,6 @@ _CC_API_PUBLIC(void) _cc_rwlock_wlock(_cc_atomic_lock_t *lock);
 _CC_API_PUBLIC(void) _cc_rwlock_unlock(_cc_atomic_lock_t *lock);
 /**/
 _CC_API_PUBLIC(void) _cc_rwlock_downgrade(_cc_atomic_lock_t *lock);
-
-
-
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

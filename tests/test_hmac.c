@@ -5,8 +5,8 @@
 
 int main() {
     tchar_t output[256];
-    _cc_String_t key = _cc_String("key");
-    _cc_String_t data = _cc_String("The quick brown fox jumps over the lazy dog");
+    _cc_string_t key = _cc_string("key");
+    _cc_string_t data = _cc_string("The quick brown fox jumps over the lazy dog");
     _cc_hmac(_CC_SHA1_, (byte_t*)data.data, data.length, (byte_t*)key.data, key.length, output);
     printf("HMAC-SHA1 = %s\n", output);
     _cc_hmac(_CC_SHA224_, (byte_t*)data.data, data.length, (byte_t*)key.data, key.length, output);

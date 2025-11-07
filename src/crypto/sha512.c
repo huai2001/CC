@@ -16,7 +16,7 @@ struct _cc_sha512 {
 
 #if !defined(_CC_SHA512_ALT_)
 
-#if defined(_CC_MSVC_) || defined(__WATCOMC__)
+#if defined(__CC_MSVC__) || defined(__WATCOMC__)
 #define UL64(x) x##ui64
 #else
 #define UL64(x) x##ULL
@@ -94,7 +94,7 @@ _CC_API_PRIVATE(void) __free_sha512(_cc_hash_t *ctx) {
         _cc_free((struct _cc_sha512 *)ctx->handle);
     }
 }
-#if !defined(_CC_SHA512_PROCESS_ALT)
+#if !defined(_CC_SHA512_PROCESS_ALT_)
 
 /*
  * Round constants
@@ -361,8 +361,8 @@ _CC_API_PUBLIC(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384) {
 /*
     Digests a file.
  */
-_CC_API_PUBLIC(bool_t) _cc_sha512file(const tchar_t *filename, tchar_t *output, bool_t is384) {
-    FILE *fp = _tfopen(filename, _T("rb"));
+_CC_API_PUBLIC(bool_t) _cc_sha512_from_file(const tchar_t *file, tchar_t *output, bool_t is384) {
+    FILE *fp = _tfopen(file, _T("rb"));
 
     if (fp) {
         _cc_sha512_fp(fp, output, is384);

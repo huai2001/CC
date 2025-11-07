@@ -176,6 +176,6 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
 
     image->palette.data = PaletteData;
     image->palette.size = PaletteSize;
-    _cc_safe_free(pcxData);
+    _cc_if_free(pcxData);
     return image;
 }

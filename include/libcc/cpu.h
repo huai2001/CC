@@ -17,7 +17,6 @@ extern int _cc_cpu_cores;
  */
 _CC_API_PUBLIC(int) _cc_get_cpu_cores(void);
 
-
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

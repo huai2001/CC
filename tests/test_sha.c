@@ -12,7 +12,7 @@
  * Main function to run the tests.
  */
 int main() {
-    _cc_String_t tests = _cc_String("The quick brown fox jumps over the lazy dog");
+    _cc_string_t tests = _cc_string("The quick brown fox jumps over the lazy dog");
     tchar_t output[_CC_SHA512_DIGEST_LENGTH_ * 2 + 1];
     _cc_sha1((byte_t*)tests.data, tests.length, output);
     printf("SHA-1   = %s\n", output);

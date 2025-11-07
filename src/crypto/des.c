@@ -1,4 +1,7 @@
 #include <libcc/crypto/des.h>
+#ifdef _CC_USE_OPENSS_
+#include "openssl/openssl_des.c"
+#else
 /*
  * 32-bit integer manipulation macros (big endian)
  */
@@ -474,7 +477,6 @@ _CC_API_PUBLIC(void) _cc_des3_set3key_dec(_cc_des3_t *ctx, const byte_t key[_CC_
 /*
  * DES-ECB block encryption/decryption
  */
-#if !defined(_CC_DES_CRYPT_ECB_ALT_)
 _CC_API_PUBLIC(void) _cc_des_crypt_ecb(_cc_des_t *ctx, const byte_t input[8], byte_t output[8]) {
     int i;
     uint32_t X, Y, T, *SK;
@@ -496,9 +498,7 @@ _CC_API_PUBLIC(void) _cc_des_crypt_ecb(_cc_des_t *ctx, const byte_t input[8], by
     PUT_UINT32_BE(Y, output, 0);
     PUT_UINT32_BE(X, output, 4);
 }
-#endif /* !CC_DES_CRYPT_ECB_ALT */
 
-#if defined(_CC_CIPHER_MODE_CBC_)
 /*
  * DES-CBC buffer encryption/decryption
  */
@@ -542,12 +542,10 @@ _CC_API_PUBLIC(int) _cc_des_crypt_cbc(_cc_des_t *ctx, int mode, size_t length, b
 
     return (0);
 }
-#endif /* _CC_CIPHER_MODE_CBC_ */
 
 /*
  * 3DES-ECB block encryption/decryption
  */
-#if !defined(_CC_DES3_CRYPT_ECB_ALT_)
 _CC_API_PUBLIC(void) _cc_des3_crypt_ecb(_cc_des3_t *ctx, const byte_t input[8], byte_t output[8]) {
     int i;
     uint32_t X, Y, T, *SK;
@@ -579,9 +577,7 @@ _CC_API_PUBLIC(void) _cc_des3_crypt_ecb(_cc_des3_t *ctx, const byte_t input[8], 
     PUT_UINT32_BE(Y, output, 0);
     PUT_UINT32_BE(X, output, 4);
 }
-#endif /* !CC_DES3_CRYPT_ECB_ALT */
 
-#if defined(_CC_CIPHER_MODE_CBC_)
 /*
  * 3DES-CBC buffer encryption/decryption
  */
@@ -625,4 +621,4 @@ _CC_API_PUBLIC(int) _cc_des3_crypt_cbc(_cc_des3_t *ctx, int mode, size_t length,
 
     return 0;
 }
-#endif /* _CC_CIPHER_MODE_CBC_ */
+#endif
