@@ -172,6 +172,8 @@ typedef struct _cc_http2_frame_header {
     uint32_t stream_id;
 } _cc_http2_frame_header_t;
 
+/* Build a frame header and write it */
+_CC_API_PUBLIC(int32_t) _cc_http2_frame_header(byte_t *hdr, uint8_t type, uint8_t flags, uint32_t stream_id, uint32_t payload);
 #ifdef __cplusplus
 }
 #endif

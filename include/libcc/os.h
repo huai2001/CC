@@ -233,7 +233,7 @@ _CC_API_PUBLIC(void) _cc_replace_slashes(tchar_t* path);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_mkdir(const tchar_t *path);
 /**/
-_CC_API_PUBLIC(bool_t) _cc_create_directory(const tchar_t *path, bool_t is_dir);
+_CC_API_PUBLIC(bool_t) _cc_mkdir_path(const tchar_t *path, bool_t is_path);
 
 typedef enum _cc_folder {
     _CC_FOLDER_HOME_,        /**< The folder which contains all of the current user's data, preferences, and documents. It usually contains most of the other folders. If a requested folder does not exist, the home folder can be considered a safe fallback to store a user's documents. */

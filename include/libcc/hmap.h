@@ -26,14 +26,14 @@ typedef bool_t (*_cc_hmap_keyword_equals_func_t)(const uintptr_t custom, const u
 /**/
 typedef intptr_t (*_cc_hmap_keyword_hash_func_t)(const uintptr_t keyword);
 /**/
-typedef struct _cc_hmap_element _cc_hmap_element_t;
+typedef struct _cc_hmap_cell _cc_hmap_cell_t;
 
 /* A hmap has some maximum size and current size,
  * as well as the data to hold. */
 typedef struct _cc_hmap {
     uint32_t limit;
     uint32_t count;
-    _cc_hmap_element_t *slots;
+    _cc_hmap_cell_t *cells;
     _cc_list_iterator_t list;
 
     _cc_hmap_keyword_equals_func_t equals_func;

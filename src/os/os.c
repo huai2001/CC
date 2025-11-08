@@ -40,11 +40,11 @@ _CC_API_PUBLIC(size_t) _cc_get_cwd(tchar_t *cwd, size_t length) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_mkdir(const tchar_t *path) {
-    return _cc_create_directory(path, false);
+    return _cc_mkdir_path(path, false);
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_create_directory(const tchar_t *path, bool_t is_dir) {
+_CC_API_PUBLIC(bool_t) _cc_mkdir_path(const tchar_t *path, bool_t is_path) {
     int32_t i = 0;
     const tchar_t *p = nullptr;
     tchar_t wd[_CC_2K_BUFFER_SIZE_ + 1];
@@ -70,7 +70,7 @@ _CC_API_PUBLIC(bool_t) _cc_create_directory(const tchar_t *path, bool_t is_dir) 
         wd[i++] = *p++;
     }
 
-    if (is_dir) {
+    if (is_path) {
         wd[i] = 0;
         if (_taccess(wd, 0) != 0) {
             _tmkdir(wd);

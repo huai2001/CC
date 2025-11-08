@@ -7,13 +7,13 @@
 #define INITIAL_SIZE (32)
 #define MAX_CHAIN_LENGTH (8)
 #define MAP_USEING -4
-#define MAP_MISSING -3 /* No such element */
+#define MAP_MISSING -3 /* No such cell */
 #define MAP_FULL -2    /* hmap is full */
 #define MAP_OMEM -1    /* Out of Memory */
 #define MAP_OK 0       /* OK */
 
 /* We need to keep keywords and values */
-struct _cc_hmap_element {
+struct _cc_hmap_cell {
     intptr_t hash;
     uintptr_t data;
     _cc_list_iterator_t lnk;
@@ -54,7 +54,7 @@ _CC_API_PRIVATE(uint32_t) hmap_build_hash(uint32_t keyword) {
 _CC_API_PRIVATE(int) _hmap_hash(_cc_hmap_t *ctx, uint32_t *slot, const uintptr_t keyword, intptr_t hash) {
     uint32_t curr,step;
     uint32_t i;
-    _cc_hmap_element_t *element;
+    _cc_hmap_cell_t *cell;
 
     *slot = 0;
 
@@ -69,13 +69,13 @@ _CC_API_PRIVATE(int) _hmap_hash(_cc_hmap_t *ctx, uint32_t *slot, const uintptr_t
 
     /* Linear probing */
     for (i = 0; i < MAX_CHAIN_LENGTH; i++) {
-        element = &ctx->slots[curr];
-        if (element->data == 0) {
+        cell = &ctx->cells[curr];
+        if (cell->data == 0) {
             *slot = curr;
             return MAP_OK;
         }
 
-        if (hash == element->hash && (ctx->equals_func(element->data, keyword))) {
+        if (hash == cell->hash && (ctx->equals_func(cell->data, keyword))) {
             *slot = curr;
             return MAP_USEING;
         }
@@ -86,10 +86,10 @@ _CC_API_PRIVATE(int) _hmap_hash(_cc_hmap_t *ctx, uint32_t *slot, const uintptr_t
     return MAP_FULL;
 }
 
-_CC_API_PRIVATE(_cc_hmap_element_t*) _hmap_empty_element(_cc_hmap_element_t *slots, uint32_t limit, intptr_t hash) {
+_CC_API_PRIVATE(_cc_hmap_cell_t*) _hmap_empty_cell(_cc_hmap_cell_t *cells, uint32_t limit, intptr_t hash) {
     uint32_t curr,step;
     uint32_t i;
-    _cc_hmap_element_t *element;
+    _cc_hmap_cell_t *cell;
 
     /* find the best index */
     curr = (uint32_t)(hash % (intptr_t)limit);
@@ -97,9 +97,9 @@ _CC_API_PRIVATE(_cc_hmap_element_t*) _hmap_empty_element(_cc_hmap_element_t *slo
 
     /* Linear probing */
     for (i = 0; i < MAX_CHAIN_LENGTH; i++) {
-        element = &slots[curr];
-        if (element->data == 0) {
-            return element;
+        cell = &cells[curr];
+        if (cell->data == 0) {
+            return cell;
         }
         curr = (curr + step) % limit;
     }
@@ -107,44 +107,47 @@ _CC_API_PRIVATE(_cc_hmap_element_t*) _hmap_empty_element(_cc_hmap_element_t *slo
     return nullptr;
 }
 /*
- * Doubles the size of the hmap, and rehashes all the elements
+ * Doubles the size of the hmap, and rehashes all the cells
  */
 _CC_API_PRIVATE(int) _hmap_rehash(_cc_hmap_t *ctx, float32_t factor) {
     _cc_list_iterator_t list;
     _cc_list_iterator_t *it;
-    _cc_hmap_element_t *slots = ctx->slots;
+    _cc_hmap_cell_t *cells_bak = ctx->cells;
     uint32_t limit = (uint32_t)(ctx->limit * factor);
 
-    /* Setup the new elements */
-    _cc_hmap_element_t *elements = (_cc_hmap_element_t *)_cc_calloc(limit, sizeof(_cc_hmap_element_t));
+    /* Setup the new cells */
+    _cc_hmap_cell_t *cells = (_cc_hmap_cell_t *)_cc_calloc(limit, sizeof(_cc_hmap_cell_t));
 
     _cc_list_iterator_cleanup(&list);
 
-    /* Rehash the elements */
+    /* Rehash the cells */
     _cc_list_iterator_for(it, &ctx->list) {
         /**/
-        _cc_hmap_element_t *n = _cc_upcast(it, _cc_hmap_element_t, lnk);
+        _cc_hmap_cell_t *n = _cc_upcast(it, _cc_hmap_cell_t, lnk);
         /* Set the data */
-        _cc_hmap_element_t *element = _hmap_empty_element(elements, limit, n->hash);
-        if (element == nullptr) {
-            _cc_free(elements);
+        _cc_hmap_cell_t *cell = _hmap_empty_cell(cells, limit, n->hash);
+        if (cell == nullptr) {
+            _cc_free(cells);
             return MAP_FULL;
         }
 
-        element->hash = n->hash;
-        element->data = n->data;
+        cell->hash = n->hash;
+        cell->data = n->data;
 
-        _cc_list_iterator_push(&list, &element->lnk);
+        _cc_list_iterator_push(&list, &cell->lnk);
         ctx->count++;
     };
 
     /* Update the array */
-    ctx->slots = elements;
+    ctx->cells = cells;
     /* Update the size */
     ctx->limit = limit;
-
+    
+    /*copy*/
     ctx->list = list;
-    _cc_free(slots);
+    ctx->list.prev->prev = &ctx->list;
+    ctx->list.next->next = &ctx->list;
+    _cc_free(cells_bak);
 
     return MAP_OK;
 }
@@ -155,8 +158,8 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity,
     _cc_assert(ctx != nullptr);
     ctx->limit = (int32_t)_cc_aligned_alloc_opt(capacity, INITIAL_SIZE);
 
-    ctx->slots = (_cc_hmap_element_t *)_cc_malloc(ctx->limit * sizeof(_cc_hmap_element_t));
-    bzero(ctx->slots, sizeof(_cc_hmap_element_t) * ctx->limit);
+    ctx->cells = (_cc_hmap_cell_t *)_cc_malloc(ctx->limit * sizeof(_cc_hmap_cell_t));
+    bzero(ctx->cells, sizeof(_cc_hmap_cell_t) * ctx->limit);
 
     /*clear link*/
     _cc_list_iterator_cleanup(&ctx->list);
@@ -171,7 +174,7 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity,
  * Add a pointer to the hmap with some keyword
  */
 _CC_API_PUBLIC(bool_t) _cc_hmap_push(_cc_hmap_t *ctx, const uintptr_t keyword, const uintptr_t data) {
-    _cc_hmap_element_t *element;
+    _cc_hmap_cell_t *cell;
     uint32_t index;
     intptr_t hash = ctx->hash_func(keyword);
     int flag = _hmap_hash(ctx, &index, keyword, hash);
@@ -193,12 +196,12 @@ _CC_API_PUBLIC(bool_t) _cc_hmap_push(_cc_hmap_t *ctx, const uintptr_t keyword, c
     }
 
     /* Set the data */
-    element = &ctx->slots[index];
-    element->hash = hash;
-    element->data = data;
+    cell = &ctx->cells[index];
+    cell->hash = hash;
+    cell->data = data;
 
     /*push link*/
-    _cc_list_iterator_push_back(&ctx->list, &(element->lnk));
+    _cc_list_iterator_push_back(&ctx->list, &(cell->lnk));
     ctx->count++;
     return true;
 }
@@ -210,7 +213,7 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_find(_cc_hmap_t *ctx, const uintptr_t keyword
     uint32_t i;
     uint32_t curr,step;
     intptr_t hash;
-    _cc_hmap_element_t *element;
+    _cc_hmap_cell_t *cell;
 
     /* Find data location */
     hash = ctx->hash_func(keyword);
@@ -219,9 +222,9 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_find(_cc_hmap_t *ctx, const uintptr_t keyword
     
     /* Linear probing, if necessary */
     for (i = 0; i < MAX_CHAIN_LENGTH; i++) {
-        element = &ctx->slots[curr];
-        if (element->data && element->hash == hash && (ctx->equals_func(element->data, keyword))) {
-            return element->data;
+        cell = &ctx->cells[curr];
+        if (cell->data && cell->hash == hash && (ctx->equals_func(cell->data, keyword))) {
+            return cell->data;
         }
 
         curr = (curr + step) % ctx->limit;
@@ -231,14 +234,14 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_find(_cc_hmap_t *ctx, const uintptr_t keyword
 }
 
 /*
- * Remove an element with that keyword from the map
+ * Remove an cell with that keyword from the map
  */
 _CC_API_PUBLIC(uintptr_t) _cc_hmap_pop(_cc_hmap_t *ctx, const uintptr_t keyword) {
     uint32_t i;
     uint32_t curr,step;
     intptr_t hash;
     uintptr_t any;
-    _cc_hmap_element_t *element;
+    _cc_hmap_cell_t *cell;
 
     /* Find keyword */
     hash = ctx->hash_func(keyword);
@@ -247,14 +250,14 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_pop(_cc_hmap_t *ctx, const uintptr_t keyword)
 
     /* Linear probing, if necessary */
     for (i = 0; i < MAX_CHAIN_LENGTH; i++) {
-        element = &ctx->slots[curr];
-        any = element->data;
-        if (any && element->hash == hash && (ctx->equals_func(any, keyword))) {
+        cell = &ctx->cells[curr];
+        any = cell->data;
+        if (any && cell->hash == hash && (ctx->equals_func(any, keyword))) {
             /*remove link*/
-            _cc_list_iterator_remove(&element->lnk);
+            _cc_list_iterator_remove(&cell->lnk);
             ctx->count--;
             /* Blank out the fields */
-            element->data = 0;
+            cell->data = 0;
             return any;
         }
         curr = (curr + step) % ctx->limit;
@@ -267,9 +270,9 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_pop(_cc_hmap_t *ctx, const uintptr_t keyword)
  *  Removes all items.
  */
 _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *ctx) {
-    /* Rehash the elements */
+    /* Rehash the cells */
     _cc_list_iterator_for_each_next(it, &ctx->list, {
-        _cc_hmap_element_t *n = _cc_upcast(it, _cc_hmap_element_t, lnk);
+        _cc_hmap_cell_t *n = _cc_upcast(it, _cc_hmap_cell_t, lnk);
         n->data = 0;
     });
     _cc_list_iterator_cleanup(&ctx->list);
@@ -282,14 +285,14 @@ _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *ctx) {
 _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx) {
     _cc_assert(ctx != nullptr);
 
-    _cc_if_free(ctx->slots);
+    _cc_if_free(ctx->cells);
 
     return true;
 }
 
 /**/
 _CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_iterator_t *v) {
-    _cc_hmap_element_t *n = _cc_upcast(v, _cc_hmap_element_t, lnk);
+    _cc_hmap_cell_t *n = _cc_upcast(v, _cc_hmap_cell_t, lnk);
     _cc_assert(n != nullptr);
     return n->data;
 }

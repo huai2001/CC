@@ -10,17 +10,6 @@
 #include <libcc/os/windows.h>
 #endif
 
-/* POST PORT*/
-#define DEFAULT_HTTP_PORT 80
-#define DEFAULT_NNTP_PORT 119
-#define DEFAULT_NEWS_PORT 119
-#define DEFAULT_HTTPS_PORT 443
-#define DEFAULT_FTP_PORT 21
-#define DEFAULT_MYSQL_PORT 3306
-#define DEFAULT_SQLSERVER_PORT 1433
-#define DEFAULT_ORACLE_PORT 1521
-#define DEFAULT_FTPS_PORT 21
-
 static tchar_t *_URL_PATH_ROOT_ = _T("/");
 
 /*Scheme name*/
@@ -32,8 +21,10 @@ typedef struct _cc_url_scheme {
 } _cc_url_scheme_t;
 
 #define _URL_SCHEME_SUPPORTED_MAP(XX)                                                                                  \
-    XX(HTTPS)                                                                                                          \
     XX(HTTP)                                                                                                           \
+    XX(HTTPS)                                                                                                          \
+    XX(WS)                                                                                                             \
+    XX(WSS)                                                                                                            \
     XX(FTP)                                                                                                            \
     XX(FTPS)                                                                                                           \
     XX(NNTP)                                                                                                           \
@@ -50,8 +41,7 @@ const _cc_url_scheme_t _url_supported_schemes[] = {
 #undef XX
 };
 
-#define _alloc_url_field_data(S1, S2, D, U)                                                                            \
-    do {                                                                                                               \
+#define _alloc_url_field_data(S1, S2, D, U) do {                                                                       \
         U->D = _cc_sds_alloc((S2), (size_t)((S1) - (S2)));                                                             \
         (S2) = (S1);                                                                                                   \
     } while (0)
@@ -59,7 +49,7 @@ const _cc_url_scheme_t _url_supported_schemes[] = {
 /**/
 _CC_API_PRIVATE(bool_t) _url_exists_user_password(const tchar_t *s) {
     const tchar_t *p = s;
-    while (*p != '\0' && *p != _T('/')) {
+    while (*p && *p != _T('/')) {
         if (*p == _T('@')) {
             return true;
         }

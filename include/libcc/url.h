@@ -14,6 +14,8 @@ extern "C" {
 #define _CC_PORT_TELNET_    23
 #define _CC_PORT_HTTP_      80
 #define _CC_PORT_HTTPS_     443
+#define _CC_PORT_WS_        _CC_PORT_HTTP_
+#define _CC_PORT_WSS_       _CC_PORT_HTTPS_
 #define _CC_PORT_DICT_      2628
 #define _CC_PORT_LDAP_      389
 #define _CC_PORT_LDAPS_     636
@@ -48,6 +50,8 @@ enum _CC_SCHEME_TYPES_ {
     _CC_SCHEME_UNKNOWN_ = 0,
     _CC_SCHEME_HTTPS_ = 1,
     _CC_SCHEME_HTTP_,
+    _CC_SCHEME_WS_,
+    _CC_SCHEME_WSS_,
     _CC_SCHEME_FTP_,
     _CC_SCHEME_FTPS_,
     _CC_SCHEME_NNTP_,
