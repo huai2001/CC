@@ -34,8 +34,14 @@ _CC_API_PUBLIC(bool_t) _cc_http_header_push(_cc_rbtree_t *ctx, _cc_http_header_t
         } else if (result > 0) {
             node = &((*node)->right);
         } else {
+            if (m->value) {
+                _cc_sds_free(m->value);
+            }
+            m->value = data->value;
+            
+            data->value = nullptr;
             _cc_http_header_free(data);
-            return false;
+            return true;
         }
     }
     _cc_rbtree_insert(ctx, &data->lnk, parent, node);

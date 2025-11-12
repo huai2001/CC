@@ -12,11 +12,7 @@
 #define _CC_SSL_TLSv1_2_  0x0020
 #define _CC_SSL_TLSv1_3_  0x0040
 
-#if (defined SSL_OP_NO_TLSv1_2 || defined SSL_OP_NO_TLSv1_3)
-#define _CC_SSL_DEFAULT_PROTOCOLS_  (_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_)
-#else
-#define _CC_SSL_DEFAULT_PROTOCOLS_  (_CC_SSL_TLSv1_|_CC_SSL_TLSv1_1_|_CC_SSL_TLSv1_2_)
-#endif
+#define _CC_SSL_DEFAULT_PROTOCOLS_  (_CC_SSL_TLSv1_1_|_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_)
 
 #define _CC_SSL_HS_ERROR_					0xff
 #define _CC_SSL_HS_ESTABLISHED_				0x01

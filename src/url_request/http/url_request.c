@@ -10,6 +10,7 @@ _CC_API_PUBLIC(bool_t) _cc_url_response_chunked(_cc_url_request_t *, _cc_io_buff
 _CC_API_PUBLIC(void) _cc_reset_url_request(_cc_url_request_t *request) {
     _cc_assert(request != nullptr);
     request->state = _CC_HTTP_STATUS_HEADER_;
+    request->handshake = _CC_SSL_HS_ERROR_;
     if (request->response) {
         _cc_http_free_response_header(&request->response);
     }

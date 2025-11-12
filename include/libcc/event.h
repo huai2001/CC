@@ -54,9 +54,9 @@ typedef struct _cc_async_event _cc_async_event_t;
 typedef bool_t (*_cc_event_callback_t)(_cc_async_event_t*, _cc_event_t*, const uint32_t);
 
 typedef struct _cc_io_data {
-    int32_t limit;
-    int32_t off;
-    byte_t *bytes;
+    int32_t limit;  // !< capacity of 'bytes'
+    int32_t off;    // !< number of bytes in 'bytes'
+    byte_t* bytes;  // !< pointer to internal memory
 } _cc_io_data_t;
 
 struct _cc_io_buffer {

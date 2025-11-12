@@ -66,9 +66,9 @@ _CC_API_PUBLIC(bool_t) _cc_buf_jump_comment(_cc_sbuf_t* const buffer);
 
 /**/
 typedef struct _cc_buf {
-    size_t limit;
-    size_t length;
-    byte_t* bytes;
+    size_t limit;   // !< capacity of 'bytes' (terminating 0 byte doesn't count here)
+    size_t length;  // !< number of bytes in 'bytes'
+    byte_t* bytes;  // !< pointer to internal memory
 } _cc_buf_t;
 
 #define _cc_buf_bytes(buffer) ((buffer)->bytes)

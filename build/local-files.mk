@@ -16,10 +16,16 @@ ifdef USE_LIB_OPENSSL
 	MACROS	+= _CC_USE_OPENSSL_=1
 endif # --end USE_LIB_OPENSSL--
 
-ifdef USE_LIB_MYSQL
+ifdef USE_LIB_SQLSERVER
 	ifeq ($(PLATFORM), osx)
 		MACROS			+= _CC_USE_UNIXODBC_=1
-		LIBS			+= odbc mysqlclient
+		LIBS			+= odbc
+	endif
+endif # --end USE_LIB_SQLSERVER--
+
+ifdef USE_LIB_MYSQL
+	ifeq ($(PLATFORM), osx)
+		LIBS			+= mysqlclient
 		INCLUDE_PATH	+= /opt/homebrew/opt/mysql-client/include
 		LIBRARY_PATH	+= /opt/homebrew/opt/mysql-client/lib
 	else ifeq ($(PLATFORM), windows)
@@ -193,6 +199,11 @@ ifeq ($(PLATFORM), windows)
 		$(SRCROOT)/src/thread/windows/sys_sem.c
 endif
 
+ifdef USE_LIB_SQLSERVER
+	LOCAL_SRC_FILES += \
+		$(SRCROOT)/src/db/sqlsvr.c
+endif # --end USE_LIB_SQLSERVER--
+
 ifdef USE_LIB_SQLITE3
 	LOCAL_SRC_FILES += \
 		$(SRCROOT)/src/db/sqlite.c
@@ -201,7 +212,6 @@ endif # --end USE_LIB_SQLITE3--
 ifdef USE_LIB_MYSQL
 	LOCAL_SRC_FILES += \
 		$(SRCROOT)/src/db/mysql.c
-		#$(SRCROOT)/src/db/sqlsvr.c 
 endif # --end USE_LIB_MYSQL--
 
 ifdef USE_LIB_URL_REQUEST

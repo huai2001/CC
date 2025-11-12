@@ -219,11 +219,11 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
     e->data = (uintptr_t)request;
 
     _cc_reset_url_request(request);
-#ifdef _CC_USE_OPENSSL_
+
     if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
         _cc_url_request_ssl(openSSL, request, e);
     }
-#endif
+
     _cc_inet_ipv4_addr(&sa, request->url.host, request->url.port);
 
     /* required to get parallel v4 + v6 working */
@@ -248,7 +248,6 @@ int main(int argc, char *const argv[]) {
     _cc_alloc_async_event(0, nullptr);
 
     url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
-    //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
     //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
     //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
     //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
