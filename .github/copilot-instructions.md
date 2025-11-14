@@ -20,7 +20,7 @@
 
 3) 项目约定（重要，避免常见破坏）
 	- 命名：库公共接口与类型以 `_cc_` 前缀；宏常以 `_CC_` 大写前缀。
-	- 事件/网络：高层调用 `_cc_tcp_listen/_cc_tcp_connect/_cc_event_alloc`，实际 io 注册/等待由 `src/os/*`（如 `sys_epoll.c`,`sys_kqueue.c`,`sys_iocp.c`,`sys_io_uring.c`）负责。
+	- 事件/网络：高层调用 `_cc_tcp_listen/_cc_tcp_connect/_cc_alloc_event`，实际 io 注册/等待由 `src/os/*`（如 `sys_epoll.c`,`sys_kqueue.c`,`sys_iocp.c`,`sys_io_uring.c`）负责。
 	- 错误与日志：使用库内 `_cc_logger_*` 系列函数记录；测试用例和 README 演示了典型日志用法。
 
 4) 修改与回归测试流程（实操步骤）

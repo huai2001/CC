@@ -141,7 +141,7 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event_by_id(uint32_t ident) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_event_t*) _cc_event_alloc(_cc_async_event_t *async, const uint32_t flags) {
+_CC_API_PUBLIC(_cc_event_t*) _cc_alloc_event(_cc_async_event_t *async, const uint32_t flags) {
     _cc_event_t *e = _cc_reserve_event(async->ident);
     if (_cc_unlikely(e == nullptr)) {
         return nullptr;

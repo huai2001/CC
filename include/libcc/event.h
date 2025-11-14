@@ -143,7 +143,7 @@ struct _cc_async_event {
 
 /* {{{ event */
 /**/
-_CC_API_PUBLIC(_cc_event_t*) _cc_event_alloc(_cc_async_event_t *async, const uint32_t flags);
+_CC_API_PUBLIC(_cc_event_t*) _cc_alloc_event(_cc_async_event_t *async, const uint32_t flags);
 /**/
 _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e);
 /**/

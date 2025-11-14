@@ -32,7 +32,7 @@ bool_t _connect_server(const tchar_t *host, uint16_t port) {
     _cc_async_event_t *async = _cc_get_async_event();
     _cc_assert(async != NULL);
 
-    event = _cc_event_alloc(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_);
+    event = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_);
     _cc_assert(event != NULL);
     if (event == nullptr) {
         return false;

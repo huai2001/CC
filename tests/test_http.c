@@ -58,7 +58,7 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
         return false;
     }
 
-    event = _cc_event_alloc(async2, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
+    event = _cc_alloc_event(async2, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
     if (event == nullptr) {
         _cc_close_socket(fd);
         return false;
@@ -260,7 +260,7 @@ static bool_t onTimeout(_cc_async_event_t *async, _cc_event_t *e) {
 bool_t addListener(const tchar_t *host, uint16_t port) {
     struct sockaddr_in sa;
     _cc_async_event_t *async = _cc_get_async_event();
-    _cc_event_t *event = _cc_event_alloc(async, _CC_EVENT_ACCEPT_);
+    _cc_event_t *event = _cc_alloc_event(async, _CC_EVENT_ACCEPT_);
     _cc_assert(async != NULL);
     _cc_assert(event != NULL);
     if (event == nullptr) {

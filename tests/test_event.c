@@ -23,7 +23,7 @@ void test_accept(_cc_async_event_t *async, _cc_event_t *e) {
         return ;
     }
 
-    event = _cc_event_alloc(async2, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
+    event = _cc_alloc_event(async2, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
     if (event == nullptr) {
         _cc_close_socket(fd);
         return ;
@@ -134,7 +134,7 @@ void test_event_tcp_listen() {
     _cc_event_t *event;
     _cc_async_event_t *async = _cc_get_async_event();
 
-    event = _cc_event_alloc(async, _CC_EVENT_ACCEPT_);
+    event = _cc_alloc_event(async, _CC_EVENT_ACCEPT_);
     assert(event != NULL);
     if (event == nullptr) {
         return;
@@ -157,7 +157,7 @@ void test_event_tcp_connect() {
     _cc_async_event_t *async = _cc_get_async_event();
     assert(async != NULL);
 
-    event = _cc_event_alloc(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_);
+    event = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_);
 
     assert(event != NULL);
     if (event == nullptr) {

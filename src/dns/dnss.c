@@ -52,7 +52,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
 bool_t _cc_dns_listen(void) {
     struct sockaddr_in sa;
     _cc_async_event_t *async = _cc_get_async_event();
-    _cc_event_t *e = _cc_event_alloc(async, _CC_EVENT_ACCEPT_);
+    _cc_event_t *e = _cc_alloc_event(async, _CC_EVENT_ACCEPT_);
     if (e) {
         e->callback = _dns_response_callback;
         e->timeout = 60000;

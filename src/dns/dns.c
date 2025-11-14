@@ -329,7 +329,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
 
     {
         _cc_async_event_t *async = _cc_get_async_event();
-        _cc_event_t *e = _cc_event_alloc(async, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_);
+        _cc_event_t *e = _cc_alloc_event(async, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_);
         if (e) {
             e->fd = dns_sock;
             e->callback = _dns_response_callback;

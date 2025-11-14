@@ -289,7 +289,7 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
 
     _cc_init_event_select(&async);
 
-    event = _cc_event_alloc(&async,  _CC_EVENT_READABLE_);
+    event = _cc_alloc_event(&async,  _CC_EVENT_READABLE_);
     if (event == nullptr) {
         _cc_close_socket(io_fd);
         return false;

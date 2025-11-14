@@ -272,7 +272,7 @@ static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, c
 
         _cc_set_socket_nonblock(fd, 1);
 
-        event = _cc_event_alloc(async, _CC_EVENT_TIMEOUT_);
+        event = _cc_alloc_event(async, _CC_EVENT_TIMEOUT_);
         if (event == nullptr) {
             _cc_close_socket(fd);
             _ws_free(ws);
@@ -374,7 +374,7 @@ int main(int argc, char *const argv[]) {
     if (_cc_register_poller(&async) == false) {
         return 1;
     }
-    e = _cc_event_alloc(&async, _CC_EVENT_ACCEPT_);
+    e = _cc_alloc_event(&async, _CC_EVENT_ACCEPT_);
     if (e == nullptr) {
         async.free(&async);
         return -1;

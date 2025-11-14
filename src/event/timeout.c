@@ -158,7 +158,7 @@ _CC_API_PUBLIC(bool_t) _cc_register_timeout(_cc_async_event_t *async) {
 }
 
 _CC_API_PUBLIC(_cc_event_t*) _cc_add_event_timeout(_cc_async_event_t *async, uint32_t milliseconds, _cc_event_callback_t callback, uintptr_t data) {
-    _cc_event_t *e = _cc_event_alloc(async, _CC_EVENT_TIMEOUT_);
+    _cc_event_t *e = _cc_alloc_event(async, _CC_EVENT_TIMEOUT_);
     if (e) {
         e->timeout = milliseconds;
         e->callback = callback;

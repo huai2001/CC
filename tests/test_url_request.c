@@ -208,7 +208,7 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
     /* if we can't terminate nicely, at least allow the socket to be reused*/
     _cc_set_socket_reuseaddr(fd);
 
-    e = _cc_event_alloc(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
+    e = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
     if (e == nullptr) {
         return false;
     }
