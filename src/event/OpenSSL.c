@@ -449,6 +449,11 @@ _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, const tchar_t *host, siz
 #endif
 }
 
+/**/
+_CC_API_PUBLIC(int) _SSL_set_alpn_protos(_cc_SSL_t *ssl, const unsigned char *protos, unsigned int protos_len) {
+    return SSL_set_alpn_protos(ssl->handle, protos, protos_len);
+}
+
 _CC_API_PRIVATE(uint8_t) _SSL_Error(SSL *handle,const char *fn) {
 	switch (SSL_get_error(handle, 0)) {
         case SSL_ERROR_WANT_READ:
