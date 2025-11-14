@@ -12,7 +12,7 @@
 #define _CC_SSL_TLSv1_2_  0x0020
 #define _CC_SSL_TLSv1_3_  0x0040
 
-#define _CC_SSL_DEFAULT_PROTOCOLS_  (_CC_SSL_TLSv1_1_|_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_)
+#define _CC_SSL_DEFAULT_PROTOCOLS_  (_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_)
 
 #define _CC_SSL_HS_ERROR_					0xff
 #define _CC_SSL_HS_ESTABLISHED_				0x01
@@ -64,6 +64,8 @@ _CC_API_PUBLIC(uint8_t) _SSL_do_handshake(_cc_SSL_t*);
 _CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t*, const byte_t*, int32_t);
 /**/
 _CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t*, byte_t*, int32_t);
+/**/
+_CC_API_PUBLIC(int) _SSL_set_alpn_protos(_cc_SSL_t*, const unsigned char *protos, unsigned int protos_len);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
