@@ -19,6 +19,16 @@ enum {
     _CC_HTTP2_FRAME_TYPE_ALTSVC_         = 0x0a
 };
 
+/* settings identifiers */
+enum {
+    _CC_HTTP2_SETTINGS_HEADER_TABLE_SIZE_       = 0x01,
+    _CC_HTTP2_SETTINGS_ENABLE_PUSH_             = 0x02,
+    _CC_HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS_  = 0x03,
+    _CC_HTTP2_SETTINGS_INITIAL_WINDOW_SIZE_     = 0x04,
+    _CC_HTTP2_SETTINGS_MAX_FRAME_SIZE_          = 0x05,
+    _CC_HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE_    = 0x06,
+};
+
 /* frame flags */
 enum {
     _CC_HTTP2_FRAME_FLAG_NO_             = 0x00,
@@ -151,14 +161,40 @@ enum {
     _CC_HTTP2_INDEXED_RETRY_AFTER_          = 0x35,
     _CC_HTTP2_INDEXED_SERVER_               = 0x36,
     _CC_HTTP2_INDEXED_SET_COOKIE_           = 0x37,
-    _CC_HTTP2_INDEXED_TRANSFER_ENCODING_    = 0x38,
-    _CC_HTTP2_INDEXED_USER_AGENT_           = 0x39,
-    _CC_HTTP2_INDEXED_VARY_                 = 0x3a,
-    _CC_HTTP2_INDEXED_VIA_                  = 0x3b,
-    _CC_HTTP2_INDEXED_WWW_AUTHENTICATE_     = 0x3c
+    _CC_HTTP2_INDEXED_STRICT_TRANSPORT_SEC_ = 0x38,
+    _CC_HTTP2_INDEXED_TRANSFER_ENCODING_    = 0x39,
+    _CC_HTTP2_INDEXED_USER_AGENT_           = 0x3a,
+    _CC_HTTP2_INDEXED_VARY_                 = 0x3b,
+    _CC_HTTP2_INDEXED_VIA_                  = 0x3c,
+    _CC_HTTP2_INDEXED_WWW_AUTHENTICATE_     = 0x3d
 };
 
-#define _CC_HTTP2_FRAME_HEADER_SIZE_    9
+// RFC 7540
+// Error Codes
+enum {
+    _CC_HTTP2_ERROR_NO_ERROR_               = 0x0,
+    _CC_HTTP2_ERROR_PROTOCOL_ERROR_         = 0x1,
+    _CC_HTTP2_ERROR_INTERNAL_ERROR_         = 0x2,
+    _CC_HTTP2_ERROR_FLOW_CONTROL_ERROR_     = 0x3,
+    _CC_HTTP2_ERROR_SETTINGS_TIMEOUT_       = 0x4,
+    _CC_HTTP2_ERROR_STREAM_CLOSED_          = 0x5,
+    _CC_HTTP2_ERROR_FRAME_SIZE_ERROR_       = 0x6,
+    _CC_HTTP2_ERROR_REFUSED_STREAM_         = 0x7,
+    _CC_HTTP2_ERROR_CANCEL_                 = 0x8,
+    _CC_HTTP2_ERROR_COMPRESSION_ERROR_      = 0x9,
+    _CC_HTTP2_ERROR_CONNECT_ERROR_          = 0xA,
+    _CC_HTTP2_ERROR_ENHANCE_YOUR_CALM_      = 0xB,
+    _CC_HTTP2_ERROR_INADEQUATE_SECURITY_    = 0xC,
+
+    _CC_HTTP2_ERROR_CUSTOM_BASE_            = 0xD
+};
+
+#define _CC_HTTP2_MAX_WINDOW_SIZE_                  0x7FFFFFFF
+
+#define _CC_HTTP2_INITIAL_WINDOW_SIZE_              65535
+#define _CC_HTTP2_DEFAULT_WINDOW_SIZE_              65535
+
+#define _CC_HTTP2_FRAME_HEADER_SIZE_                9
 
 #ifdef __cplusplus
 extern "C" {
