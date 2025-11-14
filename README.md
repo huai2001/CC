@@ -44,7 +44,7 @@ CALL(printf, "Hello World!\n");
 - [简单实现 WebSocket 服务端模块](https://github.com/libcc/libcc/blob/2.0/tests/test_ws.c)
 - 简化数据库操作接口，适配各种数据源，通过统一的url来自动连接打开支持的数据库
 
-如果你想了解更多，请参考：[在线文档](https://libcc.cn/documentation.html), [Github](https://github.com/libcc/libcc)。
+如果你想了解更多，请参考：[在线文档](https://libcc.cn/docs/libcc/documentation.html), [Github](https://github.com/libcc/libcc)。
 ## ⌛️ 安装教程
 
 ## 入门与体验
