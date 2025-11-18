@@ -40,9 +40,11 @@ CALL(printf, "Hello World!\n");
 - 提供 Syslog 日志输出、断言等辅助调试工具
 - 提供 URL 编解码
 - 提供 JSON、XML、INI配置文件读取
-- [简单实现 HTTPS 服务端/客户端模块](https://github.com/libcc/libcc/blob/2.0/tests/test_url_request.c)
-- [简单实现 WebSocket 服务端模块](https://github.com/libcc/libcc/blob/2.0/tests/test_ws.c)
-- 简化数据库操作接口，适配各种数据源，通过统一的url来自动连接打开支持的数据库
+- [TCP 服务端与客户端 ECHO模块](https://libcc.cn/docs/libcc/tutorials/event-tcp.html)
+- 简单实现 [HTTP/HTTPS 服务端模块](https://libcc.cn/docs/libcc/tutorials/event-http.html)
+- 简单实现 [WebSocket 服务端模块](https://libcc.cn/docs/libcc/tutorials/event-ws.html)
+- 简单实现 [WebSocket 服务端模块](https://libcc.cn/docs/libcc/tutorials/event-ws.html)
+- 简化[数据库](https://libcc.cn/docs/libcc/tutorials/database.html)操作接口，适配各种数据源，通过统一的url来自动连接打开支持的数据库
 
 如果你想了解更多，请参考：[在线文档](https://libcc.cn/docs/libcc/documentation.html), [Github](https://github.com/libcc/libcc)。
 ## ⌛️ 安装教程
