@@ -8,20 +8,17 @@ _cc_OpenSSL_t *openSSL;
 typedef struct _ws {
     uint8_t state;
     uint8_t handshake;
+    uint64_t length;
     _cc_io_buffer_t *io;
     _cc_ws_header_t header;
     _cc_http_request_header_t *request;
-    int64_t length;
-    int64_t payload;
-    char_t hash[256];
 } _cc_ws_t;
 
+/**/
 _CC_API_PRIVATE(_cc_ws_t*) _ws_alloc(_cc_socket_t fd) {
     _cc_ws_t *ws = (_cc_ws_t*)_cc_malloc(sizeof(_cc_ws_t));
     ws->handshake = _CC_SSL_HS_SYSCALL_WOULDBLOCK_;
     ws->state = _CC_HTTP_STATUS_HEADER_;
-    ws->payload = 0;
-    ws->length = 0;
     ws->request = nullptr;
     ws->header.state = WS_DATA_OK;
 
@@ -82,11 +79,6 @@ _CC_API_PRIVATE(void)  _ws_send(_cc_io_buffer_t *io, byte_t *data, int64_t lengt
     memcpy(io->w.bytes + io->w.off, data, length);
     io->w.off += length;
     _cc_unlock(&io->lock_of_writable);
-}
-
-_CC_API_PRIVATE(int64_t) _ws_get_content_length(_cc_rbtree_t *headers) {
-    const _cc_http_header_t *data = _cc_http_header_find(headers, _T("Content-Length"));
-    return data ? _ttoi(data->value) : 0;
 }
 
 /**/
@@ -213,7 +205,7 @@ static void bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_io_buffer_flush(e, io);
 }
 
-static bool_t ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
+_CC_API_PRIVATE(bool_t) _ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
     _cc_io_buffer_t *io = (_cc_io_buffer_t*)ws->io;
     if (ws->state == _CC_HTTP_STATUS_HEADER_) {
         const _cc_http_header_t *connection, *upgrade;
@@ -221,11 +213,6 @@ static bool_t ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
         /**/
         if (ws->state != _CC_HTTP_STATUS_PAYLOAD_) {
             return ws->state == _CC_HTTP_STATUS_HEADER_;
-        }
-
-        ws->payload = _ws_get_content_length(&ws->request->headers);
-        if (ws->payload == 0) {
-            ws->state = _CC_HTTP_STATUS_ESTABLISHED_;
         }
 
         connection = _cc_http_header_find(&ws->request->headers,_T("Connection"));
@@ -237,16 +224,11 @@ static bool_t ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
             bad_request(e, io);
             return false;
         }
+        ws->state = _CC_HTTP_STATUS_ESTABLISHED_;
     } 
 
-    if (ws->state == _CC_HTTP_STATUS_PAYLOAD_) {
-        _cc_logger_debug(_T("%.*s."), io->r.off,io->r.bytes);
-        if (ws->length >= ws->payload) {
-            ws->state = _CC_HTTP_STATUS_ESTABLISHED_;
-            ws->length = 0;
-        } else {
-            ws->length += io->r.off;
-        }
+    if (io->r.off != 0) {
+        //直接丢弃
         io->r.off = 0;
     }
 
@@ -256,7 +238,7 @@ static bool_t ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
     return true;
 }
 
-static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
+_CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     _cc_ws_t *ws = (_cc_ws_t*)e->data;
     if (which & _CC_EVENT_ACCEPT_) {
         _cc_event_t *event;
@@ -339,7 +321,7 @@ static bool_t network_event_callback(_cc_async_event_t *async, _cc_event_t *e, c
                 if (!_ws_unpack(e)) {
                     return false;
                 }
-            } else if (!ws_http_handler(e, ws)) {
+            } else if (!_ws_http_handler(e, ws)) {
                 return false;
             }
         } while(true);
@@ -379,7 +361,7 @@ int main(int argc, char *const argv[]) {
         async.free(&async);
         return -1;
     }
-    e->callback = network_event_callback;
+    e->callback = _ws_handler;
     e->timeout = 60000;
 
     _cc_inet_ipv4_addr(&sa, nullptr, port);
