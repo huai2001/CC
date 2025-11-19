@@ -300,7 +300,7 @@ _CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
 }
 
 /**/
-_CC_API_PUBLIC(const _cc_sds_t) _cc_get_module_file_name(void) {
+_CC_API_PUBLIC(const _cc_string_t*) _cc_get_module_file_name(void) {
     static TCHAR dl[64];
     static _cc_string_t path = {0};
     if (path.length == 0) {

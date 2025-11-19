@@ -42,7 +42,7 @@ _CC_API_PUBLIC(bool_t) _cc_install_socket(void) {
 
     /* Skip initialization in safe mode without network support */
     if (1 == GetSystemMetrics(SM_CLEANBOOT)) {
-        return;
+        return true;
     }
     
     /* Start up the windows networking */

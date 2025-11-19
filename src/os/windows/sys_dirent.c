@@ -81,12 +81,8 @@ _CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path) {
     dp = (DIR*)_cc_malloc(sizeof(DIR));
     dir_len = _tcslen(dir_path);
     dp->dir = (tchar_t *)_cc_malloc(sizeof(tchar_t) * (dir_len + 3));
-#ifdef _CC_UNICODE_
     memcpy(dp->dir, dir_path, dir_len * sizeof(tchar_t));
     dp->dir[dir_len] = 0;
-#else
-    MultiByteToWideChar(CP_UTF8, 0, dir_path, -1, dp->dir, dir_len);
-#endif
 
     if (dir_len > 0) {
         index = dir_len - 1;

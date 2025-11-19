@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 /* Socket constants */
-#define _CC_INVALID_SOCKET_    INVALID_SOCKET
+#define _CC_INVALID_SOCKET_    ((_cc_socket_t)INVALID_SOCKET)
 #define _CC_SOCKET_ERROR_      SOCKET_ERROR
 
 /* errno define */

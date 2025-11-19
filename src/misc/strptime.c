@@ -83,8 +83,8 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         alt_format = 0;
 
         /* Eat up white-space. */
-        if (_istspace(c)) {
-            while (_istspace(*bp)) {
+        if (_CC_ISSPACE(c)) {
+            while (_CC_ISSPACE(*bp)) {
                 bp++;
             }
 
@@ -379,7 +379,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('n'): /* Any kind of white-space. */
         case _T('t'):
             LEGAL_ALT(0);
-            while (_istspace(*bp)) {
+            while (_CC_ISSPACE(*bp)) {
                 bp++;
             }
             break;

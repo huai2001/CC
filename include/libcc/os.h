@@ -1,11 +1,6 @@
 #ifndef _C_CC_OS_H_INCLUDED_
 #define _C_CC_OS_H_INCLUDED_
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 #include "types.h"
 
 /* _taccess include */

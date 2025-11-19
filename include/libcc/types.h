@@ -3,9 +3,13 @@
 
 #define HAVE_ASSERT_H
 
-#include <stdio.h>
-#include <stddef.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <string.h>
+#include <stddef.h>
 #include <wctype.h>
 #include <limits.h>
 #include "tchar.h"

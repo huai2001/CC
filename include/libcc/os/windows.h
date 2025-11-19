@@ -1,11 +1,11 @@
 #ifndef _C_CC_WINDOWS_H_INCLUDED_
 #define _C_CC_WINDOWS_H_INCLUDED_
 
+#include "../types.h"
+
 #if !defined(_WIN64) && !defined(_WIN32)
 #error Unsupported OS
 #endif
-
-#include "../types.h"
 
 // force_align_arg_pointer attribute requires gcc >= 4.2.x.
 #if defined(__clang__)

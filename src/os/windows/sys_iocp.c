@@ -17,8 +17,8 @@
 /*close socket*/
 /**/
 _CC_API_PRIVATE(void) _event_cleanup(_cc_async_event_t *async, _cc_event_t *e) {
-	_cc_socket_t fd = (_cc_socket_t)e->accept_fd;
-    if (fd != _CC_INVALID_SOCKET_) {
+	SOCKET fd = (SOCKET)e->accept_fd;
+    if (fd != INVALID_SOCKET) {
         /**/
         LINGER linger = {1, 0};
 
@@ -27,7 +27,7 @@ _CC_API_PRIVATE(void) _event_cleanup(_cc_async_event_t *async, _cc_event_t *e) {
         /*Now close the socket handle.  This will do an abortive or  graceful close,
          * as requested.*/
         CancelIo((HANDLE)fd);
-        _cc_close_socket(fd);
+        _cc_close_socket(e->accept_fd);
     }
     _cc_free_event(async, e);
 }
@@ -153,7 +153,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_attach(_cc_async_event_t *async, _cc_event_t
     }
 
     if (_CC_EVENT_IS_SOCKET(e->flags)) {
-        if (CreateIoCompletionPort((HANDLE)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == nullptr) {
+        if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == nullptr) {
             _cc_logger_error(_T("CreateIoCompletionPort Error Code:%d."), _cc_last_errno());
             return false;
         }
@@ -185,7 +185,7 @@ _CC_API_PRIVATE(bool_t) _iocp_bind(_cc_async_event_t *async, const _cc_event_t *
         return false;
     }
 
-    if (CreateIoCompletionPort((HANDLE)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == nullptr) {
+    if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == nullptr) {
 		int err = _cc_last_errno();
 		_cc_logger_error(_T("CreateIoCompletionPort Error Code:%d. %s"),err, _cc_last_error(err));
         return false;
@@ -285,7 +285,7 @@ _CC_API_PRIVATE(void) _iocp_handle_entry(_cc_async_event_t *async, _io_context_t
     uint32_t which = _CC_EVENT_IS_SOCKET(io_context->flag);
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, e->flags)) {
-        if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0 || _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, io_context->flags) == 0) {
+        if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0 || _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, io_context->flag) == 0) {
             return ;
         }
         if (!_valid_fd(e->fd)) {

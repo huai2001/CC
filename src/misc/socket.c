@@ -42,7 +42,7 @@ _CC_API_PUBLIC(bool_t) _cc_set_socket_closeonexec(_cc_socket_t fd) {
 _CC_API_PUBLIC(_cc_socket_t) _cc_socket(uint32_t domain, uint32_t type, uint32_t protocol) {
     _cc_socket_t fd;
 #if defined(SOCK_NONBLOCK) && defined(SOCK_CLOEXEC)
-    fd = socket(domain, type, protocol);
+    fd = (_cc_socket_t)socket(domain, type, protocol);
     if (fd >= 0) {
         return fd;
     } else if ((type & (SOCK_NONBLOCK | SOCK_CLOEXEC)) == 0) {

@@ -1,5 +1,5 @@
 #include <libcc/logger.h>
-#include <libcc/platform/windows/sys_socket.h>
+#include <libcc/os/windows/sys_socket.h>
 #include <libcc/time.h>
 #include <libcc/thread.h>
 

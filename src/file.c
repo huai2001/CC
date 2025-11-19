@@ -116,7 +116,7 @@ _CC_API_PRIVATE(size_t) io_write(_cc_file_t *context, const pvoid_t ptr, size_t 
 }
 
 _CC_API_PRIVATE(bool_t) io_eof(_cc_file_t *context) {
-    return feof(_GET_HANDLE(context)) == EOF;
+    return feof(_GET_HANDLE(context));//== EOF;
 }
 
 _CC_API_PRIVATE(bool_t) io_close(_cc_file_t *context) {

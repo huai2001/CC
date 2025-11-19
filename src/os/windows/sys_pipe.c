@@ -123,13 +123,13 @@ _CC_API_PUBLIC(int) _cc_pipe(_cc_socket_t filedes[2]) {
 
 PIPE_FAIL:
     /* Don't leak resources */
-    if (*rd != INVALID_SOCKET)
+    if (*rd != _CC_INVALID_SOCKET_)
         _cc_close_socket(*rd);
-    if (*wr != INVALID_SOCKET)
+    if (*wr != _CC_INVALID_SOCKET_)
         _cc_close_socket(*wr);
 
-    *rd = INVALID_SOCKET;
-    *wr = INVALID_SOCKET;
+    *rd = _CC_INVALID_SOCKET_;
+    *wr = _CC_INVALID_SOCKET_;
     _cc_close_socket(ls);
     return -1;
 }
