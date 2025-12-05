@@ -23,15 +23,6 @@ _CC_API_PUBLIC(float32_t) _cc_randf(void);
 /**/
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes);
 
-/**/
-_CC_API_PUBLIC(uint32_t) _cc_random32(uint32_t, uint32_t);
-/**/
-_CC_API_PUBLIC(uint64_t) _cc_random64(uint64_t, uint64_t);
-/**/
-_CC_API_PUBLIC(float32_t) _cc_randomf32(float32_t, float32_t);
-/**/
-_CC_API_PUBLIC(float64_t) _cc_randomf64(float64_t, float64_t);
-
 #define _CC_RANDOM_MAX_ 2147483647L
 
 /**/

@@ -61,7 +61,7 @@ int main(int argc, char *const arvg[]) {
     sql_delegate.commit(conn_ptr1);
     
     
-    _cc_string_set(sql_str,_T("call `UpdateDevice`(?,?,?,?);"));
+    _cc_string_set(sql_str,"call `UpdateDevice`(?,?,?,?);");
     if (sql_delegate.execute(conn_ptr1, &sql_str, &sql_result)) {
         uint32_t update_time = 100000;
         int a = 0;
@@ -73,7 +73,7 @@ int main(int argc, char *const arvg[]) {
         sql_delegate.free_result(conn_ptr1, sql_result);
     }
 
-    _cc_string_set(sql_str,_T("select `id`,`mid`,`update_time`,`text`,`desc` from test where text like ?;"));
+    _cc_string_set(sql_str,"select `id`,`mid`,`update_time`,`text`,`desc` from test where text like ?;");
     if (sql_delegate.execute(conn_ptr1, &sql_str, &sql_result)) {
         //int v = 1;
         char *date = "2023%%";
@@ -99,7 +99,7 @@ int main(int argc, char *const arvg[]) {
     
     puts("-----------\n");
     
-    _cc_string_set(sql_str,_T("select `id`,`mid`,`update_time`,`text`,`desc` from test;"));
+    _cc_string_set(sql_str,"select `id`,`mid`,`update_time`,`text`,`desc` from test;");
     if (sql_delegate.execute(conn_ptr1, &sql_str, &sql_result)) {
         //int num_fields = sql_delegate.get_num_fields(sql_result);
         while(sql_delegate.fetch(sql_result)) {

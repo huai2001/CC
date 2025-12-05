@@ -49,5 +49,4 @@ _CC_API_PUBLIC(void) _cc_debug_free(pvoid_t p) {
     _cc_assert(p != nullptr);
     free(_debug_alloc_unlink(p));
 }
-
 #endif

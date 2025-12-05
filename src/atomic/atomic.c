@@ -206,7 +206,7 @@ _CC_API_PUBLIC(bool_t) _cc_atomic64_cas(_cc_atomic64_t *a, int64_t v1, int64_t v
 #elif defined(__CC_MSVC__)
     return (bool_t)((int64_t)InterlockedCompareExchange64(a, v2, v1) == v1);
 #elif defined(__CC_GNUC__)
-    return __atomic_compare_exchange_n(a, &v1, v2, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+    return __atomic_compare_exchange_n(a, (int_least64_t*)&v1, (int_least64_t)v2, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 #else
     return (bool_t)__sync_bool_compare_and_swap(a, v1, v2);
 #endif/*__CC_STDC_VERSION__ >= 2011*/

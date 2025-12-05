@@ -110,18 +110,18 @@ int main(int argc, char *const arvg[]) {
         _cc_logger_error("connection failed\n");
         return 0;
     }
-    //_cc_string_set(sql_str, _T("CREATE TABLE [test] ([mid] INT,[price] DECIMAL(15,2),[text] VARCHAR(200), [date] DATETIME)"));
+    //_cc_string_set(sql_str, "CREATE TABLE [test] ([mid] INT,[price] DECIMAL(15,2),[text] VARCHAR(200), [date] DATETIME)");
     //sql_delegate.execute(conn_ptr, &sql_str, nullptr);
-    _cc_string_set(sql_str,_T("TRUNCATE TABLE test;"));
+    _cc_string_set(sql_str,"TRUNCATE TABLE test;");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
-    _cc_string_set(sql_str,_T("insert into test ( mid, price, text, date) values ( '1',100.99,'test1','2025-8-21 18:14:58')"));
+    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( '1',100.99,'test1','2025-8-21 18:14:58')");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
-    _cc_string_set(sql_str,_T("insert into test ( mid, price, text, date) values ( '3',120.01,'test3', '2025-8-21 18:15:18')"));
+    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( '3',120.01,'test3', '2025-8-21 18:15:18')");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
-    _cc_string_set(sql_str,_T("insert into test ( mid, price, text, date) values ( '2',103.43,'test2', '2025-8-21 18:15:18')"));
+    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( '2',103.43,'test2', '2025-8-21 18:15:18')");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
 
-    _cc_string_set(sql_str,_T("insert into test ( mid, price, text, date) values ( ?, ?, ?, ?)"));
+    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( ?, ?, ?, ?)");
     if (sql_delegate.execute(conn_ptr, &sql_str, &sql_result)) {
     	struct tm tm_now;
     	uint16_t status = 10,i;
@@ -143,18 +143,18 @@ int main(int argc, char *const arvg[]) {
     }
     
     sql_delegate.begin_transaction(conn_ptr);
-    _cc_string_set(sql_str,_T("update [test] set mid=100 where mid=1"));
+    _cc_string_set(sql_str,"update [test] set mid=100 where mid=1");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
-    _cc_string_set(sql_str,_T("update [test] set mid=200 where mid=2"));
+    _cc_string_set(sql_str,"update [test] set mid=200 where mid=2");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
-    _cc_string_set(sql_str,_T("update [test] set mid=300 where mid=3"));
+    _cc_string_set(sql_str,"update [test] set mid=300 where mid=3");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
     sql_delegate.commit(conn_ptr);
-    _cc_string_set(sql_str,_T("update [test] set mid=600 where mid=300"));
+    _cc_string_set(sql_str,"update [test] set mid=600 where mid=300");
     sql_delegate.execute(conn_ptr, &sql_str, nullptr);
 	sql_delegate.rollback(conn_ptr);
 
-    _cc_string_set(sql_str, _T("select * from [test]"));
+    _cc_string_set(sql_str, "select * from [test]");
 
     if (sql_delegate.execute(conn_ptr, &sql_str, &sql_result)) {
         int num_fields = sql_delegate.get_num_fields(sql_result);

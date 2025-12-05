@@ -159,8 +159,8 @@ _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string
     _cc_sql_t *ctx = nullptr;
     _cc_url_t url;
 
-    static _cc_string_t charset_attr = _cc_string(_T("charset="));
-    static _cc_string_t SSL_attr = _cc_string(_T("SSL="));
+    static _cc_string_t charset_attr = _cc_string("charset=");
+    static _cc_string_t SSL_attr = _cc_string("SSL=");
 
     if (!_cc_parse_url(&url, sql_connection_string)) {
         return nullptr;

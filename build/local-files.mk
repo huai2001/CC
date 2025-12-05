@@ -76,8 +76,6 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/cpu.c \
 	$(SRCROOT)/src/file.c \
 	$(SRCROOT)/src/malloc/alloc.c \
-	$(SRCROOT)/src/malloc/debug.malloc.c \
-	$(SRCROOT)/src/malloc/debug.tracked.c \
 	$(SRCROOT)/src/thread/thread.c \
 	$(SRCROOT)/src/atomic/atomic.c \
 	$(SRCROOT)/src/atomic/rwlock.c \

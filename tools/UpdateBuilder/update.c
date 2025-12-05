@@ -236,7 +236,7 @@ int builder_UpdateList(void) {
     uint64_t fileSize = 0;
     uint64_t resultSize = 0;
 
-    _cc_string_t sqlString = _cc_string(_T("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;"));
+    _cc_string_t sqlString = _cc_string("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;");
     _cc_sql_t *sql = openSQLite3();
 
     if (sql == nullptr) {
@@ -244,7 +244,7 @@ int builder_UpdateList(void) {
     }
 
     sqldelegate.execute(sql, sqlString, &resultUpdated);
-    _cc_string_set(sqlString, _T("select `ID`, `Name`, `CheckMD5`, `Path` from `FileList`;"));
+    _cc_string_set(sqlString, "select `ID`, `Name`, `CheckMD5`, `Path` from `FileList`;");
     sqldelegate.execute(sql, sqlString, &resultSQL);
     while (sqldelegate.fetch(resultSQL)) {
         int32_t isCompress = 0;
@@ -260,8 +260,8 @@ int builder_UpdateList(void) {
         fileSize = fileCheck(sourceDirectory, requestMD5);
         if (fileSize == 0) {
             _cc_sql_result_t *deleter;
-            _sntprintf(sqlString, _cc_countof(sqlString), _T("DELETE FROM `FileList` WHERE `ID`=%d;"),sqlID);
-            _cc_string_set(sqlString, _T("DELETE FROM `FileList` WHERE `ID`=?;"));
+            _sntprintf(sqlString, _cc_countof(sqlString), "DELETE FROM `FileList` WHERE `ID`=%d;",sqlID);
+            _cc_string_set(sqlString, "DELETE FROM `FileList` WHERE `ID`=?;");
             if(sqldelegate.execute(sql, sqlString, deleter)) {
                 sqldelegate.bind(deleter, 0, &sqlID, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
                 sqldelegate.step(sql, deleter);

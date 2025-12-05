@@ -65,8 +65,6 @@ LIBCCSources = [
 	"src/misc/gzip.c",
 	"src/misc/WS.c",
 	"src/malloc/alloc.c",
-	"src/malloc/debug.malloc.c",
-	"src/malloc/debug.tracked.c",
 	"src/db/mysql.c",
 	"src/db/sqlite.c",
 	"src/db/sqlsvr.c",

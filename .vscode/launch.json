@@ -23,7 +23,7 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}/bin/arm64/",
-            "program": "${workspaceFolder}/bin/arm64/debug/http2_client",
+            "program": "${workspaceFolder}/bin/arm64/debug/wss",
             "args": [],
             "stopAtEntry": false,
             "environment": [],

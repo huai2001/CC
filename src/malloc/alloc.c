@@ -52,5 +52,7 @@ _CC_API_PUBLIC(void) _cc_free(pvoid_t p) {
     _cc_assert(p != nullptr);
     free(p);
 }
-
+#else
+#include "debug.malloc.c"
+#include "debug.tracked.c"
 #endif

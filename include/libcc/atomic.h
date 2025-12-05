@@ -37,8 +37,8 @@ extern "C" {
     typedef volatile long _cc_atomic32_t;
     typedef volatile __int64 _cc_atomic64_t;
 #else
-    typedef volatile _cc_alignas(4) int _cc_atomic32_t;
-    typedef volatile _cc_alignas(8) long long int _cc_atomic64_t;
+    typedef volatile int _cc_atomic32_t;
+    typedef volatile long long int _cc_atomic64_t;
 #endif/*__CC_STDC_VERSION__ >= 2011*/
 /*/////////////////////////////////////////////////////////////////////////*/
 #define _cc_atomic32_inc(a) _cc_atomic32_add(a, 1)

@@ -76,11 +76,11 @@ int builder_ReloadList(void) {
         return 1;
     }
 
-    _cc_string_set(&sql_str, _T("DELETE FROM `FileList`;"));
+    _cc_string_set(&sql_str, "DELETE FROM `FileList`;");
     sqldelegate.execute(sql, &sql_str, nullptr);
-    _cc_string_set(&sql_str, _T("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'FileList';"));
+    _cc_string_set(&sql_str, "UPDATE sqlite_sequence SET seq = 0 WHERE name = 'FileList';");
     sqldelegate.execute(sql, &sql_str, nullptr);
-    _cc_string_set(&sql_str, _T("INSERT INTO `FileList` (`Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path`) VALUES ( ?,'',0,?,?,?);"));
+    _cc_string_set(&sql_str, "INSERT INTO `FileList` (`Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path`) VALUES ( ?,'',0,?,?,?);");
     if (sqldelegate.execute(sql, &sql_str, &result)) {
         OpenDeepDirectory(sourceDirectory, sql, result);
         sqldelegate.free_result(sql, result);

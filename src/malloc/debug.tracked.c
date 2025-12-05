@@ -21,7 +21,6 @@ pvoid_t _debug_alloc_link(const pvoid_t data, size_t n, const tchar_t *file_name
     _cc_debug_alloc_t *debug = (_cc_debug_alloc_t*)data;
 
     /* Set the data */
-    debug->file = nullptr;
     debug->type = m_type;
     debug->size = n;
     debug->line = line;
@@ -33,6 +32,8 @@ pvoid_t _debug_alloc_link(const pvoid_t data, size_t n, const tchar_t *file_name
         } else {
             debug->file = _tcsdup(file_name);
         }
+    } else {
+        debug->file = nullptr;
     }
 
     _cc_spin_lock(&debug_lock);
@@ -40,7 +41,7 @@ pvoid_t _debug_alloc_link(const pvoid_t data, size_t n, const tchar_t *file_name
     _cc_list_iterator_push(&tracked_list, &debug->lnk);
     _cc_unlock(&debug_lock);
 
-    return debug + 1;
+    return (debug + 1);
 }
 
 /**/

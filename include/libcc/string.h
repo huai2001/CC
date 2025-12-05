@@ -20,10 +20,10 @@ typedef struct {
     wchar_t* ptr;
 } _cc_wstring_t;
 
-#define _cc_string(_str) { sizeof(_str) - 1, (_str) }
-#define _cc_string_set(x, _str) do { \
-    (x).length = sizeof(_str) - 1;\
-    (x).ptr = _str;\
+#define _cc_string(S) { sizeof(_T(S)) - 1, _T(S) }
+#define _cc_string_set(X, S) do { \
+    (X).length = sizeof(_T(S)) - 1;\
+    (X).ptr = _T(S);\
 } while (0)
 
 #define _cc_string_null(_str) do { \

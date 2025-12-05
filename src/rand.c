@@ -14,7 +14,14 @@
 #endif
 
 #ifdef __CC_WINDOWS__
+
+#if _WIN32_WINNT >= 0x0600
+    #include <bcrypt.h>
+    #pragma comment(lib, "bcrypt.lib")
+#else
     #include <wincrypt.h> /* CryptAcquireContext, CryptGenRandom */
+#endif
+
 #else
     #include <sys/errno.h>
 #endif
@@ -53,20 +60,16 @@ static int _rand_initialized = 0;
 #endif
 
 _CC_API_PUBLIC(void) _cc_srand(uint64_t seed) {
-#ifndef ARC4RANDOM
     srand((unsigned int)(seed & 0xFFFFFFFF));
+#ifndef ARC4RANDOM
     _rand_initialized = (unsigned int)seed;
 #endif
 }
 
 _CC_API_PUBLIC(int32_t) _cc_rand(int32_t n) {
 #ifdef ARC4RANDOM
-    return arc4random_uniform(n);  
+    return (int32_t)arc4random_uniform((uint32_t)n);  
 #else
-    if (!_rand_initialized) {
-        _cc_srand(time(NULL));
-    }
-
     return rand() % n;
 #endif
 }
@@ -74,31 +77,29 @@ _CC_API_PUBLIC(float32_t) _cc_randf(void) {
 #ifdef ARC4RANDOM
     return (double)arc4random() / 0x100000000;
 #else
-    if (!_rand_initialized) {
-        _cc_srand(0);
-    }
     return rand() / (float32_t)RAND_MAX;
 #endif
 }
-
-#define _random()                                                          \
-    ((long) (0x7fffffff & ( ((uint32_t) rand() << 16)                      \
-                          ^ ((uint32_t) rand() << 8)                       \
-                          ^ ((uint32_t) rand()) )))
 
 #if defined(__CC_WINDOWS__) || defined(__CC_LINUX__)
 _CC_API_PRIVATE(void) generic_random_bytes(byte_t *buf, size_t nbytes) {
     byte_t *cp = buf;
     size_t i;
-    int32_t n = _random();
+    int32_t n = ((int32_t) (0x7fffffff & ( ((uint32_t) rand() << 16) ^ ((uint32_t) rand() << 8) ^ ((uint32_t) rand()) )));
     for ( i = 0; i < nbytes; i++) {
-        *cp++ ^= (_cc_rand(n) >> 7) & 0xFF;
+        *cp++ ^= (_cc_rand(n + i) >> 7) & 0xFF;
     }
 }
 #endif
 
 #ifdef __CC_WINDOWS__
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
+#if _WIN32_WINNT >= 0x0600
+    NTSTATUS status = BCryptGenRandom(NULL, buf, nbytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    if (!BCRYPT_SUCCESS(status)) {
+        generic_random_bytes(buf,nbytes);
+    }
+#else
 	HCRYPTPROV ctx;
 	BOOL tmp;
 	DWORD to_read = 0;
@@ -124,6 +125,7 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 	if (tmp == FALSE) {
         generic_random_bytes(buf,nbytes);
     }
+#endif
 }
 
 #elif (defined(__CC_LINUX__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom))
@@ -198,29 +200,6 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 	arc4random_buf(buf, nbytes);
 }
 #endif /* defined(ARC4RANDOM) */
-
-
-/**/
-_CC_API_PUBLIC(float32_t) _cc_randomf32(float32_t from, float32_t to) {
-    return _cc_randf() * (to - from) + from;
-}
-
-/**/
-_CC_API_PUBLIC(float64_t) _cc_randomf64(float64_t from, float64_t to) {
-    return _cc_randf() * (to - from) + from;
-}
-
-/**/
-_CC_API_PUBLIC(uint32_t) _cc_random32(uint32_t from, uint32_t to) {
-    int32_t n = (int32_t)_random();
-    return _cc_rand(n) * (to - from) + from;
-}
-
-/**/
-_CC_API_PUBLIC(uint64_t) _cc_random64(uint64_t from, uint64_t to) {
-    int32_t n = (int32_t)_random();
-    return _cc_rand(n) * (to - from) + from;
-}
 
 _CC_API_PRIVATE(float64_t) C2P(_cc_prd_t *prd) {
     int32_t i;

@@ -53,8 +53,6 @@ LOCAL_SRC_FILES := \
     ../../src/cpu.c \
     ../../src/file.c \
     ../../src/malloc/alloc.c \
-    ../../src/malloc/debug.malloc.c \
-    ../../src/malloc/debug.tracked.c \
     ../../src/thread/thread.c \
     ../../src/atomic/atomic.c \
     ../../src/atomic/rwlock.c \
