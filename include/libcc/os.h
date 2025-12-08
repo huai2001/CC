@@ -86,7 +86,12 @@
 
 #define _CC_IS_SLASH(x) ((x) == _T('\\') || (x) == _T('/'))
  
-#define _CC_UNUSED(_x) ( (void)(_x) )
+
+#ifdef _MSC_VER
+#define _CC_UNUSED(x) ( (void)(x) )
+#else
+#define _CC_UNUSED(x)  (void)sizeof(x)
+#endif
 
 /**
  * Count the number of elements in an array. The array must be defined
