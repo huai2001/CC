@@ -25,6 +25,8 @@ extern "C" {
     #define _cc_thread_local_t __thread
 #elif defined(__CC_MSVC__)
     #define _cc_thread_local_t __declspec(thread)
+#elif defined (__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_THREADS__)
+    #define _cc_thread_local_t _Thread_local
 #else
     #define _cc_thread_local_t "Unsupported thread-local storage"
 #endif
