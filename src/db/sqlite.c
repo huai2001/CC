@@ -6,7 +6,7 @@
 #include <libcc/sql.h>
 #include <libcc/url.h>
 
-#if _CC_USE_SYSTEM_SQLITE3_LIB_
+#ifdef __CC_WINDOWS__
 #include <sqlite3.h>
 #else
 #include <sqlite3/sqlite3.h>
