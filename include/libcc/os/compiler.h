@@ -323,7 +323,7 @@
     #define _CC_API_PUBLIC(t) t
 #endif
 
-#ifdef __CC_WINDOWS__
+#ifdef __CC_MSVC__
     #define _CC_API_PRIVATE(t) static t
 #else
     #define _CC_API_PRIVATE(t) _CC_FORCE_INLINE_ t
