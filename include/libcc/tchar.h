@@ -3,7 +3,7 @@
 
 #include "os/compiler.h"
  
-#ifndef __CC_WINDOWS__
+#ifndef __CC_MSVC__
 #include <ctype.h>
 #include <wctype.h>
 #endif
@@ -15,11 +15,6 @@
     #define __AUTO_TCHAR_H_USESYS__
 #elif defined(__BORLANDC__) /* BCB. */
     #define __AUTO_TCHAR_H_USESYS__
-#elif defined(__CC_WINDOWS__) || defined(__CC_MINGW__)
-    /**/
-    #define __AUTO_TCHAR_H_USESYS__
-#else
-    /**/
 #endif
 
 #if defined(__SIZEOF_WCHAR_T__)
