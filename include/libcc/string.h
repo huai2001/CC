@@ -1,9 +1,8 @@
 #ifndef _C_LIBCC_STRING_H_INCLUDED_
 #define _C_LIBCC_STRING_H_INCLUDED_
 
-#include <stdio.h>
-#include <string.h>
 #include "types.h"
+#include <string.h>
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
