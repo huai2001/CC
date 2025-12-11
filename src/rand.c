@@ -17,7 +17,10 @@
 
 #if _WIN32_WINNT >= 0x0600
     #include <bcrypt.h>
+#ifdef __CC_MSVC__
     #pragma comment(lib, "bcrypt.lib")
+#endif
+
 #else
     #include <wincrypt.h> /* CryptAcquireContext, CryptGenRandom */
 #endif
