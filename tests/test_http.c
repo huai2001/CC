@@ -1,9 +1,11 @@
-#include <libcc/dirent.h>
+#include <libcc.h>
 #include <libcc/event.h>
+#include <libcc/url_request.h>
 
 
 typedef struct _http {
     uint8_t state;
+    bool_t keep_alive;
     size_t payload;
     _cc_io_buffer_t *io;
     _cc_http_request_header_t *request;
@@ -11,7 +13,7 @@ typedef struct _http {
     _cc_file_t *file;
 } _http_t;
 
-static const tchar_t *root = _T("/opt/homebrew/var/www/");
+static const tchar_t *root = _T("c:\\www\\");
 static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e);
 static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e);
 static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e);
@@ -113,8 +115,8 @@ static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e) {
 _CC_API_PRIVATE(void) bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>");
 
-    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
-    memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
+    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
+    memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
 }
@@ -122,8 +124,8 @@ _CC_API_PRIVATE(void) bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
 _CC_API_PRIVATE(void) not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY><p>The server could not find the requested URL.</p></BODY></HTML>");
 
-    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 404 NOT FOUND\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
-    memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
+    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 404 NOT FOUND\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
+    memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
 }
@@ -131,8 +133,8 @@ _CC_API_PRIVATE(void) not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
 _CC_API_PRIVATE(void) unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Method Not Implemented</TITLE></HEAD><BODY><p>HTTP request method not supported.</p></BODY></HTML>");
     
-    io->w.off = _sntprintf(io->w.bytes,io->w.limit,"HTTP/1.1 501 Method Not Implemented\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
-    memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
+    io->w.off = _sntprintf(io->w.bytes,io->w.limit,"HTTP/1.1 501 Method Not Implemented\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", (int32_t)body.length);
+    memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
 }
@@ -140,8 +142,8 @@ _CC_API_PRIVATE(void) unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
 _CC_API_PRIVATE(void) request_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Welcome to HTTP</TITLE></HEAD><BODY><p>If you see this page, the web server is successfully</p></BODY></HTML>");
     
-    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
-    memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
+    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
+    memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
 }
@@ -151,7 +153,26 @@ _CC_API_PRIVATE(void) request_file(_cc_event_t *e, _cc_io_buffer_t *io, tchar_t 
     http->file = _cc_fopen(www_file, "rb");
     if (http->file) {
         uint64_t size = _cc_file_size(http->file);
-        io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %lld\r\n\r\n", size);
+        tchar_t *ext = nullptr;
+        tchar_t *script_name = _tcsrchr(www_file, '/');
+        if (script_name == nullptr) {
+            script_name = "index.html";
+        } else {
+            ext = _tcsrchr(script_name, '.');
+            script_name++;
+        }
+        if (ext != nullptr) {
+            if (_tcsicmp(".exe", ext) == 0) {
+                io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: Content-Disposition: attachment; filename=\"%s\"\r\nContent-Length: %lld\r\n\r\n", script_name,size);
+            } else if (_tcsicmp(".zip", ext) == 0) {
+                io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: Content-Disposition: attachment; filename=\"%s\"\r\nContent-Length: %lld\r\n\r\n", script_name,size);
+            } else {
+                io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html; charset=utf-8\r\nContent-Length: %lld\r\n\r\n",size);
+            }
+        } else {
+            io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html; charset=utf-8\r\nContent-Length: %lld\r\n\r\n",size);
+        }
+        
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     } else {
         not_found(e, io);
@@ -161,6 +182,11 @@ _CC_API_PRIVATE(void) request_file(_cc_event_t *e, _cc_io_buffer_t *io, tchar_t 
 _CC_API_PRIVATE(int64_t) _get_content_length(_cc_rbtree_t *headers) {
     const _cc_http_header_t *data = _cc_http_header_find(headers, _T("Content-Length"));
     return (data ? _ttoi(data->value) : 0);
+}
+
+_CC_API_PRIVATE(bool_t) _is_keep_alive(_cc_rbtree_t *headers) {
+    const _cc_http_header_t *data = _cc_http_header_find(headers, _T("Connection"));
+    return (data && _tcsicmp(data->value, _T("keep-alive")) == 0);
 }
 
 static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
@@ -184,7 +210,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
             bad_request(e, io);
             return false;
         }
-
+        http->keep_alive = _is_keep_alive(&http->request->headers);
         http->payload = _get_content_length(&http->request->headers);
         if (http->payload == 0) {
             http->state = _CC_HTTP_STATUS_ESTABLISHED_;
@@ -237,18 +263,31 @@ static bool_t onWrite(_cc_async_event_t *async, _cc_event_t *e) {
         if (_cc_io_buffer_flush(e, http->io) < 0) {
             return false;
         }
+    } else if (http->file == nullptr) {
+        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+        return http->keep_alive;
     }
 
-    if (http->file) {
+    while (http->file && io->w.limit > io->w.off) {
         int32_t off = (int32_t)_cc_fread(http->file, io->w.bytes + io->w.off, 1, io->w.limit - io->w.off);
         if (off <= 0) {
             _cc_fclose(http->file);
             http->file = nullptr;
+            if (io->w.off == 0) {
+                _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+            }
+            break;
         } else {
             io->w.off += off;
-            _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+            off = _cc_io_buffer_flush(e, http->io);
+            if (off == 0) {
+                break;
+            } else if (off < 0) {
+                return false;
+            }
         }
     }
+    _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     return true;
 }
 
