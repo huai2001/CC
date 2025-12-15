@@ -653,7 +653,8 @@ _CC_API_PRIVATE(size_t) _mysql_get_string(_cc_sql_result_t *result, int32_t inde
         bytes_length = length - 1;
     }
 
-    _tcsncpy(buffer, b->buffer, bytes_length);
+    //_tcsncpy(buffer, b->buffer, bytes_length);
+    memcpy(buffer, b->buffer, bytes_length * sizeof(tchar_t));
     buffer[bytes_length] = 0;
     return bytes_length;
 }

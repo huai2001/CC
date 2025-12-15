@@ -2,12 +2,16 @@
 #include <libcc/http.h>
 #include <libcc/event.h>
 #include <stdio.h>
+#define ENABLE_SSL 1
 
+#if ENABLE_SSL
 _cc_OpenSSL_t *openSSL;
-
+#endif
 typedef struct _ws {
     uint8_t state;
+#if ENABLE_SSL
     uint8_t handshake;
+#endif
     uint64_t length;
     _cc_io_buffer_t *io;
     _cc_ws_header_t header;
@@ -17,13 +21,17 @@ typedef struct _ws {
 /**/
 _CC_API_PRIVATE(_cc_ws_t*) _ws_alloc(_cc_socket_t fd) {
     _cc_ws_t *ws = (_cc_ws_t*)_cc_malloc(sizeof(_cc_ws_t));
+#if ENABLE_SSL
     ws->handshake = _CC_SSL_HS_SYSCALL_WOULDBLOCK_;
+#endif
     ws->state = _CC_HTTP_STATUS_HEADER_;
     ws->request = nullptr;
     ws->header.state = WS_DATA_OK;
 
     ws->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
+#if ENABLE_SSL
     ws->io->ssl = _SSL_accept(openSSL, fd);
+#endif
     return ws;
 }
 
@@ -263,7 +271,12 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
 
         event->fd = fd;
         event->callback = e->callback;
+    #if ENABLE_SSL
         event->timeout = 100; //wait SSL handshake complete
+    #else
+        event->timeout = e->timeout;
+        _CC_SET_BIT(_CC_EVENT_READABLE_, event->flags);
+    #endif
         event->data = (uintptr_t)_ws_alloc(fd);
 
         if (async->attach(async, event) == false) {
@@ -281,6 +294,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
 
         return true;
     } else if (which & _CC_EVENT_TIMEOUT_) {
+#if ENABLE_SSL
         if (ws->handshake != _CC_SSL_HS_ESTABLISHED_) {
             ws->handshake = _SSL_do_handshake(ws->io->ssl);
             if (ws->handshake == _CC_SSL_HS_ESTABLISHED_) {
@@ -293,6 +307,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
             //wait SSL handshake complete
             return true;
         }
+#endif
         _cc_logger_debug(_T("TCP timeout %d"), e->fd);
         if (_ws_heartbeat(e, WS_OP_PONG)) {
             return true;
@@ -346,13 +361,15 @@ int main(int argc, char *const argv[]) {
     uint16_t port = 5500;
 
     _cc_install_socket();
-    openSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
+#if ENABLE_SSL
+    openSSL = _SSL_init(_CC_SSL_TLSv1_1_|_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_|_CC_SSL_TLSv1_);
     if (openSSL == nullptr) {
         return 1;
     }
 
-    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",nullptr);
-
+    //_SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",nullptr);
+    _SSL_setup(openSSL, "/opt/libcc/bin/arm64/debug/cert.pem", "/opt/libcc/bin/arm64/debug/key.pem",nullptr);
+#endif
     if (_cc_register_poller(&async) == false) {
         return 1;
     }

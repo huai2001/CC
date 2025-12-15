@@ -6,7 +6,7 @@
 #include <libcc/sql.h>
 #include <libcc/url.h>
 
-#ifdef __CC_WINDOWS__
+#if defined(__CC_WINDOWS__) || defined(__CC_APPLE__)
 #include <sqlite3.h>
 #else
 #include <sqlite3/sqlite3.h>
@@ -265,15 +265,15 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlite_connect(const tchar_t *sql_connection_string
     ctx->sql = sql;
     ctx->transaction = false;
 
-//    sqlite3_exec(ctx->sql, "PRAGMA synchronous = OFF", 0, 0, 0);
-//    sqlite3_exec(ctx->sql, "PRAGMA cache_size = 8000", 0, 0, 0);
-//    sqlite3_exec(ctx->sql, "PRAGMA count_changes = 1", 0, 0, 0);
-//    sqlite3_exec(ctx->sql, "PRAGMA case_sensitive_like = 1", 0, 0, 0);
+   sqlite3_exec(ctx->sql, "PRAGMA synchronous = OFF", 0, 0, 0);
+   sqlite3_exec(ctx->sql, "PRAGMA cache_size = 8000", 0, 0, 0);
+   sqlite3_exec(ctx->sql, "PRAGMA count_changes = 1", 0, 0, 0);
+   sqlite3_exec(ctx->sql, "PRAGMA case_sensitive_like = 1", 0, 0, 0);
 
-    sqlite3_exec(ctx->sql, "PRAGMA secure_delete = ON", 0, 0, 0);
-    sqlite3_exec(ctx->sql, "PRAGMA temp_store = MEMORY", 0, 0, 0);
-    sqlite3_exec(ctx->sql, "PRAGMA journal_mode = WAL", 0, 0, 0);
-    sqlite3_exec(ctx->sql, "PRAGMA journal_size_limit = 10485760", 0, 0, 0);
+   sqlite3_exec(ctx->sql, "PRAGMA secure_delete = ON", 0, 0, 0);
+   sqlite3_exec(ctx->sql, "PRAGMA temp_store = MEMORY", 0, 0, 0);
+   //sqlite3_exec(ctx->sql, "PRAGMA journal_mode = WAL", 0, 0, 0);
+   sqlite3_exec(ctx->sql, "PRAGMA journal_size_limit = 10485760", 0, 0, 0);
 
     return ctx;
 }

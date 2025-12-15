@@ -86,7 +86,6 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/event/timeout.c \
 	$(SRCROOT)/src/event/buffer.c \
 	$(SRCROOT)/src/event/tcp.c \
-	$(SRCROOT)/src/event/OpenSSL.c \
 	$(SRCROOT)/src/json/json.c \
 	$(SRCROOT)/src/json/json.array.c \
 	$(SRCROOT)/src/json/json.object.c \
@@ -96,6 +95,7 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/xml/xml.c \
 	$(SRCROOT)/src/xml/xml.parser.c \
 	$(SRCROOT)/src/misc/strptime.c \
+	$(SRCROOT)/src/misc/OpenSSL.c \
 	$(SRCROOT)/src/misc/tick.c \
 	$(SRCROOT)/src/misc/time.c \
 	$(SRCROOT)/src/misc/inet.c \

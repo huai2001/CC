@@ -62,7 +62,6 @@ LOCAL_SRC_FILES := \
     ../../src/event/timeout.c \
     ../../src/event/buffer.c \
     ../../src/event/tcp.c \
-    ../../src/event/OpenSSL.c \
     ../../src/json/json.c \
     ../../src/json/json.array.c \
     ../../src/json/json.object.c \
@@ -76,6 +75,7 @@ LOCAL_SRC_FILES := \
     ../../src/misc/time.c \
     ../../src/misc/inet.c \
     ../../src/misc/socket.c \
+    ../../src/misc/OpenSSL.c \
     ../../src/misc/power.c  \
     ../../src/misc/misc.c \
     ../../src/misc/WS.c \

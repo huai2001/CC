@@ -6,16 +6,29 @@
 
 static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_CONNECT_) {
+        _cc_logger_info(_T("connected event %d"), e->ident);
         return true;
     } else if (which & _CC_EVENT_CLOSED_) {
         _cc_logger_info(_T("closed event %d"), e->ident);
         return false;
     } else if (which & _CC_EVENT_READABLE_) {
-
+        _cc_logger_info(_T("readable event %d"), e->ident);
+        byte_t buf[_CC_IO_BUFFER_SIZE_];
+        int off = _cc_recv(e->fd, buf, _cc_countof(buf));
+        if (off < 0) {
+            _cc_logger_debug(_T("%d recv fail."), e->ident);
+            return false;
+        } else if (off == 0) {
+            _cc_logger_debug(_T("%d client close."), e->ident);
+            return false;
+        }
+        buf[off] = 0;
+        _cc_logger_info("%d: %.*s",e->ident, off, buf);
     }
 
     if (which & _CC_EVENT_WRITABLE_) {
-        
+        _cc_logger_info(_T("writable event %d"), e->ident);
+        _CC_UNSET_BIT(e->which, _CC_EVENT_WRITABLE_);
     }
 
     if (which & _CC_EVENT_TIMEOUT_) {
@@ -54,7 +67,7 @@ int main (int argc, char * const argv[]) {
     int c;
     _cc_alloc_async_event(0, nullptr);
 
-    _connect_server(_T("time-nw.nist.gov"), 13);
+    _connect_server(_T("127.0.0.1"), 5500);
 
     while((c = getchar()) != 'q') {
         _cc_sleep(100);

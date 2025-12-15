@@ -2,9 +2,17 @@
 #include <libcc/event.h>
 #include <libcc/url_request.h>
 
+#define ENABLE_SSL 1
+
+#if ENABLE_SSL
+_cc_OpenSSL_t *openSSL = nullptr;
+#endif
 
 typedef struct _http {
     uint8_t state;
+#if ENABLE_SSL
+    uint8_t handshake;
+#endif
     bool_t keep_alive;
     size_t payload;
     _cc_io_buffer_t *io;
@@ -13,7 +21,7 @@ typedef struct _http {
     _cc_file_t *file;
 } _http_t;
 
-static const tchar_t *root = _T("c:\\www\\");
+static const tchar_t *root = _T("/var/www/html");
 static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e);
 static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e);
 static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e);
@@ -73,12 +81,21 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
     http->request = nullptr;
     http->payload = 0;
     http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
+#if ENABLE_SSL
+    http->io->ssl = _SSL_accept(openSSL, fd);
+#endif
     _cc_alloc_buf(&http->buffer, _CC_IO_BUFFER_SIZE_);
-
     event->fd = fd;
     event->callback = e->callback;
     event->timeout = e->timeout;
     event->data = (uintptr_t)http;
+
+    #if ENABLE_SSL
+        event->timeout = 100; //wait SSL handshake complete
+    #else
+        event->timeout = e->timeout;
+        _CC_SET_BIT(_CC_EVENT_READABLE_, event->flags);
+    #endif
 
     if (async2->attach(async2, event) == false) {
         _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
@@ -292,6 +309,21 @@ static bool_t onWrite(_cc_async_event_t *async, _cc_event_t *e) {
 }
 
 static bool_t onTimeout(_cc_async_event_t *async, _cc_event_t *e) {
+    _http_t *http = (_http_t*)e->data;
+#if ENABLE_SSL
+    if (http->handshake != _CC_SSL_HS_ESTABLISHED_) {
+        http->handshake = _SSL_do_handshake(http->io->ssl);
+        if (http->handshake == _CC_SSL_HS_ESTABLISHED_) {
+            e->timeout = 60000;
+            _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
+            return true;
+        } else if (http->handshake == _CC_SSL_HS_ERROR_) {
+            return false;
+        }
+        //wait SSL handshake complete
+        return true;
+    }
+#endif
     _cc_logger_debug(_T("%d onTimeout."), e->ident);
     return false;
 }
@@ -321,7 +353,13 @@ bool_t addListener(const tchar_t *host, uint16_t port) {
 int main() {
     int c;
     _cc_alloc_async_event(0, nullptr);
-
+#if ENABLE_SSL
+    openSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
+    if (openSSL == nullptr) {
+        return 1;
+    }
+    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",nullptr);
+#endif
     addListener(nullptr, 8080);
 
     while((c = getchar()) != 'q') {

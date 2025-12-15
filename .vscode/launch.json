@@ -23,7 +23,7 @@
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}/bin/arm64/",
-            "program": "${workspaceFolder}/bin/arm64/debug/wss",
+            "program": "${workspaceFolder}/bin/arm64/debug/test",
             "args": [],
             "stopAtEntry": false,
             "environment": [],

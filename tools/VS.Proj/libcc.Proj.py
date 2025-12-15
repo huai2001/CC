@@ -64,6 +64,7 @@ LIBCCSources = [
 	"src/misc/misc.c",
 	"src/misc/gzip.c",
 	"src/misc/WS.c",
+	"src/misc/OpenSSL.c",
 	"src/malloc/alloc.c",
 	"src/db/mysql.c",
 	"src/db/sqlite.c",
@@ -87,7 +88,6 @@ LIBCCSources = [
 	"src/event/select.c",
 	"src/event/tcp.c",
 	"src/event/timeout.c",
-	"src/event/OpenSSL.c",
 	"src/main.c"
 ]
 LIBCCHeaders = [
