@@ -1,6 +1,6 @@
 #include <libcc.h>
 #include <libcc/event.h>
-#include <libcc/url_request.h>
+#include <libcc/http_request.h>
 
 #define ENABLE_SSL 1
 
@@ -10,9 +10,7 @@ _cc_OpenSSL_t *openSSL = nullptr;
 
 typedef struct _http {
     uint8_t state;
-#if ENABLE_SSL
-    uint8_t handshake;
-#endif
+
     bool_t keep_alive;
     size_t payload;
     _cc_io_buffer_t *io;
@@ -77,7 +75,7 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_set_socket_nonblock(fd, 1);
 
     http = (_http_t*)_cc_malloc(sizeof(_http_t));
-    http->state = _CC_HTTP_STATUS_HEADER_;
+    http->state = _CC_HTTP_STATE_HEADER_;
     http->request = nullptr;
     http->payload = 0;
     http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
@@ -216,21 +214,21 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
         return true;
     }
 
-    if (http->state == _CC_HTTP_STATUS_ESTABLISHED_) {
+    if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
         return false;
-    } else  if (http->state == _CC_HTTP_STATUS_HEADER_) {
+    } else  if (http->state == _CC_HTTP_STATE_HEADER_) {
         http->state = _cc_http_header_parser((_cc_http_header_fn_t)_cc_http_alloc_request_header, (pvoid_t *)&http->request, io->r.bytes, &io->r.off);
         /**/
-        if (http->state == _CC_HTTP_STATUS_HEADER_) {
+        if (http->state == _CC_HTTP_STATE_HEADER_) {
             return true;
-        } else if (http->state != _CC_HTTP_STATUS_PAYLOAD_) {
+        } else if (http->state != _CC_HTTP_STATE_PAYLOAD_) {
             bad_request(e, io);
             return false;
         }
         http->keep_alive = _is_keep_alive(&http->request->headers);
         http->payload = _get_content_length(&http->request->headers);
         if (http->payload == 0) {
-            http->state = _CC_HTTP_STATUS_ESTABLISHED_;
+            http->state = _CC_HTTP_STATE_ESTABLISHED_;
         }
 
         if (http->buffer.bytes == nullptr && http->payload > 0) {
@@ -238,15 +236,15 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
         }
     } 
 
-    if (http->state == _CC_HTTP_STATUS_PAYLOAD_) {
+    if (http->state == _CC_HTTP_STATE_PAYLOAD_) {
         _cc_buf_append(&http->buffer, io->r.bytes, io->r.off);
         if (http->buffer.length >= http->payload) {
-            http->state = _CC_HTTP_STATUS_ESTABLISHED_;
+            http->state = _CC_HTTP_STATE_ESTABLISHED_;
         }
         io->r.off = 0;
     }
 
-    if (http->state == _CC_HTTP_STATUS_ESTABLISHED_) {
+    if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
         if (http->request->script[0] == '/' && http->request->script[1] == 0) {
             request_ok(e, io);
         } else {
@@ -260,7 +258,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
             }
         }
 
-        http->state = _CC_HTTP_STATUS_HEADER_;
+        http->state = _CC_HTTP_STATE_HEADER_;
         _cc_logger_info("http:%s %s %s",http->request->method,http->request->script,http->request->protocol);
 
         if (_tcsicmp(http->request->method, _T("POST")) == 0) {
@@ -311,17 +309,18 @@ static bool_t onWrite(_cc_async_event_t *async, _cc_event_t *e) {
 static bool_t onTimeout(_cc_async_event_t *async, _cc_event_t *e) {
     _http_t *http = (_http_t*)e->data;
 #if ENABLE_SSL
-    if (http->handshake != _CC_SSL_HS_ESTABLISHED_) {
-        http->handshake = _SSL_do_handshake(http->io->ssl);
-        if (http->handshake == _CC_SSL_HS_ESTABLISHED_) {
-            e->timeout = 60000;
-            _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
+    if (http->io && http->io->ssl) {
+        if (!http->io->ssl->is_handshaked) {
+            if (_SSL_do_handshake(http->io->ssl) == _CC_SSL_HS_ERROR_) {
+                return false;
+            }
+            if (http->io->ssl->is_handshaked) {
+                e->timeout = 60000;
+                _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
+            }
+            //wait SSL handshake complete
             return true;
-        } else if (http->handshake == _CC_SSL_HS_ERROR_) {
-            return false;
         }
-        //wait SSL handshake complete
-        return true;
     }
 #endif
     _cc_logger_debug(_T("%d onTimeout."), e->ident);

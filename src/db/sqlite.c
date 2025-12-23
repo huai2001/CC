@@ -6,11 +6,7 @@
 #include <libcc/sql.h>
 #include <libcc/url.h>
 
-#if defined(__CC_WINDOWS__) || defined(__CC_APPLE__)
 #include <sqlite3.h>
-#else
-#include <sqlite3/sqlite3.h>
-#endif
 
 /*
 ////////////////////////////////////////////////////////////////////////
@@ -292,22 +288,22 @@ _CC_API_PRIVATE(bool_t) _sqlite_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlite_reset(_cc_sql_result_t *result) {
     int res = _sqlite3_reset(result->stmt);
     if (SQLITE_OK != res) {
-        _cc_logger_error(_T("_sqlite3_reset: %s"), _sqlite3_errmsg(ctx->sql));
         return false;
     }
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_result_t *result) {
     int res = _sqlite3_step(result->stmt);
     result->step = true;
     result->step_status = res;
-
-    if ((res != SQLITE_OK) && (res != SQLITE_DONE) && (res != SQLITE_ROW)) {
-        _cc_logger_error(_T("_sqlite3_step: %s"), _sqlite3_errmsg(ctx->sql));
+    if (res != SQLITE_ROW) {
+        if (res == SQLITE_DONE) {
+            return true;
+        }
         return false;
     }
     return true;
@@ -443,62 +439,39 @@ _CC_API_PRIVATE(bool_t) _sqlite_rollback(_cc_sql_t *ctx) {
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_fetch(_cc_sql_result_t *result) {
-    int res = result->step_status;
     _cc_assert(result != nullptr && result->stmt != nullptr);
-
+    
     if (result->step) {
-        if (res != SQLITE_ROW) {
-            return false;
-        }
-    } else {
-        res = _sqlite3_step(result->stmt);
-        if ((res != SQLITE_OK) && (res != SQLITE_DONE) && (res != SQLITE_ROW)) {
-            return false;
-        }
+        return (result->step_status == SQLITE_ROW);
     }
+    
+    result->step_status = _sqlite3_step(result->stmt);
     result->step = false;
-    result->step_status = res;
-    return (SQLITE_ROW == res);
+    
+    return (result->step_status == SQLITE_ROW);
 }
 
 _CC_API_PRIVATE(uint64_t) _sqlite_get_num_rows(_cc_sql_result_t *result) {
     _cc_assert(result != nullptr && result->stmt != nullptr);
-    _cc_logger_debug(_T("SQLite3 get_num_rows: Not implemented yet"));
-    return 0;
+    return _sqlite3_data_count(result->stmt);
 }
 
 _CC_API_PRIVATE(int32_t) _sqlite_get_num_fields(_cc_sql_result_t *result) {
-    if (result == nullptr || result->stmt == nullptr) {
-        return 0;
-    }
+    _cc_assert(result != nullptr && result->stmt != nullptr);
     return _sqlite3_column_count(result->stmt);
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
-    int res = SQLITE_ERROR;
-    _cc_assert(ctx != nullptr && result != nullptr && result->stmt != nullptr);
-
-    res = _sqlite3_step(result->stmt);
-    if ((res != SQLITE_OK) && (res != SQLITE_DONE) && (res != SQLITE_ROW)) {
-        _cc_logger_error(_T("_sqlite3_step fail:%s"), _sqlite3_errmsg(ctx->sql));
-        return false;
-    }
-
-    result->step_status = res;
-    return (SQLITE_ROW == res);
+_CC_API_PRIVATE(bool_t) _sqlite_next_result(_cc_sql_result_t *result) {
+    _cc_assert(result != nullptr && result->stmt != nullptr);
+    return false;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlite_free_result(_cc_sql_result_t *result) {
     int res = 0;
-    _cc_assert(ctx != nullptr && result != nullptr);
-
+    _cc_assert(result != nullptr);
     res = _sqlite3_finalize(result->stmt);
-    if (res != SQLITE_OK) {
-        _cc_logger_error(_T("_sqlite3_finalize fail:%s"), _sqlite3_errmsg(ctx->sql));
-    }
-
     _cc_free(result);
-    return true;
+    return res != SQLITE_OK;
 }
 
 /**/

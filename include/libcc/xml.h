@@ -59,7 +59,7 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer);
 /**/
 _CC_API_PUBLIC(void) _cc_free_xml(_cc_xml_t* ctx);
 /**/
-_CC_API_PUBLIC(void) _cc_dump_xml(_cc_xml_t* ctx, _cc_buf_t* buf);
+_CC_API_PUBLIC(void) _cc_dump_xml(const _cc_xml_t* ctx, _cc_buf_t* buf);
 /**/
 _CC_API_PUBLIC(_cc_xml_t*) _cc_alloc_xml_element(byte_t type);
 /**/

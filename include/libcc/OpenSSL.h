@@ -30,7 +30,13 @@ extern "C" {
 #endif
 
 typedef struct _cc_OpenSSL _cc_OpenSSL_t;
-typedef struct _cc_SSL _cc_SSL_t;
+
+typedef struct _cc_SSL {
+	bool_t is_handshaked;
+	uintptr_t handle;
+	_cc_OpenSSL_t *ctx;
+} _cc_SSL_t;
+
 #ifdef _CC_USE_OPENSSL_
 #if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_3_0_0
 	#define _SSL_X509_NAME_HASH	X509_NAME_hash

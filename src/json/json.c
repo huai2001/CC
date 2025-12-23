@@ -188,9 +188,9 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_sds(_cc_json_t *ctx, const tchar_t *key
 }
 
 /**/
-_CC_API_PRIVATE(void) _cc_json_dump_array(_cc_json_t *item, _cc_buf_t *buf);
+_CC_API_PRIVATE(void) _cc_json_dump_array(const _cc_json_t *item, _cc_buf_t *buf);
 /**/
-_CC_API_PRIVATE(void) _cc_json_dump_object(_cc_json_t *item, _cc_buf_t *buf);
+_CC_API_PRIVATE(void) _cc_json_dump_object(const _cc_json_t *item, _cc_buf_t *buf);
 
 _CC_API_PRIVATE(void) _cc_json_dump_string(const tchar_t *output, _cc_buf_t *buf) {
     const tchar_t *p = output;
@@ -230,7 +230,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_string(const tchar_t *output, _cc_buf_t *buf
 }
 
 /**/
-static void _cc_json_dump_value(_cc_json_t *item, _cc_buf_t *buf) {
+static void _cc_json_dump_value(const _cc_json_t *item, _cc_buf_t *buf) {
     switch (item->type) {
     case _CC_JSON_NULL_: {
         _cc_buf_append(buf, (const pvoid_t) _T("null"), 4);
@@ -289,7 +289,7 @@ static void _cc_json_dump_value(_cc_json_t *item, _cc_buf_t *buf) {
 }
 
 /**/
-_CC_API_PRIVATE(void) _cc_json_dump_array(_cc_json_t *root, _cc_buf_t *buf) {
+_CC_API_PRIVATE(void) _cc_json_dump_array(const _cc_json_t *root, _cc_buf_t *buf) {
     size_t i, length;
 
     _buf_char_put(buf, _JSON_ARRAY_START_);
@@ -308,7 +308,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_array(_cc_json_t *root, _cc_buf_t *buf) {
     _buf_char_put(buf, _JSON_ARRAY_END_);
 }
     /**/
-_CC_API_PRIVATE(void) _cc_json_dump_object(_cc_json_t *root, _cc_buf_t *buf) {
+_CC_API_PRIVATE(void) _cc_json_dump_object(const _cc_json_t *root, _cc_buf_t *buf) {
     _cc_json_t *item = nullptr;
     _cc_rbtree_iterator_t *next, *head;
 
@@ -334,7 +334,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_object(_cc_json_t *root, _cc_buf_t *buf) {
     }
 }
 
-_CC_API_PUBLIC(void) _cc_json_dump(_cc_json_t *item, _cc_buf_t *buf) {
+_CC_API_PUBLIC(void) _cc_json_dump(const _cc_json_t *item, _cc_buf_t *buf) {
     _cc_alloc_buf(buf, _CC_16K_BUFFER_SIZE_);
     _cc_json_dump_value(item, buf);
 }

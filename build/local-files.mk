@@ -219,8 +219,8 @@ ifdef USE_LIB_URL_REQUEST
 		$(SRCROOT)/src/http/http-v1.x/header.c \
 		$(SRCROOT)/src/http/http-v1.x/request.parser.c \
 		$(SRCROOT)/src/http/http-v1.x/response.parser.c \
-		$(SRCROOT)/src/url_request/http/url_request.c \
-		$(SRCROOT)/src/url_request/http/url_response.c
+		$(SRCROOT)/src/http/http-v1.x/request.c \
+		$(SRCROOT)/src/http/http-v1.x/request.response.c
 endif # --end USE_LIB_URL_REQUEST --
 
 ifdef USE_LIB_SMTP

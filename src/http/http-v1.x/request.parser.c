@@ -1,4 +1,5 @@
 #include <libcc/alloc.h>
+#include <libcc/url.h>
 #include <libcc/http.h>
 
 /**/
@@ -9,6 +10,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
     //printf("%s\n", line);
 
     if (request == nullptr) {
+        tchar_t script[_CC_MAX_PATH_];
         /* Parse the first line of the HTTP request */
         //if (_tcsnicmp(line, _T("CONNECT"), sizeof(_T("CONNECT")) - 1) != 0 || _tcsnicmp(line, _T("GET"), sizeof(_T("GET")) - 1) != 0) {
             /* LOG: bad protocol in HTTP header */
@@ -41,7 +43,9 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
         if (first == last) {
             return false;
         }
-        request->script = _cc_sds_alloc(&line[first], last - first);
+
+        first = _cc_url_decode(&line[first], last - first, script, _CC_MAX_PATH_);
+        request->script = _cc_sds_alloc(script, first);
 
         /*LOG: HTTP Protocol*/
         first = last;

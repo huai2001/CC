@@ -33,12 +33,13 @@ struct _cc_sql {
 };
 
 struct _cc_sql_result {
+    bool_t step;
+    int32_t num_of_dataset;
+    int32_t num_of_bind;
     MYSQL_STMT *stmt;
     MYSQL_BIND *binds;
     MYSQL_BIND *dataset;
     MYSQL_RES *meta;
-    int32_t num_of_dataset;
-    int32_t num_of_bind;
 #if DEBUG_EXECUTION_TIME
     clock_t execution_time;
 #endif
@@ -287,8 +288,9 @@ _CC_API_PRIVATE(bool_t) __dataset(_cc_sql_result_t *result) {
 
     res = mysql_stmt_result_metadata(result->stmt);
     if (res == nullptr) {
-        return false;
+        return mysql_stmt_affected_rows(stmt) > 0;
     }
+
     num_of_dataset = (int32_t)mysql_stmt_field_count(result->stmt);
     if (num_of_dataset > 0) {
         MYSQL_FIELD *fields = mysql_fetch_fields(res);
@@ -396,6 +398,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
     res->binds = nullptr;
     res->dataset = nullptr;
     res->meta = nullptr;
+    res->setp = false;
     res->num_of_dataset = 0;
     res->num_of_bind = num_of_bind;
     if (num_of_bind > 0) {
@@ -408,7 +411,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _mysql_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _mysql_reset(_cc_sql_result_t *result) {
     if (result->stmt == nullptr) {
         return false;
     }
@@ -418,29 +421,28 @@ _CC_API_PRIVATE(bool_t) _mysql_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _mysql_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _mysql_step(_cc_sql_result_t *result) {
     if (result->stmt == nullptr) {
         return false;
     }
 
     if (result->binds) {
         if (mysql_stmt_bind_param(result->stmt, result->binds) != 0) {
-            _cc_logger_error(_T("mysql_stmt_execute error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
             return false;
         }
     }
 
     if (mysql_stmt_execute(result->stmt) != 0) {
-        _cc_logger_error(_T("mysql_stmt_execute error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
 
+    result->step = true;
     return __dataset(result);
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
-    _cc_assert(ctx != nullptr && result != nullptr);
+_CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_result_t *result) {
+    _cc_assert(result != nullptr);
 
     __free_dataset(result);
 
@@ -453,6 +455,11 @@ _CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_t *ctx, _cc_sql_result_t *res
 
 _CC_API_PRIVATE(bool_t) _mysql_fetch(_cc_sql_result_t *result) {
     _cc_assert(result != nullptr && result->stmt != nullptr);
+    if (result->step == false) {
+        if (!_mysql_step(result)) {
+            return false;
+        }
+    }
 
     return mysql_stmt_fetch(result->stmt) == 0;
 }
@@ -467,7 +474,7 @@ _CC_API_PRIVATE(int32_t) _mysql_get_num_fields(_cc_sql_result_t *result) {
     return result->num_of_dataset;
 }
 
-_CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_result_t *result) {
     _cc_assert(result != nullptr);
     __free_dataset(result);
 

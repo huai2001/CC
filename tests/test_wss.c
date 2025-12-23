@@ -9,9 +9,6 @@ _cc_OpenSSL_t *openSSL;
 #endif
 typedef struct _ws {
     uint8_t state;
-#if ENABLE_SSL
-    uint8_t handshake;
-#endif
     uint64_t length;
     _cc_io_buffer_t *io;
     _cc_ws_header_t header;
@@ -21,10 +18,8 @@ typedef struct _ws {
 /**/
 _CC_API_PRIVATE(_cc_ws_t*) _ws_alloc(_cc_socket_t fd) {
     _cc_ws_t *ws = (_cc_ws_t*)_cc_malloc(sizeof(_cc_ws_t));
-#if ENABLE_SSL
-    ws->handshake = _CC_SSL_HS_SYSCALL_WOULDBLOCK_;
-#endif
-    ws->state = _CC_HTTP_STATUS_HEADER_;
+
+    ws->state = _CC_HTTP_STATE_HEADER_;
     ws->request = nullptr;
     ws->header.state = WS_DATA_OK;
 
@@ -215,12 +210,12 @@ static void bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
 
 _CC_API_PRIVATE(bool_t) _ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
     _cc_io_buffer_t *io = (_cc_io_buffer_t*)ws->io;
-    if (ws->state == _CC_HTTP_STATUS_HEADER_) {
+    if (ws->state == _CC_HTTP_STATE_HEADER_) {
         const _cc_http_header_t *connection, *upgrade;
         ws->state = _cc_http_header_parser((_cc_http_header_fn_t)_cc_http_alloc_request_header, (pvoid_t *)&ws->request, io->r.bytes, &io->r.off);
         /**/
-        if (ws->state != _CC_HTTP_STATUS_PAYLOAD_) {
-            return ws->state == _CC_HTTP_STATUS_HEADER_;
+        if (ws->state != _CC_HTTP_STATE_PAYLOAD_) {
+            return ws->state == _CC_HTTP_STATE_HEADER_;
         }
 
         connection = _cc_http_header_find(&ws->request->headers,_T("Connection"));
@@ -232,7 +227,7 @@ _CC_API_PRIVATE(bool_t) _ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
             bad_request(e, io);
             return false;
         }
-        ws->state = _CC_HTTP_STATUS_ESTABLISHED_;
+        ws->state = _CC_HTTP_STATE_ESTABLISHED_;
     } 
 
     if (io->r.off != 0) {
@@ -240,7 +235,7 @@ _CC_API_PRIVATE(bool_t) _ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
         io->r.off = 0;
     }
 
-    if (ws->state == _CC_HTTP_STATUS_ESTABLISHED_) {
+    if (ws->state == _CC_HTTP_STATE_ESTABLISHED_) {
         return _ws_response_header(e,ws);
     }
     return true;
@@ -295,18 +290,19 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         return true;
     } else if (which & _CC_EVENT_TIMEOUT_) {
 #if ENABLE_SSL
-        if (ws->handshake != _CC_SSL_HS_ESTABLISHED_) {
-            ws->handshake = _SSL_do_handshake(ws->io->ssl);
-            if (ws->handshake == _CC_SSL_HS_ESTABLISHED_) {
+    if (ws->io && ws->io->ssl) {
+        if (!ws->io->ssl->is_handshaked) {
+            if (_SSL_do_handshake(ws->io->ssl) == _CC_SSL_HS_ERROR_) {
+                return false;
+            }
+            if (ws->io->ssl->is_handshaked) {
                 e->timeout = 60000;
                 _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
-                return true;
-            } else if (ws->handshake == _CC_SSL_HS_ERROR_) {
-                return false;
             }
             //wait SSL handshake complete
             return true;
         }
+    }
 #endif
         _cc_logger_debug(_T("TCP timeout %d"), e->fd);
         if (_ws_heartbeat(e, WS_OP_PONG)) {
@@ -332,7 +328,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
                 break;
             }
             
-            if (ws->state == _CC_HTTP_STATUS_ESTABLISHED_) {
+            if (ws->state == _CC_HTTP_STATE_ESTABLISHED_) {
                 if (!_ws_unpack(e)) {
                     return false;
                 }
@@ -367,8 +363,8 @@ int main(int argc, char *const argv[]) {
         return 1;
     }
 
-    //_SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",nullptr);
-    _SSL_setup(openSSL, "/opt/libcc/bin/arm64/debug/cert.pem", "/opt/libcc/bin/arm64/debug/key.pem",nullptr);
+    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",nullptr);
+    //_SSL_setup(openSSL, "/opt/libcc/bin/arm64/debug/cert.pem", "/opt/libcc/bin/arm64/debug/key.pem",nullptr);
 #endif
     if (_cc_register_poller(&async) == false) {
         return 1;

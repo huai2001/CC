@@ -155,7 +155,7 @@ LIBCCHeaders = [
 	"include/libcc/smtp.h",
 	"include/libcc/OpenSSL.h",
 	"include/libcc/gzip.h",
-	"include/libcc/url_request.h",
+	"include/libcc/http_request.h",
 	"src/misc/misc.c.h",
 	"src/xml/xml.c.h",
 	"src/ini/ini.c.h",

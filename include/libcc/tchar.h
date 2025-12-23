@@ -89,6 +89,7 @@ extern "C" {
 #define _ungettc ungetwc
 #define _tcstod wcstod
 #define _tcstol wcstol
+#define _tcstoll wcstoll
 #define _tcstoul wcstoul
 #define _itot _itow
 #define _ltot _ltow
@@ -328,6 +329,7 @@ extern "C" {
 #define _ungettc ungetc
 #define _tcstod strtod
 #define _tcstol strtol
+#define _tcstoll strtoll
 #define _tcstoul strtoul
 #define _itot _itoa
 #define _ltot _ltoa

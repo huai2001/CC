@@ -1,9 +1,9 @@
-#include <libcc/url_request.h>
+#include <libcc/http_request.h>
 #include <libcc/http2.h>
 
 static _cc_OpenSSL_t *openSSL = nullptr;
 static bool_t url_request(const tchar_t *url, pvoid_t args);
-static bool_t url_request_connect(_cc_url_request_t *request);
+static bool_t url_request_connect(_cc_http_request_t *request);
 
 typedef struct _cc_http2_client {
     uint32_t connection_window_size;
@@ -207,7 +207,7 @@ static void _cc_http2_close_connection(_cc_http2_client_t *client, uint32_t stre
 }
 
 
-static bool_t url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
+static bool_t url_request_header(_cc_http_request_t *request, _cc_event_t *e) {
     _cc_url_t *u = &request->url;
     _cc_buf_t *buf = &request->buffer;
     _cc_io_buffer_t *io = request->io;
@@ -236,33 +236,35 @@ static bool_t url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
     return _cc_io_buffer_flush(e, io) >= 0;
 }
 
-static bool_t _handshaking(_cc_event_t *e, _cc_url_request_t *request) {
-    request->handshake = _SSL_do_handshake(request->io->ssl);
-    if (request->handshake == _CC_SSL_HS_ESTABLISHED_) {
-        e->timeout = 10000;
+static bool_t _handshaking(_cc_event_t *e, _cc_http_request_t *request) {
+    if (_SSL_do_handshake(request->io->ssl) == _CC_SSL_HS_ERROR_) {
+        return false;
+    }
+    if (request->io->ssl->is_handshaked) {
+        e->timeout = 60000;
         _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
         return url_request_header(request, e);
-    } else if (request->handshake == _CC_SSL_HS_ERROR_) {
-        return false;
     }
     //wait SSL handshake complete
     return true;
 }
 
-static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
-    _cc_url_request_t *request = (_cc_url_request_t *)e->data;
+static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
+    _cc_http_request_t *request = (_cc_http_request_t *)e->data;
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, which)) {
         //printf("disconnect\n");
-        _cc_logger_warin("_cc_url_request_ _CC_EVENT_CLOSED_ %d",e->ident);
-        _cc_free_url_request(request);
+        _cc_logger_warin("_cc_http_request_ _CC_EVENT_CLOSED_ %d",e->ident);
+        _cc_free_http_request(request);
         return false;
-    } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {    
-        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->handshake != _CC_SSL_HS_ESTABLISHED_) {
-            return _handshaking(e, request);
+    } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {
+        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
+            if (request->io && request->io->ssl && !request->io->ssl->is_handshaked) {
+                return _handshaking(e, request);
+            }
         }
-        if (request->response && request->response->keep_alive && request->state == _CC_HTTP_STATUS_ESTABLISHED_) {
-            return url_request_header(request, e);;
+        if (request->response && request->response->keep_alive) {
+            return url_request_header(request, e);
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
@@ -428,17 +430,17 @@ static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, co
 }
 
 static bool_t url_request(const tchar_t *url, pvoid_t args) {
-    _cc_url_request_t *request = _cc_url_request(url, args);
+    _cc_http_request_t *request = _cc_url_request(url, args);
 
     if (!url_request_connect(request)) {
-        _cc_free_url_request(request);
+        _cc_free_http_request(request);
         return false;
     }
     memset(&http_clients, 0, sizeof(http_clients));
     return true;
 }
 
-static bool_t url_request_connect(_cc_url_request_t *request) {
+static bool_t url_request_connect(_cc_http_request_t *request) {
     struct sockaddr_in sa;
     _cc_socket_t fd;
     _cc_event_t *e;
@@ -463,14 +465,14 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
     }
 
     e->fd = fd;
-    e->callback = _url_request_callback;
+    e->callback = _http_request_callback;
     e->timeout = 1000;
     e->data = (uintptr_t)request;
 
-    _cc_reset_url_request(request);
+    _cc_reset_http_request(request);
 
     if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
-        _cc_url_request_ssl(openSSL, request, e);
+        _cc_http_request_ssl(openSSL, request, e);
 
         // 设置ALPN协议为h2
         unsigned char alpn_protos[] = {2, 'h', '2'};

@@ -124,7 +124,7 @@ _CC_API_PUBLIC(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg
     int32_t i;
     wchar_t buf[1024];
 #endif
-    int result = _CC_HTTP_STATUS_HEADER_;
+    int result = _CC_HTTP_STATE_HEADER_;
     while (true) {
         n = memchr(start, '\n', *length - (start - bytes));
         if (n == nullptr) {
@@ -139,7 +139,7 @@ _CC_API_PUBLIC(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg
             /*If we received just a CR LF on a line, the headers are finished*/
             if ((n - 1) == start) {
                 start = n + 1;
-                result = _CC_HTTP_STATUS_PAYLOAD_;
+                result = _CC_HTTP_STATE_PAYLOAD_;
                 break;
             }
 #ifdef _CC_UNICODE_

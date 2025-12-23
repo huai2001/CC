@@ -69,8 +69,8 @@ int main(int argc, char *const arvg[]) {
         sql_delegate.bind(sql_result, 1, "127.0.0.1", -1, _CC_SQL_TYPE_STRING_);
         sql_delegate.bind(sql_result, 2, &a, sizeof(uint32_t), _CC_SQL_TYPE_UINT32_);
         sql_delegate.bind(sql_result, 3, &update_time, sizeof(uint32_t), _CC_SQL_TYPE_UINT32_);
-        sql_delegate.step(conn_ptr1, sql_result);
-        sql_delegate.free_result(conn_ptr1, sql_result);
+        sql_delegate.step(sql_result);
+        sql_delegate.free_result(sql_result);
     }
 
     _cc_string_set(sql_str,"select `id`,`mid`,`update_time`,`text`,`desc` from test where text like ?;");
@@ -79,7 +79,7 @@ int main(int argc, char *const arvg[]) {
         char *date = "2023%%";
         //sql_delegate.bind(sql_result, 0, &v, sizeof(int), _CC_SQL_TYPE_INT32_);
         sql_delegate.bind(sql_result, 0, date, -1, _CC_SQL_TYPE_STRING_);
-        sql_delegate.step(conn_ptr1, sql_result);
+        sql_delegate.step(sql_result);
         //int num_fields = sql_delegate.get_num_fields(sql_result);
         while(sql_delegate.fetch(sql_result)) {
             static struct tm t;
@@ -94,7 +94,7 @@ int main(int argc, char *const arvg[]) {
             printf("%d | %d | %4d-%02d-%02d %02d:%02d:%02d | %s\n", id, mid, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour,
                    t.tm_min, t.tm_sec, text);
         }
-        sql_delegate.free_result(conn_ptr1, sql_result);
+        sql_delegate.free_result(sql_result);
     }
     
     puts("-----------\n");
@@ -115,7 +115,7 @@ int main(int argc, char *const arvg[]) {
             printf("%d | %d | %4d-%02d-%02d %02d:%02d:%02d | %s | %s\n", id, mid, t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour,
                    t.tm_min, t.tm_sec, text, desc);
         }
-        sql_delegate.free_result(conn_ptr1, sql_result);
+        sql_delegate.free_result(sql_result);
     }
     sql_delegate.disconnect(conn_ptr1);
     sql_delegate.disconnect(conn_ptr2);

@@ -105,7 +105,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_ini_error(void) {
     return _cc_get_syntax_error();
 }
 
-static void _INI_dump(_cc_buf_t* buf, _cc_rbtree_t* rb) {
+static void _INI_dump(_cc_buf_t* buf, const _cc_rbtree_t* rb) {
     _cc_rbtree_for_each(v, rb, {
         _cc_ini_t* ctx = _cc_upcast(v, _cc_ini_t, lnk);
         switch(ctx->type) {
@@ -130,7 +130,7 @@ static void _INI_dump(_cc_buf_t* buf, _cc_rbtree_t* rb) {
     });
 }
 
-_CC_API_PUBLIC(void) _cc_dump_ini(_cc_ini_t* ctx, _cc_buf_t* buf) {
+_CC_API_PUBLIC(void) _cc_dump_ini(const _cc_ini_t* ctx, _cc_buf_t* buf) {
     _cc_alloc_buf(buf, _CC_16K_BUFFER_SIZE_);
     _INI_dump(buf, &ctx->element.uni_object);
 }

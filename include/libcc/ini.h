@@ -52,7 +52,7 @@ _CC_API_PUBLIC(void) _cc_free_ini(_cc_ini_t* ctx);
 /**/
 _CC_API_PUBLIC(const tchar_t*) _cc_ini_error(void);
 /**/
-_CC_API_PUBLIC(void) _cc_dump_ini(_cc_ini_t* ctx, _cc_buf_t* buf);
+_CC_API_PUBLIC(void) _cc_dump_ini(const _cc_ini_t* ctx, _cc_buf_t* buf);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

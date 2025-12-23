@@ -16,11 +16,6 @@
 static _cc_atomic32_t _SSL_lock = 0;
 static _cc_atomic32_t _SSL_init_refcount = 0;
 
-struct _cc_SSL {
-    SSL *handle;
-    _cc_OpenSSL_t *ctx;
-};
-
 struct _cc_OpenSSL {
     SSL_CTX *handle;
     _cc_atomic32_t refcount;
@@ -278,20 +273,21 @@ _CC_API_PUBLIC(void) _SSL_quit(_cc_OpenSSL_t *ctx) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _SSL_free(_cc_SSL_t *ssl) {
-    if (ssl->handle == nullptr || ssl->ctx == nullptr) {
+    SSL *handle = (SSL*)ssl->handle;
+    if (handle == nullptr || ssl->ctx == nullptr) {
         return true;
     }
 
-    if (!SSL_in_init(ssl->handle) && ssl->ctx->handle) {
+    if (!SSL_in_init(handle) && ssl->ctx->handle) {
         _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
-        SSL_CTX_remove_session(ssl->ctx->handle, SSL_get0_session(ssl->handle));
+        SSL_CTX_remove_session(ssl->ctx->handle, SSL_get0_session(handle));
         _SSL_lock = 0;
     }
 
     _cc_atomic32_dec(&ssl->ctx->refcount);
 
-    SSL_shutdown(ssl->handle);
-    SSL_free(ssl->handle);
+    SSL_shutdown(handle);
+    SSL_free(handle);
 
     _cc_free(ssl);
 
@@ -308,14 +304,14 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_alloc(_cc_OpenSSL_t* ctx) {
     SSL_CTX_set_session_id_context(ctx->handle, (byte_t*)&session_id_context, sizeof(session_id_context));
     
     _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
-    ssl->handle = SSL_new(ctx->handle);
+    ssl->handle = (uintptr_t)SSL_new(ctx->handle);
     _SSL_lock = 0;
 
-    if (ssl->handle == nullptr) {
+    if (ssl->handle == 0) {
         _cc_free(ssl);
         return nullptr;
     }
-
+    ssl->is_handshaked = false;
     ssl->ctx = ctx;
 
     return ssl;
@@ -341,26 +337,26 @@ _CC_API_PRIVATE(int) _ssl_pkey_password_callback(char *buf, int size, int rwflag
     return password_length;
 }
 
-_CC_API_PUBLIC(bool_t) _SSL_setup(_cc_OpenSSL_t *ssl,
+_CC_API_PUBLIC(bool_t) _SSL_setup(_cc_OpenSSL_t *ctx,
                                 const tchar_t *cert_file,
                                 const tchar_t *key_file,
                                 const tchar_t *key_password) {
     if (key_password) {
-        SSL_CTX_set_default_passwd_cb_userdata(ssl->handle, (void*)key_password);
-        SSL_CTX_set_default_passwd_cb(ssl->handle, _ssl_pkey_password_callback);
+        SSL_CTX_set_default_passwd_cb_userdata(ctx->handle, (void*)key_password);
+        SSL_CTX_set_default_passwd_cb(ctx->handle, _ssl_pkey_password_callback);
     }
 
-    if (SSL_CTX_use_certificate_chain_file(ssl->handle, cert_file) <= 0) {
+    if (SSL_CTX_use_certificate_chain_file(ctx->handle, cert_file) <= 0) {
         _cc_logger_error(_T("Failed to load certificate file: %s SSL_CTX_use_certificate_file failed: %s"), cert_file, ERR_reason_error_string(ERR_get_error()));
         return false;
     }
 
-    if (SSL_CTX_use_PrivateKey_file(ssl->handle, key_file, SSL_FILETYPE_PEM) <= 0) {
+    if (SSL_CTX_use_PrivateKey_file(ctx->handle, key_file, SSL_FILETYPE_PEM) <= 0) {
         _cc_logger_error(_T("Failed to load private key file: %s SSL_CTX_use_PrivateKey_file failed: %s"), key_file,ERR_reason_error_string(ERR_get_error()));
         return false;
     }
 
-    if (!SSL_CTX_check_private_key(ssl->handle)) {
+    if (!SSL_CTX_check_private_key(ctx->handle)) {
         _cc_logger_error(_T("SSL_CTX_check_private_key failed: %s\n"), ERR_reason_error_string(ERR_get_error()));
         return false;
     }
@@ -378,13 +374,13 @@ static int _SSL_sni_callback(SSL *ssl, int *ad, void *arg) {
     return SSL_TLSEXT_ERR_OK;
 }
 
-_CC_API_PUBLIC(bool_t) _SSL_setup_sni_callback(_cc_OpenSSL_t *ssl,  callback) {
-    SSL_CTX_set_tlsext_servername_callback(ssl->handle, _SSL_sni_callback);
-    SSL_CTX_set_tlsext_servername_arg(ssl->handle, ssl);
+_CC_API_PUBLIC(bool_t) _SSL_setup_sni_callback(_cc_OpenSSL_t *ctx,  callback) {
+    SSL_CTX_set_tlsext_servername_callback(ctx->handle, _SSL_sni_callback);
+    SSL_CTX_set_tlsext_servername_arg(ctx->handle, ssl);
     return true;
 }*/
 
-_CC_API_PUBLIC(bool_t) _SSL_setup_pkcs12(_cc_OpenSSL_t *ssl,
+_CC_API_PUBLIC(bool_t) _SSL_setup_pkcs12(_cc_OpenSSL_t *ctx,
                                 const tchar_t *pkcs12_file,
                                 const tchar_t *password) {
     PKCS12 *p12;
@@ -412,14 +408,14 @@ _CC_API_PUBLIC(bool_t) _SSL_setup_pkcs12(_cc_OpenSSL_t *ssl,
         return false;
     }
 
-    if (SSL_CTX_use_certificate(ssl->handle, cert) <= 0) {
+    if (SSL_CTX_use_certificate(ctx->handle, cert) <= 0) {
         _cc_logger_error(_T("SSL_CTX_use_certificate failed:%s"),ERR_reason_error_string(ERR_get_error()));
         sk_X509_pop_free(ca, X509_free);
         PKCS12_free(p12);
         return false;
     }
 
-    if (SSL_CTX_use_PrivateKey(ssl->handle, key) <= 0) {
+    if (SSL_CTX_use_PrivateKey(ctx->handle, key) <= 0) {
         _cc_logger_error(_T("SSL_CTX_use_PrivateKey failed: %s"),ERR_reason_error_string(ERR_get_error()));
         X509_free(cert);
         sk_X509_pop_free(ca, X509_free);
@@ -442,16 +438,16 @@ _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, const tchar_t *host, siz
 #ifdef _CC_UNICODE_
     _cc_utf16_to_utf8((uint16_t *)host, (uint16_t *)(host + length), (uint8_t *)host_utf8,
                       (uint8_t *)host_utf8 + _cc_countof(host_utf8));
-    SSL_set_tlsext_host_name(ssl->handle, host_utf8);
+    SSL_set_tlsext_host_name((SSL*)ssl->handle, host_utf8);
 #else
-    SSL_set_tlsext_host_name(ssl->handle, host);
+    SSL_set_tlsext_host_name((SSL*)ssl->handle, host);
     _CC_UNUSED(length);
 #endif
 }
 
 /**/
 _CC_API_PUBLIC(int) _SSL_set_alpn_protos(_cc_SSL_t *ssl, const unsigned char *protos, unsigned int protos_len) {
-    return SSL_set_alpn_protos(ssl->handle, protos, protos_len);
+    return SSL_set_alpn_protos((SSL*)ssl->handle, protos, protos_len);
 }
 
 _CC_API_PRIVATE(uint8_t) _SSL_Error(SSL *handle,const char *fn) {
@@ -477,8 +473,9 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_accept(_cc_OpenSSL_t *ctx, _cc_socket_t fd) {
     _cc_SSL_t *ssl = _SSL_alloc(ctx);
 
     if (ssl) {
-		SSL_set_fd(ssl->handle, (int)fd);
-		SSL_set_accept_state(ssl->handle);
+        SSL *handle = (SSL*)ssl->handle;
+		SSL_set_fd(handle, (int)fd);
+		SSL_set_accept_state(handle);
     }
 	return ssl;
 }
@@ -487,8 +484,9 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_accept(_cc_OpenSSL_t *ctx, _cc_socket_t fd) {
 _CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_socket_t fd) {
     _cc_SSL_t *ssl = _SSL_alloc(ctx);
     if (ssl) {
-		SSL_set_fd(ssl->handle, (int)fd);
-		SSL_set_connect_state(ssl->handle);
+        SSL *handle = (SSL*)ssl->handle;
+		SSL_set_fd(handle, (int)fd);
+		SSL_set_connect_state(handle);
 	}
 	return ssl;
 }
@@ -496,10 +494,12 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_socket_t fd) {
 /**/
 _CC_API_PUBLIC(uint8_t) _SSL_do_handshake(_cc_SSL_t* ssl) {
     ERR_clear_error();
-    if (SSL_do_handshake(ssl->handle) == 1) {
+    if (SSL_do_handshake((SSL*)ssl->handle) == 1) {
+        ssl->is_handshaked = true;
 		return _CC_SSL_HS_ESTABLISHED_;
     }
-    return _SSL_Error(ssl->handle, _CC_FUNC_);
+    ssl->is_handshaked = false;
+    return _SSL_Error((SSL*)ssl->handle, _CC_FUNC_);
 }
 
 /**/
@@ -509,9 +509,9 @@ _CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t *ssl, const byte_t *buf, int32_t len
 	_cc_assert(length > 0);
 
     ERR_clear_error();
-    rc = (int32_t)SSL_write(ssl->handle, (char *)buf, length);
+    rc = (int32_t)SSL_write((SSL*)ssl->handle, (char *)buf, length);
     if (rc <= 0) {
-		if (_SSL_Error(ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
+		if (_SSL_Error((SSL*)ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
 			return 0;
 		}
     }
@@ -523,13 +523,13 @@ _CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t *ssl, byte_t *buf, int32_t length) {
     int32_t rc;
 
     ERR_clear_error();
-    rc = (int32_t)SSL_read(ssl->handle, buf, length);
+    rc = (int32_t)SSL_read((SSL*)ssl->handle, buf, length);
     if (rc > 0) {
         return rc;
     } else if (rc == 0) {
         return -1;
     }
-	if (_SSL_Error(ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
+	if (_SSL_Error((SSL*)ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
 		return 0;
 	}
     return rc;

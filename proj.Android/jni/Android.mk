@@ -83,8 +83,8 @@ LOCAL_SRC_FILES := \
     ../../src/http/http-v1.x/header.c \
     ../../src/http/http-v1.x/request.parser.c \
     ../../src/http/http-v1.x/response.parser.c \
-    ../../src/url_request/http/url_request.c \
-    ../../src/url_request/http/url_response.c \
+    ../../src/http/http-v1.x/request.c \
+    ../../src/http/http-v1.x/request.response.c \
     ../../src/smtp/libsmtp.c \
     ../../src/smtp/connected.c \
     ../../src/smtp/login.c \

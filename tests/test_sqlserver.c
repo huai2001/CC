@@ -132,14 +132,14 @@ int main(int argc, char *const arvg[]) {
     	for (i = 0; i < 10; i++) {
     		status += i;
     		price += price * i;
-	        sql_delegate.reset(conn_ptr, sql_result);
+	        sql_delegate.reset(sql_result);
 	        sql_delegate.bind(sql_result, 0, &status, sizeof(uint16_t), _CC_SQL_TYPE_UINT16_);
 	        sql_delegate.bind(sql_result, 1, &price, sizeof(double), _CC_SQL_TYPE_DOUBLE_);
 	        sql_delegate.bind(sql_result, 2, text.data, text.length, _CC_SQL_TYPE_STRING_);
 	        sql_delegate.bind(sql_result, 3, &tm_now, sizeof(struct tm), _CC_SQL_TYPE_DATETIME_);
-	        sql_delegate.step(conn_ptr, sql_result);
+	        sql_delegate.step(sql_result);
 	    }
-        sql_delegate.free_result(conn_ptr, sql_result);
+        sql_delegate.free_result(sql_result);
     }
     
     sql_delegate.begin_transaction(conn_ptr);
@@ -173,7 +173,7 @@ int main(int argc, char *const arvg[]) {
         #if 0
         _sqlsvr_get_field_names(sql_result);
         #endif
-        sql_delegate.free_result(conn_ptr, sql_result);
+        sql_delegate.free_result(sql_result);
     }
 	
     sql_delegate.disconnect(conn_ptr);

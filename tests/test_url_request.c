@@ -1,10 +1,10 @@
-#include <libcc/url_request.h>
+#include <libcc/http_request.h>
 #include <libcc/json.h>
 #include <libcc/timeout.h>
 
 static _cc_OpenSSL_t *openSSL = nullptr;
 static bool_t url_request(const tchar_t *url, pvoid_t args);
-static bool_t url_request_connect(_cc_url_request_t *request);
+static bool_t url_request_connect(_cc_http_request_t *request);
 
 const tchar_t *_user_agent[6] = {
     _T("Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36 Edg/138.0.0.0"),
@@ -14,12 +14,12 @@ const tchar_t *_user_agent[6] = {
     _T("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0"),
     _T("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
 };
-static bool_t url_response_header(_cc_url_request_t *request) {
+static bool_t url_response_header(_cc_http_request_t *request) {
     //_cc_http_response_header_t *response = request->response;
     return true;
 }
 
-static bool_t url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
+static bool_t url_request_header(_cc_http_request_t *request, _cc_event_t *e) {
     _cc_url_t *u = &request->url;
     _cc_buf_t *buf = &request->buffer;
     _cc_buf_cleanup(buf);
@@ -40,10 +40,10 @@ static bool_t url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
     _cc_buf_puts(buf, _T("Connection: Keep-Alive\r\nAccept-Encoding: gzip\r\n"));
     _cc_buf_appendf(buf, _T("User-Agent: %s\r\nAccept: */*\r\n\r\n"),
                    _user_agent[rand() % _cc_countof(_user_agent)]);
-    return _cc_url_request_header(request, e);
+    return _cc_http_request_header(request, e);
 }
 
-static bool_t url_request_success(_cc_url_request_t *request) {
+static bool_t url_request_success(_cc_http_request_t *request) {
     _cc_http_response_header_t *response = request->response;
     _cc_rbtree_iterator_t *node;
 
@@ -80,13 +80,13 @@ static bool_t url_request_success(_cc_url_request_t *request) {
     return true;
 }
 
-static bool_t url_request_read(_cc_url_request_t *request) {
+static bool_t url_request_read(_cc_http_request_t *request) {
     //_cc_buf_cleanup(&request->buffer);
     return true;
 }
 
 static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, const uint32_t which) {
-    _cc_url_request_t *request = (_cc_url_request_t *)e->data;
+    _cc_http_request_t *request = (_cc_http_request_t *)e->data;
     if (request == nullptr || !_cc_async_event_is_running()) {
         return false;
     }
@@ -97,37 +97,39 @@ static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, co
     return (url_request_connect(request))?false:true;
 }
 
-static bool_t _handshaking(_cc_event_t *e, _cc_url_request_t *request) {
-    request->handshake = _SSL_do_handshake(request->io->ssl);
-    if (request->handshake == _CC_SSL_HS_ESTABLISHED_) {
-        e->timeout = 10000;
+static bool_t _handshaking(_cc_event_t *e, _cc_http_request_t *request) {
+    if (_SSL_do_handshake(request->io->ssl) == _CC_SSL_HS_ERROR_) {
+        return false;
+    }
+    if (request->io->ssl->is_handshaked) {
+        e->timeout = 60000;
         _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
         return url_request_header(request, e);
-    } else if (request->handshake == _CC_SSL_HS_ERROR_) {
-        return false;
     }
     //wait SSL handshake complete
     return true;
 }
 
-static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
-    _cc_url_request_t *request = (_cc_url_request_t *)e->data;
+static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
+    _cc_http_request_t *request = (_cc_http_request_t *)e->data;
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, which)) {
         //printf("disconnect\n");
-        _cc_logger_warin("_cc_url_request_ _CC_EVENT_CLOSED_ %d",e->ident);
+        _cc_logger_warin("_cc_http_request_ _CC_EVENT_CLOSED_ %d",e->ident);
         if (_cc_async_event_is_running()) {
             _cc_add_event_timeout(_cc_get_async_event(), 10000, _url_timeout_callback, (uintptr_t)request);
         } else {
-            _cc_free_url_request(request);
+            _cc_free_http_request(request);
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {    
-        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->handshake != _CC_SSL_HS_ESTABLISHED_) {
-            return _handshaking(e, request);
+        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
+            if (request->io && request->io->ssl && !request->io->ssl->is_handshaked) {
+                return _handshaking(e, request);
+            }
         }
-        if (request->response && request->response->keep_alive && request->state == _CC_HTTP_STATUS_ESTABLISHED_) {
-            return url_request_header(request, e);;
+        if (request->response && request->response->keep_alive) {
+            return url_request_header(request, e);
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
@@ -151,26 +153,26 @@ static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, co
         } else if (off == 0) {
             return true;
         }
-        if (request->state == _CC_HTTP_STATUS_HEADER_) {
+        if (request->state == _CC_HTTP_STATE_HEADER_) {
             //printf("response header\n");
-            if (!_cc_url_request_response_header(request)) {
+            if (!_cc_http_request_response_header(request)) {
                 return false;
             }
             //Response header completed.
-            if (request->state == _CC_HTTP_STATUS_PAYLOAD_) {
+            if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
                 url_response_header(request);
             }
         }
 
-        if (request->state == _CC_HTTP_STATUS_PAYLOAD_) {
+        if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
             //printf("response body\n");
-            if (!_cc_url_request_response_body(request)) {
+            if (!_cc_http_request_response_body(request)) {
                 return false;
             }
 
             url_request_read(request);
 
-            if (request->state == _CC_HTTP_STATUS_ESTABLISHED_) {
+            if (request->state == _CC_HTTP_STATE_ESTABLISHED_) {
                 //printf("response successful\n");
                 url_request_success(request);
                 return request->response->keep_alive;
@@ -180,16 +182,7 @@ static bool_t _url_request_callback(_cc_async_event_t *async, _cc_event_t *e, co
     return true;
 }
 
-static bool_t url_request(const tchar_t *url, pvoid_t args) {
-    _cc_url_request_t *request = _cc_url_request(url, args);
-
-    if (!url_request_connect(request)) {
-        _cc_free_url_request(request);
-        return false;
-    }
-    return true;
-}
-static bool_t url_request_connect(_cc_url_request_t *request) {
+static bool_t url_request_connect(_cc_http_request_t *request) {
     struct sockaddr_in sa;
     _cc_socket_t fd;
     _cc_event_t *e;
@@ -214,14 +207,14 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
     }
 
     e->fd = fd;
-    e->callback = _url_request_callback;
+    e->callback = _http_request_callback;
     e->timeout = 1000;
     e->data = (uintptr_t)request;
 
-    _cc_reset_url_request(request);
+    _cc_reset_http_request(request);
 
     if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
-        _cc_url_request_ssl(openSSL, request, e);
+        _cc_http_request_ssl(openSSL, request, e);
     }
 
     _cc_inet_ipv4_addr(&sa, request->url.host, request->url.port);
@@ -240,6 +233,16 @@ static bool_t url_request_connect(_cc_url_request_t *request) {
 
     _cc_free_event(async, e);
     return false;
+}
+
+static bool_t url_request(const tchar_t *url, pvoid_t args) {
+    _cc_http_request_t *request = _cc_http_request(url, args);
+
+    if (!url_request_connect(request)) {
+        _cc_free_http_request(request);
+        return false;
+    }
+    return true;
 }
 
 int main(int argc, char *const argv[]) {

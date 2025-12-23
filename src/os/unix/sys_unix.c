@@ -7,9 +7,16 @@
 #include <stdio.h>
 
 #ifndef __CC_APPLE__
+#include <sys/utsname.h>
 _CC_API_PUBLIC(size_t) _cc_get_device_name(tchar_t *cname, size_t length) {
-    cname[0] = 0;
-    return 0;
+    struct utsname buffer;
+    if (uname(&buffer) == 0) {
+        _tcsncpy(cname, buffer.nodename,length);
+    } else if (gethostname(cname, length) != 0) {
+        _tcsncpy(cname,"localhost.unknown", length);
+    }
+    cname[length - 1] = 0;
+    return _tcslen(cname);
 }
 #endif
 

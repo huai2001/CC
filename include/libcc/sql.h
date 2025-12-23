@@ -41,10 +41,6 @@ struct _cc_sql_delegate {
     /**/
     bool_t (*disconnect)(_cc_sql_t *);
     /**/
-    bool_t (*reset)(_cc_sql_t *, _cc_sql_result_t *);
-    /**/
-    bool_t (*step)(_cc_sql_t *, _cc_sql_result_t *);
-    /**/
     bool_t (*execute)(_cc_sql_t *, const _cc_string_t *, _cc_sql_result_t **);
     /**/
     bool_t (*auto_commit)(_cc_sql_t *, bool_t);
@@ -55,9 +51,13 @@ struct _cc_sql_delegate {
     /**/
     bool_t (*rollback)(_cc_sql_t *);
     /**/
-    bool_t (*next_result)(_cc_sql_t *, _cc_sql_result_t *);
+    bool_t (*reset)(_cc_sql_result_t *);
     /**/
-    bool_t (*free_result)(_cc_sql_t *, _cc_sql_result_t *);
+    bool_t (*step)(_cc_sql_result_t *);
+    /**/
+    bool_t (*next_result)(_cc_sql_result_t *);
+    /**/
+    bool_t (*free_result)(_cc_sql_result_t *);
     /**/
     int32_t (*get_num_fields)(_cc_sql_result_t *);
     /**/

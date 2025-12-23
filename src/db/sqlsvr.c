@@ -146,9 +146,9 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) SQLExecute_ex(SQLHSTMT hSTMT) {
+_CC_API_PRIVATE(bool_t) SQLExecute_ex(_cc_sql_result_t *result) {
+    SQLHSTMT hSTMT = result->hSTMT;
     int rc = SQLExecute(hSTMT);
-
     if (rc == SQL_NEED_DATA) {
         char buf[_CC_4K_BUFFER_SIZE_];
         int fp;
@@ -162,6 +162,8 @@ _CC_API_PRIVATE(bool_t) SQLExecute_ex(SQLHSTMT hSTMT) {
             }
         } while (rc == SQL_NEED_DATA);
     }
+
+    result->step = true;
 
     if (is_odbc_error(rc)) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, hSTMT, _T("SQLExecute"));
@@ -194,7 +196,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
     }
 
     if (result == nullptr) {
-        bool_t rc = SQLExecute_ex(hSTMT);
+        bool_t rc = SQLExecute_ex(hSTMT) > 0;
         SQLCloseCursor(hSTMT);
         SQLFreeStmt(hSTMT, SQL_CLOSE);
         SQLFreeStmt(hSTMT, SQL_DROP);
@@ -210,7 +212,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_reset(_cc_sql_result_t *result) {
     _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
     if (is_odbc_error(SQLFreeStmt(result->hSTMT, SQL_RESET_PARAMS))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, result->hSTMT, _T("SQLFreeStmt"));
@@ -219,10 +221,9 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_reset(_cc_sql_t *ctx, _cc_sql_result_t *result) 
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_step(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(size_t) _sqlsvr_step(_cc_sql_result_t *result) {
     _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
-    result->step = true;
-    return SQLExecute_ex(result->hSTMT);
+    return SQLExecute_ex(result);
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
@@ -284,8 +285,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_fetch(_cc_sql_result_t *result) {
     SQLRETURN res;
     _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
     if (!result->step) {
-        result->step = true;
-        if (!SQLExecute_ex(result->hSTMT)) {
+        if (SQLExecute_ex(result) > 0) {
             return false;
         }
     }
@@ -374,7 +374,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_get_field_names(_cc_sql_t *ctx, _cc_sql_result_t
 }
 #endif
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_next_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_next_result(_cc_sql_result_t *result) {
     _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
     if (is_odbc_error(SQLFetch(result->hSTMT))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, result->hSTMT, _T("SQLFetch"));
@@ -383,7 +383,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_next_result(_cc_sql_t *ctx, _cc_sql_result_t *re
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_free_result(_cc_sql_t *ctx, _cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_free_result(_cc_sql_result_t *result) {
     _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
 
     if (result->hSTMT != SQL_NULL_HSTMT) {

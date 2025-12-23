@@ -1,16 +1,15 @@
-#include <libcc/url_request.h>
+#include <libcc/http_request.h>
 #include <libcc/gzip.h>
 #include <libcc/event.h>
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_url_response_body(_cc_url_request_t *request, byte_t *source, size_t length);
-_CC_API_PUBLIC(bool_t) _cc_url_response_chunked(_cc_url_request_t *, _cc_io_buffer_t *io);
+_CC_API_PUBLIC(bool_t) _cc_http_response_body(_cc_http_request_t *request, byte_t *source, size_t length);
+_CC_API_PUBLIC(bool_t) _cc_http_response_chunked(_cc_http_request_t *, _cc_io_buffer_t *io);
 
 /**/
-_CC_API_PUBLIC(void) _cc_reset_url_request(_cc_url_request_t *request) {
+_CC_API_PUBLIC(void) _cc_reset_http_request(_cc_http_request_t *request) {
     _cc_assert(request != nullptr);
-    request->state = _CC_HTTP_STATUS_HEADER_;
-    request->handshake = _CC_SSL_HS_ERROR_;
+    request->state = _CC_HTTP_STATE_HEADER_;
     if (request->response) {
         _cc_http_free_response_header(&request->response);
     }
@@ -23,7 +22,7 @@ _CC_API_PUBLIC(void) _cc_reset_url_request(_cc_url_request_t *request) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_free_url_request(_cc_url_request_t *request) {
+_CC_API_PUBLIC(void) _cc_free_http_request(_cc_http_request_t *request) {
     _cc_assert(request != nullptr);
 
     if (request->gzip) {
@@ -41,12 +40,12 @@ _CC_API_PUBLIC(void) _cc_free_url_request(_cc_url_request_t *request) {
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_url_request_header(_cc_url_request_t *request, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_http_request_header(_cc_http_request_t *request, _cc_event_t *e) {
     _cc_assert(request != nullptr);
     _cc_assert(request->io != nullptr);
     _cc_assert(request->buffer.length > 0);
 
-    request->state = _CC_HTTP_STATUS_HEADER_;
+    request->state = _CC_HTTP_STATE_HEADER_;
     if (request->response) {
         _cc_http_free_response_header(&request->response);
     }
@@ -91,18 +90,18 @@ _CC_API_PRIVATE(bool_t) is_keep_alive(_cc_rbtree_t *headers) {
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_url_request_response_header(_cc_url_request_t *request) {
+_CC_API_PUBLIC(bool_t) _cc_http_request_response_header(_cc_http_request_t *request) {
     _cc_http_response_header_t *response;
     _cc_io_buffer_t *io;
     _cc_assert(request != nullptr);
     _cc_assert(request->io != nullptr);
-    _cc_assert(request->state == _CC_HTTP_STATUS_HEADER_);
+    _cc_assert(request->state == _CC_HTTP_STATE_HEADER_);
 
     io = request->io;
     request->state = _cc_http_header_parser((_cc_http_header_fn_t)_cc_http_alloc_response_header, (pvoid_t *)&request->response, io->r.bytes, (int32_t *)&io->r.off);
     /**/
-    if (request->state != _CC_HTTP_STATUS_PAYLOAD_) {
-        return request->state == _CC_HTTP_STATUS_HEADER_;
+    if (request->state != _CC_HTTP_STATE_PAYLOAD_) {
+        return request->state == _CC_HTTP_STATE_HEADER_;
     }
 
     response = request->response;
@@ -129,12 +128,12 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_header(_cc_url_request_t *reques
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_url_request_response_body(_cc_url_request_t *request) {
+_CC_API_PUBLIC(bool_t) _cc_http_request_response_body(_cc_http_request_t *request) {
     _cc_http_response_header_t *response;
     _cc_io_buffer_t *io;
     _cc_assert(request != nullptr);
     _cc_assert(request->io != nullptr);
-    _cc_assert(request->state == _CC_HTTP_STATUS_PAYLOAD_);
+    _cc_assert(request->state == _CC_HTTP_STATE_PAYLOAD_);
 
     /**/
     response = request->response;
@@ -142,39 +141,39 @@ _CC_API_PUBLIC(bool_t) _cc_url_request_response_body(_cc_url_request_t *request)
 
     if (io->r.off > 0) {
         if (response->transfer_encoding == _CC_URL_TRANSFER_ENCODING_CHUNKED_) {
-            if (!_cc_url_response_chunked(request, io)) {
+            if (!_cc_http_response_chunked(request, io)) {
                 return false;
             }
         } else if (response->content_length > 0) {
-            if (!_cc_url_response_body(request, io->r.bytes, io->r.off)) {
+            if (!_cc_http_response_body(request, io->r.bytes, io->r.off)) {
                 return false;
             }
             /**/
             response->download_length += io->r.off;
             io->r.off = 0;
             if (response->download_length >= response->content_length) {
-                request->state = _CC_HTTP_STATUS_ESTABLISHED_;
+                request->state = _CC_HTTP_STATE_ESTABLISHED_;
             }
         } else {
-            request->state = _CC_HTTP_STATUS_ESTABLISHED_;
+            request->state = _CC_HTTP_STATE_ESTABLISHED_;
         }
         return true;
     } else if (response->transfer_encoding == _CC_URL_TRANSFER_ENCODING_IDENTITY_ && response->content_length == 0) {
-        request->state = _CC_HTTP_STATUS_ESTABLISHED_;
+        request->state = _CC_HTTP_STATE_ESTABLISHED_;
     }
     return true;
 }
 
 /**/
-_CC_API_PUBLIC(_cc_url_request_t*) _cc_url_request(const tchar_t *url, pvoid_t args) {
-    _cc_url_request_t *request;
+_CC_API_PUBLIC(_cc_http_request_t*) _cc_http_request(const tchar_t *url, pvoid_t args) {
+    _cc_http_request_t *request;
     _cc_assert(url != nullptr);
     if (url == nullptr) {
         return nullptr;
     }
 
-    request = (_cc_url_request_t *)_cc_malloc(sizeof(_cc_url_request_t));
-    bzero(request, sizeof(_cc_url_request_t));
+    request = (_cc_http_request_t *)_cc_malloc(sizeof(_cc_http_request_t));
+    bzero(request, sizeof(_cc_http_request_t));
 
     if (!_cc_parse_url(&request->url, url)) {
         _cc_free(request);
@@ -183,8 +182,7 @@ _CC_API_PUBLIC(_cc_url_request_t*) _cc_url_request(const tchar_t *url, pvoid_t a
 
     request->io = _cc_alloc_io_buffer(_CC_8K_BUFFER_SIZE_);
 
-    request->state = _CC_HTTP_STATUS_HEADER_;
-	request->handshake = _CC_SSL_HS_ESTABLISHED_;
+    request->state = _CC_HTTP_STATE_HEADER_;
     request->response = nullptr;
     request->args = args;
     request->gzip = nullptr;
@@ -194,7 +192,7 @@ _CC_API_PUBLIC(_cc_url_request_t*) _cc_url_request(const tchar_t *url, pvoid_t a
     return request;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_url_request_ssl(_cc_OpenSSL_t *openSSL, _cc_url_request_t *request, _cc_event_t *e) {
+_CC_API_PUBLIC(bool_t) _cc_http_request_ssl(_cc_OpenSSL_t *openSSL, _cc_http_request_t *request, _cc_event_t *e) {
 #ifdef _CC_USE_OPENSSL_
     request->io->ssl = _SSL_connect(openSSL, e->fd);
     if (request->io->ssl == nullptr) {

@@ -238,7 +238,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_xml_error(void) {
 }
 
 /**/
-static void _dump_xml_buffer(_cc_xml_t *XML, _cc_buf_t *buf) {
+static void _dump_xml_buffer(const _cc_xml_t *XML, _cc_buf_t *buf) {
     _cc_list_iterator_t *v = nullptr;
 
     if (XML->type == _CC_XML_COMMENT_) {
@@ -278,7 +278,7 @@ static void _dump_xml_buffer(_cc_xml_t *XML, _cc_buf_t *buf) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_dump_xml(_cc_xml_t *XML,_cc_buf_t *buf) {
+_CC_API_PUBLIC(void) _cc_dump_xml(const _cc_xml_t *XML,_cc_buf_t *buf) {
     _cc_list_iterator_t *v;
     _cc_alloc_buf(buf,_CC_16K_BUFFER_SIZE_);
     _cc_buf_puts(buf, _T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));

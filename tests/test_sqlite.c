@@ -57,11 +57,11 @@ bool_t scanFile(const tchar_t *directory, _cc_sql_result_t *result) {
             //_cc_md5file(sourceFile, check);
             _cc_sha1file(sourceFile, check);
             size = stat_buf.st_size;
-            sql_delegate.reset(sql, result);
+            sql_delegate.reset(result);
             sql_delegate.bind(result, 0, check, _CC_SHA1_DIGEST_LENGTH_ * 2, _CC_SQL_TYPE_STRING_);
             sql_delegate.bind(result, 1, &size, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
             sql_delegate.bind(result, 2, sourceFile, -1, _CC_SQL_TYPE_STRING_);
-            sql_delegate.step(sql, result);
+            sql_delegate.step(result);
         } else {
             scanFile(sourceFile, result);
         }
@@ -104,7 +104,7 @@ int main(int argc, char *const arvg[]) {
     _cc_string_set(sql_str, "INSERT INTO `FileList1` (`check`, `size`, `path`) VALUES (?,?,?);");
     if (sql_delegate.execute(sql, &sql_str, &sql_result)) {
         scanFile(currentPath, sql_result);
-        sql_delegate.free_result(sql, sql_result);
+        sql_delegate.free_result(sql_result);
     }
     
     _cc_string_set(sql_str,
@@ -128,11 +128,11 @@ int main(int argc, char *const arvg[]) {
     sql_delegate.begin_transaction(sql);
     _cc_string_set(sql_str, "UPDATE `FileList` SET `upload`=? WHERE `check`=?;");
     if (sql_delegate.execute(sql, &sql_str, &sql_result)) {
-        sql_delegate.reset(sql, sql_result);
+        sql_delegate.reset(sql_result);
         sql_delegate.bind(sql_result, 0, &status, sizeof(uint16_t), _CC_SQL_TYPE_UINT16_);
         sql_delegate.bind(sql_result, 1, check, CHECK_SIZE - 1, _CC_SQL_TYPE_STRING_);
-        sql_delegate.step(sql, sql_result);
-        sql_delegate.free_result(sql, sql_result);
+        sql_delegate.step(sql_result);
+        sql_delegate.free_result(sql_result);
     }
     sql_delegate.commit(sql);
 
@@ -151,7 +151,7 @@ int main(int argc, char *const arvg[]) {
             //sql_delegate.get_datetime(sql_result, num_fields - 1, &t);
             //printf("%4d-%02d-%02d %02d:%02d:%02d\n", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
         }
-        sql_delegate.free_result(sql, sql_result);
+        sql_delegate.free_result(sql_result);
     }
     sql_delegate.disconnect(sql);
     system("pause");

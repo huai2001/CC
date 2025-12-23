@@ -70,7 +70,7 @@ _CC_API_PUBLIC(bool_t) _cc_json_array_remove(_cc_json_t *ctx, const uint32_t ind
 _CC_API_PUBLIC(bool_t) _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *keyword);
 
 /**/
-_CC_API_PUBLIC(void) _cc_json_dump(_cc_json_t *ctx, _cc_buf_t* buf);
+_CC_API_PUBLIC(void) _cc_json_dump(const _cc_json_t *ctx, _cc_buf_t* buf);
 
 /**/
 _CC_API_PUBLIC(_cc_json_t *) _cc_json_from_file(const tchar_t *file);
