@@ -26,7 +26,7 @@ _CC_API_PRIVATE(bool_t) _select_event_reset(_cc_async_event_t *async, _cc_event_
 /**/
 _CC_API_PRIVATE(bool_t) _select_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_async_event_priv_t *fset;
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
     fset = async->priv;
 
     if (e->fd && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= FD_SETSIZE) {
@@ -161,9 +161,9 @@ _CC_API_PRIVATE(bool_t) _select_event_wait(_cc_async_event_t *async, uint32_t ti
 
     /**/
 #ifndef __CC_WINDOWS__
-    ready = select((int)fds.max_fd + 1, &fds.rfds, &fds.wfds, nullptr, &tv);
+    ready = select((int)fds.max_fd + 1, &fds.rfds, &fds.wfds, NULL, &tv);
 #else
-    ready = select(0, &fds.rfds, &fds.wfds, nullptr, &tv);
+    ready = select(0, &fds.rfds, &fds.wfds, NULL, &tv);
 #endif
     if (_cc_likely(ready)) {
         for (i = 0; i < priv->nfds && ready; i++) {
@@ -203,8 +203,8 @@ WHEEL_TIMER:
 
 /**/
 _CC_API_PRIVATE(bool_t) _select_event_free(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
-    if (async == nullptr) {
+    _cc_assert(async != NULL);
+    if (async == NULL) {
         return false;
     }
 

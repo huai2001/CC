@@ -22,12 +22,12 @@ _CC_API_PUBLIC(_cc_semaphore_t*) _cc_alloc_semaphore(int32_t initial_value) {
     /* Allocate sem memory */
     _cc_semaphore_t *sem = (_cc_semaphore_t*)_cc_malloc(sizeof(_cc_semaphore_t));
     /* Create the semaphore, with max value 32K */
-    sem->ident = _CC_CreateSemaphore(nullptr, initial_value, 32 * 1024, nullptr);
+    sem->ident = _CC_CreateSemaphore(NULL, initial_value, 32 * 1024, NULL);
     sem->count = (LONG)initial_value;
     if (!sem->ident) {
         _cc_logger_error(_T("Couldn't create semaphore"));
         _cc_free(sem);
-        sem = nullptr;
+        sem = NULL;
     }
     return (sem);
 }
@@ -49,7 +49,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t ti
     DWORD dwMilliseconds;
 
     if (!sem) {
-        _cc_logger_error(_T("Passed a nullptr sem"));
+        _cc_logger_error(_T("Passed a NULL sem"));
         return false;
     }
 
@@ -88,7 +88,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait(_cc_semaphore_t *sem) {
 /* Returns the current count of the semaphore */
 _CC_API_PUBLIC(uint32_t) _cc_semaphore_value(_cc_semaphore_t *sem) {
     if (!sem) {
-        _cc_logger_error(_T("Passed a nullptr sem"));
+        _cc_logger_error(_T("Passed a NULL sem"));
         return 0;
     }
     return (uint32_t)sem->count;
@@ -97,7 +97,7 @@ _CC_API_PUBLIC(uint32_t) _cc_semaphore_value(_cc_semaphore_t *sem) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_semaphore_post(_cc_semaphore_t *sem) {
     if (!sem) {
-        _cc_logger_error(_T("Passed a nullptr sem"));
+        _cc_logger_error(_T("Passed a NULL sem"));
         return false;
     }
     /* Increase the counter in the first place, because
@@ -106,7 +106,7 @@ _CC_API_PUBLIC(bool_t) _cc_semaphore_post(_cc_semaphore_t *sem) {
      * is waiting for this semaphore.
      */
     InterlockedIncrement(&sem->count);
-    if (_CC_ReleaseSemaphore(sem->ident, 1, nullptr) == false) {
+    if (_CC_ReleaseSemaphore(sem->ident, 1, NULL) == false) {
         /* restore */
         InterlockedDecrement(&sem->count);
         _cc_logger_error(_T("ReleaseSemaphore() failed"));

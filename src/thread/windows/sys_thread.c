@@ -79,13 +79,13 @@ bool_t _cc_create_sys_thread(_cc_thread_t* self) {
     DWORD thread_id = 0;
     // self->stack_size == 0 means "system default", same as win32 expects
     if (pfnBeginThread) {
-        self->handle = (_cc_thread_handle_t)((size_t)pfnBeginThread(nullptr, (unsigned int)self->stack_size,RunThreadViaBeginThreadEx, self, flags, (unsigned*)&thread_id));
+        self->handle = (_cc_thread_handle_t)((size_t)pfnBeginThread(NULL, (unsigned int)self->stack_size,RunThreadViaBeginThreadEx, self, flags, (unsigned*)&thread_id));
     } else {
-        self->handle = CreateThread(nullptr, self->stack_size, RunThreadViaCreateThread, self, flags, &thread_id);
-        pfnEndThread = nullptr;
+        self->handle = CreateThread(NULL, self->stack_size, RunThreadViaCreateThread, self, flags, &thread_id);
+        pfnEndThread = NULL;
     }
     
-    if (self->handle == nullptr) {
+    if (self->handle == NULL) {
         _cc_logger_error(_T("Not enough resources to create thread"));
         return false;
     }
@@ -107,7 +107,7 @@ typedef struct tagTHREADNAME_INFO {
 typedef HRESULT(WINAPI* pfnSetThreadDescription)(HANDLE, PCWSTR);
 const DWORD CC_DEBUGGER_NAME_EXCEPTION_CODE = 0x406D1388;
 static LONG NTAPI EmptyVectoredExceptionHandler(EXCEPTION_POINTERS *info) {
-    if (info != nullptr && info->ExceptionRecord != nullptr && info->ExceptionRecord->ExceptionCode == CC_DEBUGGER_NAME_EXCEPTION_CODE) {
+    if (info != NULL && info->ExceptionRecord != NULL && info->ExceptionRecord->ExceptionCode == CC_DEBUGGER_NAME_EXCEPTION_CODE) {
         return EXCEPTION_CONTINUE_EXECUTION;
     } else {
         return EXCEPTION_CONTINUE_SEARCH;
@@ -118,19 +118,19 @@ void _cc_setup_sys_thread(const tchar_t* name) {
 /* Visual Studio 2015, MSVC++ 14.0*/
 //#if (__CC_MSVC__ >= 1900) || (defined(__GNUC__) && defined(__i386__))
     PVOID exceptionHandlerHandle;
-    pfnSetThreadDescription pSetThreadDescription = nullptr;
+    pfnSetThreadDescription pSetThreadDescription = NULL;
     HMODULE kernel32 = 0;
 #ifndef _CC_UNICODE_
     wchar_t buf[512];
 #endif
-    if (name == nullptr) {
+    if (name == NULL) {
         return;
     }
 
     kernel32 = _cc_load_windows_kernel32();
     if (kernel32) {
         pSetThreadDescription = (pfnSetThreadDescription)_cc_load_function(kernel32, "SetThreadDescription");
-        if (pSetThreadDescription == nullptr) {
+        if (pSetThreadDescription == NULL) {
             return;
         }
     }
@@ -200,15 +200,15 @@ size_t _cc_get_sys_thread_id(_cc_thread_t* self) {
 
 /**/
 void _cc_wait_sys_thread(_cc_thread_t* self) {
-    if (self->handle != nullptr) {
+    if (self->handle != NULL) {
         WaitForSingleObject(self->handle, INFINITE);
         CloseHandle(self->handle);
         self->thread_id = 0;
-        self->handle = nullptr;
+        self->handle = NULL;
     }
 }
 
 void _cc_detach_sys_thread(_cc_thread_t* self) {
     CloseHandle(self->handle);
-    self->handle = nullptr;
+    self->handle = NULL;
 }

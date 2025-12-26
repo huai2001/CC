@@ -60,7 +60,7 @@ _CC_API_PUBLIC(size_t) _cc_base64_encode(const byte_t *input, size_t length, tch
     const byte_t *current = input;
     tchar_t *p = output;
 
-    if (_cc_unlikely(length < 0 || output == nullptr)) {
+    if (_cc_unlikely(length < 0 || output == NULL)) {
         return 0;
     }
 
@@ -100,7 +100,7 @@ _CC_API_PUBLIC(size_t) _cc_base64_decode(const tchar_t *input, size_t length, by
     const tchar_t *current = input;
     size_t ch, i = 0, j = 0, k;
     /* this sucks for threaded environments */
-    if (_cc_unlikely(output == nullptr)) {
+    if (_cc_unlikely(output == NULL)) {
         return 0;
     }
 

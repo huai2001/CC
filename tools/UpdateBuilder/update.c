@@ -98,12 +98,12 @@ static int compressZipFile(const char *source, const char *dest, uint64_t *resul
     int res;
     FILE *filein, *fileout;
     
-    if ((filein = fopen(source, "rb")) == nullptr) {
+    if ((filein = fopen(source, "rb")) == NULL) {
         _cc_logger_error(_T("Can\'t open %s!"), source);
         return -1;
     }
     
-    if ((fileout = fopen(dest, "wb")) == nullptr) {
+    if ((fileout = fopen(dest, "wb")) == NULL) {
         _cc_logger_error(_T("Can\'t open %s!\n"), dest);
         fclose(filein);
         return -1;
@@ -156,7 +156,7 @@ static uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
     FILE *fp = _tfopen(fileName, _T("rb"));
     uint64_t fileSize = 0;
 
-    if (fp == nullptr)
+    if (fp == NULL)
         return 0;
 
     _cc_md5_init(&c);
@@ -186,7 +186,7 @@ static uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
 #ifndef __CC_WINDOWS__
 static void CopyFile(const tchar_t *source, const tchar_t *dest) {
     bool_t err = false;
-    FILE *fw = nullptr;
+    FILE *fw = NULL;
     FILE* fr = _tfopen(source, _T("rb"));
     if (fr) {
         fw = _tfopen(dest, _T("wb"));
@@ -226,8 +226,8 @@ static void CopyFile(const tchar_t *source, const tchar_t *dest) {
 int createUpdateFile(const tchar_t *,_cc_sql_t *);
 
 int builder_UpdateList(void) {
-    _cc_sql_result_t *resultSQL = nullptr;
-    _cc_sql_result_t *resultUpdated = nullptr;
+    _cc_sql_result_t *resultSQL = NULL;
+    _cc_sql_result_t *resultUpdated = NULL;
     tchar_t name[64];
     tchar_t path[256];
     tchar_t requestMD5[33];
@@ -239,7 +239,7 @@ int builder_UpdateList(void) {
     _cc_string_t sqlString = _cc_string("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;");
     _cc_sql_t *sql = openSQLite3();
 
-    if (sql == nullptr) {
+    if (sql == NULL) {
         return 1;
     }
 
@@ -317,14 +317,14 @@ int builder_UpdateList(void) {
 
 int createUpdateFile(const tchar_t *saveFile, _cc_sql_t *sql) {
     char_t str[256];
-    _cc_sql_result_t *resultSQL = nullptr;
+    _cc_sql_result_t *resultSQL = NULL;
     _cc_buf_t buf;
     _cc_string_t sqlString = _cc_string("select `ID`, `Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path` from `main`.`FileList`;");
     _cc_sql_t *sql = openSQLite3();
-    _cc_json_t *rootJSON = _cc_json_alloc_object(_CC_JSON_ARRAY_, nullptr);
+    _cc_json_t *rootJSON = _cc_json_alloc_object(_CC_JSON_ARRAY_, NULL);
     sqldelegate.execute(sql, sqlString, &resultSQL);
     while (sqldelegate.fetch(resultSQL)) {
-        _cc_json_t *json = _cc_json_alloc_object(_CC_JSON_OBJECT_, nullptr);
+        _cc_json_t *json = _cc_json_alloc_object(_CC_JSON_OBJECT_, NULL);
         if (json) {
             _cc_json_add_number(json, "ID",  sqldelegate.get_int(resultSQL, 0));
             sqldelegate.get_string(resultSQL, 1, str, 256);

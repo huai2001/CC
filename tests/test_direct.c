@@ -25,9 +25,9 @@ struct {
 void print_dir(tchar_t* dirString) {
     tchar_t path[_CC_MAX_PATH_] = { 0 };
     DIR* dir = opendir(dirString);
-    struct dirent* d = nullptr;
+    struct dirent* d = NULL;
 
-    while ((d = readdir(dir)) != nullptr) {
+    while ((d = readdir(dir)) != NULL) {
         //
         if ((d->d_name[0] == '.' && d->d_name[1] == 0) ||
             (d->d_name[0] == '.' && d->d_name[1] == '.' && d->d_name[2] == 0)) {

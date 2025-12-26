@@ -42,7 +42,7 @@ _CC_API_PUBLIC(int) _cc_get_cpu_cores(void) {
 #if defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
     if (_cc_cpu_cores <= 0) {
         size_t size = sizeof(_cc_cpu_cores);
-        sysctlbyname("hw.ncpu", &_cc_cpu_cores, &size, nullptr, 0);
+        sysctlbyname("hw.ncpu", &_cc_cpu_cores, &size, NULL, 0);
     }
 #endif
 #ifdef __CC_OS2__

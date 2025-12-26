@@ -117,7 +117,7 @@ _CC_API_PUBLIC(size_t) _cc_syslog_header(uint8_t pri, tchar_t *buffer, size_t bu
     tchar_t syslog_timestamp[64];
 #endif
     struct tm tm_now;
-    time_t now = time(nullptr);
+    time_t now = time(NULL);
 
     _cc_gmtime(&now, &tm_now);
 

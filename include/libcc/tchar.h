@@ -145,12 +145,12 @@ extern "C" {
 #define _tcsnextc _wcsnextc
 #define _tcsninc _wcsninc
 #define _tcsspnp _wcsspnp
-#define _wcsdec(_wcs1, _wcs2) ((_wcs1)>=(_wcs2) ? nullptr : (_wcs2)-1)
+#define _wcsdec(_wcs1, _wcs2) ((_wcs1)>=(_wcs2) ? NULL : (_wcs2)-1)
 #define _wcsinc(_wcs) ((_wcs)+1)
 #define _wcsnextc(_wcs) ((unsigned int) *(_wcs))
 #define _wcsninc(_wcs, _inc) (((_wcs)+(_inc)))
 #define _wcsncnt(_wcs, _cnt) ((wcslen(_wcs)>_cnt) ? _count : wcslen(_wcs))
-#define _wcsspnp(_wcs1, _wcs2) ((*((_wcs1)+wcsspn(_wcs1,_wcs2))) ? ((_wcs1)+wcsspn(_wcs1,_wcs2)) : nullptr)
+#define _wcsspnp(_wcs1, _wcs2) ((*((_wcs1)+wcsspn(_wcs1,_wcs2))) ? ((_wcs1)+wcsspn(_wcs1,_wcs2)) : NULL)
  
 #if 1 /* defined __MSVCRT__ */
  /*
@@ -403,12 +403,12 @@ extern "C" {
 #define _tcsnextc _strnextc
 #define _tcsninc _strninc
 #define _tcsspnp _strspnp
-#define _strdec(_str1, _str2) ((_str1)>=(_str2) ? nullptr : (_str2)-1)
+#define _strdec(_str1, _str2) ((_str1)>=(_str2) ? NULL : (_str2)-1)
 #define _strinc(_str) ((_str)+1)
 #define _strnextc(_str) ((unsigned int) *(_str))
 #define _strninc(_str, _inc) (((_str)+(_inc)))
 #define _strncnt(_str, _cnt) ((strlen(_str)>_cnt) ? _count : strlen(_str))
-#define _strspnp(_str1, _str2) ((*((_str1)+strspn(_str1,_str2))) ? ((_str1)+strspn(_str1,_str2)) : nullptr)
+#define _strspnp(_str1, _str2) ((*((_str1)+strspn(_str1,_str2))) ? ((_str1)+strspn(_str1,_str2)) : NULL)
  
 #define _tchmod _chmod
 #define _tcreat _creat

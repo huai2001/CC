@@ -17,7 +17,7 @@ void test_hmap_alloc_and_free() {
     _cc_hmap_t hmap;
     assert(_cc_alloc_hmap(&hmap, 10, equals_func, hash_func) == true);
     assert(hmap.limit >= 10);
-    assert(hmap.slots != nullptr);
+    assert(hmap.slots != NULL);
     assert(_cc_free_hmap(&hmap) == true);
     printf("hmap alloc and free test passed!\n");
 }

@@ -58,7 +58,7 @@ _CC_API_PUBLIC(uint64_t) _cc_query_performance_counter(void) {
     } else {
         struct timeval now;
 
-        gettimeofday(&now, nullptr);
+        gettimeofday(&now, NULL);
         ticks = now.tv_sec;
         ticks *= _CC_US_PER_SECOND_;
         ticks += now.tv_usec;
@@ -127,7 +127,7 @@ _CC_API_PUBLIC(void) _cc_nsleep(uint64_t ns) {
         tv.tv_sec = (ns / _CC_NS_PER_SECOND_);
         tv.tv_usec = _CC_NS_TO_US(ns % _CC_NS_PER_SECOND_);
 
-        was_error = select(0, nullptr, nullptr, nullptr, &tv);
+        was_error = select(0, NULL, NULL, NULL, &tv);
 #endif // _CC_HAVE_NANOSLEEP_
     } while (was_error && (errno == EINTR));
 }

@@ -87,7 +87,7 @@ static struct io_uring_sqe *get_sqe_from_ring(struct io_uring *uring) {
     /* Check if the ring is full */
     if (next_tail - uring->sq.head > uring->sq.ring_entries) {
         _cc_logger_error(_T("SQ ring is full"));
-        return nullptr;
+        return NULL;
     }
 
     /* Get the SQE from the ring */
@@ -175,7 +175,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_update(_cc_async_event_t *async, _cc_eve
 
 /**/
 _CC_API_PRIVATE(bool_t) _io_uring_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_assert(async != nullptr && e != nullptr);
+    _cc_assert(async != NULL && e != NULL);
     return _reset_event(async, e);
 }
 
@@ -279,7 +279,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_wait(_cc_async_event_t *async, uint32_t 
                         which = _valid_connected(e, which);
                     } else if (e->buffer && (e->flags & _CC_EVENT_BUFFER_)) {
                         _cc_event_wbuf_t *wbuf;
-                        _cc_assert(e->buffer != nullptr);
+                        _cc_assert(e->buffer != NULL);
 
                         wbuf = &e->buffer->w;
                         if (wbuf->length == 0) {
@@ -319,8 +319,8 @@ URING_END:
 
 /**/
 _CC_API_PRIVATE(bool_t) _io_uring_event_free(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
-    if (async == nullptr) {
+    _cc_assert(async != NULL);
+    if (async == NULL) {
         return false;
     }
 
@@ -335,7 +335,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_free(_cc_async_event_t *async) {
             close(priv->fd);
         }
         _cc_free(priv);
-        async->priv = nullptr;
+        async->priv = NULL;
     }
 
     return _unregister_async_event(async);

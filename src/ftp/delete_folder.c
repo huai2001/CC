@@ -23,13 +23,13 @@ bool_t _cc_ftp_del_folder(_cc_ftp_t* ftp, const char_t* folder) {
     char_t cmd[_CC_MAX_PATH_];
     int32_t cmd_len = 0;
 
-    _cc_assert(ftp != nullptr);
-    _cc_assert(folder != nullptr);
+    _cc_assert(ftp != NULL);
+    _cc_assert(folder != NULL);
 
-    if (ftp == nullptr || folder == nullptr)
+    if (ftp == NULL || folder == NULL)
         return false;
 
-    if (ftp->ctrl.e == nullptr) {
+    if (ftp->ctrl.e == NULL) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -37,7 +37,7 @@ bool_t _cc_ftp_del_folder(_cc_ftp_t* ftp, const char_t* folder) {
     if (ftp->resp.flag != _CC_LIBFTP_RESP_PENDING) {
         return false;
     }
-    libftp_setup(ftp, _CC_LIBFTP_RESP_DEL_FOLDER, libftp_delete_folder, nullptr);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_DEL_FOLDER, libftp_delete_folder, NULL);
 
     cmd_len = snprintf(cmd, _cc_countof(cmd), "RMD %s\r\n", folder);
 

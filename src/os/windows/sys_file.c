@@ -109,7 +109,7 @@ _CC_API_PRIVATE(size_t) _cc_win_file_read(_cc_file_t *context, pvoid_t ptr, size
         return 0;
     }
 
-    if (!ReadFile((HANDLE)context->fp, ptr, (DWORD)total_need, &byte_read, nullptr)) {
+    if (!ReadFile((HANDLE)context->fp, ptr, (DWORD)total_need, &byte_read, NULL)) {
         if (GetLastError() == ERROR_HANDLE_EOF || byte_read == 0) {
             context->is_eof = true;
         }
@@ -137,7 +137,7 @@ _CC_API_PRIVATE(size_t) _cc_win_file_write(_cc_file_t *context, const pvoid_t pt
         }
     }
 
-    if (!WriteFile((HANDLE)context->fp, ptr, (DWORD)total_bytes, &byte_written, nullptr)) {
+    if (!WriteFile((HANDLE)context->fp, ptr, (DWORD)total_bytes, &byte_written, NULL)) {
         return 0;
     }
 
@@ -157,14 +157,14 @@ _CC_API_PRIVATE(bool_t) _cc_win_file_eof(_cc_file_t *context) {
 }
 
 _CC_API_PRIVATE(bool_t) _cc_win_file_close(_cc_file_t *context) {
-    if (!context || (HANDLE)context->fp == nullptr) {
+    if (!context || (HANDLE)context->fp == NULL) {
         //_cc_logger_error(_T("_cc_win_file_close: invalid context/file not closed"));
         return false;
     }
 
     if (context->fp) {
         CloseHandle((HANDLE)context->fp);
-        context->fp = nullptr;
+        context->fp = NULL;
     }
 
     _cc_free(context);
@@ -217,8 +217,8 @@ _CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename,
         return false;
     }
 
-    h = CreateFile(filename, (r_right | w_right), (w_right ? 0 : FILE_SHARE_READ), nullptr,
-                   (fmode[0] | fmode[1] | fmode[2]), FILE_ATTRIBUTE_NORMAL, nullptr);
+    h = CreateFile(filename, (r_right | w_right), (w_right ? 0 : FILE_SHARE_READ), NULL,
+                   (fmode[0] | fmode[1] | fmode[2]), FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (h == INVALID_HANDLE_VALUE) {
         return false;

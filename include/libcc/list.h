@@ -65,8 +65,8 @@ _CC_FORCE_INLINE_ void _cc_list_iterator_cleanup(_cc_list_iterator_t *lnk) {
 
 /**/
 _CC_FORCE_INLINE_ bool_t _cc_list_iterator_empty(_cc_list_iterator_t *lnk) {
-    _cc_assert(lnk != nullptr);
-    return (lnk->next == lnk || lnk->next == nullptr);
+    _cc_assert(lnk != NULL);
+    return (lnk->next == lnk || lnk->next == NULL);
 }
 
 /**/
@@ -92,15 +92,15 @@ _CC_FORCE_INLINE_ void _cc_list_iterator_remove(_cc_list_iterator_t *lnk) {
 
 /**/
 _CC_FORCE_INLINE_ void _cc_list_iterator_push_front(_cc_list_iterator_t *head, _cc_list_iterator_t *lnk) {
-    _cc_assert(head != nullptr);
-    _cc_assert(head->next != nullptr);
+    _cc_assert(head != NULL);
+    _cc_assert(head->next != NULL);
     _cc_list_iterator_insert(lnk, head, head->next);
 }
 
 /**/
 _CC_FORCE_INLINE_ void _cc_list_iterator_push_back(_cc_list_iterator_t *head, _cc_list_iterator_t *lnk) {
-    _cc_assert(head != nullptr);
-    _cc_assert(head->prev != nullptr);
+    _cc_assert(head != NULL);
+    _cc_assert(head->prev != NULL);
     _cc_list_iterator_insert(lnk, head->prev, head);
 }
 
@@ -151,7 +151,7 @@ _CC_API_PUBLIC(void) _cc_list_iterator_append(_cc_list_iterator_t *head, _cc_lis
  * where 0 is the head, 1 is the element next to head
  * and so on. Negative integers are used in order to count
  * from the tail, -1 is the last element, -2 the penultimate
- * and so on. If the index is out of range nullptr is returned. */
+ * and so on. If the index is out of range NULL is returned. */
 _CC_API_PUBLIC(_cc_list_iterator_t *) _cc_list_iterator_index(_cc_list_iterator_t *lnk, long index);
 
 /* the stable insertion sort */

@@ -52,16 +52,16 @@ _CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, c
 #ifndef __CC_ANDROID__
     tchar_t buffer[_CC_1K_BUFFER_SIZE_];
     struct tm tm_now;
-    time_t now = time(nullptr);
+    time_t now = time(NULL);
 #endif
     const tchar_t *fname = _tcsrchr(file, _CC_SLASH_C_);
-    if (fname == nullptr) {
+    if (fname == NULL) {
     #ifdef __CC_WINDOWS__
         fname = _tcsrchr(file, '/');
     #else
         fname = _tcsrchr(file, '\\');
     #endif
-        if (fname == nullptr) {
+        if (fname == NULL) {
             fname = file;
         } else {
             fname++;
@@ -123,16 +123,16 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 #ifndef __CC_ANDROID__
     tchar_t buffer[_CC_1K_BUFFER_SIZE_];
     struct tm tm_now;
-    time_t now = time(nullptr);
+    time_t now = time(NULL);
 #endif
     const tchar_t *fname = _tcsrchr(file, _CC_SLASH_C_);
-    if (fname == nullptr) {
+    if (fname == NULL) {
     #ifdef __CC_WINDOWS__
         fname = _tcsrchr(file, '/');
     #else
         fname = _tcsrchr(file, '\\');
     #endif
-        if (fname == nullptr) {
+        if (fname == NULL) {
             fname = file;
         } else {
             fname++;
@@ -186,23 +186,23 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
     char_t buf[_CC_LOG_BUFFER_SIZE_];
     size_t fmt_length, empty_len;
     char_t *ptr = buf;
-    char_t *tmp_ptr = nullptr;
+    char_t *tmp_ptr = NULL;
 
     fmt_length = 0;
 
-    _cc_assert(fmt != nullptr);
+    _cc_assert(fmt != NULL);
 
     empty_len = _CC_LOG_BUFFER_SIZE_;
     /* If the first attempt to append fails, resize the buffer appropriately
      * and try again */
     while (true) {
         /* fmt_length is the length of the string required, excluding the
-         * trailing nullptr */
+         * trailing NULL */
         fmt_length = _vsnprintf(ptr, empty_len, fmt, arg);
 
 #ifdef __CC_WINDOWS__
         if (fmt_length == -1) {
-            fmt_length = _vsnprintf(nullptr, 0, fmt, arg);
+            fmt_length = _vsnprintf(NULL, 0, fmt, arg);
         }
 #endif
         if (fmt_length <= 0) {
@@ -229,7 +229,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t 
     size_t fmt_length, empty_len;
 
     wchar_t *ptr = buf;
-    wchar_t *tmp_ptr = nullptr;
+    wchar_t *tmp_ptr = NULL;
 
     fmt_length = 0;
 
@@ -238,12 +238,12 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t 
      * and try again */
     while (true) {
         /* fmt_length is the length of the string required, excluding the
-         * trailing nullptr */
+         * trailing NULL */
         fmt_length = _vsnwprintf(ptr, empty_len, fmt, arg);
 
 #ifdef __CC_WINDOWS__
         if (fmt_length == -1) {
-            fmt_length = _vsnwprintf(nullptr, 0, fmt, arg);
+            fmt_length = _vsnwprintf(NULL, 0, fmt, arg);
         }
 #endif
         if (fmt_length <= 0) {

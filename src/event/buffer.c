@@ -13,7 +13,7 @@ _CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit) {
     io->w.bytes = (byte_t*)_cc_calloc(limit,sizeof(byte_t));
 
 #ifdef _CC_USE_OPENSSL_
-    io->ssl = nullptr;
+    io->ssl = NULL;
 #endif
 
     _cc_lock_init(&(io->lock_of_writable));
@@ -41,9 +41,9 @@ _CC_API_PUBLIC(void) _cc_realloc_write_buffer(_cc_io_buffer_t *io,int32_t limit)
 /**/
 _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io) {
     /**/
-    _cc_assert(io != nullptr);
-    _cc_assert(io->r.bytes != nullptr);
-    _cc_assert(io->w.bytes != nullptr);
+    _cc_assert(io != NULL);
+    _cc_assert(io->r.bytes != NULL);
+    _cc_assert(io->w.bytes != NULL);
 
     _cc_free(io->w.bytes);
     _cc_free(io->r.bytes);
@@ -51,7 +51,7 @@ _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io) {
 #ifdef _CC_USE_OPENSSL_
     if (io->ssl) {
         _SSL_free(io->ssl);
-        io->ssl = nullptr;
+        io->ssl = NULL;
     }
 #endif
     _cc_free(io);
@@ -88,6 +88,10 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data
 
     if (required_length >= data->w.limit) {
         data->w.limit = required_length + (int32_t)(data->w.limit * 0.72f);
+        // uhoh, overflowed! That's a lot of memory!!
+        if (data->w.limit <= 0) {
+            _cc_abort(_T("uhoh, overflowed! That's a lot of memory!!"));
+        }
         data->w.off = 0;
         data->w.bytes = (byte_t*)_cc_realloc(data->w.bytes, data->w.limit);
     }
@@ -147,9 +151,8 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *data
     off = (int32_t)recv(e->fd, (char *)data->r.bytes + data->r.off, data->r.limit - data->r.off, 0);
 #endif
     if (off == 0) {
+        //End of stream
         return -1;
-    } else if (off > 0) {
-        data->r.off += off;
     } else if (off < 0) {
         int er = _cc_last_errno();
         if (er == _CC_EINTR_ || er == _CC_EAGAIN_) {
@@ -157,6 +160,8 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *data
         }
         _cc_logger_warin(_T("fd:%d fail to recv (%d): %s"), e->fd, er, _cc_last_error(er));
     }
+    
+    data->r.off += off;
     return off;
 }
 

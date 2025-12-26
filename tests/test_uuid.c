@@ -19,7 +19,7 @@ void test_uuid_lower_format() {
     tchar_t buf[37];
     int32_t result = _cc_uuid_lower(&uuid, buf, sizeof(buf));
     assert(result == 36);
-    assert(strchr(buf, '-') != nullptr);
+    assert(strchr(buf, '-') != NULL);
     printf("UUID lower format test passed!\n");
 }
 
@@ -29,7 +29,7 @@ void test_uuid_upper_format() {
     tchar_t buf[37];
     int32_t result = _cc_uuid_upper(&uuid, buf, sizeof(buf));
     assert(result == 36);
-    assert(strchr(buf, '-') != nullptr);
+    assert(strchr(buf, '-') != NULL);
     printf("UUID upper format test passed!\n");
 }
 

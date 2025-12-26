@@ -21,13 +21,13 @@ bool_t _cc_ftp_del_file(_cc_ftp_t* ftp, const char_t* file) {
     char_t cmd[_CC_MAX_PATH_];
     int32_t cmd_len = 0;
 
-    _cc_assert(ftp != nullptr);
-    _cc_assert(file != nullptr);
+    _cc_assert(ftp != NULL);
+    _cc_assert(file != NULL);
 
-    if (ftp == nullptr || file == nullptr)
+    if (ftp == NULL || file == NULL)
         return false;
 
-    if (ftp->ctrl.e == nullptr) {
+    if (ftp->ctrl.e == NULL) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -36,7 +36,7 @@ bool_t _cc_ftp_del_file(_cc_ftp_t* ftp, const char_t* file) {
         return false;
     }
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_DEL_FILE, libftp_delete_file, nullptr);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_DEL_FILE, libftp_delete_file, NULL);
 
     if (file) {
         cmd_len = snprintf(cmd, _cc_countof(cmd), "DELETE %s\r\n", file);

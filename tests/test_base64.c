@@ -53,7 +53,7 @@ void test_base64_decode_empty() {
 void test_base64_encode_invalid_output() {
     const char *input = "Test";
     size_t input_len = strlen(input);
-    tchar_t *output = nullptr;
+    tchar_t *output = NULL;
 
     size_t actual_encoded_len = _cc_base64_encode((byte_t *)input, input_len, output, 0);
     assert(actual_encoded_len == 0);
@@ -62,7 +62,7 @@ void test_base64_encode_invalid_output() {
 void test_base64_decode_invalid_output() {
     const tchar_t *input = "VGVzdA==";
     size_t input_len = strlen(input);
-    byte_t *output = nullptr;
+    byte_t *output = NULL;
 
     size_t actual_decoded_len = _cc_base64_decode(input, input_len, output, 0);
     assert(actual_decoded_len == 0);

@@ -24,7 +24,7 @@ pvoid_t _debug_alloc_link(const pvoid_t data, size_t n, const tchar_t *file_name
     debug->type = m_type;
     debug->size = n;
     debug->line = line;
-    debug->create_time = (uint32_t)(time(nullptr) - _START_TIMESTAMP_);
+    debug->create_time = (uint32_t)(time(NULL) - _START_TIMESTAMP_);
     if (file_name) {
         tchar_t *p = _tcsrchr(file_name, _CC_SLASH_C_);
         if (p) {
@@ -33,7 +33,7 @@ pvoid_t _debug_alloc_link(const pvoid_t data, size_t n, const tchar_t *file_name
             debug->file = _tcsdup(file_name);
         }
     } else {
-        debug->file = nullptr;
+        debug->file = NULL;
     }
 
     _cc_spin_lock(&debug_lock);

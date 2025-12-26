@@ -17,12 +17,12 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
     */
     handle = LoadPackagedLibrary(sofile, 0);
 #else
-    handle = LoadLibraryEx(sofile, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
-    if (handle == nullptr) {
-        handle = LoadLibraryEx(sofile, nullptr, 0);
+    handle = LoadLibraryEx(sofile, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+    if (handle == NULL) {
+        handle = LoadLibraryEx(sofile, NULL, 0);
     }
 #endif
-    if (handle == nullptr) {
+    if (handle == NULL) {
         int32_t e = _cc_last_errno();
         _cc_logger_error(_T("Failed loading: %s(%d) %s"), sofile, e, _cc_last_error(e));
     }
@@ -34,15 +34,15 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
 
 /**/
 _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
-    if (handle != nullptr) {
+    if (handle != NULL) {
         return (pvoid_t)GetProcAddress((HMODULE)handle, name);
     }
-    return nullptr;
+    return NULL;
 }
 
 /**/
 _CC_API_PUBLIC(void) _cc_unload_object(pvoid_t handle) {
-    if (handle != nullptr) {
+    if (handle != NULL) {
         FreeLibrary((HMODULE)handle);
     }
 }

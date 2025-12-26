@@ -39,7 +39,7 @@ _CC_API_PRIVATE(byte_t) sds_rtype(size_t length) {
 }
 
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_empty_alloc(size_t size) {
-    return _cc_sds_alloc(nullptr, size);
+    return _cc_sds_alloc(NULL, size);
 }
 
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_alloc(const tchar_t *s, size_t length) {
@@ -49,7 +49,7 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_alloc(const tchar_t *s, size_t length) {
     byte_t *ptr;
     size_t ptr_length = 0;
     
-    _cc_assert(s != nullptr || length != 0);
+    _cc_assert(s != NULL || length != 0);
     if (s) {
         if (length == 0) {
             length = _tcslen(s);
@@ -63,7 +63,7 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_alloc(const tchar_t *s, size_t length) {
     hdr = (byte_t*)_cc_malloc(hdr_length + (length + sizeof(tchar_t)) * sizeof(tchar_t));
     ptr = hdr + hdr_length;
 
-    if (s == nullptr) {
+    if (s == NULL) {
         *(tchar_t*)(ptr) = '\0';
     } else {
         memcpy(ptr, s, sizeof(tchar_t) * length);
@@ -111,7 +111,7 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_alloc(const tchar_t *s, size_t length) {
 
 _CC_API_PUBLIC(void) _cc_sds_free(_cc_sds_t s) {
     byte_t *hdr = (byte_t*)s;
-    if (hdr == nullptr) {
+    if (hdr == NULL) {
         return;
     }
     _cc_free(hdr - sds_hdr(*(byte_t*)(hdr - 1)));
@@ -122,10 +122,10 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_vformat(const tchar_t *format, va_list ap) {
     size_t free_length = 10240;
     tchar_t static_buf[10240];
     tchar_t *ptr = static_buf;
-    _cc_sds_t s = nullptr;
+    _cc_sds_t s = NULL;
 
-    if (format == nullptr) {
-        return nullptr;
+    if (format == NULL) {
+        return NULL;
     }
 
     /* If the first attempt to format fails, resize the buffer appropriately
@@ -134,7 +134,7 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_vformat(const tchar_t *format, va_list ap) {
         length = (size_t)_vsntprintf(ptr, free_length, format, ap);
     #ifdef __CC_WINDOWS__
         if (length == -1) {
-            length = _vsntprintf(nullptr, 0, format, ap);
+            length = _vsntprintf(NULL, 0, format, ap);
         }
     #endif
         if (length <= 0) {
@@ -177,14 +177,14 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_cat(_cc_sds_t s, const tchar_t *t, size_t leng
     size_t curlen;
     byte_t flags;
 
-    if (s == nullptr) {
+    if (s == NULL) {
         return _cc_sds_alloc(t, length);
     }
 
     flags = *(((byte_t*)s) - sizeof(byte_t));
     curlen = _cc_sds_length(s);
     if ((flags & _SDS_MASK_) == _SDS_MASK_5_ || _cc_sds_available(s) < length) {
-        _cc_sds_t ss = _cc_sds_alloc(nullptr, curlen + length);
+        _cc_sds_t ss = _cc_sds_alloc(NULL, curlen + length);
         memcpy(ss, s, sizeof(tchar_t) * curlen);
         _cc_sds_free(s);
         s = ss;

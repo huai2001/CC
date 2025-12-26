@@ -2,14 +2,14 @@
 #include <libcc/os.h>
 #include <tlhelp32.h>
 
-static HWND _clipboard_handle = nullptr;
+static HWND _clipboard_handle = NULL;
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_set_clipboard_text(const tchar_t *str) {
     if (OpenClipboard(_clipboard_handle)) {
-        tchar_t *buf = nullptr;
+        tchar_t *buf = NULL;
         size_t len = _tcslen(str) + 1;
-        HGLOBAL clipboard_buffer = nullptr;
+        HGLOBAL clipboard_buffer = NULL;
         HANDLE result;
 
         if (!EmptyClipboard()) {
@@ -18,7 +18,7 @@ _CC_API_PUBLIC(bool_t) _cc_set_clipboard_text(const tchar_t *str) {
         }
 
         clipboard_buffer = GlobalAlloc(GMEM_DDESHARE, len * sizeof(tchar_t));
-        if (clipboard_buffer == nullptr) {
+        if (clipboard_buffer == NULL) {
             CloseClipboard();
             return false;
         }
@@ -32,7 +32,7 @@ _CC_API_PUBLIC(bool_t) _cc_set_clipboard_text(const tchar_t *str) {
 #else
         result = SetClipboardData(CF_TEXT, buf);
 #endif
-        if (result == nullptr) {
+        if (result == NULL) {
             GlobalFree(clipboard_buffer);
         }
         CloseClipboard();
@@ -58,7 +58,7 @@ _CC_API_PUBLIC(int32_t) _cc_get_clipboard_text(tchar_t *str, int32_t len) {
 #else
         HGLOBAL clipboard_buffer = GetClipboardData(CF_TEXT);
 #endif
-        if (clipboard_buffer == nullptr) {
+        if (clipboard_buffer == NULL) {
             CloseClipboard();
             return 3;
         }

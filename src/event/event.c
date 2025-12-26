@@ -39,7 +39,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
     do {
         lnk = _cc_queue_sync_pop(&g.idles);
 
-        if (lnk != &g.idles && lnk != nullptr) {
+        if (lnk != &g.idles && lnk != NULL) {
             e = _cc_upcast(lnk, _cc_event_t, lnk);
             break;
         }
@@ -51,7 +51,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
 
             if (g.slot_limit <= g.slot_length) {
                 _cc_logger_error(_T("The maximum number of event supported by the RLIMIT_NOFILE is %d"), g.slot_limit);
-                return nullptr;
+                return NULL;
             }
 
             /*If the allocation fails, it directly aborts, so there is no need to check whether the application is successful, which is meaningless.*/
@@ -78,7 +78,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
 
 /**/
 _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
-    _cc_async_event_t *async = nullptr;
+    _cc_async_event_t *async = NULL;
     static uint16_t index = 0;
     int32_t i;
 
@@ -95,16 +95,16 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
 
     for (; i < count; i++) {
         n = (_cc_async_event_t *)g.async[i % g.async_limit];
-        if (n == nullptr || n->running == 0) {
+        if (n == NULL || n->running == 0) {
             continue;
         }
 
-        if (async == nullptr || n->processed < async->processed) {
+        if (async == NULL || n->processed < async->processed) {
             async = n;
         }
     }
 #endif
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
     return async;
 }
 
@@ -112,15 +112,15 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
 _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
 	int32_t index = (int32_t)(ident & 0x0FFFFF);
     if (g.slot_length <= index) {
-        return nullptr;
+        return NULL;
     }
 #ifdef _CC_DEBUG_
     {
         _cc_event_t *e = g.slots[index];
-        _cc_assert(e != nullptr);
+        _cc_assert(e != NULL);
         if (e->ident != ident) {
             _cc_logger_error(_T("event id:%d is deleted"), ident);
-            return nullptr;
+            return NULL;
         }
         return e;
     }
@@ -135,7 +135,7 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event_by_id(uint32_t ident) {
     int16_t i = (ident >> 20) & 0x0FFF;
     if (g.async_limit <= i) {
         _cc_logger_error(_T("async_event id:%d is unregistered!"), ident);
-        return nullptr;
+        return NULL;
     }
     return (_cc_async_event_t *)g.async[i];
 }
@@ -143,14 +143,14 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event_by_id(uint32_t ident) {
 /**/
 _CC_API_PUBLIC(_cc_event_t*) _cc_alloc_event(_cc_async_event_t *async, const uint32_t flags) {
     _cc_event_t *e = _cc_reserve_event(async->ident);
-    if (_cc_unlikely(e == nullptr)) {
-        return nullptr;
+    if (_cc_unlikely(e == NULL)) {
+        return NULL;
     }
 
     e->filter = _CC_EVENT_UNKNOWN_;
     e->flags = flags;
     e->fd = _CC_INVALID_SOCKET_;
-    e->callback = nullptr;
+    e->callback = NULL;
     e->expire = 0;
     e->timeout = 0;
     e->data = 0;
@@ -203,7 +203,7 @@ _CC_API_PUBLIC(void) _cc_print_cycle_processed(void) {
 bool_t _register_async_event(_cc_async_event_t *async) {
     int32_t i, j;
     int32_t async_limit;
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
 
     if (_cc_atomic32_inc_ref(&g.refcount)) {
         _cc_event_t *data;
@@ -226,7 +226,7 @@ bool_t _register_async_event(_cc_async_event_t *async) {
         g.async = _cc_calloc(0xFFF, sizeof(_cc_async_event_t*));
     }
 
-    while (g.async == nullptr) {
+    while (g.async == NULL) {
         _cc_sleep(10);
     }
 
@@ -301,7 +301,7 @@ _CC_API_PRIVATE(void) _event_link_free(_cc_async_event_t *async, _cc_list_iterat
 /**/
 bool_t _unregister_async_event(_cc_async_event_t *async) {
     int32_t i, j;
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
 
     _event_lock(async);
     async->running = 0;
@@ -335,8 +335,8 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
         _cc_free(g.async);
         _cc_queue_iterator_cleanup(&g.idles);
         g.slot_length = 0;
-        g.slots = nullptr;
-        g.async = nullptr;
+        g.slots = NULL;
+        g.async = NULL;
     } else {
         g.async[async->ident] = 0;
     }
@@ -376,7 +376,7 @@ bool_t _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which)
     async->processed++;
     _cc_list_iterator_swap(&async->pending, &e->lnk);
     /**/
-    _cc_assert(e->callback != nullptr);
+    _cc_assert(e->callback != NULL);
 
     if (e->callback(async, e, which)) {
         if ((e->flags & _CC_EVENT_CLOSED_) == 0) {

@@ -29,7 +29,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_array(const tchar_t *keyword, size_t 
     if (keyword) {
         item->name = _cc_sds_alloc(keyword,_tcslen(keyword));
     } else {
-        item->name = nullptr;
+        item->name = NULL;
     }
 
     return item;

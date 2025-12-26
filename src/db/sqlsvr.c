@@ -83,13 +83,13 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlsvr_connect(const tchar_t *sql_connection_string
     static _cc_once_t once_sqlsvr = _CC_ONCE_INIT_;
     SQLTCHAR OutConnStr[1024] = {0};
     SQLSMALLINT OutConnStrLen;
-    _cc_sql_t *ctx = nullptr;
+    _cc_sql_t *ctx = NULL;
 
     int request = SQL_SUCCESS;
 
     _cc_once(&once_sqlsvr,_init_sqlsvr);
     if (hEnv == SQL_NULL_HENV) {
-        return nullptr;
+        return NULL;
     }
 
     ctx = (_cc_sql_t *)_cc_malloc(sizeof(_cc_sql_t));
@@ -101,12 +101,12 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlsvr_connect(const tchar_t *sql_connection_string
 
     if (is_odbc_error(request)) {
         _cc_free(ctx);
-        return nullptr;
+        return NULL;
     }
 
     SQLSetConnectAttr(ctx->hDBC, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
-    request = SQLDriverConnect(ctx->hDBC, nullptr, (SQLTCHAR *)sql_connection_string,
+    request = SQLDriverConnect(ctx->hDBC, NULL, (SQLTCHAR *)sql_connection_string,
                                (SQLSMALLINT)_tcslen(sql_connection_string), OutConnStr,
                                (SQLSMALLINT)_cc_countof(OutConnStr), &OutConnStrLen, SQL_DRIVER_NOPROMPT);
 
@@ -115,7 +115,7 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlsvr_connect(const tchar_t *sql_connection_string
         SQLFreeHandle(SQL_HANDLE_DESC, ctx->hDBC);
         ctx->hDBC = SQL_NULL_HDBC;
         _cc_free(ctx);
-        return nullptr;
+        return NULL;
     }
 
     _cc_atomic32_inc(&sql_started_refcount);
@@ -124,13 +124,13 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlsvr_connect(const tchar_t *sql_connection_string
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_disconnect(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     if (ctx->hDBC != SQL_NULL_HDBC) {
         /*disconnect, and if it fails, then issue a rollback for any pending
          * transaction (lurcher)*/
         if (SQLDisconnect(ctx->hDBC) == SQL_ERROR) {
-            SQLTransact(nullptr, ctx->hDBC, SQL_ROLLBACK);
+            SQLTransact(NULL, ctx->hDBC, SQL_ROLLBACK);
             SQLDisconnect(ctx->hDBC);
         }
 
@@ -175,7 +175,7 @@ _CC_API_PRIVATE(bool_t) SQLExecute_ex(_cc_sql_result_t *result) {
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
     SQLHSTMT hSTMT = SQL_NULL_HSTMT;
-    _cc_assert(ctx != nullptr && ctx->hDBC != SQL_NULL_HSTMT);
+    _cc_assert(ctx != NULL && ctx->hDBC != SQL_NULL_HSTMT);
 
     if (is_odbc_error(SQLAllocStmt(ctx->hDBC, &hSTMT))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_DBC, ctx->hDBC, _T("SQLAllocStmt"));
@@ -195,7 +195,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
         return false;
     }
 
-    if (result == nullptr) {
+    if (result == NULL) {
         bool_t rc = SQLExecute_ex(hSTMT) > 0;
         SQLCloseCursor(hSTMT);
         SQLFreeStmt(hSTMT, SQL_CLOSE);
@@ -205,7 +205,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
     } else {
         *result = (_cc_sql_result_t *)_cc_malloc(sizeof(_cc_sql_result_t));
         (*result)->hSTMT = hSTMT;
-        (*result)->buffer.bytes = nullptr;
+        (*result)->buffer.bytes = NULL;
         (*result)->buffer.limit = 0;
         (*result)->buffer.length = 0;
     }
@@ -213,7 +213,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_reset(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
+    _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     if (is_odbc_error(SQLFreeStmt(result->hSTMT, SQL_RESET_PARAMS))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, result->hSTMT, _T("SQLFreeStmt"));
         return false;
@@ -222,13 +222,13 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_reset(_cc_sql_result_t *result) {
 }
 
 _CC_API_PRIVATE(size_t) _sqlsvr_step(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
+    _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     return SQLExecute_ex(result);
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
     SQLRETURN rc = 0;
-    _cc_assert(ctx != nullptr && ctx->hDBC != SQL_NULL_HDBC);
+    _cc_assert(ctx != NULL && ctx->hDBC != SQL_NULL_HDBC);
 
     if (is_auto_commit) {
         rc = SQLSetConnectAttr(ctx->hDBC, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
@@ -244,7 +244,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commi
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_begin_transaction(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr && ctx->hDBC != SQL_NULL_HDBC);
+    _cc_assert(ctx != NULL && ctx->hDBC != SQL_NULL_HDBC);
     if (!ctx->auto_commit) {
         return true;
     }
@@ -253,7 +253,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_begin_transaction(_cc_sql_t *ctx) {
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_commit(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr && ctx->hDBC != SQL_NULL_HDBC);
+    _cc_assert(ctx != NULL && ctx->hDBC != SQL_NULL_HDBC);
     if (is_odbc_error(SQLEndTran(SQL_HANDLE_DBC, ctx->hDBC, SQL_COMMIT))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_DBC, ctx->hDBC, _T("SQLEndTran(SQL_COMMIT)"));
         return false;
@@ -262,7 +262,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_commit(_cc_sql_t *ctx) {
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_rollback(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr && ctx->hDBC != SQL_NULL_HDBC);
+    _cc_assert(ctx != NULL && ctx->hDBC != SQL_NULL_HDBC);
     if (is_odbc_error(SQLEndTran(SQL_HANDLE_DBC, ctx->hDBC, SQL_ROLLBACK))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_DBC, ctx->hDBC, _T("SQLEndTran(SQL_ROLLBACK)"));
         return false;
@@ -272,7 +272,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_rollback(_cc_sql_t *ctx) {
 
 _CC_API_PRIVATE(uint64_t) _sqlsvr_get_num_rows(_cc_sql_result_t *result) {
     SQLLEN numrows;
-    _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
+    _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     /* determine the number of result rows */
     if (is_odbc_error(SQLRowCount(result->hSTMT, (SQLLEN *)&numrows))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, result->hSTMT, _T("SQLRowCount"));
@@ -283,7 +283,7 @@ _CC_API_PRIVATE(uint64_t) _sqlsvr_get_num_rows(_cc_sql_result_t *result) {
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_fetch(_cc_sql_result_t *result) {
     SQLRETURN res;
-    _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
+    _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     if (!result->step) {
         if (SQLExecute_ex(result) > 0) {
             return false;
@@ -305,7 +305,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_fetch(_cc_sql_result_t *result) {
 
 _CC_API_PRIVATE(int32_t) _sqlsvr_get_num_fields(_cc_sql_result_t *result) {
     SQLSMALLINT numcols;
-    _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
+    _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     /* determine the number of result columns */
     if (is_odbc_error(SQLNumResultCols(result->hSTMT, &numcols))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, result->hSTMT, _T("SQLNumResultCols"));
@@ -353,7 +353,7 @@ _CC_API_PRIVATE(const char *) _sqlsvr_types (const SQLSMALLINT type) {
             return "boolean";
         default:
             assert(0);
-            return nullptr;
+            return NULL;
     }
 }
 _CC_API_PRIVATE(bool_t) _sqlsvr_get_field_names(_cc_sql_t *ctx, _cc_sql_result_t *res) {
@@ -365,7 +365,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_get_field_names(_cc_sql_t *ctx, _cc_sql_result_t
     int32_t numcols = _sqlsvr_get_num_fields(res);
     for (i = 1; i <= numcols; i++) {
         res = SQLDescribeCol(res->hSTMT, i, names, sizeof(names),
-            &namelen, &datatype, nullptr, nullptr, nullptr);
+            &namelen, &datatype, NULL, NULL, NULL);
         if (res == SQL_ERROR) {
             return false;
         }
@@ -375,7 +375,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_get_field_names(_cc_sql_t *ctx, _cc_sql_result_t
 #endif
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_next_result(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
+    _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     if (is_odbc_error(SQLFetch(result->hSTMT))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, result->hSTMT, _T("SQLFetch"));
         return false;
@@ -384,7 +384,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_next_result(_cc_sql_result_t *result) {
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_free_result(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->hSTMT != SQL_NULL_HSTMT);
+    _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
 
     if (result->hSTMT != SQL_NULL_HSTMT) {
         SQLCloseCursor(result->hSTMT);
@@ -403,7 +403,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_free_result(_cc_sql_result_t *result) {
 _CC_API_PRIVATE(bool_t) _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, uint8_t type) {
     SQLRETURN res;
     SQLLEN length_ind = 0;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     /*List the serial numbers (starting from 1)*/
     index++;
     switch(type) {
@@ -458,7 +458,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, co
             break;
         case _CC_SQL_TYPE_NULL_: {
             SQLLEN null_ind = SQL_NULL_DATA;
-            res = SQLBindParameter(result->hSTMT, index, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, nullptr, 0, &null_ind);
+            res = SQLBindParameter(result->hSTMT, index, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, NULL, 0, &null_ind);
         }
             break;
         default:
@@ -473,13 +473,13 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, co
 
 /**/
 _CC_API_PRIVATE(uint64_t) _sqlsvr_get_last_id(_cc_sql_t *ctx,_cc_sql_result_t *result) {
-    _cc_assert(ctx != nullptr && ctx->hDBC != nullptr);
+    _cc_assert(ctx != NULL && ctx->hDBC != NULL);
     _cc_logger_debug(_T("SQLServer get_last_id: Not implemented yet"));
     return -1;
 }
 
 _CC_API_PRIVATE(pvoid_t) _sqlsvr_get_stmt(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->hSTMT != nullptr);
+    _cc_assert(result != NULL && result->hSTMT != NULL);
     return result->hSTMT;
 }
 
@@ -578,7 +578,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t i
 /**/
 _CC_API_PUBLIC(bool_t) _cc_register_sqlsvr(_cc_sql_delegate_t *delegator) {
 #define SET(x) delegator->x = _sqlsvr_##x
-    if (_cc_unlikely(delegator == nullptr)) {
+    if (_cc_unlikely(delegator == NULL)) {
         return false;
     }
 

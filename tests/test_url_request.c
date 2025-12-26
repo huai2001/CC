@@ -2,7 +2,7 @@
 #include <libcc/json.h>
 #include <libcc/timeout.h>
 
-static _cc_OpenSSL_t *openSSL = nullptr;
+static _cc_OpenSSL_t *openSSL = NULL;
 static bool_t url_request(const tchar_t *url, pvoid_t args);
 static bool_t url_request_connect(_cc_http_request_t *request);
 
@@ -70,7 +70,7 @@ static bool_t url_request_success(_cc_http_request_t *request) {
     {
         const _cc_http_header_t *location = _cc_http_header_find(&response->headers, _T("Location"));
         if (location) {
-            return url_request(location->value, nullptr);
+            return url_request(location->value, NULL);
         }
         break;
     }
@@ -87,7 +87,7 @@ static bool_t url_request_read(_cc_http_request_t *request) {
 
 static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, const uint32_t which) {
     _cc_http_request_t *request = (_cc_http_request_t *)e->data;
-    if (request == nullptr || !_cc_async_event_is_running()) {
+    if (request == NULL || !_cc_async_event_is_running()) {
         return false;
     }
     if (which == _CC_EVENT_CLOSED_) {
@@ -187,7 +187,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     _cc_socket_t fd;
     _cc_event_t *e;
     _cc_async_event_t *async = _cc_get_async_event();
-    if (request == nullptr) {
+    if (request == NULL) {
         return false;
     }
 
@@ -202,7 +202,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     _cc_set_socket_reuseaddr(fd);
 
     e = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
-    if (e == nullptr) {
+    if (e == NULL) {
         return false;
     }
 
@@ -248,14 +248,14 @@ static bool_t url_request(const tchar_t *url, pvoid_t args) {
 int main(int argc, char *const argv[]) {
     openSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
 
-    _cc_alloc_async_event(0, nullptr);
+    _cc_alloc_async_event(0, NULL);
 
-    url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
-    //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
-    //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
-    //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
-    //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
-    //url_request("https://api.trongrid.io/wallet/getnowblock", nullptr);
+    url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
+    //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
+    //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
+    //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
+    //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
+    //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
 
     while (getchar() != 'q') {
         _cc_sleep(100);

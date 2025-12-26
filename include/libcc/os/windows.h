@@ -119,7 +119,7 @@
 do {\
     if (*H) {\
         CloseHandle(*H);\
-        *H = nullptr;\
+        *H = NULL;\
     }\
 } while (0)
 

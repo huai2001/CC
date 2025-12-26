@@ -92,7 +92,7 @@ _CC_API_PRIVATE(bool_t) _emit_iocp_event(_cc_async_event_t *async, _cc_event_t *
             return true;
         }
 
-        fd = (_cc_socket_t)WSASocket(AF_INET, SOCK_STREAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
+        fd = (_cc_socket_t)WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
         if (fd == _CC_INVALID_SOCKET_) {
             int result = _cc_last_errno();
             _cc_logger_error(_T("WSASocket fail:%d, %s"), result, _cc_last_error(result));
@@ -146,14 +146,14 @@ _CC_API_PRIVATE(bool_t) _iocp_event_reset(_cc_async_event_t *async, _cc_event_t 
 
 /**/
 _CC_API_PRIVATE(bool_t) _iocp_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_assert(async != nullptr && e != nullptr);
+    _cc_assert(async != NULL && e != NULL);
 
     if (async->running == 0) {
         return false;
     }
 
     if (_CC_EVENT_IS_SOCKET(e->flags)) {
-        if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == nullptr) {
+        if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == NULL) {
             _cc_logger_error(_T("CreateIoCompletionPort Error Code:%d."), _cc_last_errno());
             return false;
         }
@@ -185,7 +185,7 @@ _CC_API_PRIVATE(bool_t) _iocp_bind(_cc_async_event_t *async, const _cc_event_t *
         return false;
     }
 
-    if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == nullptr) {
+    if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == NULL) {
 		int err = _cc_last_errno();
 		_cc_logger_error(_T("CreateIoCompletionPort Error Code:%d. %s"),err, _cc_last_error(err));
         return false;
@@ -195,10 +195,10 @@ _CC_API_PRIVATE(bool_t) _iocp_bind(_cc_async_event_t *async, const _cc_event_t *
 
 /**/
 _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_async_event_t *async, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
-    _io_context_t *io_context = nullptr;
+    _io_context_t *io_context = NULL;
 
     LPFN_CONNECTEX connect_fn = get_connectex_func_ptr(e->fd);
-    if (_cc_unlikely(connect_fn == nullptr)) {
+    if (_cc_unlikely(connect_fn == NULL)) {
         return false;
     }
 
@@ -213,7 +213,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_async_event_t *async, _cc_event_
     io_context = _io_context_alloc(async->priv, e);
     io_context->flag = _CC_EVENT_CONNECT_;
 
-    if (!connect_fn(e->fd, (struct sockaddr *)sa, sa_len, nullptr, 0, nullptr, &io_context->overlapped)) {
+    if (!connect_fn(e->fd, (struct sockaddr *)sa, sa_len, NULL, 0, NULL, &io_context->overlapped)) {
         int err = _cc_last_errno();
         if (err != WSA_IO_PENDING) {
             _io_context_free(async->priv, io_context);
@@ -229,10 +229,10 @@ _CC_API_PRIVATE(bool_t) _iocp_event_disconnect(_cc_async_event_t *async, _cc_eve
     /*int result = 0;
     DWORD dwFlags = TF_REUSE_SOCKET;
     DWORD reserved = 0;
-    _io_context_t *io_context = nullptr;
+    _io_context_t *io_context = NULL;
 
     LPFN_DISCONNECTEX disconnect_fn = get_disconnect_func_ptr(e->fd);
-    if (disconnect_fn == nullptr) {
+    if (disconnect_fn == NULL) {
         return false;
     }
 
@@ -263,8 +263,8 @@ _CC_API_PRIVATE(_cc_socket_t) _iocp_event_accept(_cc_async_event_t *async, _cc_e
 		/* sizeof(SOCKET) is 8 */
         setsockopt(accept_fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&fd, sizeof(SOCKET));
 
-        _cc_assert(sa != nullptr);
-        _cc_assert(sa_len != nullptr);
+        _cc_assert(sa != NULL);
+        _cc_assert(sa_len != NULL);
 
         if (sa && sa_len && getpeername(accept_fd, (struct sockaddr *)sa, sa_len) == -1) {
             int32_t err = _cc_last_errno();
@@ -299,7 +299,7 @@ _CC_API_PRIVATE(void) _iocp_handle_entry(_cc_async_event_t *async, _io_context_t
 		io_context->fd = _CC_INVALID_SOCKET_;
     } else if (io_context->flag == _CC_EVENT_CONNECT_) {
         if (NT_SUCCESS(io_context->overlapped.Internal)) {
-            _cc_setsockopt(e->fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, nullptr, 0);
+            _cc_setsockopt(e->fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0);
         } else {
             which = _CC_EVENT_CLOSED_;
         }
@@ -337,29 +337,29 @@ _CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
 
 _io_context_t* _iocp_upcast(_cc_async_event_t *async, LPOVERLAPPED overlapped) {
     _io_context_t *io_context;
-    if (overlapped == nullptr) {
-        return nullptr;
+    if (overlapped == NULL) {
+        return NULL;
     }
 
     /**/
     io_context = _cc_upcast(overlapped, _io_context_t, overlapped);
 
     /**/
-    if (io_context->e != nullptr && io_context->e->ident == io_context->ident) {
+    if (io_context->e != NULL && io_context->e->ident == io_context->ident) {
         return io_context;
     }
 
     _io_context_free(async->priv, io_context);
-    return nullptr;
+    return NULL;
 }
 
 /**/
 _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t timeout) {
     ULONG_PTR key = 0;
-    LPOVERLAPPED overlapped = nullptr;
+    LPOVERLAPPED overlapped = NULL;
 	DWORD number_of_bytes;
 
-    _io_context_t *io_context = nullptr;
+    _io_context_t *io_context = NULL;
 #if (_WIN32_WINNT >= 0x0600)
     OVERLAPPED_ENTRY entries[_CC_IOCP_EVENTS_] = {0};
     ULONG number_of_entries = 0,i;
@@ -368,8 +368,8 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
 
     int32_t last_error;
 
-    _cc_assert(IOCPPort != nullptr);
-    if (_cc_unlikely(IOCPPort == nullptr)) {
+    _cc_assert(IOCPPort != NULL);
+    if (_cc_unlikely(IOCPPort == NULL)) {
         return false;
     }
 
@@ -460,8 +460,8 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
 
 /**/
 _CC_API_PRIVATE(bool_t) _iocp_event_free(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
-    if (async == nullptr) {
+    _cc_assert(async != NULL);
+    if (async == NULL) {
         return false;
     }
     /**/
@@ -484,8 +484,8 @@ _CC_API_PRIVATE(bool_t) _iocp_event_alloc(_cc_async_event_t *async) {
     }
     
     priv = (_cc_async_event_priv_t *)_cc_malloc(sizeof(_cc_async_event_priv_t));
-    priv->port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
-    if (priv->port == nullptr) {
+    priv->port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
+    if (priv->port == NULL) {
         _cc_logger_error(_T("CreateIoCompletionPort Error Code:%d."), _cc_last_errno());
         return false;
     }

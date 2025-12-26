@@ -2,8 +2,8 @@
 
 /* Skips spaces and comments as many as possible.*/
 bool_t _INI_buf_jump_comments(_cc_sbuf_t* const buffer) {
-    register const tchar_t* p = nullptr;
-    /*if ((buffer == nullptr) || (buffer->content == nullptr)) {
+    register const tchar_t* p = NULL;
+    /*if ((buffer == NULL) || (buffer->content == NULL)) {
         return false;
     }*/
     while (_cc_sbuf_access(buffer)) {
@@ -65,9 +65,9 @@ bool_t _INI_buf_jump_comments(_cc_sbuf_t* const buffer) {
 }
 
 _CC_API_PRIVATE(_cc_sds_t) _INI_read_name(_cc_sbuf_t* const buffer) {
-    _cc_sds_t output = nullptr;
+    _cc_sds_t output = NULL;
     const tchar_t *start = _cc_sbuf_offset(buffer);
-    const tchar_t *endpos = nullptr;
+    const tchar_t *endpos = NULL;
     const tchar_t* p = start;
 
     endpos = buffer->content + buffer->length;
@@ -79,7 +79,7 @@ _CC_API_PRIVATE(_cc_sds_t) _INI_read_name(_cc_sbuf_t* const buffer) {
     }
 
     if (p >= endpos) {
-        return nullptr;
+        return NULL;
     }
     /* -1 skip ']', '=', whitespace */
     endpos = p - 1;
@@ -111,7 +111,7 @@ _CC_API_PRIVATE(bool_t) _INI_value_endflag(const tchar_t* p, const tchar_t quote
 _CC_API_PRIVATE(bool_t) _INI_read_string(_cc_sbuf_t* const buffer, _cc_ini_t *item) {
     const tchar_t* p = _cc_sbuf_offset(buffer);
     const tchar_t* start;
-    const tchar_t *endpos = nullptr;
+    const tchar_t *endpos = NULL;
 
     size_t alloc_length = 0;
     size_t skipped_bytes = 0;
@@ -161,7 +161,7 @@ _CC_API_PRIVATE(bool_t) _INI_read_string(_cc_sbuf_t* const buffer, _cc_ini_t *it
     /* This is at most how much we need for the item->element.uni_string */
     alloc_length = (size_t)(endpos - start);
 
-    item->element.uni_string = (_cc_sds_t)_cc_sds_alloc(nullptr, (alloc_length - skipped_bytes + 1));
+    item->element.uni_string = (_cc_sds_t)_cc_sds_alloc(NULL, (alloc_length - skipped_bytes + 1));
     endpos = _convert_text(item->element.uni_string, start, endpos);
     if (endpos) {
         buffer->offset = (size_t)(p - buffer->content) + endflag;
@@ -241,10 +241,10 @@ _CC_API_PRIVATE(bool_t) _INI_read(_cc_ini_t* root, _cc_sbuf_t* const buffer) {
 }
 
 _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_parser(_cc_sbuf_t* const buffer) {
-    _cc_ini_t* root = nullptr;
+    _cc_ini_t* root = NULL;
     _cc_syntax_error_t local_error;
 
-    local_error.content = nullptr;
+    local_error.content = NULL;
     local_error.position = 0;
 
     root = _INI_alloc(_CC_INI_SECTION_);
@@ -263,16 +263,16 @@ _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_parser(_cc_sbuf_t* const buffer) {
     _cc_syntax_error(&local_error);
 
     _cc_free_ini(root);
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_from_file(const tchar_t* file_name) {
     _cc_sbuf_t buffer;
-    _cc_ini_t* item = nullptr;
+    _cc_ini_t* item = NULL;
     _cc_buf_t buf;
 
     if (!_cc_buf_from_file(&buf, file_name)) {
-        return nullptr;
+        return NULL;
     }
 
     buffer.content = (tchar_t*)buf.bytes;

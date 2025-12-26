@@ -46,8 +46,8 @@
     #undef _CC_DEBUG_
 #endif
 
-#define _cc_abort() do {\
-    _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("Assertion failed"));\
+#define _cc_abort(fmt, ...) do {\
+    _cc_logger_format(_CC_LOG_LEVEL_ALERT_, fmt, ##__VA_ARGS__);\
     abort();\
 } while (0)
 

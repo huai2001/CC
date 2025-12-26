@@ -5,7 +5,7 @@
 #define ENABLE_SSL 1
 
 #if ENABLE_SSL
-_cc_OpenSSL_t *openSSL = nullptr;
+_cc_OpenSSL_t *openSSL = NULL;
 #endif
 
 typedef struct _http {
@@ -61,13 +61,13 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(nullptr),
+        _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(NULL),
                          _cc_last_error(_cc_last_errno()));
         return false;
     }
 
     event = _cc_alloc_event(async2, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
-    if (event == nullptr) {
+    if (event == NULL) {
         _cc_close_socket(fd);
         return false;
     }
@@ -76,7 +76,7 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
 
     http = (_http_t*)_cc_malloc(sizeof(_http_t));
     http->state = _CC_HTTP_STATE_HEADER_;
-    http->request = nullptr;
+    http->request = NULL;
     http->payload = 0;
     http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
 #if ENABLE_SSL
@@ -96,7 +96,7 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
     #endif
 
     if (async2->attach(async2, event) == false) {
-        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
+        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
         return false;
     }
@@ -168,15 +168,15 @@ _CC_API_PRIVATE(void) request_file(_cc_event_t *e, _cc_io_buffer_t *io, tchar_t 
     http->file = _cc_fopen(www_file, "rb");
     if (http->file) {
         uint64_t size = _cc_file_size(http->file);
-        tchar_t *ext = nullptr;
+        tchar_t *ext = NULL;
         tchar_t *script_name = _tcsrchr(www_file, '/');
-        if (script_name == nullptr) {
+        if (script_name == NULL) {
             script_name = "index.html";
         } else {
             ext = _tcsrchr(script_name, '.');
             script_name++;
         }
-        if (ext != nullptr) {
+        if (ext != NULL) {
             if (_tcsicmp(".exe", ext) == 0) {
                 io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: Content-Disposition: attachment; filename=\"%s\"\r\nContent-Length: %lld\r\n\r\n", script_name,size);
             } else if (_tcsicmp(".zip", ext) == 0) {
@@ -231,7 +231,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
             http->state = _CC_HTTP_STATE_ESTABLISHED_;
         }
 
-        if (http->buffer.bytes == nullptr && http->payload > 0) {
+        if (http->buffer.bytes == NULL && http->payload > 0) {
             _cc_alloc_buf(&http->buffer, (size_t)http->payload);
         }
     } 
@@ -278,7 +278,7 @@ static bool_t onWrite(_cc_async_event_t *async, _cc_event_t *e) {
         if (_cc_io_buffer_flush(e, http->io) < 0) {
             return false;
         }
-    } else if (http->file == nullptr) {
+    } else if (http->file == NULL) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
         return http->keep_alive;
     }
@@ -287,7 +287,7 @@ static bool_t onWrite(_cc_async_event_t *async, _cc_event_t *e) {
         int32_t off = (int32_t)_cc_fread(http->file, io->w.bytes + io->w.off, 1, io->w.limit - io->w.off);
         if (off <= 0) {
             _cc_fclose(http->file);
-            http->file = nullptr;
+            http->file = NULL;
             if (io->w.off == 0) {
                 _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
             }
@@ -333,7 +333,7 @@ bool_t addListener(const tchar_t *host, uint16_t port) {
     _cc_event_t *event = _cc_alloc_event(async, _CC_EVENT_ACCEPT_);
     _cc_assert(async != NULL);
     _cc_assert(event != NULL);
-    if (event == nullptr) {
+    if (event == NULL) {
         return false;
     }
 
@@ -351,15 +351,15 @@ bool_t addListener(const tchar_t *host, uint16_t port) {
 
 int main() {
     int c;
-    _cc_alloc_async_event(0, nullptr);
+    _cc_alloc_async_event(0, NULL);
 #if ENABLE_SSL
     openSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
-    if (openSSL == nullptr) {
+    if (openSSL == NULL) {
         return 1;
     }
-    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",nullptr);
+    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
 #endif
-    addListener(nullptr, 8080);
+    addListener(NULL, 8080);
 
     while((c = getchar()) != 'q') {
         _cc_sleep(100);

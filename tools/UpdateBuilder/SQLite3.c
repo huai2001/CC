@@ -2,7 +2,7 @@
 #include "UpdateBuilder.h"
 
 _cc_sql_delegate_t sqldelegate;
-_cc_sql_t *sql_default = nullptr;
+_cc_sql_t *sql_default = NULL;
 
 const tchar_t *createTable = "CREATE TABLE IF NOT EXISTS FileList (" \
         "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," \
@@ -17,7 +17,7 @@ const tchar_t *createTable = "CREATE TABLE IF NOT EXISTS FileList (" \
 
 
 _cc_sql_t* openSQLite3(void) {
-    _cc_sql_t *sql = nullptr;
+    _cc_sql_t *sql = NULL;
     tchar_t path[_CC_MAX_PATH_];
     tchar_t sqliteFile[_CC_MAX_PATH_ * 2];
 
@@ -29,9 +29,9 @@ _cc_sql_t* openSQLite3(void) {
     _sntprintf(sqliteFile,_cc_countof(sqliteFile), _T("SQLITE:///%s/UpdateBuilder.db"), path);
 
     sql = sqldelegate.connect(sqliteFile);
-    if (sql == nullptr) {
+    if (sql == NULL) {
         _cc_logger_debug("Update SQL is null");
-        return nullptr;
+        return NULL;
     }
 
     sqldelegate.execute(sql, createTable, false);
@@ -43,6 +43,6 @@ _cc_sql_t* openSQLite3(void) {
 void closeSQLite3(_cc_sql_t *sql) {
     if (sql) {
         sqldelegate.disconnect(sql);
-        sql_default = nullptr;
+        sql_default = NULL;
     }
 }

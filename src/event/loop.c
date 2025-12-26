@@ -8,7 +8,7 @@ static struct {
     _cc_async_event_t *async_events;
     _cc_thread_t **threads;
     void (*callback)(_cc_async_event_t*, bool_t);
-} g = {false, 0, nullptr, nullptr, nullptr};
+} g = {false, 0, NULL, NULL, NULL};
 
 /**/
 _CC_API_PRIVATE(int32_t) _running(pvoid_t args) {
@@ -50,12 +50,12 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_async_event(int32_t cores, void (*cb)(_cc_async
     }
 
     async_events = (_cc_async_event_t *)_cc_calloc(cores, sizeof(_cc_async_event_t));
-    if (async_events == nullptr) {
+    if (async_events == NULL) {
         return false;
     }
 
     threads = (_cc_thread_t **)_cc_calloc(cores, sizeof(_cc_thread_t *));
-    if (threads == nullptr) {
+    if (threads == NULL) {
         _cc_free(async_events);
         return false;
     }
@@ -70,7 +70,7 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_async_event(int32_t cores, void (*cb)(_cc_async
         if (_cc_register_poller(n) == false) {
             continue;
         }
-        n->args = nullptr;
+        n->args = NULL;
         *(threads + i) = _cc_thread(_running, _T("async event"), n);
         g.count++;
     }
@@ -90,15 +90,15 @@ _CC_API_PUBLIC(bool_t) _cc_free_async_event(void) {
 
     if (g.threads) {
         for (i = 0; i < g.count; ++i) {
-            _cc_wait_thread(*(g.threads + i), nullptr);
+            _cc_wait_thread(*(g.threads + i), NULL);
         }
         _cc_free(g.threads);
-        g.threads = nullptr;
+        g.threads = NULL;
     }
 
     if (g.async_events) {
         _cc_free(g.async_events);
-        g.async_events = nullptr;
+        g.async_events = NULL;
     }
     return true;
 }

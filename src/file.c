@@ -47,7 +47,7 @@ _CC_API_PRIVATE(int64_t) io_size(_cc_file_t *context) {
     _cc_fseek_off_t pos = 0, size = 1;
     _cc_assert(context && _GET_HANDLE(context));
     /*
-    if (!context || _GET_HANDLE(context) == nullptr) {
+    if (!context || _GET_HANDLE(context) == NULL) {
         _cc_logger_error(_T("invalid context/file not opened"));
         return -1;
     }
@@ -72,7 +72,7 @@ _CC_API_PRIVATE(int64_t) io_seek(_cc_file_t *context, int64_t offset, int whence
      const bool_t is_noop = (whence == _CC_FILE_SEEK_CUR_) && (offset == 0);
     _cc_assert(context && _GET_HANDLE(context));
     /*
-    if (!context || _GET_HANDLE(context) == nullptr) {
+    if (!context || _GET_HANDLE(context) == NULL) {
         _cc_logger_error(_T("invalid context/file not opened"));
         return false;
     }
@@ -123,7 +123,7 @@ _CC_API_PRIVATE(bool_t) io_close(_cc_file_t *context) {
     bool_t status = true;
 
     _cc_assert(context && _GET_HANDLE(context));
-    if (!context || _GET_HANDLE(context) == nullptr) {
+    if (!context || _GET_HANDLE(context) == NULL) {
         _cc_logger_error(_T("invalid context/file not opened"));
         return false;
     }
@@ -143,7 +143,7 @@ _CC_API_PRIVATE(bool_t) io_close(_cc_file_t *context) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
     f->fp = _tfopen(filename, mode);
-    return (f->fp != nullptr);
+    return (f->fp != NULL);
 }
 #endif /*!(__CC_MACOSX__)*/
 
@@ -157,7 +157,7 @@ _CC_API_PUBLIC(_cc_file_t*) _cc_open_file(const tchar_t *filename, const tchar_t
     if (!_cc_sys_open_file(f, filename, mode)) {
         _cc_logger_error(_T("Couldn't open %s"), filename);
         _cc_free(f);
-        return nullptr;
+        return NULL;
     }
 
 #ifndef __CC_WINDOWS__

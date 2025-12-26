@@ -119,7 +119,7 @@ _CC_API_PUBLIC(bool_t) _cc_md2_fp(FILE *fp, tchar_t *output) {
     long seek_cur = 0;
     _cc_md2_t c;
 
-    if (fp == nullptr) {
+    if (fp == NULL) {
         return false;
     }
 

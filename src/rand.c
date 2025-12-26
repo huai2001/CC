@@ -108,7 +108,7 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 	DWORD to_read = 0;
 	const size_t MAX_DWORD = 0xFFFFFFFF;
 
-	tmp = CryptAcquireContext(&ctx, nullptr, nullptr, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+	tmp = CryptAcquireContext(&ctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
 	if (tmp == FALSE) {
         generic_random_bytes(buf,nbytes);
         return;

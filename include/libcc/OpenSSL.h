@@ -42,7 +42,7 @@ typedef struct _cc_SSL {
 	#define _SSL_X509_NAME_HASH	X509_NAME_hash
 #else
 	_CC_FORCE_INLINE_ unsigned long _SSL_X509_NAME_HASH(const X509_NAME *x) {
-		return X509_NAME_hash_ex(x, nullptr, nullptr, nullptr);
+		return X509_NAME_hash_ex(x, NULL, NULL, NULL);
 	}
 #endif
 #endif

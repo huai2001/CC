@@ -23,7 +23,7 @@ _CC_API_PUBLIC(time_t) _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_
 
 _CC_API_PUBLIC(uint64_t) _cc_timestamp(void) {
     struct timeval tv;
-    gettimeofday(&tv, nullptr);
+    gettimeofday(&tv, NULL);
     return ((uint64_t)tv.tv_sec * 1000) + ((uint64_t)tv.tv_usec / 1000);
 }
 
@@ -92,7 +92,7 @@ _CC_API_PUBLIC(int) _cc_day_of_year(int year, int month, int day) {
         return -1;
     }
 
-    _cc_civil_to_days(year, month, day, nullptr, &day_of_year);
+    _cc_civil_to_days(year, month, day, NULL, &day_of_year);
     return day_of_year;
 }
 
@@ -110,6 +110,6 @@ _CC_API_PUBLIC(int) _cc_day_of_week(int year, int month, int day) {
         return -1;
     }
 
-    _cc_civil_to_days(year, month, day, &day_of_week, nullptr);
+    _cc_civil_to_days(year, month, day, &day_of_week, NULL);
     return day_of_week;
 }

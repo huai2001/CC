@@ -74,7 +74,7 @@ _CC_API_PUBLIC(void) _cc_free(pvoid_t);
 #define _cc_if_free(d) do {\
     if ((d)) {\
         _cc_free((d));\
-        (d) = nullptr;\
+        (d) = NULL;\
     }\
 } while (0)
 

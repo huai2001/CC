@@ -29,9 +29,9 @@ _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length) {
     @autoreleasepool {
         NSBundle *bundle = [NSBundle mainBundle];
         const char *baseType = [[[bundle infoDictionary] objectForKey:@"CC_FILESYSTEM_BASE_DIR_TYPE"] UTF8String];
-        const char *bundlePath = nullptr;
+        const char *bundlePath = NULL;
 
-        if (baseType == nullptr) {
+        if (baseType == NULL) {
             baseType = "resource";
         }
         

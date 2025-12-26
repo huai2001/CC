@@ -5,19 +5,19 @@
 byte_t* loadCompressedTGA( TGAHeader_t* tgaHeader, const byte_t* data) {
     uint32_t pixel = 0, elementCounter = 0;
     int32_t cb = 0, offset = 0, dataSize;
-    byte_t chunk = 0, *tgaData = nullptr, counter = 0;
+    byte_t chunk = 0, *tgaData = NULL, counter = 0;
 
-    _cc_assert( tgaHeader != nullptr && data != nullptr);
-    if (tgaHeader == nullptr || data == nullptr)
-        return nullptr;
+    _cc_assert( tgaHeader != NULL && data != NULL);
+    if (tgaHeader == NULL || data == NULL)
+        return NULL;
 
     pixel = tgaHeader->PixelDepth / 8;
     dataSize = tgaHeader->Height * tgaHeader->Width * pixel;
     /*Fill in the data*/
     tgaData = _cc_malloc(dataSize * sizeof(byte_t));
-    _cc_assert( tgaData != nullptr );
+    _cc_assert( tgaData != NULL );
     if (!tgaData) {
-        return nullptr;
+        return NULL;
     }
 
     while (cb < dataSize) {
@@ -58,16 +58,16 @@ byte_t* loadCompressedTGA( TGAHeader_t* tgaHeader, const byte_t* data) {
 }
 
 _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
-    _cc_image_t* image = nullptr;
+    _cc_image_t* image = NULL;
     byte_t *data_ptr = (byte_t *)data;
     int32_t ColorMapsize = 0, dataSize = 0;
-    uint32_t *PaletteData = nullptr;
-    byte_t *ColorMap = nullptr, *tgaData = nullptr;
+    uint32_t *PaletteData = NULL;
+    byte_t *ColorMap = NULL, *tgaData = NULL;
 
     TGAHeader_t tgaHeader;
-    _cc_assert(data != nullptr);
-    if (data == nullptr) {
-        return nullptr;
+    _cc_assert(data != NULL);
+    if (data == NULL) {
+        return NULL;
     }
 
     tgaHeader.IdLength = *(byte_t*)data_ptr++;
@@ -92,15 +92,15 @@ _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
 
     if (tgaHeader.ColorMapType) {
         PaletteData = (uint32_t*)_cc_malloc(sizeof(uint32_t) * tgaHeader.ColorMapLength);
-        _cc_assert( PaletteData != nullptr );
-        if (PaletteData == nullptr) {
-            return nullptr;
+        _cc_assert( PaletteData != NULL );
+        if (PaletteData == NULL) {
+            return NULL;
         }
         ColorMapsize = sizeof(byte_t) * (tgaHeader.ColorMapEntrySize / 8 * tgaHeader.ColorMapLength);
         ColorMap = (byte_t*)_cc_malloc(ColorMapsize);
-        _cc_assert( ColorMap != nullptr );
-        if (ColorMap == nullptr) {
-            return nullptr;
+        _cc_assert( ColorMap != NULL );
+        if (ColorMap == NULL) {
+            return NULL;
         }
         memcpy(ColorMap, data_ptr, ColorMapsize);
         data_ptr += ColorMapsize;
@@ -126,8 +126,8 @@ _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
         dataSize = tgaHeader.Height * tgaHeader.Width * tgaHeader.PixelDepth / 8;
         tgaData = (byte_t*)_cc_malloc(dataSize * sizeof(byte_t));
 
-        if (tgaData == nullptr)
-            return nullptr;
+        if (tgaData == NULL)
+            return NULL;
 
         memcpy(tgaData, data_ptr, dataSize * sizeof(byte_t));
         data_ptr += dataSize;
@@ -138,26 +138,26 @@ _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
     } else {
         _cc_logger_error(_T("loadTGA: Unsupported TGA file type"));
         _cc_free(PaletteData);
-        return nullptr;
+        return NULL;
     }
 
     switch (tgaHeader.PixelDepth) {
     case 8:
         if (tgaHeader.ImageType == 3) {
             image = _cc_init_image(CF_R8G8B8, tgaHeader.Width, tgaHeader.Height);
-            if (image == nullptr) {
+            if (image == NULL) {
                 _cc_free(tgaData);
                 _cc_free(PaletteData);
-                return nullptr;
+                return NULL;
             }
             _cc_color_8bit_to_24bit(tgaData, image->data, tgaHeader.Width, tgaHeader.Height,
                                     0, false, (tgaHeader.ImageDescriptor & 0x20) == 0);
         } else {
             image = _cc_init_image(CF_A1R5G5B5, tgaHeader.Width, tgaHeader.Height);
-            if (image == nullptr) {
+            if (image == NULL) {
                 _cc_free(tgaData);
                 _cc_free(PaletteData);
-                return nullptr;
+                return NULL;
             }
             _cc_color_8bit_to_16bit(tgaData, (int16_t*)image->data, tgaHeader.Width, tgaHeader.Height,
                                     PaletteData, false, (tgaHeader.ImageDescriptor & 0x20) == 0);
@@ -166,30 +166,30 @@ _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
         break;
     case 16:
         image = _cc_init_image(CF_A1R5G5B5, tgaHeader.Width, tgaHeader.Height);
-        if (image == nullptr) {
+        if (image == NULL) {
             _cc_free(tgaData);
             _cc_free(PaletteData);
-            return nullptr;
+            return NULL;
         }
         _cc_color_16bit_to_16bit((int16_t*)tgaData, (int16_t*)image->data, tgaHeader.Width, tgaHeader.Height,
                                  false, (bool_t)(tgaHeader.ImageDescriptor & 0x20) == 0);
         break;
     case 24:
         image = _cc_init_image(CF_R8G8B8, tgaHeader.Width, tgaHeader.Height);
-        if (image == nullptr) {
+        if (image == NULL) {
             _cc_free(tgaData);
             _cc_free(PaletteData);
-            return nullptr;
+            return NULL;
         }
         _cc_color_24bit_to_24bit(tgaData, image->data, tgaHeader.Width, tgaHeader.Height, 0,
                                  (tgaHeader.ImageDescriptor & 0x20) == 0, true);
         break;
     case 32:
         image = _cc_init_image(CF_A8R8G8B8, tgaHeader.Width, tgaHeader.Height);
-        if (image == nullptr) {
+        if (image == NULL) {
             _cc_free(tgaData);
             _cc_free(PaletteData);
-            return nullptr;
+            return NULL;
         }
         _cc_color_32bit_to_32bit((int32_t*)tgaData, (int32_t*)image->data, tgaHeader.Width, tgaHeader.Height,
                                  false, (bool_t)(tgaHeader.ImageDescriptor & 0x20) == 0);

@@ -9,7 +9,7 @@ typedef struct _XML_entity {
     tchar_t value;
 } _XML_entity_t;
 
-static _cc_syntax_error_t _cc_global_syntax_error = {nullptr, 0};
+static _cc_syntax_error_t _cc_global_syntax_error = {NULL, 0};
 
 #define _XML_NUM_ENTITIES_ 5
 static const _XML_entity_t XML_entities[_XML_NUM_ENTITIES_] = {{_T("quot"), 4, _T('\"')},
@@ -41,7 +41,7 @@ tchar_t * _convert_text(_cc_sds_t sds, const tchar_t *input_ptr, const tchar_t *
         } else if (*input_ptr == _T('&')) {
             size_t i = 0;
             const tchar_t *p = (input_ptr + 1);
-            const _XML_entity_t *entity = nullptr;
+            const _XML_entity_t *entity = NULL;
             for (i = 0; i < _XML_NUM_ENTITIES_; i++) {
                 const _XML_entity_t *tmp = &XML_entities[i];
                 if (*tmp->pattern == *p && _tcsnicmp(tmp->pattern, p, tmp->length) == 0) {
@@ -61,7 +61,7 @@ tchar_t * _convert_text(_cc_sds_t sds, const tchar_t *input_ptr, const tchar_t *
             /* escape sequence */
             unsigned char sequence_length = 2;
             if ((endpos - input_ptr) < 1) {
-                return nullptr;
+                return NULL;
             }
 
             switch (input_ptr[1]) {
@@ -91,12 +91,12 @@ tchar_t * _convert_text(_cc_sds_t sds, const tchar_t *input_ptr, const tchar_t *
                         alloc_length - (output_ptr - (tchar_t*)sds));
                     if (sequence_length == 0) {
                         /* failed to convert UTF16-literal to UTF-8 */
-                        return nullptr;
+                        return NULL;
                     }
                     break;
                 }
                 default:
-                    return nullptr;
+                    return NULL;
             }
             input_ptr += sequence_length;
         }
@@ -126,7 +126,7 @@ tchar_t* get_rfc822_date(time_t t) {
 time_t get_rfc822_time(const tchar_t* rfc822_date) {
     struct tm ptm;
 
-    if (rfc822_date == nullptr) {
+    if (rfc822_date == NULL) {
         return 0;
     }
 

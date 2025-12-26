@@ -45,13 +45,13 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
     int n, i;
     size_t r = 0;
     pvoid_t buffer[128];
-    char **symbols = nullptr;
+    char **symbols = NULL;
     Dl_info info;
 
     n = backtrace(buffer, _cc_countof(buffer));
     symbols = backtrace_symbols(buffer, n);
 
-    if (symbols == nullptr) {
+    if (symbols == NULL) {
         return 0;
     }
 

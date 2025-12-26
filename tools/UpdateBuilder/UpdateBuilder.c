@@ -45,16 +45,16 @@ static __attribute__((destructor)) void _dynamic_detach(void) {
 /*
 void DeleteDeepDirectory(const tchar_t *directory) {
     tchar_t sourceFile[_CC_MAX_PATH_] = {0};
-    DIR *dpath = nullptr;
+    DIR *dpath = NULL;
     struct dirent *d;
     struct stat stat_buf;
     
-    if( (dpath = opendir(directory)) == nullptr) {
+    if( (dpath = opendir(directory)) == NULL) {
         return;
     }
     
     //读取目录
-    while ((d = readdir(dpath)) != nullptr) {
+    while ((d = readdir(dpath)) != NULL) {
         //
         if ((d->d_name[0]=='.' && d->d_name[1] == 0) ||
             (d->d_name[0]=='.' && d->d_name[1] == '.' && d->d_name[2] == 0)) {

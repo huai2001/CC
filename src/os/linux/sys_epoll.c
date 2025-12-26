@@ -86,7 +86,7 @@ _CC_API_PRIVATE(bool_t) _emit_epoll_event(int efd, _cc_event_t *e, bool_t clean)
 
 /**/
 _CC_API_PRIVATE(bool_t) _epoll_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_assert(async != nullptr && e != nullptr);
+    _cc_assert(async != NULL && e != NULL);
     return _reset_event(async, e);
 }
 
@@ -213,8 +213,8 @@ EPOLL_END:
 
 /**/
 _CC_API_PRIVATE(bool_t) _epoll_event_free(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
-    if (async == nullptr) {
+    _cc_assert(async != NULL);
+    if (async == NULL) {
         return false;
     }
 
@@ -224,7 +224,7 @@ _CC_API_PRIVATE(bool_t) _epoll_event_free(_cc_async_event_t *async) {
         }
 
         _cc_free(async->priv);
-        async->priv = nullptr;
+        async->priv = NULL;
     }
 
     return _unregister_async_event(async);

@@ -10,7 +10,7 @@ void read_remove_comments(_cc_buf_t *buf) {
 	tchar_t *endpos = p + (buf->length + 1) / sizeof(tchar_t);
 	bool_t is_remove = true;
 	tchar_t *ptr = p;
-    tchar_t *start_ptr = nullptr;
+    tchar_t *start_ptr = NULL;
 
 	while (p < endpos) {
 		if (is_remove) {
@@ -39,7 +39,7 @@ void read_remove_comments(_cc_buf_t *buf) {
 				}
 			}
 		}
-        if (start_ptr == nullptr) {
+        if (start_ptr == NULL) {
             start_ptr = p;
             ptr = p;
         }

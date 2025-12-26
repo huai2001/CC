@@ -24,7 +24,7 @@ static void png_cpexcept_error(png_structp png_ptr, png_const_charp msg) {
 void PNGAPI user_read_data_fcn(png_structp png_ptr, png_bytep data, png_size_t length) {
     /* changed by zola {*/
     __ImageSource* ImageSource = (__ImageSource*)png_get_io_ptr(png_ptr);
-    if (ImageSource == nullptr) {
+    if (ImageSource == NULL) {
         _cc_logger_error(_T("Read Error Get IO Ptr failed"));
         return ;
     }
@@ -39,7 +39,7 @@ void PNGAPI user_read_data_fcn(png_structp png_ptr, png_bytep data, png_size_t l
 }
 
 _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
-    _cc_image_t* image = nullptr;
+    _cc_image_t* image = NULL;
     __ImageSource ImageSource;
     png_structp png_ptr;
     png_infop info_ptr;
@@ -56,35 +56,35 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
     ImageSource.size = (uint32_t)image_size;
     ImageSource.offset = 0;
 
-    _cc_assert(image_data != nullptr);
-    if (image_data == nullptr) {
-        return nullptr;
+    _cc_assert(image_data != NULL);
+    if (image_data == NULL) {
+        return NULL;
     }
     /* check if it really is a PNG file */
     if ( png_sig_cmp((png_bytep)image_data, 0, 8) ) {
         _cc_logger_error(_T("LOAD PNG: not really a png"));
-        return nullptr;
+        return NULL;
     }
 
     /* allocate the png read struct */
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, (png_error_ptr)png_cpexcept_error, nullptr);
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, (png_error_ptr)png_cpexcept_error, NULL);
     if (!png_ptr) {
         _cc_logger_error(_T("LOAD PNG: Internal PNG create read struct failure"));
-        return nullptr;
+        return NULL;
     }
 
     /* Allocate the png info struct */
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
         _cc_logger_error(_T("LOAD PNG: Internal PNG create info struct failure"));
-        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
         return 0;
     }
 
     // for proper error handling
     if (setjmp(png_jmpbuf(png_ptr))) {
-        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-        return nullptr;
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        return NULL;
     }
 
     /* changed by zola so we don't need to have public FILE pointers*/
@@ -97,7 +97,7 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
     // Extract info
     png_get_IHDR(png_ptr, info_ptr,
                  &w, &h,
-                 &bit_depth, &color_type, nullptr, nullptr, nullptr);
+                 &bit_depth, &color_type, NULL, NULL, NULL);
 
     width = w;
     height = h;
@@ -144,7 +144,7 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
     /* Extract info*/
     png_get_IHDR(png_ptr, info_ptr,
                  &w, &h,
-                 &bit_depth, &color_type, nullptr, nullptr, nullptr);
+                 &bit_depth, &color_type, NULL, NULL, NULL);
 
     width = w;
     height = h;
@@ -168,8 +168,8 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
 
     if (!image) {
         _cc_logger_error(_T("LOAD PNG: Internal PNG create image struct failure"));
-        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-        return nullptr;
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
+        return NULL;
     }
 
     /* Create array of pointers to rows in image data */
@@ -177,9 +177,9 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
 
     if (!row_pointers) {
         _cc_logger_error(_T("LOAD PNG: Internal PNG create row pointers failure"));
-        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
         _cc_free_image(image);
-        return nullptr;
+        return NULL;
     }
 
     // Fill array of pointers to rows in image data
@@ -194,16 +194,16 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
 
     // for proper error handling
     if (setjmp(png_jmpbuf(png_ptr))) {
-        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         _cc_free(row_pointers);
         _cc_free_image(image);
-        return nullptr;
+        return NULL;
     }
 
     /* Read data using the library function that handles all transformations including interlacing*/
     png_read_image(png_ptr, row_pointers);
 
-    png_read_end(png_ptr, nullptr);
+    png_read_end(png_ptr, NULL);
 
     _cc_free(row_pointers);
 

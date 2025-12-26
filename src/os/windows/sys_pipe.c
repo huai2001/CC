@@ -81,7 +81,7 @@ _CC_API_PUBLIC(int) _cc_pipe(_cc_socket_t filedes[2]) {
         socktm.tv_sec  = 1;
         socktm.tv_usec = 0;
 
-        if ((ns = select(0, &rs, nullptr, nullptr, &socktm)) == SOCKET_ERROR) {
+        if ((ns = select(0, &rs, NULL, NULL, &socktm)) == SOCKET_ERROR) {
             /* Accept still not signaled */
             Sleep(100);
             continue;

@@ -6,13 +6,13 @@ _CC_API_PRIVATE(void) normalize_locale_str(tchar_t *dst, tchar_t *str, size_t le
 
     /* chop off encoding if specified. */
     ptr = _tcschr(str, '.');
-    if (ptr != nullptr) {
+    if (ptr != NULL) {
         *ptr = '\0';
     }
 
     /* chop off extra bits if specified. */
     ptr = _tcschr(str, '@');
-    if (ptr != nullptr) {
+    if (ptr != NULL) {
         *ptr = '\0';
     }
 
@@ -33,7 +33,7 @@ _CC_API_PRIVATE(void) normalize_locales(tchar_t *dst, tchar_t *src, size_t lengt
     tchar_t *ptr;
 
     /* entries are separated by colons */
-    while ((ptr = _tcschr(src, ':')) != nullptr) {
+    while ((ptr = _tcschr(src, ':')) != NULL) {
         *ptr = '\0';
         normalize_locale_str(dst, src, length);
         src = ptr + 1;

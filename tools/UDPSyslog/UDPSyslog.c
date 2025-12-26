@@ -99,7 +99,7 @@ _CC_API_PRIVATE(bool_t) parse(char_t *buf, size_t length) {
     char_t *log = buf;
     uint8_t state = SYSLOG_ST_PRI;
     struct tm timestamp;
-    time_t now = time(nullptr);
+    time_t now = time(NULL);
 
     if (*log != '<') {
         return false;
@@ -141,12 +141,12 @@ _CC_API_PRIVATE(bool_t) parse(char_t *buf, size_t length) {
                 }
                 if (syslog.version == 0) {
                     log = (char_t*)_cc_strptime(log, "%b %d %H:%M:%S", &timestamp);
-                    if (log == nullptr) {
+                    if (log == NULL) {
                         return false;
                     }
                 } else if (syslog.version == 1) {
                     log = (char_t*)_cc_strptime(log, "%Y-%m-%dT%H:%M:%SZ", &timestamp);
-                    if (log == nullptr) {
+                    if (log == NULL) {
                         return false;
                     }
                 }
@@ -278,7 +278,7 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
         return false;
     }
 
-    _cc_inet_ipv4_addr(&sin, nullptr, port);
+    _cc_inet_ipv4_addr(&sin, NULL, port);
 
     if(bind(io_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1){
         fprintf(stderr, "%d bing port error\n", port);
@@ -290,7 +290,7 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
     _cc_init_event_select(&async);
 
     event = _cc_alloc_event(&async,  _CC_EVENT_READABLE_);
-    if (event == nullptr) {
+    if (event == NULL) {
         _cc_close_socket(io_fd);
         return false;
     }
@@ -300,7 +300,7 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
     _cc_set_socket_nonblock(io_fd, 1);
 
     if (!async.attach(&async, event)) {
-        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), io_fd);
+        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), io_fd);
         _cc_free_event(&async, event);
         return false;
     }

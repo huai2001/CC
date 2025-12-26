@@ -31,7 +31,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tch
     size_t c_idx;
     size_t i, j;
 
-    if (_cc_unlikely(length < 0 || output == nullptr)) {
+    if (_cc_unlikely(length < 0 || output == NULL)) {
         return 0;
     }
 #if 0
@@ -89,7 +89,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, by
     size_t i,j;
 
     // leading ones
-    if (_cc_unlikely(output == nullptr)) {
+    if (_cc_unlikely(output == NULL)) {
         return 0;
     }
 #if 0

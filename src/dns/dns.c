@@ -245,7 +245,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         for (i = 0; i < dns->header.answer; i++) {
             _cc_dns_record_t *r = record[i];
             reader = dns_read_rdata(reader, buffer, r);
-            if (reader == nullptr) {
+            if (reader == NULL) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
                 return false;
             }
@@ -257,7 +257,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         for (i = 0; i < dns->header.author; i++) {
             _cc_dns_record_t *r = record[i];
             reader = dns_read_rdata(reader, buffer, r);
-            if (reader == nullptr) {
+            if (reader == NULL) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
                 return false;
             }
@@ -269,7 +269,7 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         for (i = 0; i < dns->header.addition; i++) {
             _cc_dns_record_t *r = record[i];
             reader = dns_read_rdata(reader, buffer, r);
-            if (reader == nullptr) {
+            if (reader == NULL) {
                 dns->error_code = _CC_DNS_ERR_ENOMEM_;
                 return false;
             }
@@ -294,9 +294,9 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
 
     struct sockaddr_in dest;
 
-    dns->answers = nullptr;
-    dns->authorities = nullptr;
-    dns->additional = nullptr;
+    dns->answers = NULL;
+    dns->authorities = NULL;
+    dns->additional = NULL;
 
     // UDP packet for DNS queries
     dns_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -336,7 +336,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
             e->timeout = 60000;
             e->data = (uintptr_t)dns;
             if (!async->attach(async, e)) {
-                _cc_logger_error(_T("thread %d attach socket (%d) event fial."), _cc_get_thread_id(nullptr), dns_sock);
+                _cc_logger_error(_T("thread %d attach socket (%d) event fial."), _cc_get_thread_id(NULL), dns_sock);
                 return _CC_DNS_ERR_SEE_ERRNO_;
             }
             return 0;
@@ -374,9 +374,9 @@ void _cc_dns_free(_cc_dns_t *dns) {
     _cc_free(dns->authorities);
     _cc_free(dns->additional);
 
-    dns->answers = nullptr;
-    dns->authorities = nullptr;
-    dns->additional = nullptr;
+    dns->answers = NULL;
+    dns->authorities = NULL;
+    dns->additional = NULL;
 
     dns->header.answer = 0;
     dns->header.author = 0;
@@ -387,7 +387,7 @@ void _cc_dns_free(_cc_dns_t *dns) {
  *
  * */
 _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *addr) {
-    _cc_assert(addr != nullptr);
+    _cc_assert(addr != NULL);
 
     bzero(addr, sizeof(struct sockaddr_in));
 
@@ -494,7 +494,7 @@ void _cc_dns_servers(const tchar_t *servers[], int count) {
             }
             if (strncmp(line, "nameserver", 10) == 0) {
                 p = strtok(line, " ");
-                p = strtok(nullptr, " ");
+                p = strtok(NULL, " ");
                 // p now is the dns ip :)
                 if (_cc_inet_pton(AF_INET, p, (byte_t *)&dns_servers[dns_server_count])) {
                     // printf("nameserver:%s\n", p);

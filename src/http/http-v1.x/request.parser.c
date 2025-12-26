@@ -9,7 +9,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
 
     //printf("%s\n", line);
 
-    if (request == nullptr) {
+    if (request == NULL) {
         tchar_t script[_CC_MAX_PATH_];
         /* Parse the first line of the HTTP request */
         //if (_tcsnicmp(line, _T("CONNECT"), sizeof(_T("CONNECT")) - 1) != 0 || _tcsnicmp(line, _T("GET"), sizeof(_T("GET")) - 1) != 0) {
@@ -18,7 +18,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
         //}
 
         request = (_cc_http_request_header_t *)_cc_calloc(1, sizeof(_cc_http_request_header_t));
-        if (request == nullptr) {
+        if (request == NULL) {
             return false;
         }
         
@@ -61,12 +61,12 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
 /**/
 _CC_API_PUBLIC(void) _cc_http_free_request_header(_cc_http_request_header_t **http_header) {
     _cc_http_request_header_t *res = *http_header;
-    _cc_assert(http_header != nullptr && res != nullptr);
-    if (http_header == nullptr || res == nullptr) {
+    _cc_assert(http_header != NULL && res != NULL);
+    if (http_header == NULL || res == NULL) {
         return;
     }
     
-    (*http_header) = nullptr;
+    (*http_header) = NULL;
     
     if (res->method) {
         _cc_sds_free(res->method);

@@ -5,16 +5,16 @@ static CHAR _wsa_buf[8] = {0};
 /**/
 int _WSA_socket_accept(_io_context_t *overlapped) {
     int result = NO_ERROR;
-    LPFN_ACCEPTEX accept_func_ptr = nullptr;
+    LPFN_ACCEPTEX accept_func_ptr = NULL;
     WSABUF WSABuf;
     WSABuf.buf = _wsa_buf;
     WSABuf.len = 0;
     
-    _cc_assert(overlapped != nullptr && overlapped->e != nullptr);
+    _cc_assert(overlapped != NULL && overlapped->e != NULL);
 
     accept_func_ptr = get_accept_func_ptr(overlapped->fd);
     if (accept_func_ptr && !accept_func_ptr(overlapped->e->fd, overlapped->fd, WSABuf.buf, 0, sizeof(SOCKADDR_IN) + 16,
-                                            sizeof(SOCKADDR_IN) + 16, nullptr, &overlapped->overlapped)) {
+                                            sizeof(SOCKADDR_IN) + 16, NULL, &overlapped->overlapped)) {
         result = _cc_last_errno();
         if (result == WSA_IO_PENDING) {
             return NO_ERROR;
@@ -31,9 +31,9 @@ int _WSA_socket_send(_io_context_t *overlapped) {
     WSABUF WSABuf;
     WSABuf.buf = _wsa_buf;
     WSABuf.len = 0;
-    _cc_assert(overlapped != nullptr && overlapped->e != nullptr);
+    _cc_assert(overlapped != NULL && overlapped->e != NULL);
 
-    if (WSASend(overlapped->e->fd, &WSABuf, 1, &dwNumberOfByteSent, 0, &overlapped->overlapped, nullptr) ==
+    if (WSASend(overlapped->e->fd, &WSABuf, 1, &dwNumberOfByteSent, 0, &overlapped->overlapped, NULL) ==
         SOCKET_ERROR) {
         result = _cc_last_errno();
         if (result == WSA_IO_PENDING) {
@@ -51,9 +51,9 @@ int _WSA_socket_receive(_io_context_t *overlapped) {
     WSABUF WSABuf;
     WSABuf.buf = _wsa_buf;
     WSABuf.len = 0;
-    _cc_assert(overlapped != nullptr && overlapped->e != nullptr);
+    _cc_assert(overlapped != NULL && overlapped->e != NULL);
 
-    if (WSARecv(overlapped->e->fd, &WSABuf, 1, &dwNumberOfByteRecvd, &dwFlag, &overlapped->overlapped, nullptr) ==
+    if (WSARecv(overlapped->e->fd, &WSABuf, 1, &dwNumberOfByteRecvd, &dwFlag, &overlapped->overlapped, NULL) ==
         SOCKET_ERROR) {
         result = _cc_last_errno();
         if (result == WSA_IO_PENDING) {
@@ -71,10 +71,10 @@ int _WSA_socket_sendto(_io_context_t *overlapped, _cc_sockaddr_t *sa, _cc_sockle
     WSABUF WSABuf;
     WSABuf.buf = _wsa_buf;
     WSABuf.len = 0;
-    _cc_assert(overlapped != nullptr && overlapped->e != nullptr);
+    _cc_assert(overlapped != NULL && overlapped->e != NULL);
 
     if (WSASendTo(overlapped->e->fd, &WSABuf, 1, &dwNumberOfByteSent, 0, (struct sockaddr *)sa, sa_len,
-                  &overlapped->overlapped, nullptr) ==
+                  &overlapped->overlapped, NULL) ==
         SOCKET_ERROR) {
         result = _cc_last_errno();
         if (result == WSA_IO_PENDING) {
@@ -92,10 +92,10 @@ int _WSA_socket_receivefrom(_io_context_t *overlapped, _cc_sockaddr_t *sa, _cc_s
     WSABUF WSABuf;
     WSABuf.buf = _wsa_buf;
     WSABuf.len = 0;
-    _cc_assert(overlapped != nullptr && overlapped->e != nullptr);
+    _cc_assert(overlapped != NULL && overlapped->e != NULL);
 
     if (WSARecvFrom(overlapped->e->fd, &WSABuf, 1, &dwNumberOfByteRecvd, &dwFlag, (struct sockaddr *)&sa, sa_len,
-                    &overlapped->overlapped, nullptr) == SOCKET_ERROR) {
+                    &overlapped->overlapped, NULL) == SOCKET_ERROR) {
         result = _cc_last_errno();
         if (result == WSA_IO_PENDING) {
             return NO_ERROR;

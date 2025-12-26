@@ -111,7 +111,7 @@ struct dirent {
     off_t d_off;                    /* offset to this dirent */
     uint16_t d_reclen;              /* length of d_name */
     uint8_t d_type;                 /* file type, see below */
-    tchar_t d_name[_MAX_FNAME + 1]; /* filename (nullptr terminated) */
+    tchar_t d_name[_MAX_FNAME + 1]; /* filename (NULL terminated) */
 };
 
 /* typedef DIR - not the same as Unix */

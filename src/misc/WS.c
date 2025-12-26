@@ -26,7 +26,7 @@ _CC_API_PUBLIC(void) _cc_ws_mask(byte_t *data, int64_t length, byte_t *mask, int
 /**/
 _CC_API_PUBLIC(int32_t) _cc_ws_reverse_header(byte_t *header, byte_t operation, int64_t length, byte_t *mask) {
     int32_t offset = 0;
-    byte_t m = (mask != nullptr) ? 0x80 : 0x00;
+    byte_t m = (mask != NULL) ? 0x80 : 0x00;
    
     if (m) {
         header[--offset] = mask[3] = (byte_t)(rand() & 0xff);
@@ -60,7 +60,7 @@ _CC_API_PUBLIC(int32_t) _cc_ws_reverse_header(byte_t *header, byte_t operation, 
 /**/
 _CC_API_PUBLIC(int32_t) _cc_ws_header(byte_t *header, byte_t operation, int64_t length, byte_t *mask) {
     int32_t offset = 1;
-    byte_t m = (mask != nullptr) ? 0x80 : 0x00;
+    byte_t m = (mask != NULL) ? 0x80 : 0x00;
     header[0] = (operation == 0) ? 0x00 : (0x80 | operation);
 
     if (length < 126) {

@@ -7,49 +7,49 @@ static const tchar_t* char2escape[256] = {
     _T("\\f"),     _T("\\r"),     _T("\\u000e"), _T("\\u000f"), _T("\\u0010"), _T("\\u0011"),
     _T("\\u0012"), _T("\\u0013"), _T("\\u0014"), _T("\\u0015"), _T("\\u0016"), _T("\\u0017"),
     _T("\\u0018"), _T("\\u0019"), _T("\\u001a"), _T("\\u001b"), _T("\\u001c"), _T("\\u001d"),
-    _T("\\u001e"), _T("\\u001f"),       nullptr,          nullptr,          _T("\\\""),       nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          /*_T("\\/")*/ nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          _T("\\\\"),       nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          _T("\\u007f"),    nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,          nullptr,          nullptr,
-    nullptr,          nullptr,          nullptr,          nullptr,
+    _T("\\u001e"), _T("\\u001f"),       NULL,          NULL,          _T("\\\""),       NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          /*_T("\\/")*/ NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          _T("\\\\"),       NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          _T("\\u007f"),    NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,          NULL,          NULL,
+    NULL,          NULL,          NULL,          NULL,
 };
 
 
 _CC_API_PUBLIC(_cc_json_t*) _cc_json_array_find(const _cc_json_t *ctx, uint32_t index) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     if (ctx->type == _CC_JSON_ARRAY_) {
         uintptr_t arr = _cc_array_get(ctx->element.uni_array, index);
@@ -58,11 +58,11 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_array_find(const _cc_json_t *ctx, uint32_t 
         }
     }
 
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PUBLIC(_cc_json_t*) _cc_json_object_find(const _cc_json_t *ctx, const tchar_t *keyword) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     if (ctx->type == _CC_JSON_OBJECT_) {
         _cc_rbtree_iterator_t *node = _cc_rbtree_get(&ctx->element.uni_object, (uintptr_t)keyword, _json_get_object);
@@ -71,7 +71,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_object_find(const _cc_json_t *ctx, const tc
         }
     }
 
-    return nullptr;
+    return NULL;
 }
 
 void _json_free_object_rb_node(_cc_rbtree_iterator_t *node) {
@@ -79,7 +79,7 @@ void _json_free_object_rb_node(_cc_rbtree_iterator_t *node) {
 }
 
 void _json_free_node(_cc_json_t *item) {
-    _cc_assert(item != nullptr);
+    _cc_assert(item != NULL);
     switch (item->type) {
     case _CC_JSON_OBJECT_:
         _cc_rbtree_destroy(&item->element.uni_object, _json_free_object_rb_node);
@@ -105,7 +105,7 @@ void _destroy_json_object(_cc_json_t *root) {
 }
 
 _CC_API_PUBLIC(void) _cc_free_json(_cc_json_t *item) {
-    if (_cc_unlikely(item == nullptr)) {
+    if (_cc_unlikely(item == NULL)) {
         return;
     }
     _json_free_node(item);
@@ -124,7 +124,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_boolean(_cc_json_t *ctx, const tchar_t 
         return item;
     }
     _json_free_node(item);
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -139,7 +139,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_number(_cc_json_t *ctx, const tchar_t *
         return item;
     }
     _json_free_node(item);
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -154,7 +154,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_float(_cc_json_t *ctx, const tchar_t *k
         return item;
     }
     _json_free_node(item);
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -169,7 +169,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_string(_cc_json_t *ctx, const tchar_t *
         return item;
     }
     _json_free_node(item);
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -184,7 +184,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_sds(_cc_json_t *ctx, const tchar_t *key
         return item;
     }
     _json_free_node(item);
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -199,19 +199,19 @@ _CC_API_PRIVATE(void) _cc_json_dump_string(const tchar_t *output, _cc_buf_t *buf
     size_t escape_characters = 0;
 
     /* empty string */
-    if (output == nullptr) {
+    if (output == NULL) {
         _cc_buf_puts(buf, _T("\"\""));
         return;
     }
 
     /* set "flag" to 1 if something needs to be escaped */
     for (len = 0; *p; p++, len++) {
-        if (char2escape[*p & 0xFF] != nullptr) {
+        if (char2escape[*p & 0xFF] != NULL) {
             escape_characters++;
         }
     }
 
-    _buf_char_put(buf, _T('"'));
+    _cc_buf_putchar(buf, _T('"'));
     /* no characters have to be escaped */
     if (escape_characters == 0) {
         _cc_buf_append(buf, (const pvoid_t)output, sizeof(tchar_t) * len);
@@ -222,11 +222,11 @@ _CC_API_PRIVATE(void) _cc_json_dump_string(const tchar_t *output, _cc_buf_t *buf
             if (pp && ((int32_t)*pp) < 256) {
                 _cc_buf_puts(buf, pp);
             } else {
-                _buf_char_put(buf, *p);
+                _cc_buf_putchar(buf, *p);
             }
         }
     }
-    _buf_char_put(buf, _T('"'));
+    _cc_buf_putchar(buf, _T('"'));
 }
 
 /**/
@@ -292,37 +292,35 @@ static void _cc_json_dump_value(const _cc_json_t *item, _cc_buf_t *buf) {
 _CC_API_PRIVATE(void) _cc_json_dump_array(const _cc_json_t *root, _cc_buf_t *buf) {
     size_t i, length;
 
-    _buf_char_put(buf, _JSON_ARRAY_START_);
+    _cc_buf_putchar(buf, _JSON_ARRAY_START_);
     length = _cc_array_length(root->element.uni_array);
 
     for (i = 0; i < length; i++) {
         _cc_json_t *v = (_cc_json_t*)_cc_array_value(root->element.uni_array, i);
         _cc_json_dump_value(v, buf);
-        _buf_char_put(buf, _JSON_NEXT_TOKEN_);
+        _cc_buf_putchar(buf, _JSON_NEXT_TOKEN_);
     }
 
     if (length > 0) {
         buf->length -= 1;
     }
 
-    _buf_char_put(buf, _JSON_ARRAY_END_);
+    _cc_buf_putchar(buf, _JSON_ARRAY_END_);
 }
     /**/
 _CC_API_PRIVATE(void) _cc_json_dump_object(const _cc_json_t *root, _cc_buf_t *buf) {
-    _cc_json_t *item = nullptr;
+    _cc_json_t *item = NULL;
     _cc_rbtree_iterator_t *next, *head;
 
-    _buf_char_put(buf, _JSON_OBJECT_START_);
+    _cc_buf_putchar(buf, _JSON_OBJECT_START_);
     head = next = _cc_rbtree_first(&root->element.uni_object);
     while (next) {
         item = _cc_upcast(next, _cc_json_t, lnk);
 
         _cc_json_dump_string(item->name, buf);
-        _cc_buf_append(buf, _T(": "), 2 * sizeof(tchar_t));
-
+        _cc_buf_putchar(buf, _JSON_OBJECT_TOKEN_);
         _cc_json_dump_value(item, buf);
-
-        _buf_char_put(buf, _JSON_NEXT_TOKEN_);
+        _cc_buf_putchar(buf, _JSON_NEXT_TOKEN_);
 
         next = _cc_rbtree_next(next);
     }
@@ -330,7 +328,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_object(const _cc_json_t *root, _cc_buf_t *bu
     if (head) {
         buf->bytes[buf->length - 1] = _JSON_OBJECT_END_;
     } else {
-        _buf_char_put(buf, _JSON_OBJECT_START_);
+        _cc_buf_putchar(buf, _JSON_OBJECT_START_);
     }
 }
 

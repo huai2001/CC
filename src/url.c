@@ -60,7 +60,7 @@ _CC_API_PRIVATE(bool_t) _url_exists_user_password(const tchar_t *s) {
 
 /**/
 _CC_API_PRIVATE(_cc_sds_t) _url_user_password_copy(const tchar_t *s, size_t length) {
-    _cc_sds_t d = _cc_sds_alloc(nullptr, length);
+    _cc_sds_t d = _cc_sds_alloc(NULL, length);
     length = _cc_raw_url_decode(s, (int32_t)length, d, (int32_t)length);
     _cc_sds_set_length(d, length);
     return d;
@@ -118,7 +118,7 @@ _CC_API_PRIVATE(bool_t) is_valid_host(const tchar_t *_host) {
 /*parser url*/
 _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
     const tchar_t *cursor, *ptr;
-    const tchar_t *user_name = nullptr, *user_password = nullptr;
+    const tchar_t *user_name = NULL, *user_password = NULL;
     const tchar_t *endpos;
     _cc_assert(u && url);
     /*init url*/
@@ -161,7 +161,7 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
             if (_T(':') == *ptr) {
                 user_name = ptr;
             } else if (_T('@') == *ptr) {
-                if (user_name == nullptr) {
+                if (user_name == NULL) {
                     user_name = ptr;
                 } else {
                     user_password = ptr;
@@ -249,7 +249,7 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
     /* Skip '/' */
     if (_T('/') != *cursor) {
         _cc_free_url(u);
-        return nullptr;
+        return NULL;
     }
 
 URL_PRASE_PATH_PARAMS:
@@ -289,7 +289,7 @@ URL_PRASE_PATH_PARAMS:
 }
 
 _CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
-    if (_parser_url(u, url) == nullptr) {
+    if (_parser_url(u, url) == NULL) {
         return false;
     }
     return true;
@@ -297,47 +297,47 @@ _CC_API_PUBLIC(bool_t) _cc_parse_url(_cc_url_t *u, const tchar_t *url) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_free_url(_cc_url_t *url) {
-    if (_cc_unlikely(url == nullptr)) {
+    if (_cc_unlikely(url == NULL)) {
         return true;
     }
     if (url->request && url->request != _URL_PATH_ROOT_) {
         _cc_sds_free(url->request);
-        url->request = nullptr;
+        url->request = NULL;
     }
 
     if (url->path && url->path != _URL_PATH_ROOT_) {
         _cc_sds_free(url->path);
-        url->path = nullptr;
+        url->path = NULL;
     }
 
     if (url->host) {
         _cc_sds_free(url->host);
-        url->host = nullptr;
+        url->host = NULL;
     }
 
     if (url->query) {
         _cc_sds_free(url->query);
-        url->query = nullptr;
+        url->query = NULL;
     }
 
     if (url->fragment) {
         _cc_sds_free(url->fragment);
-        url->fragment = nullptr;
+        url->fragment = NULL;
     }
 
     if (url->username) {
         _cc_sds_free(url->username);
-        url->username = nullptr;
+        url->username = NULL;
     }
 
     if (url->password) {
         _cc_sds_free(url->password);
-        url->password = nullptr;
+        url->password = NULL;
     }
 
     if (url->scheme.value && url->scheme.ident == _CC_SCHEME_UNKNOWN_) {
         _cc_sds_free(url->scheme.value);
-        url->scheme.value = nullptr;
+        url->scheme.value = NULL;
     }
     return true;
 }

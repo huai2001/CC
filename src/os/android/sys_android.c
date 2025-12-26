@@ -63,12 +63,12 @@ static JNINativeMethod _jni_native_tab[] = {
 *******************************************************************************/
 static pthread_key_t mThreadKey;
 static pthread_once_t key_once = PTHREAD_ONCE_INIT;
-static JavaVM *mJavaVM = nullptr;
-static _cc_mutex_t *Android_ActivityMutex = nullptr;
+static JavaVM *mJavaVM = NULL;
+static _cc_mutex_t *Android_ActivityMutex = NULL;
 
-static _cc_sds_t s_AndroidInternalFilesPath = nullptr;
-static _cc_sds_t s_AndroidExternalFilesPath = nullptr;
-static _cc_sds_t s_AndroidCachePath = nullptr;
+static _cc_sds_t s_AndroidInternalFilesPath = NULL;
+static _cc_sds_t s_AndroidExternalFilesPath = NULL;
+static _cc_sds_t s_AndroidCachePath = NULL;
 
 // Main activity
 static jclass mJNIMainClass;
@@ -98,7 +98,7 @@ static bool_t bHasEnvironmentVariables = false;
 // Android AssetManager
 static void Internal_Android_Create_AssetManager(void);
 static void Internal_Android_Destroy_AssetManager(void);
-static AAssetManager *asset_manager = nullptr;
+static AAssetManager *asset_manager = NULL;
 static jobject javaAssetManagerRef = 0;
 
 static struct {
@@ -131,7 +131,7 @@ static struct {
  * in Android 2.0 (Eclair) and higher you can use pthread_key_create to define a destructor function that will be
  * called before the thread exits, and call DetachCurrentThread from there. (Use that key with pthread_setspecific
  * to store the JNIEnv in thread-local-storage; that way it'll be passed into your destructor as the argument.)
- * Note: The destructor is not called unless the stored value is != nullptr
+ * Note: The destructor is not called unless the stored value is != NULL
  * Note: You can call this function any number of times for the same thread, there's no harm in it
  *       (except for some lost CPU cycles)
  */
@@ -157,20 +157,20 @@ _CC_API_PUBLIC(JNIEnv*) Android_JNI_GetEnv(void) {
         // There should be a JVM
         if (!mJavaVM) {
             __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "Failed, there is no JavaVM");
-            return nullptr;
+            return NULL;
         }
 
         /* Attach the current thread to the JVM and get a JNIEnv.
          * It will be detached by pthread_create destructor 'Android_JNI_ThreadDestroyed' */
-        status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, nullptr);
+        status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, NULL);
         if (status < 0) {
             __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "Failed to attach current thread (err=%d)", status);
-            return nullptr;
+            return NULL;
         }
 
         // Save JNIEnv into the Thread local storage
         if (!Android_JNI_SetEnv(env)) {
-            return nullptr;
+            return NULL;
         }
     }
 
@@ -190,7 +190,7 @@ _CC_API_PUBLIC(bool_t) Android_JNI_SetupThread(void) {
 
     /* Attach the current thread to the JVM and get a JNIEnv.
      * It will be detached by pthread_create destructor 'Android_JNI_ThreadDestroyed' */
-    status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, nullptr);
+    status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, NULL);
     if (status < 0) {
         __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "Failed to attach current thread (err=%d)", status);
         return false;
@@ -204,13 +204,13 @@ _CC_API_PUBLIC(bool_t) Android_JNI_SetupThread(void) {
     return true;
 }
 
-// Destructor called for each thread where mThreadKey is not nullptr
+// Destructor called for each thread where mThreadKey is not NULL
 _CC_API_PRIVATE(void) Android_JNI_ThreadDestroyed(pvoid_t value) {
-    // The thread is being destroyed, detach it from the Java VM and set the mThreadKey value to nullptr as required
+    // The thread is being destroyed, detach it from the Java VM and set the mThreadKey value to NULL as required
     JNIEnv *env = (JNIEnv *)value;
     if (env) {
         (*mJavaVM)->DetachCurrentThread(mJavaVM);
-        Android_JNI_SetEnv(nullptr);
+        Android_JNI_SetEnv(NULL);
     }
 }
 
@@ -238,7 +238,7 @@ _CC_API_PRIVATE(void) register_methods(JNIEnv *env, const char *classname, JNINa
 }
 
 _CC_API_PUBLIC(JNIEnv*) Android_JNI_OnLoad(JavaVM *vm, void *reserved, jint version) {
-    JNIEnv *env = nullptr;
+    JNIEnv *env = NULL;
 
     _cc_logger_debug("Android_JNI_OnLoad");
 
@@ -246,7 +246,7 @@ _CC_API_PUBLIC(JNIEnv*) Android_JNI_OnLoad(JavaVM *vm, void *reserved, jint vers
 
     if ((*mJavaVM)->GetEnv(mJavaVM, (pvoid_t *)&env, version) != JNI_OK) {
         __android_log_print(ANDROID_LOG_ERROR, _CC_ANDROID_TAG_, "Failed to get JNI Env");
-        return nullptr;
+        return NULL;
     }
 
     register_methods(env, "cn/libcc/JNINative", _jni_native_tab, _cc_countof(_jni_native_tab));
@@ -337,18 +337,18 @@ JNIEXPORT void JNICALL _CC_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cl
 JNIEXPORT void JNICALL _CC_JAVA_INTERFACE(nativeDropFile)(
     JNIEnv *env, jclass jcls,
     jstring filename) {
-    const char *path = (*env)->GetStringUTFChars(env, filename, nullptr);
+    const char *path = (*env)->GetStringUTFChars(env, filename, NULL);
     __android_log_print(ANDROID_LOG_VERBOSE, _CC_ANDROID_TAG_, "nativeDropFile(%s)",path);
-    //SDL_SendDropFile(nullptr, nullptr, path);
+    //SDL_SendDropFile(NULL, NULL, path);
     (*env)->ReleaseStringUTFChars(env, filename, path);
-    //SendDropComplete(nullptr);
+    //SendDropComplete(NULL);
 }
 
 // Clipboard
 JNIEXPORT void JNICALL _CC_JAVA_INTERFACE(nativeClipboardChanged)(
     JNIEnv *env, jclass jcls) {
     // TODO: compute new mime types
-    //SendClipboardUpdate(false, nullptr, 0);
+    //SendClipboardUpdate(false, NULL, 0);
     __android_log_print(ANDROID_LOG_VERBOSE, _CC_ANDROID_TAG_, "nativeClipboardChanged()");
 }
 
@@ -422,7 +422,7 @@ JNIEXPORT void JNICALL _CC_JAVA_INTERFACE(nativeSetPowerInfo)(
 JNIEXPORT jstring JNICALL _CC_JAVA_INTERFACE(nativeGetHint)(
     JNIEnv *env, jclass cls,
     jstring name) {
-    const char *utfname = (*env)->GetStringUTFChars(env, name, nullptr);
+    const char *utfname = (*env)->GetStringUTFChars(env, name, NULL);
     //const char *hint = CC_GetHint(utfname);
 
     jstring result = (*env)->NewStringUTF(env, hint);
@@ -436,7 +436,7 @@ JNIEXPORT jboolean JNICALL _CC_JAVA_INTERFACE(nativeGetHintBoolean)(
     jstring name, jboolean default_value) {
     jboolean result;
 
-    const char *utfname = (*env)->GetStringUTFChars(env, name, nullptr);
+    const char *utfname = (*env)->GetStringUTFChars(env, name, NULL);
     //result = CC_GetHintBoolean(utfname, default_value);
     (*env)->ReleaseStringUTFChars(env, name, utfname);
 
@@ -453,7 +453,7 @@ struct LocalReferenceHolder {
 
 _CC_API_PRIVATE(struct LocalReferenceHolder) LocalReferenceHolder_Setup(const char *func) {
     struct LocalReferenceHolder refholder;
-    refholder.m_env = nullptr;
+    refholder.m_env = NULL;
     refholder.m_func = func;
 #ifdef _CC_DEBUG_
     _cc_logger_debug(_T("Entering function %s"), func);
@@ -477,7 +477,7 @@ _CC_API_PRIVATE(void) LocalReferenceHolder_Cleanup(struct LocalReferenceHolder *
 #endif
     if (refholder->m_env) {
         JNIEnv *env = refholder->m_env;
-        (*env)->PopLocalFrame(env, nullptr);
+        (*env)->PopLocalFrame(env, NULL);
     }
 }
 
@@ -501,7 +501,7 @@ _CC_API_PRIVATE(bool_t) Android_JNI_ExceptionOccurred(bool_t silent) {
     jthrowable exception;
 
     exception = (*env)->ExceptionOccurred(env);
-    if (exception != nullptr) {
+    if (exception != NULL) {
         jmethodID mid;
 
         // Until this happens most JNI operations have undefined behaviour
@@ -521,7 +521,7 @@ _CC_API_PRIVATE(bool_t) Android_JNI_ExceptionOccurred(bool_t silent) {
             mid = (*env)->GetMethodID(env, exceptionClass, "getMessage", "()Ljava/lang/String;");
             exceptionMessage = (jstring)(*env)->CallObjectMethod(env, exception, mid);
 
-            if (exceptionMessage != nullptr) {
+            if (exceptionMessage != NULL) {
                 const char *exceptionMessageUTF8 = (*env)->GetStringUTFChars(env, exceptionMessage, 0);
                 _cc_logger_error(_T("%s: %s"), exceptionNameUTF8, exceptionMessageUTF8);
                 (*env)->ReleaseStringUTFChars(env, exceptionMessage, exceptionMessageUTF8);
@@ -579,15 +579,15 @@ _CC_API_PRIVATE(void) Internal_Android_Destroy_AssetManager(void) {
 
     if (asset_manager) {
         (*env)->DeleteGlobalRef(env, javaAssetManagerRef);
-        asset_manager = nullptr;
+        asset_manager = NULL;
     }
 }
 
 _CC_API_PUBLIC(bool_t) Android_JNI_FileOpen(pvoid_t *puserdata, const tchar_t *fileName, const char *mode) {
-    AAsset *asset = nullptr;
+    AAsset *asset = NULL;
 
-    _cc_assert(puserdata != nullptr);
-    *puserdata = nullptr;
+    _cc_assert(puserdata != NULL);
+    *puserdata = NULL;
 
     if (!asset_manager) {
         Internal_Android_Create_AssetManager();
@@ -743,7 +743,7 @@ _CC_API_PUBLIC(bool_t) IsDeXMode(void) {
 }
 
 _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetInternalStoragePath(void) {
-    if (s_AndroidInternalFilesPath == nullptr) {
+    if (s_AndroidInternalFilesPath == NULL) {
         struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
         jmethodID mid;
         jobject context;
@@ -754,7 +754,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetInternalStoragePath(void) {
         JNIEnv *env = Android_JNI_GetEnv();
         if (!LocalReferenceHolder_Init(&refs, env)) {
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
         // context = CCWidgets.getContext();
@@ -762,7 +762,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetInternalStoragePath(void) {
         if (!context) {
             _cc_logger_error(_T("Couldn't get Android context!"));
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
         // fileObj = context.getFilesDir();
@@ -771,7 +771,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetInternalStoragePath(void) {
         if (!fileObject) {
             _cc_logger_error(_T("Couldn't get internal directory"));
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
         // path = fileObject.getCanonicalPath();
@@ -779,10 +779,10 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetInternalStoragePath(void) {
         pathString = (jstring)(*env)->CallObjectMethod(env, fileObject, mid);
         if (Android_JNI_ExceptionOccurred(false)) {
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
-        path = (*env)->GetStringUTFChars(env, pathString, nullptr);
+        path = (*env)->GetStringUTFChars(env, pathString, NULL);
         s_AndroidInternalFilesPath = _cc_sds_alloc(path,(*env)->GetStringUTFLength(env, pathString));
         (*env)->ReleaseStringUTFChars(env, pathString, path);
 
@@ -809,7 +809,7 @@ _CC_API_PUBLIC(uint32_t) Android_JNI_GetExternalStorageState(void) {
     mid = (*env)->GetStaticMethodID(env, cls, "getExternalStorageState", "()Ljava/lang/String;");
     stateString = (jstring)(*env)->CallStaticObjectMethod(env, cls, mid);
 
-    state_string = (*env)->GetStringUTFChars(env, stateString, nullptr);
+    state_string = (*env)->GetStringUTFChars(env, stateString, NULL);
 
     // Print an info message so people debugging know the storage state
     __android_log_print(ANDROID_LOG_INFO, _CC_ANDROID_TAG_, "external storage state: %s", state_string);
@@ -830,7 +830,7 @@ _CC_API_PUBLIC(uint32_t) Android_JNI_GetExternalStorageState(void) {
 
 _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetExternalStoragePath(void) {
 
-    if (s_AndroidExternalFilesPath == nullptr) {
+    if (s_AndroidExternalFilesPath == NULL) {
         struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
         jmethodID mid;
         jobject context;
@@ -841,7 +841,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetExternalStoragePath(void) {
         JNIEnv *env = Android_JNI_GetEnv();
         if (!LocalReferenceHolder_Init(&refs, env)) {
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
         // context = CCWidgets.getContext();
@@ -849,18 +849,18 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetExternalStoragePath(void) {
 
         // fileObj = context.getExternalFilesDir();
         mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, context), "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;");
-        fileObject = (*env)->CallObjectMethod(env, context, mid, nullptr);
+        fileObject = (*env)->CallObjectMethod(env, context, mid, NULL);
         if (!fileObject) {
             _cc_logger_error(_T("Couldn't get external directory"));
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
         // path = fileObject.getAbsolutePath();
         mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, fileObject), "getAbsolutePath", "()Ljava/lang/String;");
         pathString = (jstring)(*env)->CallObjectMethod(env, fileObject, mid);
 
-        path = (*env)->GetStringUTFChars(env, pathString, nullptr);
+        path = (*env)->GetStringUTFChars(env, pathString, NULL);
         s_AndroidExternalFilesPath = _cc_sds_alloc(path,(*env)->GetStringUTFLength(env, pathString));
         (*env)->ReleaseStringUTFChars(env, pathString, path);
 
@@ -871,7 +871,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetExternalStoragePath(void) {
 
 _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetCachePath(void) {
     // !!! FIXME: lots of duplication with Android_JNI_GetExternalStoragePath and Android_JNI_GetInternalStoragePath; consolidate these functions!
-    if (s_AndroidCachePath == nullptr) {
+    if (s_AndroidCachePath == NULL) {
         struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
         jmethodID mid;
         jobject context;
@@ -882,7 +882,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetCachePath(void) {
         JNIEnv *env = Android_JNI_GetEnv();
         if (!LocalReferenceHolder_Init(&refs, env)) {
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
         // context = CCWidgets.getContext();
@@ -890,18 +890,18 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetCachePath(void) {
 
         // fileObj = context.getExternalFilesDir();
         mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, context), "getCacheDir", "()Ljava/io/File;");
-        fileObject = (*env)->CallObjectMethod(env, context, mid, nullptr);
+        fileObject = (*env)->CallObjectMethod(env, context, mid, NULL);
         if (!fileObject) {
             _cc_logger_error(_T("Couldn't get cache directory"));
             LocalReferenceHolder_Cleanup(&refs);
-            return nullptr;
+            return NULL;
         }
 
         // path = fileObject.getAbsolutePath();
         mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, fileObject),  "getAbsolutePath", "()Ljava/lang/String;");
         pathString = (jstring)(*env)->CallObjectMethod(env, fileObject, mid);
 
-        path = (*env)->GetStringUTFChars(env, pathString, nullptr);
+        path = (*env)->GetStringUTFChars(env, pathString, NULL);
         s_AndroidCachePath = _cc_sds_alloc(path,(*env)->GetStringUTFLength(env, pathString));
         (*env)->ReleaseStringUTFChars(env, pathString, path);
 
@@ -947,7 +947,7 @@ JNIEXPORT void JNICALL _CC_JAVA_INTERFACE(nativePermissionResult)(
     
     NativePermissionRequestInfo_t *prev = &pending_permissions;
 
-    for (NativePermissionRequestInfo_t *info = prev->next; info != nullptr; info = info->next) {
+    for (NativePermissionRequestInfo_t *info = prev->next; info != NULL; info = info->next) {
         if (info->request_code == (int) requestCode) {
             prev->next = info->next;
             info->callback(info->userdata, info->permission, result ? true : false);
@@ -1017,7 +1017,7 @@ _CC_API_PUBLIC(bool_t) Android_JNI_GetLocale(tchar_t *buf, size_t buf_length) {
         JNIEnv *env = Android_JNI_GetEnv();
         jstring string = (jstring)(*env)->CallStaticObjectMethod(env, mJNIMainClass, midGetPreferredLocales);
         if (string) {
-            const char *utf = (*env)->GetStringUTFChars(env, string, nullptr);
+            const char *utf = (*env)->GetStringUTFChars(env, string, NULL);
             if (utf) {
                 size_t utf_length = (*env)->GetStringUTFLength(env, string);
                 if (utf_length > buf_length) {

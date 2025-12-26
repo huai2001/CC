@@ -20,7 +20,7 @@ _CC_API_PRIVATE(_cc_ws_t*) _ws_alloc(_cc_socket_t fd) {
     _cc_ws_t *ws = (_cc_ws_t*)_cc_malloc(sizeof(_cc_ws_t));
 
     ws->state = _CC_HTTP_STATE_HEADER_;
-    ws->request = nullptr;
+    ws->request = NULL;
     ws->header.state = WS_DATA_OK;
 
     ws->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
@@ -78,7 +78,7 @@ _CC_API_PRIVATE(bool_t) _ws_response_header(_cc_event_t *e, _cc_ws_t *ws) {
 
 _CC_API_PRIVATE(void)  _ws_send(_cc_io_buffer_t *io, byte_t *data, int64_t length) {
     _cc_spin_lock(&io->lock_of_writable);
-    io->w.off += _cc_ws_header(io->w.bytes + io->w.off, WS_OP_TEXT, length, nullptr);
+    io->w.off += _cc_ws_header(io->w.bytes + io->w.off, WS_OP_TEXT, length, NULL);
     memcpy(io->w.bytes + io->w.off, data, length);
     io->w.off += length;
     _cc_unlock(&io->lock_of_writable);
@@ -220,7 +220,7 @@ _CC_API_PRIVATE(bool_t) _ws_http_handler(_cc_event_t *e, _cc_ws_t *ws) {
 
         connection = _cc_http_header_find(&ws->request->headers,_T("Connection"));
         upgrade = _cc_http_header_find(&ws->request->headers, _T("Upgrade"));
-        if (connection == nullptr || upgrade == nullptr) {
+        if (connection == NULL || upgrade == NULL) {
             bad_request(e, io);
             return false;
         } else if (_tcsicmp("Upgrade",connection->value) != 0 || _tcsicmp("websocket",upgrade->value) != 0) {
@@ -258,7 +258,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         _cc_set_socket_nonblock(fd, 1);
 
         event = _cc_alloc_event(async, _CC_EVENT_TIMEOUT_);
-        if (event == nullptr) {
+        if (event == NULL) {
             _cc_close_socket(fd);
             _ws_free(ws);
             return true;
@@ -275,7 +275,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         event->data = (uintptr_t)_ws_alloc(fd);
 
         if (async->attach(async, event) == false) {
-            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
+            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
             _cc_free_event(async, event);
             _ws_free(ws);
             return true;
@@ -359,25 +359,25 @@ int main(int argc, char *const argv[]) {
     _cc_install_socket();
 #if ENABLE_SSL
     openSSL = _SSL_init(_CC_SSL_TLSv1_1_|_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_|_CC_SSL_TLSv1_);
-    if (openSSL == nullptr) {
+    if (openSSL == NULL) {
         return 1;
     }
 
-    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",nullptr);
-    //_SSL_setup(openSSL, "/opt/libcc/bin/arm64/debug/cert.pem", "/opt/libcc/bin/arm64/debug/key.pem",nullptr);
+    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
+    //_SSL_setup(openSSL, "/opt/libcc/bin/arm64/debug/cert.pem", "/opt/libcc/bin/arm64/debug/key.pem",NULL);
 #endif
     if (_cc_register_poller(&async) == false) {
         return 1;
     }
     e = _cc_alloc_event(&async, _CC_EVENT_ACCEPT_);
-    if (e == nullptr) {
+    if (e == NULL) {
         async.free(&async);
         return -1;
     }
     e->callback = _ws_handler;
     e->timeout = 60000;
 
-    _cc_inet_ipv4_addr(&sa, nullptr, port);
+    _cc_inet_ipv4_addr(&sa, NULL, port);
     _cc_tcp_listen(&async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in));
     _cc_logger_debug(_T("listen port: %d"), port);
 

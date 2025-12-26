@@ -16,7 +16,7 @@
 #define LEGAL_ALT(x)                                                                                                   \
     {                                                                                                                  \
         if (alt_format & ~(x)) {                                                                                       \
-            return nullptr;                                                                                            \
+            return NULL;                                                                                            \
         }                                                                                                              \
     }
 
@@ -101,7 +101,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('%'): /* "%%" is converted to "%". */
         literal:
             if (c != *bp++) {
-                return nullptr;
+                return NULL;
             }
             break;
 
@@ -125,49 +125,49 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('c'): /* Date and time, using the locale's format. */
             LEGAL_ALT(ALT_E);
             if (!(bp = _cc_strptime(bp, _T("%x %X"), _cp))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('D'): /* The date as "%m/%d/%y". */
             LEGAL_ALT(0);
             if (!(bp = _cc_strptime(bp, _T("%m/%d/%y"), _cp))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('R'): /* The time as "%H:%M". */
             LEGAL_ALT(0);
             if (!(bp = _cc_strptime(bp, _T("%H:%M"), _cp))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('r'): /* The time in 12-hour clock representation. */
             LEGAL_ALT(0);
             if (!(bp = _cc_strptime(bp, _T("%I:%M:%S %p"), _cp))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('T'): /* The time as "%H:%M:%S". */
             LEGAL_ALT(0);
             if (!(bp = _cc_strptime(bp, _T("%H:%M:%S"), _cp))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('X'): /* The time, using the locale's format. */
             LEGAL_ALT(ALT_E);
             if (!(bp = _cc_strptime(bp, _T("%H:%M:%S"), _cp))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('x'): /* The date, using the locale's format. */
             LEGAL_ALT(ALT_E);
             if (!(bp = _cc_strptime(bp, _T("%m/%d/%y"), _cp))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
@@ -192,7 +192,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
 
             /* Nothing matched. */
             if (i == 7) {
-                return nullptr;
+                return NULL;
             }
 
             _cp->tm_wday = i;
@@ -217,7 +217,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
             }
             /* Nothing matched. */
             if (i == 12) {
-                return nullptr;
+                return NULL;
             }
 
             _cp->tm_mon = i;
@@ -227,7 +227,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('C'): /* The century number. */
             LEGAL_ALT(ALT_E);
             if (!(to_num(&bp, &i, 0, 99))) {
-                return nullptr;
+                return NULL;
             }
 
             if (split_year) {
@@ -242,7 +242,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('e'):
             LEGAL_ALT(ALT_O);
             if (!(to_num(&bp, &_cp->tm_mday, 1, 31))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
@@ -252,7 +252,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('H'):
             LEGAL_ALT(ALT_O);
             if (!(to_num(&bp, &_cp->tm_hour, 0, 23))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
@@ -262,7 +262,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('I'):
             LEGAL_ALT(ALT_O);
             if (!(to_num(&bp, &_cp->tm_hour, 1, 12))) {
-                return nullptr;
+                return NULL;
             }
             if (_cp->tm_hour == 12) {
                 _cp->tm_hour = 0;
@@ -272,7 +272,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('j'): /* The day of year. */
             LEGAL_ALT(0);
             if (!(to_num(&bp, &i, 1, 366))) {
-                return nullptr;
+                return NULL;
             }
             _cp->tm_yday = i - 1;
             break;
@@ -280,14 +280,14 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('M'): /* The minute. */
             LEGAL_ALT(ALT_O);
             if (!(to_num(&bp, &_cp->tm_min, 0, 59))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('m'): /* The month. */
             LEGAL_ALT(ALT_O);
             if (!(to_num(&bp, &i, 1, 12))) {
-                return nullptr;
+                return NULL;
             }
             _cp->tm_mon = i - 1;
             break;
@@ -297,7 +297,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
             /* AM? */
             if (_tcscmp(_SPT_AM_, bp) == 0) {
                 if (_cp->tm_hour > 11) {
-                    return nullptr;
+                    return NULL;
                 }
 
                 bp += _SPT_AM_LEN_;
@@ -306,7 +306,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
             /* PM? */
             else if (_tcscmp(_SPT_PM_, bp) == 0) {
                 if (_cp->tm_hour > 11) {
-                    return nullptr;
+                    return NULL;
                 }
 
                 _cp->tm_hour += 12;
@@ -315,12 +315,12 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
             }
 
             /* Nothing matched. */
-            return nullptr;
+            return NULL;
 
         case _T('S'): /* The seconds. */
             LEGAL_ALT(ALT_O);
             if (!(to_num(&bp, &_cp->tm_sec, 0, 61))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
@@ -334,21 +334,21 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
              * range for now.
              */
             if (!(to_num(&bp, &i, 0, 53))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('w'): /* The day of week, beginning on sunday. */
             LEGAL_ALT(ALT_O);
             if (!(to_num(&bp, &_cp->tm_wday, 0, 6))) {
-                return nullptr;
+                return NULL;
             }
             break;
 
         case _T('Y'): /* The year. */
             LEGAL_ALT(ALT_E);
             if (!(to_num(&bp, &i, 0, 9999))) {
-                return nullptr;
+                return NULL;
             }
 
             _cp->tm_year = i - TM_YEAR_BASE;
@@ -357,7 +357,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
         case _T('y'): /* The year within 100 years of the epoch. */
             LEGAL_ALT(ALT_E | ALT_O);
             if (!(to_num(&bp, &i, 0, 99))) {
-                return nullptr;
+                return NULL;
             }
 
             if (split_year) {
@@ -385,7 +385,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_strptime(const tchar_t *buf, const tchar_t *f
             break;
 
         default: /* Unknown/unsupported conversion. */
-            return nullptr;
+            return NULL;
         }
     }
 

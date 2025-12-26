@@ -104,7 +104,7 @@ _CC_API_PRIVATE(_cc_hmap_cell_t*) _hmap_empty_cell(_cc_hmap_cell_t *cells, uint3
         curr = (curr + step) % limit;
     }
 
-    return nullptr;
+    return NULL;
 }
 /*
  * Doubles the size of the hmap, and rehashes all the cells
@@ -126,7 +126,7 @@ _CC_API_PRIVATE(int) _hmap_rehash(_cc_hmap_t *ctx, float32_t factor) {
         _cc_hmap_cell_t *n = _cc_upcast(it, _cc_hmap_cell_t, lnk);
         /* Set the data */
         _cc_hmap_cell_t *cell = _hmap_empty_cell(cells, limit, n->hash);
-        if (cell == nullptr) {
+        if (cell == NULL) {
             _cc_free(cells);
             return MAP_FULL;
         }
@@ -155,7 +155,7 @@ _CC_API_PRIVATE(int) _hmap_rehash(_cc_hmap_t *ctx, float32_t factor) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity,
     _cc_hmap_keyword_equals_func_t equals_func, _cc_hmap_keyword_hash_func_t hash_func) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
     ctx->limit = (int32_t)_cc_aligned_alloc_opt(capacity, INITIAL_SIZE);
 
     ctx->cells = (_cc_hmap_cell_t *)_cc_malloc(ctx->limit * sizeof(_cc_hmap_cell_t));
@@ -283,7 +283,7 @@ _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *ctx) {
 
 /* free the hmap */
 _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     _cc_if_free(ctx->cells);
 
@@ -293,6 +293,6 @@ _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx) {
 /**/
 _CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_iterator_t *v) {
     _cc_hmap_cell_t *n = _cc_upcast(v, _cc_hmap_cell_t, lnk);
-    _cc_assert(n != nullptr);
+    _cc_assert(n != NULL);
     return n->data;
 }

@@ -9,11 +9,11 @@ typedef void(WINAPI *fptrWakeAllConditionVariable)(PCONDITION_VARIABLE);
 typedef BOOL(WINAPI *fptrSleepConditionVariableSRW)(PCONDITION_VARIABLE, PSRWLOCK, DWORD, ULONG);
 typedef void(WINAPI *fptrSleepConditionVariableCS)(PCONDITION_VARIABLE, PCRITICAL_SECTION, DWORD dwMilliseco);
 
-static fptrInitializeConditionVariable pInitializeConditionVariable = nullptr;
-static fptrWakeConditionVariable pWakeConditionVariable = nullptr;
-static fptrWakeAllConditionVariable pWakeAllConditionVariable = nullptr;
-static fptrSleepConditionVariableSRW pSleepConditionVariableSRW = nullptr;
-static fptrSleepConditionVariableCS pSleepConditionVariableCS = nullptr;
+static fptrInitializeConditionVariable pInitializeConditionVariable = NULL;
+static fptrWakeConditionVariable pWakeConditionVariable = NULL;
+static fptrWakeAllConditionVariable pWakeAllConditionVariable = NULL;
+static fptrSleepConditionVariableSRW pSleepConditionVariableSRW = NULL;
+static fptrSleepConditionVariableCS pSleepConditionVariableCS = NULL;
 
 #endif
 /* Create a condition variable */
@@ -31,10 +31,10 @@ _CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
         HMODULE hModuleKernel32 = _cc_load_windows_kernel32();
         pInitializeConditionVariable =
             (fptrInitializeConditionVariable)GetProcAddress(hModuleKernel32, "InitializeConditionVariable");
-        if (_cc_unlikely(pInitializeConditionVariable == nullptr)) {
+        if (_cc_unlikely(pInitializeConditionVariable == NULL)) {
             _cc_logger_error(_T("GetProcAddress(InitializeConditionVariable) Error Code: %ld"), GetLastError());
             _cc_free(cond);
-            return nullptr;
+            return NULL;
         }
         pWakeConditionVariable = (fptrWakeConditionVariable)GetProcAddress(hModuleKernel32, "WakeConditionVariable");
         pWakeAllConditionVariable =
@@ -49,11 +49,11 @@ _CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
         pInitializeConditionVariable(&cond->cond_var);
     }
 #else
-    cond->cond_var = CreateEvent(nullptr, false, false, nullptr);
-    if (cond->cond_var == nullptr) {
+    cond->cond_var = CreateEvent(NULL, false, false, NULL);
+    if (cond->cond_var == NULL) {
         _cc_logger_error(_T("CreateEvent() failed"));
         _cc_free(cond);
-        cond = nullptr;
+        cond = NULL;
     }
 #endif
     return (cond);
@@ -74,7 +74,7 @@ _CC_API_PUBLIC(void) _cc_free_condition(_cc_condition_t *cond) {
 /* Restart one of the threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
     }
 #ifdef _CC_WINDOWS_SUPPORTED_CONDITION_
@@ -90,7 +90,7 @@ _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
 /* Restart all threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_broadcast(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
     }
 #ifdef _CC_WINDOWS_SUPPORTED_CONDITION_
@@ -110,12 +110,12 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
     HRESULT result = NO_ERROR;
 #endif
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return 0;
     }
 
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a nullptr mutex"));
+        _cc_logger_error(_T("Passed a NULL mutex"));
         return 0;
     }
 
@@ -175,7 +175,7 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
  */
 _CC_API_PUBLIC(bool_t) _cc_condition_wait(_cc_condition_t *cond, _cc_mutex_t *mutex) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
     }
 #ifdef _CC_WINDOWS_SUPPORTED_CONDITION_

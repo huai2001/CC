@@ -4,17 +4,17 @@ _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item);
 
 _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
-    const tchar_t *start = nullptr;
+    const tchar_t *start = NULL;
     const tchar_t *endpos;
     size_t alloc_length = 0;
     size_t skipped_bytes = 0;
-    _cc_sds_t output = nullptr;
+    _cc_sds_t output = NULL;
     tchar_t quotes = *p;
 
     if (_cc_likely(quotes == _T('"') || quotes == _T('\''))) {
         start = ++p;
     } else {
-        return nullptr;
+        return NULL;
     }
 
     endpos = buffer->content + buffer->length;
@@ -23,7 +23,7 @@ _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
         if (*p == _T('\\')) {
             /* prevent buffer overflow when last input character is a backslash */
             if ((p + 1) >= endpos) {
-                return nullptr;
+                return NULL;
             }
             skipped_bytes++;
             p++;
@@ -32,12 +32,12 @@ _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
     }
 
     if (p >= endpos || *p != quotes) {
-        return nullptr;
+        return NULL;
     }
 
     /* This is at most how much we need for the output */
     alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
-    output = _cc_sds_alloc(nullptr, alloc_length);
+    output = _cc_sds_alloc(NULL, alloc_length);
     endpos = _convert_text(output, start, p);
     if (endpos) {
         /* +1 skip \" or \' */
@@ -46,7 +46,7 @@ _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
     }
 
     _cc_sds_free(output);
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_t *const buffer, _cc_json_t *const item) {
@@ -54,7 +54,7 @@ _CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_t *const buffer, _cc_json_t
     const tchar_t *start = _cc_sbuf_offset(buffer);
     const tchar_t *s = _cc_to_number(start, &num);
 
-    if (_cc_unlikely(s == nullptr)) {
+    if (_cc_unlikely(s == NULL)) {
         return false;
     }
 
@@ -87,7 +87,7 @@ _CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_t *const buffer, _cc
         return false;
     }
     
-    if (_cc_unlikely(!_cc_sbuf_access(buffer) || _cc_sbuf_offset_unequal(buffer, _T(':')))) {
+    if (_cc_unlikely(!_cc_sbuf_access(buffer) || _cc_sbuf_offset_unequal(buffer, _JSON_OBJECT_TOKEN_))) {
         _cc_sds_free(name);
         buffer->offset = offset;
         return false;
@@ -170,7 +170,7 @@ JSON_SUCCESS:
 }
 
 static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *root) {
-    _cc_json_t *curr_item = nullptr;
+    _cc_json_t *curr_item = NULL;
     _json_array_alloc(root,32);
 
 
@@ -206,8 +206,8 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *root) {
         curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
         bzero(curr_item, sizeof(_cc_json_t));
         curr_item->type = _CC_JSON_NULL_;
-        curr_item->name = nullptr;
-        curr_item->element.uni_object.rb_node = nullptr;
+        curr_item->name = NULL;
+        curr_item->element.uni_object.rb_node = NULL;
 
         if (!_json_read(buffer, curr_item)) {
             _json_free_node(curr_item);
@@ -256,7 +256,7 @@ _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item) {
 
         if (_tcsncmp(p, _T("null"), 4) == 0) {
             item->type = _CC_JSON_NULL_;
-            item->element.uni_string = nullptr;
+            item->element.uni_string = NULL;
             buffer->offset += 4;
             return _cc_buf_jump_comment(buffer);
         }
@@ -284,11 +284,11 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_t *const buffer) {
     _cc_json_t *curr_item;
     _cc_syntax_error_t local_error;
 
-    local_error.content = nullptr;
+    local_error.content = NULL;
     local_error.position = 0;
 
     if (!_cc_buf_jump_comment(buffer)) {
-        return nullptr;
+        return NULL;
     }
 
     curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
@@ -310,16 +310,16 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_t *const buffer) {
     _cc_syntax_error(&local_error);
 
     _json_free_node(curr_item);
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PUBLIC(_cc_json_t*) _cc_json_from_file(const tchar_t *file_name) {
     _cc_sbuf_t buffer;
-    _cc_json_t *item = nullptr;
+    _cc_json_t *item = NULL;
     _cc_buf_t buf;
 
     if (!_cc_buf_from_file(&buf, file_name)) {
-        return nullptr;
+        return NULL;
     }
 
     buffer.content = (tchar_t*)buf.bytes;

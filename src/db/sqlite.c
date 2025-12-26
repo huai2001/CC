@@ -242,18 +242,18 @@ _CC_API_PRIVATE(const tchar_t*) code_as_string(const int32_t err_code) {
 */
 
 _CC_API_PRIVATE(_cc_sql_t*) _sqlite_connect(const tchar_t *sql_connection_string) {
-    sqlite3 *sql = nullptr;
-    _cc_sql_t *ctx = nullptr;
+    sqlite3 *sql = NULL;
+    _cc_sql_t *ctx = NULL;
     _cc_url_t params;
 
     if (!_cc_parse_url(&params, sql_connection_string)) {
-        return nullptr;
+        return NULL;
     }
 
     if (_sqlite3_open(params.path + 1, &sql) != SQLITE_OK) {
         _cc_logger_error(_T("Can't open database: %s, %s"), params.path + 1, _sqlite3_errmsg(sql));
         _cc_free_url(&params);
-        return nullptr;
+        return NULL;
     }
 
     _cc_free_url(&params);
@@ -275,7 +275,7 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlite_connect(const tchar_t *sql_connection_string
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_disconnect(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     if (ctx->sql) {
         int res = _sqlite3_close(ctx->sql);
@@ -311,13 +311,13 @@ _CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_result_t *result) {
 
 _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
     int res = SQLITE_OK;
-    sqlite3_stmt *stmt = nullptr;
+    sqlite3_stmt *stmt = NULL;
     const tchar_t *tail;
     const tchar_t *sql_string = sql->ptr;
     size_t sql_length = sql->length;
 
 
-    _cc_assert(ctx != nullptr && ctx->sql != nullptr);
+    _cc_assert(ctx != NULL && ctx->sql != NULL);
 
     do {
         res = _sqlite3_prepare(ctx->sql, sql_string, (int)sql_length, &stmt, &tail);
@@ -358,17 +358,17 @@ _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     if (is_auto_commit) {
         /* undo active transaction - ignore errors */
-        (void)sqlite3_exec(ctx->sql, "ROLLBACK", nullptr, nullptr, nullptr);
+        (void)sqlite3_exec(ctx->sql, "ROLLBACK", NULL, NULL, NULL);
         ctx->transaction = false;
     } else {
         int res = 0;
-        char_t *errmsg = nullptr;
+        char_t *errmsg = NULL;
 
-        res = _sqlite3_exec(ctx->sql, "BEGIN", nullptr, nullptr, &errmsg);
+        res = _sqlite3_exec(ctx->sql, "BEGIN", NULL, NULL, &errmsg);
 
         if (res != SQLITE_OK) {
             _cc_logger_error(_T("_sqlite_auto_commit %s"), errmsg);
@@ -383,13 +383,13 @@ _CC_API_PRIVATE(bool_t) _sqlite_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commi
 
 _CC_API_PRIVATE(bool_t) _sqlite_begin_transaction(_cc_sql_t *ctx) {
     int res = 0;
-    char_t *errmsg = nullptr;
-    _cc_assert(ctx != nullptr);
+    char_t *errmsg = NULL;
+    _cc_assert(ctx != NULL);
     if (ctx->transaction) {
         return true;
     }
 
-    res = _sqlite3_exec(ctx->sql, "BEGIN", nullptr, nullptr, &errmsg);
+    res = _sqlite3_exec(ctx->sql, "BEGIN", NULL, NULL, &errmsg);
 
     if (res != SQLITE_OK) {
         _cc_logger_error(_T("_sqlite_begin_transaction %s"), errmsg);
@@ -402,14 +402,14 @@ _CC_API_PRIVATE(bool_t) _sqlite_begin_transaction(_cc_sql_t *ctx) {
 
 _CC_API_PRIVATE(bool_t) _sqlite_commit(_cc_sql_t *ctx) {
     int res = 0;
-    char_t *errmsg = nullptr;
+    char_t *errmsg = NULL;
 
     if (ctx->transaction == false) {
         return true;
     }
 
-    _cc_assert(ctx != nullptr);
-    res = _sqlite3_exec(ctx->sql, "COMMIT", nullptr, nullptr, &errmsg);
+    _cc_assert(ctx != NULL);
+    res = _sqlite3_exec(ctx->sql, "COMMIT", NULL, NULL, &errmsg);
     if (res != SQLITE_OK) {
         _cc_logger_error(_T("_sqlite_commit %s"), errmsg);
         _sqlite3_free(errmsg);
@@ -421,14 +421,14 @@ _CC_API_PRIVATE(bool_t) _sqlite_commit(_cc_sql_t *ctx) {
 
 _CC_API_PRIVATE(bool_t) _sqlite_rollback(_cc_sql_t *ctx) {
     int res;
-    char_t *errmsg = nullptr;
-    _cc_assert(ctx != nullptr);
+    char_t *errmsg = NULL;
+    _cc_assert(ctx != NULL);
 
     if (ctx->transaction == false) {
         return true;
     }
 
-    res = _sqlite3_exec(ctx->sql, "ROLLBACK", nullptr, nullptr, &errmsg);
+    res = _sqlite3_exec(ctx->sql, "ROLLBACK", NULL, NULL, &errmsg);
     if (res != SQLITE_OK) {
         _cc_logger_error(_T("_sqlite_rollback %s"), errmsg);
         _sqlite3_free(errmsg);
@@ -439,7 +439,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_rollback(_cc_sql_t *ctx) {
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_fetch(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     
     if (result->step) {
         return (result->step_status == SQLITE_ROW);
@@ -452,23 +452,23 @@ _CC_API_PRIVATE(bool_t) _sqlite_fetch(_cc_sql_result_t *result) {
 }
 
 _CC_API_PRIVATE(uint64_t) _sqlite_get_num_rows(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     return _sqlite3_data_count(result->stmt);
 }
 
 _CC_API_PRIVATE(int32_t) _sqlite_get_num_fields(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     return _sqlite3_column_count(result->stmt);
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_next_result(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     return false;
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_free_result(_cc_sql_result_t *result) {
     int res = 0;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     res = _sqlite3_finalize(result->stmt);
     _cc_free(result);
     return res != SQLITE_OK;
@@ -477,7 +477,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_free_result(_cc_sql_result_t *result) {
 /**/
 _CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, uint8_t type) {
     int res;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
 
     /*List the serial numbers (starting from 1)*/
     index++;
@@ -544,7 +544,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, co
 
 /**/
 _CC_API_PRIVATE(uint64_t) _sqlite_get_last_id(_cc_sql_t *ctx, _cc_sql_result_t *result) {
-    _cc_assert(ctx != nullptr && ctx->sql != nullptr);
+    _cc_assert(ctx != NULL && ctx->sql != NULL);
     return (uint64_t)sqlite3_last_insert_rowid(ctx->sql);
 }
 
@@ -553,17 +553,17 @@ _CC_API_PRIVATE(pvoid_t) _sqlite_get_stmt(_cc_sql_result_t *result) {
 }
 
 _CC_API_PRIVATE(int32_t) _sqlite_get_int(_cc_sql_result_t *result, int32_t index) {
-    _cc_assert(result->stmt != nullptr);
+    _cc_assert(result->stmt != NULL);
     return _sqlite3_column_int(result->stmt, index);
 }
 
 _CC_API_PRIVATE(int64_t) _sqlite_get_int64(_cc_sql_result_t *result, int32_t index) {
-    _cc_assert(result->stmt != nullptr);
+    _cc_assert(result->stmt != NULL);
     return _sqlite3_column_int64(result->stmt, index);
 }
 
 _CC_API_PRIVATE(float64_t) _sqlite_get_float(_cc_sql_result_t *result, int32_t index) {
-    _cc_assert(result->stmt != nullptr);
+    _cc_assert(result->stmt != NULL);
     return _sqlite3_column_double(result->stmt, index);
 }
 
@@ -571,7 +571,7 @@ _CC_API_PRIVATE(size_t) _sqlite_get_string(_cc_sql_result_t *result, int32_t ind
     size_t bytes_length;
     const tchar_t *v = (const tchar_t *)_sqlite3_column_text(result->stmt, index);
     *buffer = 0;
-    if (v == nullptr) {
+    if (v == NULL) {
         return 0;
     }
 
@@ -591,7 +591,7 @@ _CC_API_PRIVATE(size_t) _sqlite_get_string(_cc_sql_result_t *result, int32_t ind
 }
 
 _CC_API_PRIVATE(size_t) _sqlite_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **value) {
-    _cc_assert(result->stmt != nullptr);
+    _cc_assert(result->stmt != NULL);
     if (value) {
         *value = (byte_t*)_sqlite3_column_blob(result->stmt, index);
     }
@@ -600,7 +600,7 @@ _CC_API_PRIVATE(size_t) _sqlite_get_blob(_cc_sql_result_t *result, int32_t index
 
 _CC_API_PRIVATE(bool_t) _sqlite_get_datetime(_cc_sql_result_t *result, int32_t index,struct tm* timeinfo) {
     const tchar_t *v;
-    _cc_assert(result->stmt != nullptr);
+    _cc_assert(result->stmt != NULL);
 
     v = (const tchar_t *)_sqlite3_column_text(result->stmt, index);
     if (v) {
@@ -614,7 +614,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_get_datetime(_cc_sql_result_t *result, int32_t i
 _CC_API_PUBLIC(bool_t) _cc_register_sqlite(_cc_sql_delegate_t *delegator) {
 #define SET(x) delegator->x = _sqlite_##x
 
-    if (_cc_unlikely(delegator == nullptr)) {
+    if (_cc_unlikely(delegator == NULL)) {
         return false;
     }
 

@@ -19,7 +19,7 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
     if (pthread_mutex_init(&mutex->ident, &attr) != 0) {
         _cc_logger_error(_T("Couldn't create mutex"));
         _cc_free(mutex);
-        mutex = nullptr;
+        mutex = NULL;
     }
 
     return (mutex);
@@ -39,7 +39,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
     pthread_t self;
 #endif
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a nullptr mutex"));
+        _cc_logger_error(_T("Passed a NULL mutex"));
         return false;
     }
 
@@ -75,7 +75,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     pthread_t self;
 #endif
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a nullptr mutex"));
+        _cc_logger_error(_T("Passed a NULL mutex"));
         return -1;
     }
 #if _CC_FAKE_RECURSIVE_MUTEX_
@@ -113,7 +113,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 /* Unlock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a nullptr mutex"));
+        _cc_logger_error(_T("Passed a NULL mutex"));
         return false;
     }
 #if _CC_FAKE_RECURSIVE_MUTEX_

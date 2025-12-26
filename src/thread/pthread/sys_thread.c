@@ -17,7 +17,7 @@
 #if defined(__CC_LINUX__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
 #include <dlfcn.h>
 #ifndef RTLD_DEFAULT
-#define RTLD_DEFAULT nullptr
+#define RTLD_DEFAULT NULL
 #endif
 #endif
 
@@ -40,17 +40,17 @@ _CC_API_PRIVATE(void *) RunThread(pvoid_t args) {
     /* Call the thread function! */
     _cc_thread_running_function(args);
     //
-    pthread_exit(nullptr);
+    pthread_exit(NULL);
 
-    return nullptr;
+    return NULL;
 }
 
 #if defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
 static bool_t checked_setname = false;
-static int (*ppthread_setname_np)(const char *) = nullptr;
+static int (*ppthread_setname_np)(const char *) = NULL;
 #elif defined(__CC_LINUX__)
 static bool_t checked_setname = false;
-static int (*ppthread_setname_np)(pthread_t, const char *) = nullptr;
+static int (*ppthread_setname_np)(pthread_t, const char *) = NULL;
 #endif
 
 _CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *self) {
@@ -101,8 +101,8 @@ _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t *name) {
 #endif /* !__CC_NACL__ */
 
 #if defined(__CC_MACOSX__) || defined(__IPHONEOS__) || defined(__CC_LINUX__)
-    if (name != nullptr) {
-        if (ppthread_setname_np != nullptr) {
+    if (name != NULL) {
+        if (ppthread_setname_np != NULL) {
 #if defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
             ppthread_setname_np(name);
 #elif defined(__CC_LINUX__)

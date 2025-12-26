@@ -4,7 +4,7 @@
  */
 bool_t _XML_jump_whitespace(_cc_sbuf_t *const buffer) {
     register const tchar_t *ptr = 0;
-    if (_cc_unlikely((buffer == nullptr) || (buffer->content == nullptr))) {
+    if (_cc_unlikely((buffer == NULL) || (buffer->content == NULL))) {
         return false;
     }
 
@@ -27,8 +27,8 @@ bool_t _XML_jump_whitespace(_cc_sbuf_t *const buffer) {
 /**/
 bool_t _XML_attr_push(_cc_rbtree_t *ctx, _cc_sds_t name, _cc_sds_t value) {
     int32_t result = 0;
-    _cc_xml_attr_t *item = nullptr;
-    _cc_rbtree_iterator_t **node = &(ctx->rb_node), *parent = nullptr;
+    _cc_xml_attr_t *item = NULL;
+    _cc_rbtree_iterator_t **node = &(ctx->rb_node), *parent = NULL;
 
     while (*node) {
         item = _cc_upcast(*node, _cc_xml_attr_t, lnk);
@@ -84,7 +84,7 @@ _CC_API_PUBLIC(const _cc_sds_t) _cc_xml_element_text(_cc_xml_t *ctx) {
             return item->element.uni_context.text;
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -95,22 +95,22 @@ _CC_API_PRIVATE(int32_t) _XML_attr_find(_cc_rbtree_iterator_t *iter, uintptr_t a
 
 /**/
 _CC_API_PUBLIC(const _cc_sds_t) _cc_xml_element_attr(_cc_xml_t *ctx, const tchar_t *keyword) {
-    if (ctx && ctx->attr.rb_node != nullptr) {
+    if (ctx && ctx->attr.rb_node != NULL) {
         _cc_rbtree_iterator_t *item = _cc_rbtree_get(&ctx->attr, (uintptr_t)keyword, _XML_attr_find);
         if (item) {
             _cc_xml_attr_t *attr = _cc_upcast(item, _cc_xml_attr_t, lnk);
             return attr->value;
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PUBLIC(bool_t) _cc_xml_element_set_attr(_cc_xml_t *ctx, const tchar_t *keyword, const tchar_t *fmt, ...) {
     tchar_t buf[1024];
     size_t length;
-    _cc_assert(fmt != nullptr);
+    _cc_assert(fmt != NULL);
 
-    if (nullptr != _tcschr((tchar_t *)fmt, '%')) {
+    if (NULL != _tcschr((tchar_t *)fmt, '%')) {
         va_list args;
         va_start(args, fmt);
         length = _vsntprintf(buf, _cc_countof(buf), fmt, args);
@@ -127,7 +127,7 @@ _CC_API_PUBLIC(bool_t) _cc_xml_element_set_attr(_cc_xml_t *ctx, const tchar_t *k
 /**/
 _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_first_child(_cc_xml_t *ctx) {
     if (ctx->type != _CC_XML_CHILD_ || _cc_list_iterator_empty(&ctx->element.uni_child)) {
-        return nullptr;
+        return NULL;
     }
 
     return _cc_upcast(ctx->element.uni_child.next, _cc_xml_t, lnk);
@@ -136,7 +136,7 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_first_child(_cc_xml_t *ctx) {
 /**/
 _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_next_child(_cc_xml_t *ctx) {
     if (ctx->lnk.next == &ctx->lnk) {
-        return nullptr;
+        return NULL;
     }
 
     return _cc_upcast(ctx->lnk.next, _cc_xml_t, lnk);
@@ -154,7 +154,7 @@ _CC_API_PRIVATE(_cc_xml_t*) XML_find(_cc_xml_t *ctx, tchar_t *name, size_t len) 
             return item;
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -163,13 +163,13 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_element_find(_cc_xml_t *ctx, tchar_t *name) {
     tchar_t *pp = name;
 
     if (ctx->type != _CC_XML_CHILD_) {
-        return nullptr;
+        return NULL;
     }
 
     while ((p = _tcschr(pp, '/'))) {
         ctx = XML_find(ctx, pp, (size_t)(p - pp));
-        if (ctx == nullptr) {
-            return nullptr;
+        if (ctx == NULL) {
+            return NULL;
         }
         pp = p + 1;
     }
@@ -206,14 +206,14 @@ static void _xml_free(_cc_xml_t *ctx) {
     case _CC_XML_COMMENT_:
         if (ctx->element.uni_comment) {
             _cc_sds_free(ctx->element.uni_comment);
-            ctx->element.uni_comment = nullptr;
+            ctx->element.uni_comment = NULL;
         }
         break;
 
     case _CC_XML_CONTEXT_:
         if (ctx->element.uni_context.text) {
             _cc_sds_free(ctx->element.uni_context.text);
-            ctx->element.uni_context.text = nullptr;
+            ctx->element.uni_context.text = NULL;
         }
         break;
 
@@ -239,7 +239,7 @@ _CC_API_PUBLIC(const tchar_t*) _cc_xml_error(void) {
 
 /**/
 static void _dump_xml_buffer(const _cc_xml_t *XML, _cc_buf_t *buf) {
-    _cc_list_iterator_t *v = nullptr;
+    _cc_list_iterator_t *v = NULL;
 
     if (XML->type == _CC_XML_COMMENT_) {
         _cc_buf_appendf(buf, _T("<!-- %s -->"), XML->element.uni_comment);
@@ -268,7 +268,7 @@ static void _dump_xml_buffer(const _cc_xml_t *XML, _cc_buf_t *buf) {
             return;
         }
 
-        _cc_buf_puts(buf, _T(">"));
+        _cc_buf_putchar(buf, _T('>'));
         
         _cc_list_iterator_for(v, &XML->element.uni_child) {
             _dump_xml_buffer(_cc_upcast(v, _cc_xml_t, lnk), buf);

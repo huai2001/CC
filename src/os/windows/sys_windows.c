@@ -9,7 +9,7 @@
     #pragma comment(lib, "DbgHelp.lib")
 #endif
 
-static HMODULE _kernel32_handle = nullptr;
+static HMODULE _kernel32_handle = NULL;
 
 #ifndef _CC_DISABLED_DUMPER_
 
@@ -25,17 +25,17 @@ typedef BOOL(WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFi
                                         CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
                                         CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
                                         CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-static RTLGETVERSION_PTR _call_get_version = nullptr;
+static RTLGETVERSION_PTR _call_get_version = NULL;
 static tchar_t _minidump_module_path[_CC_MAX_PATH_] = {0};
 static tchar_t _minidump_app_name[_CC_MAX_PATH_] = {0};
-static HMODULE _dbghelp_handle = nullptr;
-static HANDLE _current_process = nullptr;
-MINIDUMPWRITEDUMP _call_minidump_writedump = nullptr;
-static _cc_dumper_callback_t _dumper_callback = nullptr;
+static HMODULE _dbghelp_handle = NULL;
+static HANDLE _current_process = NULL;
+MINIDUMPWRITEDUMP _call_minidump_writedump = NULL;
+static _cc_dumper_callback_t _dumper_callback = NULL;
 
 static void init_get_version(void) {
     HMODULE ntdll_module = GetModuleHandleW(L"ntdll.dll");
-    if (ntdll_module == nullptr) {
+    if (ntdll_module == NULL) {
         _cc_logger_error(_T("GetModuleHandle(ntdll.dll) Error Code:%d."), _cc_last_errno());
     }
 	_call_get_version = (RTLGETVERSION_PTR)GetProcAddress(ntdll_module, "RtlGetVersion");
@@ -75,11 +75,11 @@ _CC_API_PUBLIC(void) _cc_get_os_version(uint32_t *major, uint32_t *minor, uint32
 }
 
 _CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32() {
-    if (_kernel32_handle == nullptr) {
+    if (_kernel32_handle == NULL) {
         _kernel32_handle = GetModuleHandleW(L"KERNEL32.dll");
-        if (_kernel32_handle == nullptr) {
+        if (_kernel32_handle == NULL) {
             _cc_logger_error(_T("GetModuleHandle(KERNEL32.dll) Error Code:%d."), _cc_last_errno());
-            return nullptr;
+            return NULL;
         }
     }
     return _kernel32_handle;
@@ -95,16 +95,16 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
     symbol->MaxNameLen = MAX_SYM_NAME;
 
-    if (_current_process == nullptr) {
+    if (_current_process == NULL) {
         _current_process = GetCurrentProcess();
     }
 
-    if (!SymInitialize(_current_process, nullptr, TRUE)) {
+    if (!SymInitialize(_current_process, NULL, TRUE)) {
         _cc_logger_error(_T("SymInitialize failed with error code: %d"), _cc_last_errno());
         return 0;
     }
 
-    n = CaptureStackBackTrace(0, _cc_countof(frames), frames, nullptr);
+    n = CaptureStackBackTrace(0, _cc_countof(frames), frames, NULL);
     if (n) {
         for (r = 0, i = 1; i < n; i++) {
             if (SymFromAddr(_current_process, (DWORD64)(uintptr_t)frames[i], &displacement, symbol)) {
@@ -150,10 +150,10 @@ _CC_API_PRIVATE(LONG WINAPI) _mini_dumper_handler(PEXCEPTION_POINTERS info) {
     tchar_t dbghelp_bugreport_path[_CC_MAX_PATH_] = {0};
 
     BOOL call_success = false;
-    HANDLE bugreport_file_handle = nullptr;
+    HANDLE bugreport_file_handle = NULL;
     MINIDUMP_EXCEPTION_INFORMATION exc_info = {0};
 
-    time_t timestamp = time(nullptr);
+    time_t timestamp = time(NULL);
 
     exc_info.ThreadId = GetCurrentThreadId();
     exc_info.ExceptionPointers = info;
@@ -164,7 +164,7 @@ _CC_API_PRIVATE(LONG WINAPI) _mini_dumper_handler(PEXCEPTION_POINTERS info) {
     dbghelp_bugreport_path[_CC_MAX_PATH_ - 1] = 0;
 
     bugreport_file_handle = CreateFile(dbghelp_bugreport_path, GENERIC_WRITE, FILE_SHARE_WRITE, 
-                                       nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+                                       NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (bugreport_file_handle == INVALID_HANDLE_VALUE) {
         /* Failed to create dump file" */
         if (_dumper_callback) {
@@ -176,7 +176,7 @@ _CC_API_PRIVATE(LONG WINAPI) _mini_dumper_handler(PEXCEPTION_POINTERS info) {
 
     /* write the dump */
     call_success = _call_minidump_writedump(_current_process, GetCurrentProcessId(), bugreport_file_handle,
-                                            MiniDumpNormal, &exc_info, nullptr, nullptr);
+                                            MiniDumpNormal, &exc_info, NULL, NULL);
     if (call_success) {
         retval = EXCEPTION_EXECUTE_HANDLER;
         if (_dumper_callback) {
@@ -205,10 +205,10 @@ _CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback) {
     }
 
     _current_process = GetCurrentProcess();
-    _dbghelp_handle = nullptr;
+    _dbghelp_handle = NULL;
     _dumper_callback = callback;
 
-    rc = (int32_t)GetModuleFileName(nullptr, _minidump_module_path, _cc_countof(_minidump_module_path));
+    rc = (int32_t)GetModuleFileName(NULL, _minidump_module_path, _cc_countof(_minidump_module_path));
     if (rc <= 0) {
         return false;
     }
@@ -232,7 +232,7 @@ _CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback) {
 
     
     _dbghelp_handle = LoadLibrary(_T("DBGHELP.DLL"));
-    if (_dbghelp_handle == nullptr) {
+    if (_dbghelp_handle == NULL) {
         // DBGHELP.DLL not found
         return false;
     }
@@ -241,10 +241,10 @@ _CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback) {
     _cc_mkdir(_minidump_module_path);
 
     _call_minidump_writedump = (MINIDUMPWRITEDUMP)GetProcAddress(_dbghelp_handle, "MiniDumpWriteDump");
-    if (_call_minidump_writedump == nullptr) {
+    if (_call_minidump_writedump == NULL) {
         // DBGHELP.DLL too old
         FreeLibrary(_dbghelp_handle);
-        _dbghelp_handle = nullptr;
+        _dbghelp_handle = NULL;
         return false;
     }
 
@@ -255,8 +255,8 @@ _CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_uninstall_dumper(void) {
-    _dumper_callback = nullptr;
-    _call_minidump_writedump = nullptr;
+    _dumper_callback = NULL;
+    _call_minidump_writedump = NULL;
 
     if (_dbghelp_handle) {
         FreeLibrary(_dbghelp_handle);
@@ -280,11 +280,11 @@ _CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
     static tchar_t sys_error_info[4096];
     tchar_t *p = sys_error_info;
     //MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT),
-    DWORD res = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK, nullptr,
-                  _errno, MAKELANGID(LANG_NEUTRAL, SUBLANG_ENGLISH_US), (LPSTR)sys_error_info, sizeof(sys_error_info), nullptr);
+    DWORD res = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK, NULL,
+                  _errno, MAKELANGID(LANG_NEUTRAL, SUBLANG_ENGLISH_US), (LPSTR)sys_error_info, sizeof(sys_error_info), NULL);
     
     if (!res && (GetLastError() == ERROR_MUI_FILE_NOT_FOUND || GetLastError() == ERROR_RESOURCE_TYPE_NOT_FOUND)) {
-		res = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, _errno, 0, (LPSTR)sys_error_info, sizeof(sys_error_info), nullptr);
+		res = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, _errno, 0, (LPSTR)sys_error_info, sizeof(sys_error_info), NULL);
     }
     sys_error_info[res] = 0;
     
@@ -329,7 +329,7 @@ _CC_API_PUBLIC(const _cc_string_t*) _cc_get_module_file_name(void) {
 }
 
 _CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, int32_t size) {
-    int32_t acp_len = MultiByteToWideChar(CP_ACP, 0, s1, s1_len, nullptr, 0);
+    int32_t acp_len = MultiByteToWideChar(CP_ACP, 0, s1, s1_len, NULL, 0);
     int32_t request_len = 0;
     if (size > acp_len) {
         request_len = (int32_t)MultiByteToWideChar(CP_ACP, 0, s1, s1_len, s2, acp_len);
@@ -340,10 +340,10 @@ _CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, i
 }
 
 _CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1, int32_t s1_len, char_t *s2, int32_t size) {
-    int32_t unicode_len = WideCharToMultiByte(CP_ACP, 0, s1, s1_len, nullptr, 0, nullptr, nullptr);
+    int32_t unicode_len = WideCharToMultiByte(CP_ACP, 0, s1, s1_len, NULL, 0, NULL, NULL);
     int32_t request_len = 0;
     if (size > unicode_len) {
-        request_len = WideCharToMultiByte(CP_ACP, 0, s1, s1_len, s2, unicode_len, nullptr, nullptr);
+        request_len = WideCharToMultiByte(CP_ACP, 0, s1, s1_len, s2, unicode_len, NULL, NULL);
         s2[request_len] = 0;
     }
 

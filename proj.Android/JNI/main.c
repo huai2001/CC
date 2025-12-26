@@ -13,13 +13,13 @@ void JNI_OnUnload(JavaVM *vm, void *reserved) {
 
 _CC_API_PRIVATE(jobject) getApplication(JNIEnv *env) {
     jclass localClass = (*env)->FindClass(env, "android/app/ActivityThread");
-    if (localClass != nullptr) {
+    if (localClass != NULL) {
         jmethodID mApplication = (*env)->GetStaticMethodID(env, localClass, "currentApplication","()Landroid/app/Application;");
-        if (mApplication != nullptr) {
+        if (mApplication != NULL) {
             return (*env)->CallStaticObjectMethod(env, localClass, mApplication);
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PRIVATE(void) dumpSign() {
@@ -35,7 +35,7 @@ _CC_API_PRIVATE(void) dumpSign() {
     jobject packageManager, packageInfo, signature;
     jobject context = getApplication(env);
 
-    if (context == nullptr) {
+    if (context == NULL) {
         return ;
     }
 

@@ -20,14 +20,14 @@ static _cc_atomic32_t _socket_started = 0;
 static struct sockaddr_in _win_addr_ipv4_any = {0};
 static struct sockaddr_in6 _win_addr_ipv6_any = {0};
 
-static LPFN_ACCEPTEX _accept_func_ptr = nullptr;
-static LPFN_GETACCEPTEXSOCKADDRS _accept_sockaddrs_func_ptr = nullptr;
-static LPFN_DISCONNECTEX _disconnect_func_ptr = nullptr;
-static LPFN_CONNECTEX _connectex_func_ptr = nullptr;
+static LPFN_ACCEPTEX _accept_func_ptr = NULL;
+static LPFN_GETACCEPTEXSOCKADDRS _accept_sockaddrs_func_ptr = NULL;
+static LPFN_DISCONNECTEX _disconnect_func_ptr = NULL;
+static LPFN_CONNECTEX _connectex_func_ptr = NULL;
 #if (_WIN32_WINNT < 0x0600)
-static LPFN_GETQUEUEDCOMPLETIONSTATUSEX _get_queued_completion_status_func_ptr = nullptr;
+static LPFN_GETQUEUEDCOMPLETIONSTATUSEX _get_queued_completion_status_func_ptr = NULL;
 #endif
-static LPFN_TRANSMITFILE _transmit_file_func_ptr = nullptr;
+static LPFN_TRANSMITFILE _transmit_file_func_ptr = NULL;
 
 _cc_sockaddr_t* _cc_win_get_ipv4_any_addr(void) {
     return (_cc_sockaddr_t *)&_win_addr_ipv4_any;
@@ -190,7 +190,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay
     klive.keepaliveinterval = delay * 1000;
 
     if (WSAIoctl(fd, SIO_KEEPALIVE_VALS, (LPVOID) &klive, sizeof(tcp_keepalive_t), 
-                nullptr, 0, (unsigned long *)&opt, 0, nullptr) == -1) {
+                NULL, 0, (unsigned long *)&opt, 0, NULL) == -1) {
         return WSAGetLastError();
     }
 
@@ -200,12 +200,12 @@ _CC_API_PUBLIC(int) _cc_set_socket_keepalive(_cc_socket_t fd, int opt, int delay
 /**/
 void *get_extension_func_ptr(SOCKET sock, GUID guid) {
     DWORD dwBytes;
-    PVOID pfn = nullptr;
+    PVOID pfn = NULL;
 
     if (SOCKET_ERROR == WSAIoctl(sock, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &pfn, sizeof(pfn),
-                                 &dwBytes, nullptr, nullptr)) {
+                                 &dwBytes, NULL, NULL)) {
         _cc_logger_error(_T("fd:%d, WSAIoctl Error:%s"), sock, _cc_last_error(_cc_last_errno()));
-        return nullptr;
+        return NULL;
     }
 
     return pfn;
@@ -213,7 +213,7 @@ void *get_extension_func_ptr(SOCKET sock, GUID guid) {
 
 /**/
 LPFN_ACCEPTEX get_accept_func_ptr(SOCKET sock) {
-    if (_cc_unlikely(_accept_func_ptr == nullptr)) {
+    if (_cc_unlikely(_accept_func_ptr == NULL)) {
         GUID guid = WSAID_ACCEPTEX;
         _accept_func_ptr = (LPFN_ACCEPTEX)get_extension_func_ptr(sock, guid);
     }
@@ -223,7 +223,7 @@ LPFN_ACCEPTEX get_accept_func_ptr(SOCKET sock) {
 
 /**/
 LPFN_GETACCEPTEXSOCKADDRS get_accept_sockaddrs_func_ptr(SOCKET sock) {
-    if (_cc_unlikely(_accept_sockaddrs_func_ptr == nullptr)) {
+    if (_cc_unlikely(_accept_sockaddrs_func_ptr == NULL)) {
         GUID guid = WSAID_GETACCEPTEXSOCKADDRS;
         _accept_sockaddrs_func_ptr = (LPFN_GETACCEPTEXSOCKADDRS)get_extension_func_ptr(sock, guid);
     }
@@ -233,7 +233,7 @@ LPFN_GETACCEPTEXSOCKADDRS get_accept_sockaddrs_func_ptr(SOCKET sock) {
 
 /**/
 LPFN_TRANSMITFILE get_transmitfile_func_ptr(SOCKET sock) {
-    if (_cc_unlikely(_transmit_file_func_ptr == nullptr)) {
+    if (_cc_unlikely(_transmit_file_func_ptr == NULL)) {
         GUID guid = WSAID_TRANSMITFILE;
         _transmit_file_func_ptr = (LPFN_TRANSMITFILE)get_extension_func_ptr(sock, guid);
     }
@@ -243,7 +243,7 @@ LPFN_TRANSMITFILE get_transmitfile_func_ptr(SOCKET sock) {
 /**/
 LPFN_CONNECTEX get_connectex_func_ptr(SOCKET sock) {
     GUID guid = WSAID_CONNECTEX;
-    if (_cc_unlikely(_connectex_func_ptr == nullptr)) {
+    if (_cc_unlikely(_connectex_func_ptr == NULL)) {
         _connectex_func_ptr = (LPFN_CONNECTEX)get_extension_func_ptr(sock, guid);
     }
 
@@ -253,7 +253,7 @@ LPFN_CONNECTEX get_connectex_func_ptr(SOCKET sock) {
 /**/
 LPFN_DISCONNECTEX get_disconnect_func_ptr(SOCKET sock) {
     GUID guid = WSAID_DISCONNECTEX;
-    if (_cc_unlikely(_disconnect_func_ptr == nullptr)) {
+    if (_cc_unlikely(_disconnect_func_ptr == NULL)) {
         _disconnect_func_ptr = (LPFN_DISCONNECTEX)get_extension_func_ptr(sock, guid);
     }
 
@@ -281,7 +281,7 @@ int _udp_reset_connect(SOCKET sock, BOOL bNewBehavior) {
     int result = NO_ERROR;
     DWORD dwBytes;
 
-    if (WSAIoctl(sock, SIO_UDP_CONNRESET, (LPVOID)&bNewBehavior, sizeof(bNewBehavior), nullptr, 0, &dwBytes, nullptr, nullptr) ==
+    if (WSAIoctl(sock, SIO_UDP_CONNRESET, (LPVOID)&bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytes, NULL, NULL) ==
         SOCKET_ERROR) {
         result = WSAGetLastError();
         if (result == WSAEWOULDBLOCK) {

@@ -311,7 +311,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha1_fp(FILE *fp, tchar_t *output) {
     long seek_cur = 0;
     _cc_hash_t c;
 
-    if (fp == nullptr) {
+    if (fp == NULL) {
         return false;
     }
 
@@ -324,7 +324,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha1_fp(FILE *fp, tchar_t *output) {
         c.update(&c, buf, i);
     }
 
-    c.final(&c, results, nullptr);
+    c.final(&c, results, NULL);
     c.free(&c);
 
     fseek(fp, seek_cur, SEEK_SET);
@@ -357,7 +357,7 @@ _CC_API_PUBLIC(void) _cc_sha1(const byte_t *input, size_t length, tchar_t *outpu
     _cc_sha1_init(&c);
 
     c.update(&c, input, length);
-    c.final(&c, results, nullptr);
+    c.final(&c, results, NULL);
     c.free(&c);
 
     _cc_bytes2hex(results, _CC_SHA1_DIGEST_LENGTH_, output, _CC_SHA1_DIGEST_LENGTH_ * 2);

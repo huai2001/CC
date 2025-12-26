@@ -13,8 +13,8 @@ extern "C" {
     do {                                                                \
         _cc_list_iterator_t* __NEXT = _cc_list_iterator_first(          \
             (_cc_list_iterator_t*)&(__FIRST)->list);                    \
-        __TYPE* __VAL = nullptr;                                        \
-        while (nullptr != __NEXT) {                                     \
+        __TYPE* __VAL = NULL;                                        \
+        while (NULL != __NEXT) {                                     \
             __VAL = (__TYPE*)_cc_hmap_value(__NEXT);                    \
             __NEXT = __NEXT->next;                                      \
             __OP                                                        \
@@ -42,14 +42,14 @@ typedef struct _cc_hmap {
 
 /**/
 _CC_FORCE_INLINE_ _cc_list_iterator_t *_cc_hmap_link(_cc_hmap_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
     return &ctx->list;
 }
 
 /**/
 _CC_FORCE_INLINE_ uint32_t _cc_hmap_length(_cc_hmap_t *ctx) {
-    _cc_assert(ctx != nullptr);
-    if (ctx == nullptr) {
+    _cc_assert(ctx != NULL);
+    if (ctx == NULL) {
         return 0;
     }
     return ctx->count;

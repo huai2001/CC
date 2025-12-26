@@ -3,7 +3,7 @@
 /* Create a condition variable */
 _CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
     _cc_condition_t *cond = (_cc_condition_t *)_cc_malloc(sizeof(_cc_condition_t));
-    if (pthread_cond_init(&cond->cond_var, nullptr) < 0) {
+    if (pthread_cond_init(&cond->cond_var, NULL) < 0) {
         _cc_logger_error(_T("pthread_cond_init() failed"));
         _cc_free(cond);
     }
@@ -22,7 +22,7 @@ _CC_API_PUBLIC(void) _cc_free_condition(_cc_condition_t *cond) {
 /* Restart one of the threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
     }
 
@@ -36,7 +36,7 @@ _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
 /* Restart all threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_broadcast(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
     }
 
@@ -55,7 +55,7 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
     struct timespec abstim;
 
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return 0;
     }
 
@@ -65,7 +65,7 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
     abstim.tv_nsec += (ms % 1000) * 1000000;
     abstim.tv_sec += ms / 1000;
 #else
-    gettimeofday(&delta, nullptr);
+    gettimeofday(&delta, NULL);
 
     abstim.tv_sec = delta.tv_sec + (ms / 1000);
     abstim.tv_nsec = (delta.tv_usec + (ms % 1000) * 1000) * 1000;
@@ -98,7 +98,7 @@ COND_TRY_AGAIN:
  */
 _CC_API_PUBLIC(bool_t) _cc_condition_wait(_cc_condition_t *cond, _cc_mutex_t *mutex) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a nullptr condition variable"));
+        _cc_logger_error(_T("Passed a NULL condition variable"));
         return false;
     }
 

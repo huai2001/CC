@@ -77,9 +77,9 @@ _cc_image_t* _cc_load_JPG(const byte_t *image_data, uint32_t image_size) {
     int16_t rowspan;
     bool_t use_CMYK = false;
 
-    _cc_assert(image_data != nullptr);
-    if (image_data == nullptr) {
-        return nullptr;
+    _cc_assert(image_data != NULL);
+    if (image_data == NULL) {
+        return NULL;
     }
 
 
@@ -96,7 +96,7 @@ _cc_image_t* _cc_load_JPG(const byte_t *image_data, uint32_t image_size) {
 
         jpeg_destroy_decompress(&cinfo);
 
-        return nullptr;
+        return NULL;
     }
     /* Now we can initialize the JPEG decompression object. */
     jpeg_create_decompress(&cinfo);
@@ -168,9 +168,9 @@ _cc_image_t* _cc_load_JPG(const byte_t *image_data, uint32_t image_size) {
         _cc_image_t  *img = _cc_init_image(CF_R8G8B8, width, height);
         size = 3 * width * height;
 
-        if (img == nullptr) {
+        if (img == NULL) {
             _cc_free(output);
-            return nullptr;
+            return NULL;
         }
 
         if (img->data) {

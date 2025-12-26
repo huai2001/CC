@@ -1,7 +1,7 @@
 #include <libcc/http_request.h>
 #include <libcc/http2.h>
 
-static _cc_OpenSSL_t *openSSL = nullptr;
+static _cc_OpenSSL_t *openSSL = NULL;
 static bool_t url_request(const tchar_t *url, pvoid_t args);
 static bool_t url_request_connect(_cc_http_request_t *request);
 
@@ -445,7 +445,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     _cc_socket_t fd;
     _cc_event_t *e;
     _cc_async_event_t *async = _cc_get_async_event();
-    if (request == nullptr) {
+    if (request == NULL) {
         return false;
     }
 
@@ -460,7 +460,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     _cc_set_socket_reuseaddr(fd);
 
     e = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
-    if (e == nullptr) {
+    if (e == NULL) {
         return false;
     }
 
@@ -500,9 +500,9 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
 int main(int argc, char *const argv[]) {
     openSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
 
-    _cc_alloc_async_event(0, nullptr);
+    _cc_alloc_async_event(0, NULL);
 
-    url_request("https://ws.libcc.cn", nullptr);
+    url_request("https://ws.libcc.cn", NULL);
 
     while (getchar() != 'q') {
         _cc_sleep(100);

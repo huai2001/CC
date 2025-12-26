@@ -108,10 +108,6 @@ uint64_t - [0 : 18446744073709551615]
     typedef void *pvoid_t;
 #endif
 
-#ifndef nullptr
-    #define nullptr NULL
-#endif
-
 /**/
 #ifndef _CC_UNICODE_
     typedef char_t      tchar_t;

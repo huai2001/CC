@@ -8,7 +8,7 @@ _cc_ini_t* _INI_alloc(int type) {
     _cc_ini_t *ctx = (_cc_ini_t*)_cc_malloc(sizeof(_cc_ini_t));
     bzero(ctx, sizeof(_cc_ini_t));
     ctx->type = type;
-    ctx->element.uni_object.rb_node = nullptr;
+    ctx->element.uni_object.rb_node = NULL;
     
     return ctx;
 }
@@ -75,7 +75,7 @@ _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_find(_cc_ini_t* item, const tchar_t* name) {
             return element;
         }
     }
-    return nullptr;
+    return NULL;
 }
 /**/
 _CC_API_PUBLIC(_cc_sds_t) _cc_ini_find_string(_cc_ini_t* ctx, const tchar_t* name) {
@@ -84,12 +84,12 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_ini_find_string(_cc_ini_t* ctx, const tchar_t* nam
     if (node->type == _CC_INI_STRING_) {
         return node->element.uni_string;
     }
-    return nullptr;
+    return NULL;
 }
 /**/
 _CC_API_PUBLIC(void) _cc_free_ini(_cc_ini_t* ctx) {
     
-    if (_cc_unlikely(ctx == nullptr)) {
+    if (_cc_unlikely(ctx == NULL)) {
         return;
     }
 
@@ -124,7 +124,7 @@ static void _INI_dump(_cc_buf_t* buf, const _cc_rbtree_t* rb) {
         case _CC_INI_SECTION_:
             _cc_buf_appendf(buf, _T("[ %s ]\n"), ctx->name);
             _INI_dump(buf,&ctx->element.uni_object);
-            _buf_char_put(buf, _T('\n'));
+            _cc_buf_putchar(buf, _T('\n'));
             break;
         }
     });

@@ -74,14 +74,14 @@ _CC_API_PUBLIC(uint64_t) _cc_query_performance_frequency(void) {
 
 typedef VOID(WINAPI *MyGetSystemTimeAsFileTime)(LPFILETIME lpSystemTimeAsFileTime);
 
-static MyGetSystemTimeAsFileTime _getSystemTimeAsFileTimeFunc = nullptr;
+static MyGetSystemTimeAsFileTime _getSystemTimeAsFileTimeFunc = NULL;
 
 _CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
     FILETIME ft;
     unsigned __int64 ff = 0;
     ULARGE_INTEGER fft;
     
-    if (_getSystemTimeAsFileTimeFunc == nullptr) {
+    if (_getSystemTimeAsFileTimeFunc == NULL) {
         HMODULE hMod = _cc_load_windows_kernel32();
         if (hMod) {
             /* Max possible resolution <1us, win8/server2012 */
@@ -121,11 +121,11 @@ _CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
 /**/
 _CC_API_PUBLIC(int) gettimeofday(struct timeval *tp, struct timezone *tzp) {
     /* Get the time, if they want it */
-    if (tp != nullptr) {
+    if (tp != NULL) {
         getfilesystemtime(tp);
     }
     /* Get the timezone, if they want it */
-    if (tzp != nullptr) {
+    if (tzp != NULL) {
         _tzset();
         tzp->tz_minuteswest = _timezone;
         tzp->tz_dsttime = _daylight;

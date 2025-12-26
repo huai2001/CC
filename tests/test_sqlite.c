@@ -12,7 +12,7 @@
 #define SQLite_DB "SQLITE:///./sqlite3test.db"
 
 _cc_sql_delegate_t sql_delegate;
-_cc_sql_t *sql = nullptr;
+_cc_sql_t *sql = NULL;
 
 const _cc_string_t createTable1 = _cc_string("create table if not exists FileList1 (" \
         "`check` VARCHAR(65) PRIMARY KEY NOT NULL," \
@@ -41,12 +41,12 @@ bool_t scanFile(const tchar_t *directory, _cc_sql_result_t *result) {
     struct _stat stat_buf;
     size_t size = 0;
     
-    if( (dpath = opendir(directory)) == nullptr) {
+    if( (dpath = opendir(directory)) == NULL) {
         _cc_logger_error(_T("Couldn't open directory:%s"), directory);
         return false;
     }
     
-    while ((d = readdir(dpath)) != nullptr) {
+    while ((d = readdir(dpath)) != NULL) {
         if (d->d_name[0]=='.') {
             continue;
         }
@@ -72,7 +72,7 @@ bool_t scanFile(const tchar_t *directory, _cc_sql_result_t *result) {
 
 int main(int argc, char *const arvg[]) {
     bool_t createTable = false;
-    _cc_sql_result_t *sql_result = nullptr;
+    _cc_sql_result_t *sql_result = NULL;
     _cc_string_t sql_str;
     tchar_t currentPath[_CC_MAX_PATH_];
     _cc_get_cwd(currentPath,_CC_MAX_PATH_);
@@ -92,14 +92,14 @@ int main(int argc, char *const arvg[]) {
     
     sql_delegate.begin_transaction(sql);
     if (createTable) {
-        sql_delegate.execute(sql, &createTable1, nullptr);
-        sql_delegate.execute(sql, &createTable2, nullptr);
-        sql_delegate.execute(sql, &createTable3, nullptr);
+        sql_delegate.execute(sql, &createTable1, NULL);
+        sql_delegate.execute(sql, &createTable2, NULL);
+        sql_delegate.execute(sql, &createTable3, NULL);
     }
     _cc_string_set(sql_str,"delete from `FileList1`;");
-    sql_delegate.execute(sql, &sql_str, nullptr);
+    sql_delegate.execute(sql, &sql_str, NULL);
     _cc_string_set(sql_str, "delete from `FileList2`;");
-    sql_delegate.execute(sql, &sql_str, nullptr);
+    sql_delegate.execute(sql, &sql_str, NULL);
 
     _cc_string_set(sql_str, "INSERT INTO `FileList1` (`check`, `size`, `path`) VALUES (?,?,?);");
     if (sql_delegate.execute(sql, &sql_str, &sql_result)) {
@@ -110,15 +110,15 @@ int main(int argc, char *const arvg[]) {
     _cc_string_set(sql_str,
                    "REPLACE INTO `FileList2` (`check`, `size`, `path`,`upload`) SELECT f1.`check`, f1.`size`, "
                    "f1.`path`,f2.`upload` FROM FileList1 as f1 left join FileList as f2 on f1.`check`=f2.`check`;");
-    sql_delegate.execute(sql, &sql_str, nullptr);
+    sql_delegate.execute(sql, &sql_str, NULL);
     _cc_string_set(sql_str, "REPLACE INTO `FileList`(`check`, `size`, `path`,`upload`) SELECT `check`, `size`, `path`, `upload` FROM FileList2;");
-    sql_delegate.execute(sql, &sql_str, nullptr);
+    sql_delegate.execute(sql, &sql_str, NULL);
     _cc_string_set(sql_str, "UPDATE `FileList` SET `upload`=0 WHERE `upload` is null;");
-    sql_delegate.execute(sql, &sql_str, nullptr);
+    sql_delegate.execute(sql, &sql_str, NULL);
     _cc_string_set(sql_str, "delete from `FileList1`;");
-    sql_delegate.execute(sql, &sql_str, nullptr);
+    sql_delegate.execute(sql, &sql_str, NULL);
     _cc_string_set(sql_str, "delete from `FileList2`;");
-    sql_delegate.execute(sql, &sql_str, nullptr);
+    sql_delegate.execute(sql, &sql_str, NULL);
     sql_delegate.commit(sql);
     
     uint16_t status = 10;

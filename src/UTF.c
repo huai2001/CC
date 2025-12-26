@@ -50,8 +50,8 @@ _cc_convert_utf16_literal_to_utf8(const tchar_t **input, const tchar_t *input_en
 }
 
 _CC_API_PUBLIC(int32_t) _cc_unicode_to_utf16(uint32_t unic, uint16_t *utf16, size_t size) {
-    _cc_assert(utf16 != nullptr);
-    if (_cc_unlikely(utf16 == nullptr)) {
+    _cc_assert(utf16 != NULL);
+    if (_cc_unlikely(utf16 == NULL)) {
         return 0;
     }
 
@@ -70,8 +70,8 @@ _CC_API_PUBLIC(int32_t) _cc_unicode_to_utf16(uint32_t unic, uint16_t *utf16, siz
 }
 
 _CC_API_PUBLIC(int32_t) _cc_unicode_to_utf8(uint32_t unic, uint8_t *utf8, size_t size) {
-    _cc_assert(utf8 != nullptr);
-    if (_cc_unlikely(utf8 == nullptr)) {
+    _cc_assert(utf8 != NULL);
+    if (_cc_unlikely(utf8 == NULL)) {
         return 0;
     }
 
@@ -293,7 +293,7 @@ static uint32_t StepUTF8(const char **_str, const size_t slen) {
     const uint8_t *str = (const uint8_t *) *_str;
     const uint32_t octet = (uint32_t) (slen ? *str : 0);
 
-    if (octet == 0) {  // nullptr terminator, end of string.
+    if (octet == 0) {  // NULL terminator, end of string.
         return 0;  // don't advance `*_str`.
     } else if ((octet & 0x80) == 0) {  // 0xxxxxxx: one byte codepoint.
         (*_str)++;

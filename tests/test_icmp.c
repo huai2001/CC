@@ -58,7 +58,7 @@ int DecodeIPHeader(char *buf, int bytes, struct sockaddr_in *from) {
     static int count = 1;
     uint16_t iphdrlen;
 
-    if (buf == nullptr) {
+    if (buf == NULL) {
         printf("%2d:\t\t***.***.***.***\t\tRequest timed out.\n",count++);  
         return 1;
     }

@@ -48,7 +48,7 @@ struct _cc_sql_result {
 _CC_API_PRIVATE(bool_t) _get_url_query(const _cc_string_t *keyword, const tchar_t *p, char_t *buf, int32_t length) {
     int i;
     const tchar_t *r = _tcsstr(p, keyword->ptr);
-    if (r == nullptr) {
+    if (r == NULL) {
         return false;
     }
 
@@ -83,7 +83,7 @@ _CC_API_PRIVATE(bool_t) _mysql_error(_cc_sql_t *ctx) {
     case CR_SERVER_LOST_EXTENDED:
         if (ctx->sql) {
             mysql_close(ctx->sql);
-            ctx->sql = nullptr;
+            ctx->sql = NULL;
         }
     case CR_CONN_HOST_ERROR:
         return _mysql_reconnect(ctx);
@@ -109,10 +109,10 @@ _CC_API_PRIVATE(bool_t) _mysql_error(_cc_sql_t *ctx) {
 }
 
 _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
-    MYSQL *res = nullptr;
+    MYSQL *res = NULL;
     char *charset;
-    ctx->sql = mysql_init(nullptr);
-    if (_cc_unlikely(ctx->sql == nullptr)) {
+    ctx->sql = mysql_init(NULL);
+    if (_cc_unlikely(ctx->sql == NULL)) {
         _cc_logger_error(_T("Could not initialize Mysql connection to database `%s`"), ctx->host);
         return false;
     }
@@ -127,8 +127,8 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
 #endif
     }
 
-    res = mysql_real_connect(ctx->sql, ctx->host, ctx->user_name, ctx->user_pass, ctx->db_name, ctx->port, nullptr, 0);
-    if (_cc_unlikely(res == nullptr)) {
+    res = mysql_real_connect(ctx->sql, ctx->host, ctx->user_name, ctx->user_pass, ctx->db_name, ctx->port, NULL, 0);
+    if (_cc_unlikely(res == NULL)) {
         _cc_logger_error(_T("Connection error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
@@ -157,14 +157,14 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
 }
 
 _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string) {
-    _cc_sql_t *ctx = nullptr;
+    _cc_sql_t *ctx = NULL;
     _cc_url_t url;
 
     static _cc_string_t charset_attr = _cc_string("charset=");
     static _cc_string_t SSL_attr = _cc_string("SSL=");
 
     if (!_cc_parse_url(&url, sql_connection_string)) {
-        return nullptr;
+        return NULL;
     }
 
     ctx = (_cc_sql_t *)_cc_malloc(sizeof(_cc_sql_t));
@@ -208,7 +208,7 @@ _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string
     }
 
     _cc_free(ctx);
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PRIVATE(bool_t) _mysql_disconnect(_cc_sql_t *ctx) {
@@ -250,7 +250,7 @@ _CC_API_PRIVATE(bool_t) _cc_mysql_query(_cc_sql_t *ctx, const char_t *sql_string
 
 /**/
 _CC_API_PRIVATE(bool_t) _mysql_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
     ctx->auto_commit = is_auto_commit;
     /* Set it ON /OFF */
     mysql_autocommit(ctx->sql, is_auto_commit);
@@ -260,7 +260,7 @@ _CC_API_PRIVATE(bool_t) _mysql_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commit
 
 /**/
 _CC_API_PRIVATE(bool_t) _mysql_begin_transaction(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
     if (ctx->auto_commit) {
         return _cc_mysql_query(ctx, "start transaction;", 18);
     }
@@ -270,13 +270,13 @@ _CC_API_PRIVATE(bool_t) _mysql_begin_transaction(_cc_sql_t *ctx) {
 
 /**/
 _CC_API_PRIVATE(bool_t) _mysql_commit(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
     return mysql_commit(ctx->sql);
 }
 
 /**/
 _CC_API_PRIVATE(bool_t) _mysql_rollback(_cc_sql_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
     return mysql_rollback(ctx->sql);
 }
 
@@ -287,7 +287,7 @@ _CC_API_PRIVATE(bool_t) __dataset(_cc_sql_result_t *result) {
     int32_t i;
 
     res = mysql_stmt_result_metadata(result->stmt);
-    if (res == nullptr) {
+    if (res == NULL) {
         return mysql_stmt_affected_rows(stmt) > 0;
     }
 
@@ -320,7 +320,7 @@ _CC_API_PRIVATE(bool_t) __dataset(_cc_sql_result_t *result) {
         mysql_stmt_bind_result(result->stmt, dataset);
         result->dataset = dataset;
     } else {
-        result->dataset = nullptr;
+        result->dataset = NULL;
     }
 
     result->meta = res;
@@ -340,7 +340,7 @@ _CC_API_PRIVATE(void) __free_dataset(_cc_sql_result_t *result) {
     int32_t i;
     if (result->meta) {
         mysql_free_result(result->meta);
-        result->meta = nullptr;
+        result->meta = NULL;
     }
 
     if (result->dataset) {
@@ -349,7 +349,7 @@ _CC_API_PRIVATE(void) __free_dataset(_cc_sql_result_t *result) {
             _cc_free(b->buffer);
         }
         _cc_free(result->dataset);
-        result->dataset = nullptr;
+        result->dataset = NULL;
     }
 }
 
@@ -357,14 +357,14 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
     size_t sql_string_len;
     int32_t num_of_bind;
     const char *ptr;
-    MYSQL_STMT *stmt = nullptr;
+    MYSQL_STMT *stmt = NULL;
     _cc_sql_result_t *res;
 
 #if DEBUG_EXECUTION_TIME
     clock_t execution_time = clock();
 #endif
 
-    _cc_assert(ctx != nullptr && ctx->sql != nullptr);
+    _cc_assert(ctx != NULL && ctx->sql != NULL);
 
 #ifdef _CC_UNICODE_
     _cc_buf_cleanup(&ctx->buffer);
@@ -382,7 +382,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
     }
 
     stmt = mysql_stmt_init(ctx->sql);
-    if (stmt == nullptr) {
+    if (stmt == NULL) {
         _cc_logger_error(_T("mysql_stmt_init error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
@@ -395,9 +395,9 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
     res = (_cc_sql_result_t *)_cc_malloc(sizeof(_cc_sql_result_t));
     bzero(res, sizeof(_cc_sql_result_t));
     res->stmt = stmt;
-    res->binds = nullptr;
-    res->dataset = nullptr;
-    res->meta = nullptr;
+    res->binds = NULL;
+    res->dataset = NULL;
+    res->meta = NULL;
     res->setp = false;
     res->num_of_dataset = 0;
     res->num_of_bind = num_of_bind;
@@ -412,7 +412,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
 }
 
 _CC_API_PRIVATE(bool_t) _mysql_reset(_cc_sql_result_t *result) {
-    if (result->stmt == nullptr) {
+    if (result->stmt == NULL) {
         return false;
     }
 
@@ -422,7 +422,7 @@ _CC_API_PRIVATE(bool_t) _mysql_reset(_cc_sql_result_t *result) {
 }
 
 _CC_API_PRIVATE(bool_t) _mysql_step(_cc_sql_result_t *result) {
-    if (result->stmt == nullptr) {
+    if (result->stmt == NULL) {
         return false;
     }
 
@@ -442,7 +442,7 @@ _CC_API_PRIVATE(bool_t) _mysql_step(_cc_sql_result_t *result) {
 
 /**/
 _CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
 
     __free_dataset(result);
 
@@ -454,7 +454,7 @@ _CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_result_t *result) {
 }
 
 _CC_API_PRIVATE(bool_t) _mysql_fetch(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     if (result->step == false) {
         if (!_mysql_step(result)) {
             return false;
@@ -465,17 +465,17 @@ _CC_API_PRIVATE(bool_t) _mysql_fetch(_cc_sql_result_t *result) {
 }
 
 _CC_API_PRIVATE(uint64_t) _mysql_get_num_rows(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     return mysql_stmt_num_rows(result->stmt);
 }
 
 _CC_API_PRIVATE(int32_t) _mysql_get_num_fields(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     return result->num_of_dataset;
 }
 
 _CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_result_t *result) {
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     __free_dataset(result);
 
     if (result->binds) {
@@ -491,7 +491,7 @@ _CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_result_t *result) {
 
     if (result->stmt) {
         mysql_stmt_close(result->stmt);
-        result->stmt = nullptr;
+        result->stmt = NULL;
     }
     _cc_free(result);
 
@@ -502,7 +502,7 @@ _CC_API_PRIVATE(bool_t) _mysql_free_result(_cc_sql_result_t *result) {
 _CC_API_PRIVATE(bool_t)
 _mysql_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t length, uint8_t type) {
     MYSQL_BIND *b;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     if (index >= result->num_of_bind) {
         return false;
     }
@@ -598,7 +598,7 @@ _mysql_bind(_cc_sql_result_t *result, int32_t index, const void *value, size_t l
 
 /**/
 _CC_API_PRIVATE(uint64_t) _mysql_get_last_id(_cc_sql_t *ctx, _cc_sql_result_t *result) {
-    _cc_assert(result != nullptr && result->stmt != nullptr);
+    _cc_assert(result != NULL && result->stmt != NULL);
     return mysql_stmt_insert_id(result->stmt);
 }
 
@@ -609,7 +609,7 @@ _CC_API_PRIVATE(pvoid_t) _mysql_get_stmt(_cc_sql_result_t *result) {
 /**/
 _CC_API_PRIVATE(int32_t) _mysql_get_int(_cc_sql_result_t *result, int32_t index) {
     MYSQL_BIND *b;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     if (index >= result->num_of_dataset) {
         return 0;
     }
@@ -620,7 +620,7 @@ _CC_API_PRIVATE(int32_t) _mysql_get_int(_cc_sql_result_t *result, int32_t index)
 /**/
 _CC_API_PRIVATE(int64_t) _mysql_get_int64(_cc_sql_result_t *result, int32_t index) {
     MYSQL_BIND *b;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     if (index >= result->num_of_dataset) {
         return 0;
     }
@@ -632,7 +632,7 @@ _CC_API_PRIVATE(int64_t) _mysql_get_int64(_cc_sql_result_t *result, int32_t inde
 /**/
 _CC_API_PRIVATE(float64_t) _mysql_get_float(_cc_sql_result_t *result, int32_t index) {
     MYSQL_BIND *b;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     if (index >= result->num_of_dataset) {
         return false;
     }
@@ -644,7 +644,7 @@ _CC_API_PRIVATE(float64_t) _mysql_get_float(_cc_sql_result_t *result, int32_t in
 _CC_API_PRIVATE(size_t) _mysql_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
     MYSQL_BIND *b;
     size_t bytes_length;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     if (index >= result->num_of_dataset) {
         return 0;
     }
@@ -669,7 +669,7 @@ _CC_API_PRIVATE(size_t) _mysql_get_string(_cc_sql_result_t *result, int32_t inde
 /**/
 _CC_API_PRIVATE(size_t) _mysql_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **buffer) {
     MYSQL_BIND *b;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     if (index >= result->num_of_dataset) {
         return false;
     }
@@ -686,7 +686,7 @@ _CC_API_PRIVATE(size_t) _mysql_get_blob(_cc_sql_result_t *result, int32_t index,
 _CC_API_PRIVATE(bool_t) _mysql_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm *timeinfo) {
     MYSQL_BIND *b;
     MYSQL_TIME *datetime;
-    _cc_assert(result != nullptr);
+    _cc_assert(result != NULL);
     if (index >= result->num_of_dataset) {
         return false;
     }
@@ -719,7 +719,7 @@ _CC_API_PRIVATE(bool_t) _mysql_get_datetime(_cc_sql_result_t *result, int32_t in
 _CC_API_PUBLIC(bool_t) _cc_register_mysql(_cc_sql_delegate_t *delegator) {
 #define SET(x) delegator->x = _mysql_##x
 
-    if (_cc_unlikely(delegator == nullptr)) {
+    if (_cc_unlikely(delegator == NULL)) {
         return false;
     }
 

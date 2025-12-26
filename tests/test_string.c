@@ -76,7 +76,7 @@ void test_cc_substr() {
     const tchar_t *src = "test string";
     tchar_t dst[20];
     tchar_t *result = _cc_substr(dst, src, 2, 4);
-    assert(result != nullptr);
+    assert(result != NULL);
     assert(strcmp(result, "st s") == 0);
     printf("_cc_substr test passed!\n");
 }
@@ -85,7 +85,7 @@ void test_cc_to_number() {
     const tchar_t *src = "123.45e-2";
     _cc_number_t num;
     const tchar_t *result = _cc_to_number(src, &num);
-    assert(result != nullptr);
+    assert(result != NULL);
     assert(num.vt == _CC_NUMBER_FLOAT_);
     assert(num.v.uni_float == 1.2345);
     printf("_cc_to_number test passed!\n");

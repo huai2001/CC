@@ -32,13 +32,13 @@ _CC_API_PUBLIC(_gzip_t*) _gzip_alloc(byte_t m) {
     if (m == _GZIP_INF_) {
         if (inflateInit2(&gzip->strm, MAX_WBITS + 32) != Z_OK) {
             _cc_free(gzip);
-            return nullptr;
+            return NULL;
         }
         gzip->cb = inflate;
     } else {
         if (deflateInit2(&gzip->strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, MAX_WBITS + 16, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY) != Z_OK) {
             _cc_free(gzip);
-            return nullptr;
+            return NULL;
         }
         gzip->cb = deflate;
     }

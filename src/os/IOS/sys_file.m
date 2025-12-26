@@ -7,7 +7,7 @@ _CC_API_PUBLIC(const byte_t*) _cc_ios_file_context(const char_t *file,
     NSString *fileName;
     NSString *fileType;
     NSString *path_name;
-    byte_t *source = nullptr;
+    byte_t *source = NULL;
     
     fileName = [NSString stringWithUTF8String:file];
     fileType = [NSString stringWithUTF8String:type];
@@ -16,7 +16,7 @@ _CC_API_PUBLIC(const byte_t*) _cc_ios_file_context(const char_t *file,
     source = (byte_t *)[[NSString stringWithContentsOfFile:path_name encoding:NSUTF8StringEncoding error:nil] UTF8String];
     if (!source) {
         NSLog(@"Failed to load file:%s.%s", file, type);
-        return nullptr;
+        return NULL;
     }
     
     return source;

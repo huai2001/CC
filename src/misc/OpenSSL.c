@@ -119,7 +119,7 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(uint32_t protocols) {
         _cc_lock(&_SSL_lock, 1, _CC_LOCK_SPIN_);
         if (!_SSL_only_init()) {
             _cc_unlock(&_SSL_lock);
-            return nullptr;
+            return NULL;
         }
         _cc_unlock(&_SSL_lock);
     }
@@ -130,10 +130,10 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(uint32_t protocols) {
     //ssl_ctx = SSL_CTX_new(SSLv23_method());
     _cc_unlock(&_SSL_lock);
 
-    if (ssl_ctx == nullptr) {
+    if (ssl_ctx == NULL) {
         _SSL_error("SSL_CTX_new");
         _cc_free(ctx);
-        return nullptr;
+        return NULL;
     }
 
     /* client side options */
@@ -267,14 +267,14 @@ _CC_API_PUBLIC(void) _SSL_quit(_cc_OpenSSL_t *ctx) {
     }
 
     SSL_CTX_free(ctx->handle);
-    ctx->handle = nullptr;
+    ctx->handle = NULL;
     _cc_free(ctx);
 }
 
 /**/
 _CC_API_PUBLIC(bool_t) _SSL_free(_cc_SSL_t *ssl) {
     SSL *handle = (SSL*)ssl->handle;
-    if (handle == nullptr || ssl->ctx == nullptr) {
+    if (handle == NULL || ssl->ctx == NULL) {
         return true;
     }
 
@@ -309,7 +309,7 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_alloc(_cc_OpenSSL_t* ctx) {
 
     if (ssl->handle == 0) {
         _cc_free(ssl);
-        return nullptr;
+        return NULL;
     }
     ssl->is_handshaked = false;
     ssl->ctx = ctx;
@@ -324,7 +324,7 @@ _CC_API_PRIVATE(int) _ssl_pkey_password_callback(char *buf, int size, int rwflag
         _cc_logger_alert(_T("_ssl_pkey_password_callback() is called for encryption,rwflag:%d"), rwflag);
         return 0;
     }
-    if (password == nullptr) {
+    if (password == NULL) {
         return 0;
     }
     password_length = (int)_tcslen(password);
@@ -384,20 +384,20 @@ _CC_API_PUBLIC(bool_t) _SSL_setup_pkcs12(_cc_OpenSSL_t *ctx,
                                 const tchar_t *pkcs12_file,
                                 const tchar_t *password) {
     PKCS12 *p12;
-    EVP_PKEY *key = nullptr;
-    X509 *cert = nullptr;
-    STACK_OF(X509) *ca = nullptr;
+    EVP_PKEY *key = NULL;
+    X509 *cert = NULL;
+    STACK_OF(X509) *ca = NULL;
 
     FILE *fp = _tfopen(pkcs12_file, _T("rb"));
-    if (fp == nullptr) {
+    if (fp == NULL) {
         _cc_logger_error(_T("Failed to open PKCS12 file: %s"), pkcs12_file);
         return false;
     }
     
-    p12 = d2i_PKCS12_fp(fp, nullptr);
+    p12 = d2i_PKCS12_fp(fp, NULL);
     fclose(fp);
 
-    if (p12 == nullptr) {
+    if (p12 == NULL) {
         _cc_logger_error(_T("Failed to read PKCS12 file: %s"), pkcs12_file);
         return false;
     } 
@@ -505,7 +505,7 @@ _CC_API_PUBLIC(uint8_t) _SSL_do_handshake(_cc_SSL_t* ssl) {
 /**/
 _CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t *ssl, const byte_t *buf, int32_t length) {
     int32_t rc = 0;
-	_cc_assert(buf != nullptr);
+	_cc_assert(buf != NULL);
 	_cc_assert(length > 0);
 
     ERR_clear_error();

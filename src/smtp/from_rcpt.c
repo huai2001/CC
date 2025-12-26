@@ -30,13 +30,13 @@ _CC_API_PRIVATE(bool_t) libsmtp_rcpt_to(_cc_smtp_t* smtp, const byte_t* buf, uin
 }
 
 _CC_API_PRIVATE(bool_t) libsmtp_mail_from(_cc_smtp_t* smtp, const byte_t* buf, uint32_t length) {
-    _cc_assert(smtp != nullptr);
-    _cc_assert(smtp->io != nullptr);
-    _cc_assert(smtp->email != nullptr);
+    _cc_assert(smtp != NULL);
+    _cc_assert(smtp->io != NULL);
+    _cc_assert(smtp->email != NULL);
     if (smtp->state != _CC_LIBSMTP_RESP_FROM_) {
         return false;
     }
-    if (smtp->email == nullptr) {
+    if (smtp->email == NULL) {
         return false;
     }
 
@@ -50,19 +50,19 @@ _CC_API_PRIVATE(bool_t) libsmtp_mail_from(_cc_smtp_t* smtp, const byte_t* buf, u
 }
 
 _CC_API_PUBLIC(bool_t) libsmtp_from_to(_cc_smtp_t* smtp) {
-    _cc_assert(smtp != nullptr);
-    _cc_assert(smtp->io != nullptr);
-    _cc_assert(smtp->from != nullptr);
+    _cc_assert(smtp != NULL);
+    _cc_assert(smtp->io != NULL);
+    _cc_assert(smtp->from != NULL);
 
     if (smtp->state != _CC_LIBSMTP_RESP_PENDING_) {
         return false;
     }
 
-    if (smtp->from == nullptr) {
+    if (smtp->from == NULL) {
         return false;
     }
 
-    if (smtp->email == nullptr) {
+    if (smtp->email == NULL) {
         _cc_spin_lock(&smtp->lock);
         _cc_list_iterator_t *lnk =  _cc_list_iterator_pop(&smtp->emails);
         _cc_unlock(&smtp->lock);

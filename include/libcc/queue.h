@@ -42,13 +42,13 @@ _CC_FORCE_INLINE_ void _cc_queue_iterator_cleanup(_cc_queue_iterator_t *lnk) {
 
 /**/
 _CC_FORCE_INLINE_ bool_t _cc_queue_iterator_empty(_cc_queue_iterator_t *lnk) {
-    _cc_assert(lnk != nullptr);
-    return (lnk->next == lnk || lnk->next == nullptr);
+    _cc_assert(lnk != NULL);
+    return (lnk->next == lnk || lnk->next == NULL);
 }
 
 /**/
 _CC_FORCE_INLINE_ void _cc_queue_iterator_push(_cc_queue_iterator_t *head, _cc_queue_iterator_t *lnk) {
-    _cc_assert(head != nullptr);
+    _cc_assert(head != NULL);
     lnk->next = head->next;
     head->next = lnk;
 }
@@ -74,7 +74,7 @@ _CC_API_PUBLIC(_cc_queue_iterator_t*) _cc_queue_sync_pop(_cc_queue_iterator_t *h
 
 /* Return the element at the specified zero-based index
  * where 0 is the head, 1 is the element next to head
- * and so on. If the index is out of range nullptr is returned. */
+ * and so on. If the index is out of range NULL is returned. */
 _CC_API_PUBLIC(_cc_queue_iterator_t *) _cc_queue_iterator_index(_cc_queue_iterator_t *head, long index);
 
 /* Ends C function definitions when using C++ */

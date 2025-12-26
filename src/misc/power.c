@@ -9,12 +9,12 @@ _CC_API_PUBLIC(_CC_POWER_STATE_ENUM_) _cc_get_power_info(int32_t* seconds, byte_
     byte_t _percent;
     _CC_POWER_STATE_ENUM_ retval;
 
-    /* Make these never nullptr for platform-specific implementations. */
-    if (seconds == nullptr) {
+    /* Make these never NULL for platform-specific implementations. */
+    if (seconds == NULL) {
         seconds = &_seconds;
     }
 
-    if (percent == nullptr) {
+    if (percent == NULL) {
         percent = &_percent;
     }
 

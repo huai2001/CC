@@ -5,8 +5,8 @@
 
 /* Skips spaces and comments as many as possible.*/
 _CC_API_PUBLIC(bool_t) _cc_buf_jump_comment(_cc_sbuf_t *const buffer) {
-    register const tchar_t *p = nullptr;
-    /*if ((buffer == nullptr) || (buffer->content == nullptr)) {
+    register const tchar_t *p = NULL;
+    /*if ((buffer == NULL) || (buffer->content == NULL)) {
         return false;
     }*/
     while (_cc_sbuf_access(buffer)) {
@@ -58,7 +58,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_jump_comment(_cc_sbuf_t *const buffer) {
 }
 
 _CC_API_PUBLIC(bool_t) _cc_alloc_buf(_cc_buf_t *ctx, size_t initial) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     memset(ctx, 0, sizeof(_cc_buf_t));
     ctx->limit = initial;
@@ -70,11 +70,11 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_buf(_cc_buf_t *ctx, size_t initial) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_free_buf(_cc_buf_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
 
     if (_cc_likely(ctx->bytes)) {
         _cc_free(ctx->bytes);
-        ctx->bytes = nullptr;
+        ctx->bytes = NULL;
     }
 
     ctx->limit = ctx->length = 0;
@@ -84,7 +84,7 @@ _CC_API_PUBLIC(bool_t) _cc_free_buf(_cc_buf_t *ctx) {
 
 /**/
 _CC_API_PUBLIC(const tchar_t*) _cc_buf_stringify(_cc_buf_t *ctx, size_t *length) {
-    if (length != nullptr) {
+    if (length != NULL) {
         *length = ctx->length + 1;
     }
     ctx->bytes[ctx->length] = 0;
@@ -110,7 +110,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_expand_factor(_cc_buf_t *ctx, float32_t factor) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_buf_expand(_cc_buf_t *ctx, size_t size) {
-    _cc_assert(ctx != nullptr && size > 0);
+    _cc_assert(ctx != NULL && size > 0);
     if (ctx->limit >= (ctx->length + size)) {
         return true;
     }
@@ -121,9 +121,9 @@ _CC_API_PUBLIC(bool_t) _cc_buf_expand(_cc_buf_t *ctx, size_t size) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_buf_append(_cc_buf_t *ctx, const void *data, size_t length) {
     size_t expand_length = 0;
-    _cc_assert(ctx != nullptr && data != nullptr);
+    _cc_assert(ctx != NULL && data != NULL);
 
-    if (_cc_unlikely(length <= 0 || ctx == nullptr)) {
+    if (_cc_unlikely(length <= 0 || ctx == NULL)) {
         return false;
     }
 
@@ -142,8 +142,31 @@ _CC_API_PUBLIC(bool_t) _cc_buf_append(_cc_buf_t *ctx, const void *data, size_t l
 }
 
 /**/
+_CC_API_PUBLIC(bool_t) _cc_buf_putchar(_cc_buf_t* ctx, const tchar_t data) {
+    size_t expand_length = 0;
+    _cc_assert(ctx != NULL);
+
+    if (_cc_unlikely(ctx == NULL)) {
+        return false;
+    }
+
+    expand_length = ctx->length + sizeof(tchar_t);
+    if (ctx->limit <= 0x80000000 && expand_length >= ctx->limit) {
+        expand_length = _cc_aligned_alloc_opt((size_t)(expand_length + ctx->limit * 0.76), 64);
+        if (_buf_expand(ctx, expand_length) == false) {
+            return false;
+        }
+    }
+
+    //memcpy((ctx->bytes + ctx->length), &data, sizeof(tchar_t));
+    *((tchar_t*)(ctx->bytes + ctx->length)) = data;
+    ctx->length += sizeof(tchar_t);
+    return true;
+}
+
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_puts(_cc_buf_t *ctx, const char_t *s) {
-    _cc_assert(ctx != nullptr && s != nullptr);
+    _cc_assert(ctx != NULL && s != NULL);
     return _cc_buf_append(ctx, (const pvoid_t)s, strlen(s) * sizeof(char_t));
 }
 
@@ -168,7 +191,7 @@ _ABUF_TRY_AGAIN:
     fmt_length = _vsnprintf((char_t *)(ctx->bytes + ctx->length), free_length - sizeof(char_t), fmt, arg);
 #ifdef __CC_WINDOWS__
     if (fmt_length == -1) {
-        fmt_length = _vsnprintf(nullptr, 0, fmt, arg);
+        fmt_length = _vsnprintf(NULL, 0, fmt, arg);
     }
 #endif
     if (fmt_length > 0) {
@@ -194,9 +217,9 @@ _CC_API_PUBLIC(bool_t) _cc_bufA_appendf(_cc_buf_t *ctx, const char_t *fmt, ...) 
     bool_t result;
     va_list arg;
 
-    _cc_assert(ctx != nullptr && fmt != nullptr);
+    _cc_assert(ctx != NULL && fmt != NULL);
 
-    //if (nullptr == strchr(fmt, '%')) {
+    //if (NULL == strchr(fmt, '%')) {
     //    return _cc_bufA_puts(ctx, fmt);
     //}
 
@@ -209,7 +232,7 @@ _CC_API_PUBLIC(bool_t) _cc_bufA_appendf(_cc_buf_t *ctx, const char_t *fmt, ...) 
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_bufW_puts(_cc_buf_t *ctx, const wchar_t *s) {
-    _cc_assert(ctx != nullptr && s != nullptr);
+    _cc_assert(ctx != NULL && s != NULL);
     return _cc_buf_append(ctx, (const pvoid_t)s, wcslen(s) * sizeof(wchar_t));
 }
 
@@ -236,7 +259,7 @@ _WBUF_TRY_AGAIN:
 
 #ifdef __CC_WINDOWS__
     if (fmt_length == -1) {
-        fmt_length = _vsnwprintf(nullptr, 0, fmt, arg);
+        fmt_length = _vsnwprintf(NULL, 0, fmt, arg);
     }
 #endif
     if (fmt_length > 0) {
@@ -262,9 +285,9 @@ _CC_API_PUBLIC(bool_t) _cc_bufW_appendf(_cc_buf_t *ctx, const wchar_t *fmt, ...)
     bool_t result;
     va_list arg;
 
-    _cc_assert(ctx != nullptr && fmt != nullptr);
+    _cc_assert(ctx != NULL && fmt != NULL);
 
-    //if (nullptr == wcschr(fmt, L'%')) {
+    //if (NULL == wcschr(fmt, L'%')) {
     //    return _cc_bufW_puts(ctx, fmt);
     //}
 
@@ -281,7 +304,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_from_file(_cc_buf_t* buf,const tchar_t *file_name
     size_t r;
 
     f = _cc_open_file(file_name, _T("rb"));
-    if (f == nullptr) {
+    if (f == NULL) {
         return false;
     }
 
@@ -326,7 +349,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf8_to_utf16(_cc_buf_t *ctx, size_t offset) {
     _cc_buf_t b;
     size_t length;
 
-    if (ctx == nullptr || ctx->length <= 0 || ctx->length <= offset) {
+    if (ctx == NULL || ctx->length <= 0 || ctx->length <= offset) {
         return false;
     }
 
@@ -354,7 +377,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset) {
     _cc_buf_t b;
     size_t length;
 
-    if (ctx == nullptr || ctx->length <= 0 || ctx->length <= offset) {
+    if (ctx == NULL || ctx->length <= 0 || ctx->length <= offset) {
         return false;
     }
 

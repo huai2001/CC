@@ -10,11 +10,11 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *ke
     _cc_json_t *item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
     bzero(item, sizeof(_cc_json_t));
     item->type = type;
-    item->element.uni_object.rb_node = nullptr;
+    item->element.uni_object.rb_node = NULL;
     if (keyword) {
         item->name = _cc_sds_alloc(keyword,_tcslen(keyword));
     } else {
-        item->name = nullptr;
+        item->name = NULL;
     }
 
     return item;
@@ -23,12 +23,12 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *ke
 bool_t _json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
     _cc_rbtree_t *root;
     _cc_rbtree_iterator_t **node;
-    _cc_rbtree_iterator_t *parent = nullptr;
+    _cc_rbtree_iterator_t *parent = NULL;
     _cc_json_t *curr;
     int32_t result;
 
-    _cc_assert(ctx != nullptr);
-    _cc_assert(item != nullptr);
+    _cc_assert(ctx != NULL);
+    _cc_assert(item != NULL);
     
     root = &ctx->element.uni_object;
     node = &(root->rb_node);
@@ -60,7 +60,7 @@ bool_t _json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) 
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
-    if (_cc_unlikely(ctx == nullptr || item == nullptr)) {
+    if (_cc_unlikely(ctx == NULL || item == NULL)) {
         return false;
     }
 
@@ -89,7 +89,7 @@ _CC_API_PUBLIC(bool_t) _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *ke
     }
 
     node = _cc_rbtree_get(&ctx->element.uni_object, (uintptr_t)keyword, _json_get_object);
-    if (node == nullptr) {
+    if (node == NULL) {
         return false;
     }
 

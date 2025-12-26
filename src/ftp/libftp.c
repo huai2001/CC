@@ -36,8 +36,8 @@ void libftp_setup(_cc_ftp_t* ftp,
 bool_t _cc_ftp_unbind_accept(_cc_ftp_t* ftp) {
     if (ftp->data.accept.e && ftp->data.accept.async) {
         ftp->data.accept.async->disconnect(ftp->data.accept.async, ftp->data.accept.e);
-        ftp->data.accept.e = nullptr;
-        ftp->data.accept.async = nullptr;
+        ftp->data.accept.e = NULL;
+        ftp->data.accept.async = NULL;
     }
     return true;
 }

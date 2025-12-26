@@ -22,13 +22,13 @@ bool_t _cc_ftp_cwd(_cc_ftp_t* ftp, const char_t* path) {
     char_t cmd[_CC_MAX_PATH_];
     int32_t cmd_len = 0;
 
-    _cc_assert(ftp != nullptr);
-    _cc_assert(path != nullptr);
+    _cc_assert(ftp != NULL);
+    _cc_assert(path != NULL);
 
-    if (ftp == nullptr || path == nullptr)
+    if (ftp == NULL || path == NULL)
         return false;
 
-    if (ftp->ctrl.e == nullptr) {
+    if (ftp->ctrl.e == NULL) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -37,7 +37,7 @@ bool_t _cc_ftp_cwd(_cc_ftp_t* ftp, const char_t* path) {
         return false;
     }
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_CWD, libftp_cwd, nullptr);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_CWD, libftp_cwd, NULL);
 
     cmd_len = snprintf(cmd, _cc_countof(cmd), "CWD %s\r\n", path);
 

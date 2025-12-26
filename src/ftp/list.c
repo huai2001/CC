@@ -23,14 +23,14 @@ _CC_API_PRIVATE(bool_t) libftp_list(_cc_ftp_t* ftp,
 }
 
 bool_t _cc_ftp_list(_cc_ftp_t* ftp, const char_t* path) {
-    _cc_assert(ftp != nullptr);
+    _cc_assert(ftp != NULL);
     char_t cmd[_CC_MAX_PATH_];
     int32_t cmd_len = 0;
 
-    if (ftp == nullptr)
+    if (ftp == NULL)
         return false;
 
-    if (ftp->ctrl.e == nullptr) {
+    if (ftp->ctrl.e == NULL) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -39,9 +39,9 @@ bool_t _cc_ftp_list(_cc_ftp_t* ftp, const char_t* path) {
         return false;
     }
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_LIST, libftp_list, nullptr);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_LIST, libftp_list, NULL);
 
-    if (path == nullptr) {
+    if (path == NULL) {
         _ftp_send_command(ftp->ctrl.e, "LIST\r\n", 6 * sizeof(char_t));
     } else {
         cmd_len = _snprintf(cmd, _cc_countof(cmd), "LIST %s\r\n", path);

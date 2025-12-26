@@ -31,7 +31,7 @@ _CC_API_PRIVATE(bool_t) _net_cb(_cc_async_event_t* async, _cc_event_t* e, const 
             *endpos = 0;
             do {
                 char_t *p = memchr(start, '\n', off);
-                if (p == nullptr) {
+                if (p == NULL) {
                     break;
                 }
                 if ( !smtp->response_cb(smtp, (byte_t*)start, p - start) ) {
@@ -80,7 +80,7 @@ int main(int argc, char *const arvg[]) {
     _cc_async_event_t *async;
     struct sockaddr_in sa;
 
-    _cc_alloc_async_event(0, nullptr);
+    _cc_alloc_async_event(0, NULL);
 
     async = _cc_get_async_event();
     _cc_assert(async != NULL);
@@ -88,7 +88,7 @@ int main(int argc, char *const arvg[]) {
     smtp = _cc_alloc_smtp("your name", "libcc.cn@gmail.com");
     _cc_smtp_set_login(smtp, _CC_SMTP_LOGIN_MODE_PLAIN_, "libcc.cn@gmail.com", "Password");
     email1 = _cc_alloc_email(_CC_SMTP_HTML_, "test1", "libcc.cn@gmail.com");
-    email2 = _cc_alloc_email(_CC_SMTP_HTML_, nullptr, "libcc.cn@gmail.com");
+    email2 = _cc_alloc_email(_CC_SMTP_HTML_, NULL, "libcc.cn@gmail.com");
 
     _cc_set_email(email1, "title - libcc.1", "<div><h3>test libcc1</h3><p>Hey libcc!<br/><br/><p>test 1 libcc-smtp!</p><br/><br/>Thanks, <br/>The libcc Team</p><div>");
     _cc_set_email(email2, "title - libcc.2", "<div><h3>test libcc2</h3><p>Hey libcc!<br/><br/><p>test 2 libcc-smtp!</p><br/><br/>Thanks, <br/>The libcc Team</p><div>");
@@ -98,7 +98,7 @@ int main(int argc, char *const arvg[]) {
 
     event = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_);
     _cc_assert(event != NULL);
-    if (event == nullptr) {
+    if (event == NULL) {
         return 0;
     }
 

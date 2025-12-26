@@ -8,7 +8,7 @@
 _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_sockaddr_t *addr, _cc_socklen_t socklen) {
     int i;
     struct hostent *remoteHost;
-    if ((remoteHost = gethostbyname(host)) == nullptr) {
+    if ((remoteHost = gethostbyname(host)) == NULL) {
         return false;
     }
     i = 0;
@@ -29,8 +29,8 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
     bzero(&hints, sizeof(hints));
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_family = family;
-    rc = _cc_getaddrinfo(host, nullptr, &hints, &addr_list);
-    if (rc != 0 || addr_list == nullptr) {
+    rc = _cc_getaddrinfo(host, NULL, &hints, &addr_list);
+    if (rc != 0 || addr_list == NULL) {
 #ifdef EAI_SYSTEM
         _cc_logger_error(_T("getaddrinfo Error: %s, %s"), rc != EAI_SYSTEM ? gai_strerror(rc) : _cc_last_error(rc), host);
 #else
@@ -42,7 +42,7 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
         return false;
     }
 
-    for (cur = addr_list; cur != nullptr; cur = cur->ai_next) {
+    for (cur = addr_list; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family == family) {
             memcpy(addr, cur->ai_addr, socklen);
             result = true;
@@ -56,13 +56,13 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
 #endif
 /**/
 _CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t *ip, int port) {
-    _cc_assert(addr != nullptr);
+    _cc_assert(addr != NULL);
 
     bzero(addr, sizeof(struct sockaddr_in));
 
     addr->sin_family = AF_INET;
     addr->sin_port = htons(port);
-    if (ip == nullptr) {
+    if (ip == NULL) {
         addr->sin_addr.s_addr = INADDR_ANY;
         return;
     }
@@ -78,13 +78,13 @@ _CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t 
 
 /**/
 _CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t *ip, int port) {
-    _cc_assert(addr != nullptr);
+    _cc_assert(addr != NULL);
 
     bzero(addr, sizeof(struct sockaddr_in6));
 
     addr->sin6_family = AF_INET6;
     addr->sin6_port = htons(port);
-    if (ip == nullptr) {
+    if (ip == NULL) {
         inet_pton(AF_INET6, _T("::"), (byte_t *)&addr->sin6_addr);
         return;
     }

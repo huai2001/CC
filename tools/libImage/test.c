@@ -109,7 +109,7 @@ static bool_t is_filler(tchar_t *name) {
     tchar_t *p;
 
     p = _tcsrchr(name, _T('.'));
-    if (p == nullptr) {
+    if (p == NULL) {
         return true;
     }
     
@@ -129,11 +129,11 @@ void finder(const tchar_t* source_path, const tchar_t* save_path) {
     struct dirent* d;
 
     dir = opendir(source_path);
-    if (dir == nullptr) {
+    if (dir == NULL) {
         return;
     }
 
-    while ((d = readdir(dir)) != nullptr) {
+    while ((d = readdir(dir)) != NULL) {
         //
         if (d->d_type == DT_DIR &&
             ((d->d_name[0] == '.' && d->d_name[1] == 0) ||
@@ -176,9 +176,9 @@ const char *get_argv(int argc, char* const argv[], int *point) {
 
 int main(int argc, char* const argv[]) {
     int i;
-    const char* src = nullptr;
-    const char* dest = nullptr;
-    const char* point = nullptr;
+    const char* src = NULL;
+    const char* dest = NULL;
+    const char* point = NULL;
     int r = 0;
     double SPACE_BREAKING_POINT = 0;
 
@@ -212,11 +212,11 @@ int main(int argc, char* const argv[]) {
         }
     }
 
-    if (point != nullptr) {
+    if (point != NULL) {
         SPACE_BREAKING_POINT = atof(point) / 30.0f;
     }
 
-    if (src == nullptr || dest == nullptr) {
+    if (src == NULL || dest == NULL) {
         print_usage();
         return 1;
     }

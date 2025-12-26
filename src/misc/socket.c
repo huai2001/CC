@@ -213,7 +213,6 @@ GOTO_SRECV_CONTINUE:
 #else
     result = (int32_t)recv(fd, (char *)buf, length, 0);
 #endif
-
     if (result < 0) {
         int err = _cc_last_errno();
         if (would_block(err)) {

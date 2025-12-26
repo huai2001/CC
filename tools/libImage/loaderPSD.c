@@ -57,11 +57,11 @@ _CC_FORCE_INLINE_ bool_t readRLE(const byte_t *dataPtr, PSDHeader_t *header, byt
     uint16_t *rle_ref;
 
     tmp = _cc_malloc(sizeof(uint8_t) * header->width * header->height);
-    if (tmp == nullptr) {
+    if (tmp == NULL) {
         return false;
     }
     rle = _cc_malloc(sizeof(uint16_t) * header->height * header->channels);
-    if (rle == nullptr) {
+    if (rle == NULL) {
         _cc_free(tmp);
         return false;
     }
@@ -124,9 +124,9 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
     bool_t res;
     uint32_t skip;
     uint16_t compression_type;
-    _cc_assert(image_data != nullptr);
-    if (image_data == nullptr) {
-        return nullptr;
+    _cc_assert(image_data != NULL);
+    if (image_data == NULL) {
+        return NULL;
     }
     dataPtr = image_data;
     if (*dataPtr       != '8' ||
@@ -134,7 +134,7 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
             *(dataPtr + 2) != 'P' ||
             *(dataPtr + 3) != 'S') {
         _cc_logger_error(_T("LoadPSD: Unsupported file"));
-        return nullptr;
+        return NULL;
     }
 
     dataPtr += 4;
@@ -148,12 +148,12 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
 
     if (header.version != 1) {
         _cc_logger_error(_T("LoadPSD: Unsupported PSD file version"));
-        return nullptr;
+        return NULL;
     }
 
     if (header.mode != 3 || header.depth != 8) {
         _cc_logger_error(_T("Unsupported PSD color mode or depth"));
-        return nullptr;
+        return NULL;
     }
 
     /*skip color mode data*/
@@ -162,7 +162,7 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
     dataPtr += skip;
     if (dataPtr > (image_data + image_size)) {
         _cc_logger_error(_T("Error seeking file pos to image resources"));
-        return nullptr;
+        return NULL;
     }
 
     /*skip image resources*/
@@ -171,7 +171,7 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
     dataPtr += skip;
     if (dataPtr > (image_data + image_size)) {
         _cc_logger_error(_T("Error seeking file pos to layer and mask"));
-        return nullptr;
+        return NULL;
     }
 
     /*skip layer & mask*/
@@ -180,18 +180,18 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
     dataPtr += skip;
     if (dataPtr > (image_data + image_size)) {
         _cc_logger_error(_T("Error seeking file pos to image data section"));
-        return nullptr;
+        return NULL;
     }
     /**/
     __BYTE_SWAP_32(compression_type, dataPtr);
     if (compression_type != 1 && compression_type != 0) {
         _cc_logger_error(_T("Unsupported psd compression mode"));
-        return nullptr;
+        return NULL;
     }
 
     pixels = _cc_malloc(sizeof(uint32_t) * header.width * header.height);
-    if (pixels == nullptr) {
-        return nullptr;
+    if (pixels == NULL) {
+        return NULL;
     }
 
     if (compression_type == 0) {
@@ -204,5 +204,5 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
         return _cc_init_image_data(CF_A8R8G8B8, header.width, header.height, pixels);
     }
 
-    return nullptr;
+    return NULL;
 }

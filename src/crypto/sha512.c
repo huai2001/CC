@@ -332,7 +332,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384) {
     _cc_hash_t c;
     int32_t digest_length = _CC_SHA512_DIGEST_LENGTH_;
 
-    if (fp == nullptr) {
+    if (fp == NULL) {
         return false;
     }
 

@@ -17,7 +17,7 @@ void test_md4_init() {
 void test_md4_update_empty() {
     _cc_md4_t ctx;
     _cc_md4_init(&ctx);
-    _cc_md4_update(&ctx, nullptr, 0);
+    _cc_md4_update(&ctx, NULL, 0);
     assert(ctx.total[0] == 0);
     assert(ctx.total[1] == 0);
 }
@@ -57,7 +57,7 @@ void test_md4_final() {
 void test_md4_file() {
     tchar_t output[_CC_MD4_DIGEST_LENGTH_ * 2 + 1];
     FILE *fp = fopen("test_file.txt", "wb");
-    assert(fp != nullptr);
+    assert(fp != NULL);
     const byte_t content[] = "test content";
     fwrite(content, sizeof(byte_t), sizeof(content) - 1, fp);
     fclose(fp);

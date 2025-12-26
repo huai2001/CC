@@ -6,7 +6,7 @@ bool_t _cc_write_PCX(const tchar_t *file_name, _cc_image_t *image) {
     byte_t cnt, value;
     uint32_t y = 0, x = 0, k = 0;
 
-    _cc_file_t *wfp = nullptr;
+    _cc_file_t *wfp = NULL;
 
     bzero(&imageHeader, sizeof(PCXHeader_t));
 
@@ -44,7 +44,7 @@ bool_t _cc_write_PCX(const tchar_t *file_name, _cc_image_t *image) {
 
 
     wfp = _cc_open_file(file_name, _T("wb"));
-    if (wfp == nullptr) {
+    if (wfp == NULL) {
         return false;
     }
     _cc_file_write(wfp, &imageHeader, sizeof(PCXHeader_t), 1);

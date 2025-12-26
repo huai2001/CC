@@ -109,7 +109,7 @@ _CC_API_PUBLIC(size_t) _cc_bytes2hex(const byte_t *src, size_t src_len, tchar_t 
     size_t i = 0;
     byte_t ch = 0;
 
-    _cc_assert(src != nullptr && dst != nullptr);
+    _cc_assert(src != NULL && dst != NULL);
     dst_capacity -= 1;
 
     while (i < src_len && k < dst_capacity) {
@@ -129,7 +129,7 @@ _CC_API_PUBLIC(size_t) _cc_hex2bytes(const tchar_t *src, size_t src_len, byte_t 
     int ch = 0;
     size_t i = 0, k = 0;
 
-    _cc_assert(src != nullptr && dst != nullptr);
+    _cc_assert(src != NULL && dst != NULL);
 
     if (_cc_unlikely(!src || !dst)) {
         return 0;
@@ -224,7 +224,7 @@ _cc_splitA(_cc_astring_t *dst, int32_t count, const char_t *src, const char_t* (
         return 0;
     }
 
-    while((p = cb(ptr, &offset)) != nullptr) {
+    while((p = cb(ptr, &offset)) != NULL) {
         _cc_astring_t *r = &dst[i++];
         r->ptr = (char_t*)ptr;
         r->length = (size_t)(p - ptr);
@@ -254,7 +254,7 @@ _cc_splitW(_cc_wstring_t *dst, int32_t count, const wchar_t *src, const wchar_t*
         return 0;
     }
 
-    while((p = cb(ptr, &offset)) != nullptr) {
+    while((p = cb(ptr, &offset)) != NULL) {
         _cc_wstring_t *r = &dst[i++];
         r->ptr = (wchar_t*)ptr;
         r->length = (size_t)(p - ptr);
@@ -278,10 +278,10 @@ _cc_splitW(_cc_wstring_t *dst, int32_t count, const wchar_t *src, const wchar_t*
 /**/
 _CC_API_PUBLIC(tchar_t *) _cc_substr(tchar_t *s1, const tchar_t *s2, uint32_t started, int32_t ended) {
     uint32_t len = 0;
-    _cc_assert(s1 != nullptr && s2 != nullptr);
+    _cc_assert(s1 != NULL && s2 != NULL);
 
     if (!s1 || !s2) {
-        return nullptr;
+        return NULL;
     }
 
     len = (uint32_t)_tcslen(s1);
@@ -289,7 +289,7 @@ _CC_API_PUBLIC(tchar_t *) _cc_substr(tchar_t *s1, const tchar_t *s2, uint32_t st
     ended = (int32_t)((ended <= 0) ? ((len - started) + ended) : ended);
     /* */
     if (len < started || len < (started + ended)) {
-        return nullptr;
+        return NULL;
     }
 
     memcpy(s1, (s2 + started), ended * sizeof(tchar_t));

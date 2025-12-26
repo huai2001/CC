@@ -8,7 +8,7 @@ int main(int argc, char const *argv[]) {
     tchar_t cwd[_CC_MAX_PATH_] = {0};
     tchar_t file_path_name[_CC_MAX_PATH_ * 2] = {0};
     byte_t data[1024];
-    _cc_file_t *r = nullptr, *w = nullptr;
+    _cc_file_t *r = NULL, *w = NULL;
 
     _cc_get_base_path(cwd, _cc_countof(cwd));
     _sntprintf(file_path_name, _cc_countof(file_path_name), _T("%s/test.c"), cwd);

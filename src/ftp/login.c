@@ -53,7 +53,7 @@ _CC_API_PRIVATE(bool_t) libftp_login_user(_cc_ftp_t* ftp,
     if ((buf[0] == '2' && buf[1] == '2' && buf[2] == '0') ||
         (buf[0] == '3' && buf[1] == '3' && buf[2] == '1')) {
         libftp_setup(ftp, _CC_LIBFTP_RESP_LOGIN_PASSWORD, libftp_login_password,
-                     nullptr);
+                     NULL);
 
         if (ftp->password) {
             cmd_len = _snprintf(cmd, _cc_countof(cmd), "PASS %s\r\n", ftp->password);
@@ -76,13 +76,13 @@ bool_t _cc_ftp_login(_cc_ftp_t* ftp,
     char_t cmd[256];
     int32_t cmd_len = 0;
 
-    _cc_assert(ftp != nullptr);
-    _cc_assert(user != nullptr);
+    _cc_assert(ftp != NULL);
+    _cc_assert(user != NULL);
 
-    if (ftp == nullptr)
+    if (ftp == NULL)
         return false;
 
-    if (ftp->ctrl.e == nullptr) {
+    if (ftp->ctrl.e == NULL) {
         _cc_logger_error(_T("Not connected to FTP server"));
         return false;
     }
@@ -98,7 +98,7 @@ bool_t _cc_ftp_login(_cc_ftp_t* ftp,
     if (password) {
         ftp->password = _cc_strdupA(password);
     }
-    libftp_setup(ftp, _CC_LIBFTP_RESP_LOGIN_USER, libftp_login_user, nullptr);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_LOGIN_USER, libftp_login_user, NULL);
 
     cmd_len = _snprintf(cmd, _cc_countof(cmd), "USER %s\r\n", ftp->user);
     _ftp_send_command(ftp->ctrl.e, cmd, cmd_len * sizeof(char_t));
@@ -106,9 +106,9 @@ bool_t _cc_ftp_login(_cc_ftp_t* ftp,
 }
 
 bool_t _cc_ftp_logout(_cc_ftp_t* ftp) {
-    _cc_assert(ftp != nullptr);
+    _cc_assert(ftp != NULL);
 
-    if (ftp == nullptr)
+    if (ftp == NULL)
         return false;
 
     ftp->resp.flag = _CC_LIBFTP_RESP_LOGOUT;

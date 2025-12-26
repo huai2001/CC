@@ -127,32 +127,32 @@ _CC_API_PRIVATE(bool_t) _delegate_timeout_reset(_cc_async_event_t *async, _cc_ev
 
 /**/
 _CC_API_PRIVATE(bool_t) _delegate_timeout_attach(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
     return _reset_event(async, e);
 }
 
 /**/
 _CC_API_PRIVATE(bool_t) _delegate_timeout_free(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
     return _unregister_async_event(async);
 }
 
 _CC_API_PUBLIC(bool_t) _cc_register_timeout(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
     if (!_register_async_event(async)) {
         return false;
     }
 
-    async->priv = nullptr;
+    async->priv = NULL;
 
     async->reset = _delegate_timeout_reset;
     async->free = _delegate_timeout_free;
     async->attach = _delegate_timeout_attach;
     async->wait = _delegate_timeout_wait;
 
-    async->connect = nullptr;
-    async->disconnect = nullptr;
-    async->accept = nullptr;
+    async->connect = NULL;
+    async->disconnect = NULL;
+    async->accept = NULL;
 
     return true;
 }
@@ -169,12 +169,12 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_add_event_timeout(_cc_async_event_t *async, uin
         }
         _cc_free_event(async, e);
     }
-    return nullptr;
+    return NULL;
 }
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_kill_event_timeout(_cc_async_event_t *async, _cc_event_t *timer) {
-    _cc_assert(async != nullptr && timer != nullptr);
+    _cc_assert(async != NULL && timer != NULL);
     _CC_SET_BIT(_CC_EVENT_CLOSED_,timer->flags);
     return async->reset(async, timer);
 }

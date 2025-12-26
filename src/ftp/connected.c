@@ -23,30 +23,30 @@ _CC_API_PRIVATE(bool_t) libftp_connected(_cc_ftp_t* ftp,
 }
 
 bool_t _cc_ftp_connected(_cc_ftp_t* ftp) {
-    if (ftp == nullptr)
+    if (ftp == NULL)
         return false;
 
-    libftp_setup(ftp, _CC_LIBFTP_RESP_CONNECTED, libftp_connected, nullptr);
+    libftp_setup(ftp, _CC_LIBFTP_RESP_CONNECTED, libftp_connected, NULL);
 
     ftp->logined = false;
-    ftp->user = nullptr;
-    ftp->password = nullptr;
+    ftp->user = NULL;
+    ftp->password = NULL;
 
     return true;
 }
 
 bool_t _cc_ftp_disconnected(_cc_ftp_t* ftp) {
-    if (ftp == nullptr)
+    if (ftp == NULL)
         return false;
 
     if (ftp->user) {
         _cc_free(ftp->user);
-        ftp->user = nullptr;
+        ftp->user = NULL;
     }
 
     if (ftp->password) {
         _cc_free(ftp->password);
-        ftp->password = nullptr;
+        ftp->password = NULL;
     }
     return true;
 }

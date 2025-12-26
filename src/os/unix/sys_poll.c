@@ -19,7 +19,7 @@ _CC_API_PRIVATE(bool_t) _poll_event_reset(_cc_async_event_t *async, _cc_event_t 
 /**/
 _CC_API_PRIVATE(bool_t) _poll_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_async_event_priv_t *fset;
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
     fset = async->priv;
 
     if (e->fd && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= _CC_POLL_EVENTS_) {
@@ -190,7 +190,7 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_async_event_t *async, uint32_t time
 
 /**/
 _CC_API_PRIVATE(bool_t) _poll_event_free(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
 
     _cc_if_free(async->priv);
 

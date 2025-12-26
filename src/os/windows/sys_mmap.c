@@ -17,7 +17,7 @@
  * @param flags mapping type and options (ignored)
  * @param fd object to be mapped into memory
  * @param offset offset into mapped object
- * @return pointer to the memory region, or nullptr in case of error
+ * @return pointer to the memory region, or NULL in case of error
  */
 _CC_API_PUBLIC(pvoid_t) mmap(pvoid_t addr, unsigned int len, int prot, int flags, int fd, unsigned int offset) {
 	DWORD wprot;
@@ -52,7 +52,7 @@ _CC_API_PUBLIC(pvoid_t) mmap(pvoid_t addr, unsigned int len, int prot, int flags
 	
 	/* Obtaing handle to map region */
 	h = CreateFileMapping((HANDLE) _get_osfhandle(fd), 0, wprot, 0, len, 0);
-	if (h == nullptr) {
+	if (h == NULL) {
 		DWORD error = GetLastError();
 
 		/* Try and translate some error codes */
@@ -85,7 +85,7 @@ _CC_API_PUBLIC(pvoid_t) mmap(pvoid_t addr, unsigned int len, int prot, int flags
 
 	/* Map file and return pointer */
 	region = MapViewOfFile(h, waccess, 0, 0, 0);
-	if (region == nullptr) {
+	if (region == NULL) {
 		DWORD error = GetLastError();
 
 		/* Try and translate some error codes */

@@ -10,9 +10,9 @@ _cc_sql_delegate_t sql_delegate;
 
 int main(int argc, char *const arvg[]) {
     _cc_string_t sql_str;
-    _cc_sql_t *conn_ptr1 = nullptr;
-    _cc_sql_t *conn_ptr2 = nullptr;
-    _cc_sql_result_t *sql_result = nullptr;
+    _cc_sql_t *conn_ptr1 = NULL;
+    _cc_sql_t *conn_ptr2 = NULL;
+    _cc_sql_result_t *sql_result = NULL;
 
     _cc_init_mysql(&sql_delegate);
 
@@ -33,31 +33,31 @@ int main(int argc, char *const arvg[]) {
     }
     
     _cc_string_set(sql_str,"TRUNCATE TABLE `test`.`test`");
-    sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr1, &sql_str, NULL);
     _cc_string_set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '1',now(),now())");
-    sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr1, &sql_str, NULL);
     _cc_string_set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '2',now(),now())");
-    sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr1, &sql_str, NULL);
     _cc_string_set(sql_str,"insert into `test`.`test` ( `mid`,`text`,`update_time`) values ( '3',now(),now())");
-    sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr1, &sql_str, NULL);
     
     sql_delegate.begin_transaction(conn_ptr2);
     _cc_string_set(sql_str,"update test set mid=100 where id=1");
-    sql_delegate.execute(conn_ptr2, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr2, &sql_str, NULL);
     _cc_string_set(sql_str,"update test set mid=200 where id=2");
-    sql_delegate.execute(conn_ptr2, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr2, &sql_str, NULL);
     _cc_string_set(sql_str,"update test set mid=300 where id=3");
-    sql_delegate.execute(conn_ptr2, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr2, &sql_str, NULL);
     sql_delegate.commit(conn_ptr2);
     
     sql_delegate.begin_transaction(conn_ptr1);
     _cc_string_set(sql_str,"update test set mid=101 where id=1");
-    sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr1, &sql_str, NULL);
     _cc_string_set(sql_str,"update test set mid=201 where id=1");
-    sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr1, &sql_str, NULL);
     sql_delegate.rollback(conn_ptr1);
     _cc_string_set(sql_str,"update test set mid=301 where id=3");
-    sql_delegate.execute(conn_ptr1, &sql_str, nullptr);
+    sql_delegate.execute(conn_ptr1, &sql_str, NULL);
     sql_delegate.commit(conn_ptr1);
     
     

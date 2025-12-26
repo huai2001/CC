@@ -97,8 +97,8 @@ void _cc_set_pixel(_cc_image_t *image, uint32_t x, uint32_t y, const _cc_color_t
     uint32_t *dest32;
     uint16_t *dest16;
     byte_t *dest8;
-    _cc_assert(image != nullptr);
-    if(image == nullptr) return ;
+    _cc_assert(image != NULL);
+    if(image == NULL) return ;
 
     if (x >= image->width || y >= image->height)
         return;
@@ -130,8 +130,8 @@ void _cc_set_pixel(_cc_image_t *image, uint32_t x, uint32_t y, const _cc_color_t
 //! returns a pixel
 uint32_t _cc_get_pixel(_cc_image_t *image, uint32_t x, uint32_t y) {
     byte_t *dest;
-    _cc_assert(image != nullptr);
-    if(image == nullptr) return 0;
+    _cc_assert(image != NULL);
+    if(image == NULL) return 0;
     if (x >= image->width || y >= image->height)
         return 0;
 
@@ -278,9 +278,9 @@ void _cc_image_resampled (_cc_image_t* dst, _cc_image_t* src,
 void _cc_image_scaling(_cc_image_t *dst, _cc_image_t *src) {
     uint32_t bpp,bw,rest,y;
     byte_t *dstpos, *srcpos;
-    _cc_assert(dst->data != nullptr && src->data != nullptr);
+    _cc_assert(dst->data != NULL && src->data != NULL);
 
-    if(dst->data == nullptr || src->data == nullptr)
+    if(dst->data == NULL || src->data == NULL)
         return;
 
     if (!dst->width || !dst->height)
@@ -338,8 +338,8 @@ int32_t _cc_get_bits_per_pixel_from_format(const byte_t format) {
 
 _cc_image_t* _cc_init_image_data(uint32_t format, uint32_t width, uint32_t height, byte_t *data) {
     _cc_image_t  *image = (_cc_image_t  *)_cc_malloc(sizeof(_cc_image_t ));
-    if(image == nullptr) {
-        return nullptr;
+    if(image == NULL) {
+        return NULL;
     }
     image->format = format;
     image->width = width;
@@ -348,14 +348,14 @@ _cc_image_t* _cc_init_image_data(uint32_t format, uint32_t width, uint32_t heigh
     image->pitch = (image->channel * image->width);
     image->size = height * image->pitch;
     
-    image->palette.data = nullptr;
+    image->palette.data = NULL;
     image->palette.size = 0;
 
-    if(data == nullptr) {
+    if(data == NULL) {
         image->data = (byte_t *)_cc_malloc(sizeof(byte_t) * (uint32_t)image->size);
-        if(image->data == nullptr) {
+        if(image->data == NULL) {
             _cc_free(image);
-            return nullptr;
+            return NULL;
         }
         memset(image->data, 0xff, sizeof(byte_t) * image->size);
     } else {
@@ -421,17 +421,17 @@ _cc_image_filetype_t _cc_get_imagetypes(byte_t *data, int32_t len) {
 }
 
 _cc_image_t* _cc_init_image(uint32_t format, uint32_t width, uint32_t height) {
-    return _cc_init_image_data(format,width,height,nullptr);
+    return _cc_init_image_data(format,width,height,NULL);
 }
 
 
 _cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
-    _cc_image_t *img = nullptr;
+    _cc_image_t *img = NULL;
     _cc_buf_t buf;
     _cc_image_filetype_t filetype;
 
     if (!_cc_buf_from_file(&buf,file_name)) {
-        return nullptr;
+        return NULL;
     }
 
     filetype = _cc_get_imagetypes( buf.bytes, (int32_t)buf.length );
@@ -440,7 +440,7 @@ _cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
         _cc_free_buf(&buf);
         _cc_logger_error(_T("Image file type(%d) unknown :%s"), filetype, file_name);
 
-        return nullptr;
+        return NULL;
     }
 
     switch(filetype) {
@@ -475,7 +475,7 @@ _cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
 }
 
 bool_t _cc_free_image( _cc_image_t* image ) {
-    if ( image == nullptr) {
+    if ( image == NULL) {
         return false;
     }
 
@@ -483,7 +483,7 @@ bool_t _cc_free_image( _cc_image_t* image ) {
 
     if (image->palette.data && image->palette.size > 0) {
         _cc_free(image->palette.data);
-        image->palette.data = nullptr;
+        image->palette.data = NULL;
         image->palette.size = 0;
     }
 

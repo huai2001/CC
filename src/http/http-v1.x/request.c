@@ -8,7 +8,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_response_chunked(_cc_http_request_t *, _cc_io_bu
 
 /**/
 _CC_API_PUBLIC(void) _cc_reset_http_request(_cc_http_request_t *request) {
-    _cc_assert(request != nullptr);
+    _cc_assert(request != NULL);
     request->state = _CC_HTTP_STATE_HEADER_;
     if (request->response) {
         _cc_http_free_response_header(&request->response);
@@ -16,18 +16,18 @@ _CC_API_PUBLIC(void) _cc_reset_http_request(_cc_http_request_t *request) {
 #ifdef _CC_USE_OPENSSL_
     if (request->io && request->io->ssl) {
         _SSL_free(request->io->ssl);
-        request->io->ssl = nullptr;
+        request->io->ssl = NULL;
     }
 #endif
 }
 
 /**/
 _CC_API_PUBLIC(void) _cc_free_http_request(_cc_http_request_t *request) {
-    _cc_assert(request != nullptr);
+    _cc_assert(request != NULL);
 
     if (request->gzip) {
         _gzip_free(request->gzip);
-        request->gzip = nullptr;
+        request->gzip = NULL;
     }
 
     if (request->response) {
@@ -41,8 +41,8 @@ _CC_API_PUBLIC(void) _cc_free_http_request(_cc_http_request_t *request) {
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_http_request_header(_cc_http_request_t *request, _cc_event_t *e) {
-    _cc_assert(request != nullptr);
-    _cc_assert(request->io != nullptr);
+    _cc_assert(request != NULL);
+    _cc_assert(request->io != NULL);
     _cc_assert(request->buffer.length > 0);
 
     request->state = _CC_HTTP_STATE_HEADER_;
@@ -93,8 +93,8 @@ _CC_API_PRIVATE(bool_t) is_keep_alive(_cc_rbtree_t *headers) {
 _CC_API_PUBLIC(bool_t) _cc_http_request_response_header(_cc_http_request_t *request) {
     _cc_http_response_header_t *response;
     _cc_io_buffer_t *io;
-    _cc_assert(request != nullptr);
-    _cc_assert(request->io != nullptr);
+    _cc_assert(request != NULL);
+    _cc_assert(request->io != NULL);
     _cc_assert(request->state == _CC_HTTP_STATE_HEADER_);
 
     io = request->io;
@@ -121,7 +121,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_request_response_header(_cc_http_request_t *requ
             _gzip_reset(request->gzip);
         } else {
             request->gzip = _gzip_alloc(_GZIP_INF_);
-            return request->gzip != nullptr;
+            return request->gzip != NULL;
         }
     }
     return true;
@@ -131,8 +131,8 @@ _CC_API_PUBLIC(bool_t) _cc_http_request_response_header(_cc_http_request_t *requ
 _CC_API_PUBLIC(bool_t) _cc_http_request_response_body(_cc_http_request_t *request) {
     _cc_http_response_header_t *response;
     _cc_io_buffer_t *io;
-    _cc_assert(request != nullptr);
-    _cc_assert(request->io != nullptr);
+    _cc_assert(request != NULL);
+    _cc_assert(request->io != NULL);
     _cc_assert(request->state == _CC_HTTP_STATE_PAYLOAD_);
 
     /**/
@@ -167,9 +167,9 @@ _CC_API_PUBLIC(bool_t) _cc_http_request_response_body(_cc_http_request_t *reques
 /**/
 _CC_API_PUBLIC(_cc_http_request_t*) _cc_http_request(const tchar_t *url, pvoid_t args) {
     _cc_http_request_t *request;
-    _cc_assert(url != nullptr);
-    if (url == nullptr) {
-        return nullptr;
+    _cc_assert(url != NULL);
+    if (url == NULL) {
+        return NULL;
     }
 
     request = (_cc_http_request_t *)_cc_malloc(sizeof(_cc_http_request_t));
@@ -177,15 +177,15 @@ _CC_API_PUBLIC(_cc_http_request_t*) _cc_http_request(const tchar_t *url, pvoid_t
 
     if (!_cc_parse_url(&request->url, url)) {
         _cc_free(request);
-        return nullptr;
+        return NULL;
     }
 
     request->io = _cc_alloc_io_buffer(_CC_8K_BUFFER_SIZE_);
 
     request->state = _CC_HTTP_STATE_HEADER_;
-    request->response = nullptr;
+    request->response = NULL;
     request->args = args;
-    request->gzip = nullptr;
+    request->gzip = NULL;
 
     _cc_alloc_buf(&request->buffer, _CC_IO_BUFFER_SIZE_);
 
@@ -195,7 +195,7 @@ _CC_API_PUBLIC(_cc_http_request_t*) _cc_http_request(const tchar_t *url, pvoid_t
 _CC_API_PUBLIC(bool_t) _cc_http_request_ssl(_cc_OpenSSL_t *openSSL, _cc_http_request_t *request, _cc_event_t *e) {
 #ifdef _CC_USE_OPENSSL_
     request->io->ssl = _SSL_connect(openSSL, e->fd);
-    if (request->io->ssl == nullptr) {
+    if (request->io->ssl == NULL) {
         return false;
     }
     _SSL_set_host_name(request->io->ssl, request->url.host, _cc_sds_length(request->url.host));

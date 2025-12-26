@@ -20,8 +20,8 @@ _CC_API_PUBLIC(void) _cc_free_mutex(_cc_mutex_t *mutex) {
 /* Lock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
     pthread_t self;
-    if (_cc_unlikely(mutex == nullptr)) {
-        _cc_logger_error(_T("Passed a nullptr mutex"));
+    if (_cc_unlikely(mutex == NULL)) {
+        _cc_logger_error(_T("Passed a NULL mutex"));
         return false;
     }
 
@@ -39,8 +39,8 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
 /* Try Lock the mutex */
 _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     pthread_t self;
-    if (_cc_unlikely(mutex == nullptr)) {
-        _cc_logger_error(_T("Passed a nullptr mutex"));
+    if (_cc_unlikely(mutex == NULL)) {
+        _cc_logger_error(_T("Passed a NULL mutex"));
         return -1;
     }
     self = pthread_self();
@@ -59,8 +59,8 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 
 /* Unlock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
-    if (_cc_unlikely(mutex == nullptr)) {
-        _cc_logger_error(_T("Passed a nullptr mutex"));
+    if (_cc_unlikely(mutex == NULL)) {
+        _cc_logger_error(_T("Passed a NULL mutex"));
         return false;
     }
     /* We can only unlock the mutex if we own it */
@@ -68,7 +68,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
         if (mutex->recursive) {
             --mutex->recursive;
         } else {
-            mutex->owner = nullptr;
+            mutex->owner = NULL;
             mutex->recursive = 0;
             os_unfair_lock_unlock(&(mutex->unfair_lock));
         }

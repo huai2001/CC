@@ -3,7 +3,7 @@
 
 _CC_API_PRIVATE(FILE*) _osx_open_file_m(const tchar_t *file, const tchar_t *mode) {
     @autoreleasepool {
-        FILE* fp = nullptr;
+        FILE* fp = NULL;
 
         /* If the file mode is read, skip all the bundle stuff because generally the bundle is read-only. */
         if (*mode != 'r' && *(mode + 1) != 'b') {
@@ -28,5 +28,5 @@ _CC_API_PRIVATE(FILE*) _osx_open_file_m(const tchar_t *file, const tchar_t *mode
 /**/
 _CC_API_PUBLIC(bool_t) _cc_sys_open_file(_cc_file_t *f, const tchar_t *filename, const tchar_t *mode) {
     f->fp = (pvoid_t)_osx_open_file_m(filename, mode);
-    return f->fp != nullptr;
+    return f->fp != NULL;
 }

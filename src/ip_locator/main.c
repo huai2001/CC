@@ -2,14 +2,14 @@
 #include <libcc/ip_locator.h>
 
 uint32_t str2ip(const char_t *cs) {
-    char_t *result = nullptr;
+    char_t *result = NULL;
     uint32_t res = 0;
     char_t *s = strdup(cs);
     result = strtok( s, "." );
     while( result ) {
         res <<= 8;
         res |= (uint32_t)atoi(result);
-        result = strtok( nullptr, "." );
+        result = strtok( NULL, "." );
     }
     free(s);
     return res;
@@ -40,7 +40,7 @@ void ListenUDP(uint16_t port) {
         return ;
     }
 
-    _cc_inet_ipv4_addr(&sin, nullptr, port);
+    _cc_inet_ipv4_addr(&sin, NULL, port);
     if(bind(io_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1){
         fprintf(stderr, "%s\n", "bing port error\n");
         return ;
@@ -53,9 +53,9 @@ void ListenUDP(uint16_t port) {
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
 #ifndef __CC_WINDOWS__
-        res = select((int)(io_fd+1), &read_set, nullptr, nullptr, &tv);
+        res = select((int)(io_fd+1), &read_set, NULL, NULL, &tv);
 #else
-        res = select(0, &read_set, nullptr, nullptr, &tv);
+        res = select(0, &read_set, NULL, NULL, &tv);
 #endif
         if (res == 0) {
             continue;

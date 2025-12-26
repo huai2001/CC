@@ -10,7 +10,7 @@ void test_alloc_and_free_buf() {
     assert(_cc_alloc_buf(&buf, 100) == true);
     assert(buf.limit == 100);
     assert(buf.length == 0);
-    assert(buf.bytes != nullptr);
+    assert(buf.bytes != NULL);
     assert(_cc_free_buf(&buf) == true);
     printf("alloc and free buf test passed!\n");
 }
@@ -23,7 +23,7 @@ void test_buf_stringify() {
     assert(_cc_buf_append(&buf, str, strlen(str)) == true);
     size_t length;
     const tchar_t *result = _cc_buf_stringify(&buf, &length);
-    assert(result != nullptr);
+    assert(result != NULL);
     assert(length == strlen(str) + 1);
     assert(strcmp((const char *)result, str) == 0);
     assert(_cc_free_buf(&buf) == true);
@@ -76,7 +76,7 @@ void test_buf_from_file() {
     _cc_buf_t buf;
     const char *filename = "test_file.txt";
     FILE *f = fopen(filename, "wb");
-    assert(f != nullptr);
+    assert(f != NULL);
     const char *content = "test content";
     fwrite(content, 1, strlen(content), f);
     fclose(f);

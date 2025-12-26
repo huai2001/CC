@@ -3,7 +3,7 @@
 
 
 _cc_sql_delegate_t delegator;
-_cc_sql_t *defaultSQL = nullptr;
+_cc_sql_t *defaultSQL = NULL;
 
 const _cc_string_t createLogsTable = _cc_string("CREATE TABLE IF NOT EXISTS logs (" \
         ("id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," \
@@ -40,7 +40,7 @@ void openSQLite3(void) {
     }
 
     defaultSQL = delegator.connect(fileSQLite);
-    if (defaultSQL == nullptr) {
+    if (defaultSQL == NULL) {
         return;
     }
     
@@ -52,11 +52,11 @@ void openSQLite3(void) {
 
 void closeSQLite3(void) {
     delegator.disconnect(defaultSQL);
-    defaultSQL = nullptr;
+    defaultSQL = NULL;
 }
 
 void sqlite3_syslog(_syslog_t *syslog) {
-    _cc_sql_result_t *result = nullptr;
+    _cc_sql_result_t *result = NULL;
     tchar_t *v = _T("-");
     uint8_t facility = _CC_SYSLOG_FACILITY(syslog->priority);
     uint8_t severity = _CC_SYSLOG_SEVERITY(syslog->priority);
@@ -110,7 +110,7 @@ void sqlite3_syslog(_syslog_t *syslog) {
 }
 
 void sqlite3_exception_syslog(const tchar_t *msg, size_t length) {
-    _cc_sql_result_t *result = nullptr;
+    _cc_sql_result_t *result = NULL;
     _cc_string_t sql = _cc_string("INSERT INTO `exception_logs` (`msg`) VALUES ( ? );");
     if (delegator.execute(defaultSQL, &sql, &result)) {
         delegator.bind(result, 0, msg, length, _CC_SQL_TYPE_STRING_);

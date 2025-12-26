@@ -30,7 +30,7 @@ _CC_API_PUBLIC(tchar_t*) _cc_last_error(int32_t _errno) {
 }
 
 _CC_API_PUBLIC(size_t) _cc_get_cwd(tchar_t *cwd, size_t length) {
-    if (getcwd(cwd, length) != nullptr) {
+    if (getcwd(cwd, length) != NULL) {
         return _tcslen(cwd);
     }
     return 0;
@@ -46,7 +46,7 @@ _CC_API_PUBLIC(bool_t) _cc_mkdir(const tchar_t *path) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_mkdir_path(const tchar_t *path, bool_t is_path) {
     int32_t i = 0;
-    const tchar_t *p = nullptr;
+    const tchar_t *p = NULL;
     tchar_t wd[_CC_2K_BUFFER_SIZE_ + 1];
 
     p = path;
@@ -97,22 +97,22 @@ _CC_API_PUBLIC(size_t) _cc_fpath(tchar_t *buf, size_t size, const tchar_t *fmt, 
     va_list arg;
     tchar_t stack_buf[_CC_4K_BUFFER_SIZE_];
     tchar_t *ptr = stack_buf;
-    tchar_t *tmp_ptr = nullptr;
+    tchar_t *tmp_ptr = NULL;
     size_t fmt_length = 0, empty_length = _CC_4K_BUFFER_SIZE_;
 
-    _cc_assert(fmt != nullptr && buf != nullptr && size > 0);
+    _cc_assert(fmt != NULL && buf != NULL && size > 0);
 
     va_start(arg, fmt);
     /* If the first attempt to append fails, resize the buffer appropriately
      * and try again */
     while (true) {
         /* fmt_length is the length of the string required, excluding the
-         * trailing nullptr */
+         * trailing NULL */
         fmt_length = _vsntprintf(ptr, empty_length, fmt, arg);
 
 #ifdef __CC_WINDOWS__
         if (fmt_length == -1) {
-            fmt_length = _vsntprintf(nullptr, 0, fmt, arg);
+            fmt_length = _vsntprintf(NULL, 0, fmt, arg);
         }
 #endif
         if (_cc_unlikely(fmt_length <= 0)) {
@@ -131,9 +131,9 @@ _CC_API_PUBLIC(size_t) _cc_fpath(tchar_t *buf, size_t size, const tchar_t *fmt, 
     va_end(arg);
     
 #ifdef __CC_WINDOWS__
-    if (_tfullpath(buf, ptr, size) == nullptr) {
+    if (_tfullpath(buf, ptr, size) == NULL) {
 #else
-    if (realpath(ptr, buf) == nullptr) {
+    if (realpath(ptr, buf) == NULL) {
 #endif
         fmt_length = _tcslen(ptr);
         _tcsncpy(buf, ptr, size);

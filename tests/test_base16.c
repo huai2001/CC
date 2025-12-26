@@ -14,7 +14,7 @@ void test_base16_encode() {
 
 void test_base16_encode_null_output() {
     const byte_t input[] = {0x01, 0x23, 0x45, 0x67};
-    size_t result = _cc_base16_encode(input, sizeof(input), nullptr, 0);
+    size_t result = _cc_base16_encode(input, sizeof(input), NULL, 0);
     assert(result == 0);
     printf("test_base16_encode_null_output passed\n");
 }
@@ -38,7 +38,7 @@ void test_base16_decode() {
 
 void test_base16_decode_null_output() {
     const tchar_t input[] = _T("0123456789ABCDEF");
-    size_t result = _cc_base16_decode(input, _tcslen(input), nullptr, 0);
+    size_t result = _cc_base16_decode(input, _tcslen(input), NULL, 0);
     assert(result == 0);
     printf("test_base16_decode_null_output passed\n");
 }

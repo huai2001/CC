@@ -21,6 +21,7 @@ extern "C" {
 #define _JSON_OBJECT_END_ 		_T('}')
 
 #define _JSON_NEXT_TOKEN_ 		_T(',')
+#define _JSON_OBJECT_TOKEN_ 	_T(':')
 
 int32_t _json_get_object(_cc_rbtree_iterator_t*, uintptr_t);
 

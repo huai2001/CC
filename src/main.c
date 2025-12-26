@@ -16,7 +16,7 @@
 #endif
 
 __attribute__((constructor)) void _libcc_attach(void) {
-	srand((uint32_t)time(nullptr));
+	srand((uint32_t)time(NULL));
 #ifdef _CC_USE_DEBUG_MALLOC_
     _attach_debug_taracked();
 #endif

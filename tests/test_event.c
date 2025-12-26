@@ -18,13 +18,13 @@ void test_accept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(nullptr),
+        _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(NULL),
                          _cc_last_error(_cc_last_errno()));
         return ;
     }
 
     event = _cc_alloc_event(async2, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_);
-    if (event == nullptr) {
+    if (event == NULL) {
         _cc_close_socket(fd);
         return ;
     }
@@ -36,7 +36,7 @@ void test_accept(_cc_async_event_t *async, _cc_event_t *e) {
     event->timeout = e->timeout;
 
     if (async2->attach(async2, event) == false) {
-        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(nullptr), fd);
+        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
         return ;
     }
@@ -136,14 +136,14 @@ void test_event_tcp_listen() {
 
     event = _cc_alloc_event(async, _CC_EVENT_ACCEPT_);
     assert(event != NULL);
-    if (event == nullptr) {
+    if (event == NULL) {
         return;
     }
 
     event->timeout = 60000;
     event->callback = test_event_callback;
 
-    _cc_inet_ipv4_addr(&sa, nullptr, port);
+    _cc_inet_ipv4_addr(&sa, NULL, port);
     if (!_cc_tcp_listen(async, event, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
         _cc_free_event(async, event);    
         assert(false);
@@ -160,7 +160,7 @@ void test_event_tcp_connect() {
     event = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_);
 
     assert(event != NULL);
-    if (event == nullptr) {
+    if (event == NULL) {
         return;
     }
 
@@ -176,7 +176,7 @@ void test_event_tcp_connect() {
 
 int main() {
     int i;
-    _cc_alloc_async_event(0, nullptr);
+    _cc_alloc_async_event(0, NULL);
 	
     printf("sizeof(_cc_event_t) == %ld Running tests...\n", sizeof(_cc_event_t));
     TEST_CASE(test_buffer_allocation);

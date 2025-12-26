@@ -15,7 +15,7 @@ _CC_API_PUBLIC(_cc_semaphore_t*) _cc_alloc_semaphore(int32_t initial_value) {
     if (sem_init(&sem->sem, 0, initial_value) < 0) {
         _cc_logger_error(_T("sem_init() failed"));
         _cc_free(sem);
-        sem = nullptr;
+        sem = NULL;
     }
 
     return sem;
@@ -39,7 +39,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t ti
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a nullptr semaphore"));
+        _cc_logger_error(_T("Passed a NULL semaphore"));
         return -1;
     }
 
@@ -57,7 +57,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t ti
      * This time is now plus the timeout.
      */
 #ifndef _CC_HAVE_CLOCK_GETTIME_
-    gettimeofday(&now, nullptr);
+    gettimeofday(&now, NULL);
 
     /* Add our timeout to current time */
     ts_timeout.tv_sec = now.tv_sec + (timeout / 1000);
@@ -97,7 +97,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a nullptr semaphore"));
+        _cc_logger_error(_T("Passed a NULL semaphore"));
         return -1;
     }
 
@@ -114,7 +114,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait(_cc_semaphore_t *sem) {
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a nullptr semaphore"));
+        _cc_logger_error(_T("Passed a NULL semaphore"));
         return -1;
     }
 
@@ -143,7 +143,7 @@ _CC_API_PUBLIC(bool_t) _cc_semaphore_post(_cc_semaphore_t *sem) {
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a nullptr semaphore"));
+        _cc_logger_error(_T("Passed a NULL semaphore"));
         return false;
     }
 

@@ -132,7 +132,7 @@ _CC_FORCE_INLINE_ const _cc_sds_t _cc_json_string(const _cc_json_t *ctx) {
     if (ctx && ctx->type == _CC_JSON_STRING_) {
         return ctx->element.uni_string;
     }
-    return nullptr;
+    return NULL;
 }
 
 /**/
@@ -140,7 +140,7 @@ _CC_FORCE_INLINE_ const _cc_rbtree_t* _cc_json_object(const _cc_json_t *ctx) {
     if (ctx && ctx->type == _CC_JSON_OBJECT_) {
         return &ctx->element.uni_object;
     }
-    return nullptr;
+    return NULL;
 }
 
 /**/

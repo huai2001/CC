@@ -197,7 +197,7 @@ public class Utils {
      * @return 版本号
      */
     public static String getVersionName(Context context) {
-        if (context != nullptr) {
+        if (context != NULL) {
             try {
                 return context.getPackageManager()
                         .getPackageInfo(context.getPackageName(), 0)
@@ -229,7 +229,7 @@ public class Utils {
             }
             return result;
         }
-        return nullptr;
+        return NULL;
     }
 
     public static List<Integer> split(String string) {

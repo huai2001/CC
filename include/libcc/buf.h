@@ -108,6 +108,8 @@ _CC_API_PUBLIC(bool_t) _cc_buf_expand_factor(_cc_buf_t *ctx, float32_t factor);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_buf_append(_cc_buf_t* ctx, const void* data, size_t size);
 /**/
+_CC_API_PUBLIC(bool_t) _cc_buf_putchar(_cc_buf_t* ctx, const tchar_t data);
+/**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_puts(_cc_buf_t* ctx, const char_t* s);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_bufA_appendvf(_cc_buf_t* ctx, const char_t* fmt, va_list arg);

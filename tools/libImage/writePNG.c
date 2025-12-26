@@ -28,23 +28,23 @@ static void PNGAPI _user_write_data_fcn(png_structp png_ptr, png_bytep data, png
 bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	png_infop info_ptr;
 	_cc_file_t *wfp;
-	png_structp png_ptr = nullptr;
+	png_structp png_ptr = NULL;
 	int32_t line_width;
 	uint8_t *tmp, *tmp_ptr;
 	uint8_t **row_pointers;
 	uint32_t i;
 
-	void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = nullptr;
+	void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = NULL;
 
 	wfp = _cc_open_file(file_name, _T("wb"));
-	if (wfp == nullptr) {
+	if (wfp == NULL) {
 		return false;
 	}
 
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-	                                  nullptr, (png_error_ptr)_png_cpexcept_error, (png_error_ptr)_png_cpexcept_warning);
+	                                  NULL, (png_error_ptr)_png_cpexcept_error, (png_error_ptr)_png_cpexcept_warning);
 
-	if (png_ptr == nullptr) {
+	if (png_ptr == NULL) {
 		_cc_file_close(wfp);
 		_cc_logger_error(_T("Internal PNG create write struct failure."));
 		return false;
@@ -55,7 +55,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
 		_cc_logger_error(_T("Internal PNG create info struct failure."));
-		png_destroy_write_struct(&png_ptr, nullptr);
+		png_destroy_write_struct(&png_ptr, NULL);
 		_cc_file_close(wfp);
 		return false;
 	}
@@ -67,7 +67,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 		return false;
 	}
 
-	png_set_write_fn(png_ptr, wfp, _user_write_data_fcn, nullptr);
+	png_set_write_fn(png_ptr, wfp, _user_write_data_fcn, NULL);
 
 	// Set info
 	switch (image->format) {
@@ -128,7 +128,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 
 	//Used to point to image rows
 	row_pointers = (png_bytep*)_cc_malloc(sizeof(png_bytep) * image->height);
-	if (row_pointers == nullptr) {
+	if (row_pointers == NULL) {
 		_cc_logger_error(_T("Internal PNG create row pointers failure."));
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 		_cc_free(tmp);
@@ -154,9 +154,9 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	png_set_rows(png_ptr, info_ptr, row_pointers);
 
 	if (image->format == CF_A8R8G8B8 || image->format == CF_A1R5G5B5) {
-		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR, nullptr);
+		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR, NULL);
 	} else {
-		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
+		png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 	}
 
 	_cc_free(tmp);

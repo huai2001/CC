@@ -73,9 +73,9 @@ _CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path) {
     size_t index;
     tchar_t *dirs;
 
-    _cc_assert(dir_path != nullptr);
-    if (dir_path == nullptr) {
-        return nullptr;
+    _cc_assert(dir_path != NULL);
+    if (dir_path == NULL) {
+        return NULL;
     }
 
     dp = (DIR*)_cc_malloc(sizeof(DIR));
@@ -103,7 +103,7 @@ _CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path) {
     dp->finished = 0;
 
     // find dir
-    handle = FindFirstFileEx(dirs, FindExInfoBasic, &(dp->fileinfo), FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
+    handle = FindFirstFileEx(dirs, FindExInfoBasic, &(dp->fileinfo), FindExSearchNameMatch, NULL, FIND_FIRST_EX_LARGE_FETCH);
     if (handle == INVALID_HANDLE_VALUE) {
         int32_t err = GetLastError();
         if (err == ERROR_NO_MORE_FILES || err == ERROR_FILE_NOT_FOUND) {
@@ -111,7 +111,7 @@ _CC_API_PUBLIC(DIR*) opendir(const tchar_t *dir_path) {
         } else {
             _cc_free(dp);
             _cc_free(dirs);
-            return nullptr;
+            return NULL;
         }
     }
 
@@ -128,13 +128,13 @@ _CC_API_PUBLIC(struct dirent*) readdir(DIR *dp) {
     DWORD attr;
     uint16_t n = 0;
     if (!dp || dp->finished) {
-        return nullptr;
+        return NULL;
     }
 
     if (dp->offset != 0) {
         if (FindNextFile(dp->handle, &(dp->fileinfo)) == 0) {
             dp->finished = 1;
-            return nullptr;
+            return NULL;
         }
     }
     dp->offset++;
@@ -175,14 +175,14 @@ _CC_API_PUBLIC(int) readdir_r(DIR *dp, struct dirent *entry, struct dirent **res
     DWORD attr;
 
     if (!dp || dp->finished) {
-        *result = nullptr;
+        *result = NULL;
         return 1;
     }
 
     if (dp->offset != 0) {
         if (FindNextFile(dp->handle, &(dp->fileinfo)) == 0) {
             dp->finished = 1;
-            *result = nullptr;
+            *result = NULL;
             return 1;
         }
     }
@@ -266,7 +266,7 @@ DEFINE_GUID(_CC_FOLDERID_VIDEOS_, 0x18989B1D, 0x99B5, 0x455B, 0x84, 0x1C, 0xAB, 
 
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
-    length = GetModuleFileName(nullptr, path, (DWORD)length);
+    length = GetModuleFileName(NULL, path, (DWORD)length);
     if (length == 0) {
         _cc_logger_error(_T("Couldn't locate our .exe"));
         return 0;
@@ -276,7 +276,7 @@ _CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
 
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length) {
-    length = GetModuleFileName(nullptr, path, (DWORD)length);
+    length = GetModuleFileName(NULL, path, (DWORD)length);
     if (length == 0) {
         _cc_logger_error(_T("Couldn't locate our .exe"));
         return 0;
@@ -313,7 +313,7 @@ _CC_API_PUBLIC(size_t) _cc_get_cwd(tchar_t *path, size_t length) {
 _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t length) {
     typedef HRESULT (WINAPI *pfnSHGetKnownFolderPath)(REFGUID /* REFKNOWNFOLDERID */, DWORD, HANDLE, PWSTR*);
     HMODULE lib = LoadLibraryW(L"Shell32.dll");
-    pfnSHGetKnownFolderPath pSHGetKnownFolderPath = nullptr;
+    pfnSHGetKnownFolderPath pSHGetKnownFolderPath = NULL;
     size_t rc = 0;
 
     if (lib) {
@@ -323,7 +323,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
     if (pSHGetKnownFolderPath) {
         GUID type;
         HRESULT hr;
-        PWSTR pszPath = nullptr;
+        PWSTR pszPath = NULL;
 
         switch (folder) {
         case _CC_FOLDER_HOME_:
@@ -375,7 +375,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             goto done;
         };
 
-        hr = pSHGetKnownFolderPath(&type, 0x00008000 /* KF_FLAG_CREATE */, nullptr, &pszPath);
+        hr = pSHGetKnownFolderPath(&type, 0x00008000 /* KF_FLAG_CREATE */, NULL, &pszPath);
         if (SUCCEEDED(hr)) {
             rc = wcslen(pszPath);
 #ifdef _CC_UNICODE_
@@ -449,12 +449,12 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
 
 #if 0
         // Apparently the oldest, but not supported in modern Windows
-        HRESULT hr = SHGetSpecialFolderPath(nullptr, path, type, TRUE);
+        HRESULT hr = SHGetSpecialFolderPath(NULL, path, type, TRUE);
 #endif
 
         /* Windows 2000/XP and later, deprecated as of Windows 10 (still
            available), available in Wine (tested 6.0.3) */
-        hr = SHGetFolderPath(nullptr, type, nullptr, SHGFP_TYPE_CURRENT, path);
+        hr = SHGetFolderPath(NULL, type, NULL, SHGFP_TYPE_CURRENT, path);
 
         // use `== TRUE` for SHGetSpecialFolderPath
         if (SUCCEEDED(hr)) {
@@ -474,7 +474,7 @@ done:
 #if 0
 /**/
 _CC_API_PUBLIC(bool_t) _cc_create_director(const tchar_t *path) {
-    DWORD rc = CreateDirectory(path, nullptr);
+    DWORD rc = CreateDirectory(path, NULL);
     if (!rc && (GetLastError() == ERROR_ALREADY_EXISTS)) {
         WIN32_FILE_ATTRIBUTE_DATA winstat;
         if (GetFileAttributesExW(path, GetFileExInfoStandard, &winstat)) {

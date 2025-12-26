@@ -16,7 +16,7 @@ struct _cc_async_event_priv {
 _CC_API_PRIVATE(bool_t) _emit_kevent(_cc_async_event_priv_t *priv, _cc_event_t *e, bool_t clean) {
     if (priv->number_of_changes >= _CC_KQUEUE_MAX_UPDATE_) {
         /**/
-        int r = kevent(priv->fd, priv->changes, priv->number_of_changes, nullptr, 0, nullptr);
+        int r = kevent(priv->fd, priv->changes, priv->number_of_changes, NULL, 0, NULL);
         if (_cc_unlikely(r)) {
             _cc_logger_error(_T("kevent error %d. events:%d, error:%s"), r, priv->number_of_changes, _cc_last_error(r));
             return false;
@@ -60,7 +60,7 @@ _CC_API_PRIVATE(bool_t) _emit_kevent(_cc_async_event_priv_t *priv, _cc_event_t *
 
 /**/
 _CC_API_PRIVATE(bool_t) _kqueue_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_assert(async != nullptr && e != nullptr);
+    _cc_assert(async != NULL && e != NULL);
     return _reset_event(async, e);
 }
 
@@ -242,7 +242,7 @@ KEVENT_END:
 
 /**/
 _CC_API_PRIVATE(bool_t) _kqueue_event_free(_cc_async_event_t *async) {
-    _cc_assert(async != nullptr);
+    _cc_assert(async != NULL);
 
     if (async->priv) {
         if (async->priv->fd != -1) {
@@ -250,7 +250,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_free(_cc_async_event_t *async) {
         }
 
         _cc_free(async->priv);
-        async->priv = nullptr;
+        async->priv = NULL;
     }
 
     return _unregister_async_event(async);
@@ -292,7 +292,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
      * stick an error in events[0].  If kqueue is broken, then
      * kevent will fail.
      */
-    if (kevent(priv->fd, changes, 1, changes, 2, nullptr) != 1 ||
+    if (kevent(priv->fd, changes, 1, changes, 2, NULL) != 1 ||
         (int)changes[0].ident != -1 || !(changes[0].flags & EV_ERROR)) {
         _cc_logger_error(_T("detected broken kqueue; not using."));
         _cc_close_socket(priv->fd);

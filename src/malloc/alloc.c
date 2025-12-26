@@ -17,9 +17,8 @@
 
 /**/
 _CC_API_PRIVATE(pvoid_t) _out_of_memory_abort(pvoid_t ptr, size_t size, const tchar_t *tp) {
-    if (_cc_unlikely(nullptr == ptr)) {
-        _cc_logger_error(_T("%s: Out of memory trying to allocate %zu bytes"), tp, size);
-        _cc_abort();
+    if (_cc_unlikely(NULL == ptr)) {
+        _cc_abort(_T("%s: Out of memory trying to allocate %zu bytes"), tp, size);
     }
     return ptr;
 }
@@ -38,10 +37,10 @@ _CC_API_PUBLIC(pvoid_t) _cc_calloc(size_t c, size_t n) {
 _CC_API_PUBLIC(pvoid_t) _cc_realloc(pvoid_t d, size_t n) {
     if (_cc_unlikely(n <= 0)) {
         _cc_free(d);
-        return nullptr;
+        return NULL;
     }
 
-    if (_cc_unlikely(d == nullptr)) {
+    if (_cc_unlikely(d == NULL)) {
         return _cc_malloc(n);
     }
     return _out_of_memory_abort(realloc(d, n), n, _T("_cc_realloc"));
@@ -49,7 +48,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_realloc(pvoid_t d, size_t n) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_free(pvoid_t p) {
-    _cc_assert(p != nullptr);
+    _cc_assert(p != NULL);
     free(p);
 }
 #else

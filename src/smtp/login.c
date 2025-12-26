@@ -89,14 +89,14 @@ _CC_API_PRIVATE(bool_t) libsmtp_xauth2_login(_cc_smtp_t* smtp, const byte_t* buf
 
 _CC_API_PUBLIC(bool_t) libsmtp_login(_cc_smtp_t* smtp) {
     _cc_io_buffer_t *io;
-    _cc_assert(smtp != nullptr);
-    _cc_assert(smtp->io != nullptr);
+    _cc_assert(smtp != NULL);
+    _cc_assert(smtp->io != NULL);
 
-    if (smtp == nullptr) {
+    if (smtp == NULL) {
         return false;
     }
 
-    if (smtp->io == nullptr) {
+    if (smtp->io == NULL) {
         _cc_logger_error(_T("Not connected to SMTP server"));
         return false;
     }
@@ -122,9 +122,9 @@ _CC_API_PUBLIC(bool_t) libsmtp_login(_cc_smtp_t* smtp) {
 
 _CC_API_PUBLIC(bool_t) _cc_smtp_logout(_cc_smtp_t* smtp) {
     _cc_io_buffer_t *io;
-    _cc_assert(smtp != nullptr && smtp->io != nullptr);
+    _cc_assert(smtp != NULL && smtp->io != NULL);
 
-    if (smtp == nullptr || smtp->io == nullptr) {
+    if (smtp == NULL || smtp->io == NULL) {
         return false;
     }
 

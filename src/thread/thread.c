@@ -66,7 +66,7 @@ _CC_API_PUBLIC(_cc_thread_t*) _cc_thread_with_stacksize(_cc_thread_callback_t ca
     self->stack_size = stacksize > 0 ? stacksize : 0;
     _cc_atomic32_set(&self->state, _CC_THREAD_STATE_ALIVE_);
 
-    if (name != nullptr) {
+    if (name != NULL) {
         self->name = _cc_sds_alloc(name,0);
     }
 
@@ -78,7 +78,7 @@ _CC_API_PUBLIC(_cc_thread_t*) _cc_thread_with_stacksize(_cc_thread_callback_t ca
     if (_cc_unlikely(!_cc_create_sys_thread(self))) {
         /* Oops, failed.  Gotta free everything */
         _cc_free(self);
-        self = nullptr;
+        self = NULL;
     }
 
     /* Everything is running now */
@@ -102,7 +102,7 @@ _CC_API_PUBLIC(size_t) _cc_get_thread_id(_cc_thread_t *self) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_wait_thread(_cc_thread_t *self, int32_t *status) {
-    _cc_assert(self != nullptr);
+    _cc_assert(self != NULL);
 
     _cc_wait_sys_thread(self);
     if (status) {
@@ -116,7 +116,7 @@ _CC_API_PUBLIC(void) _cc_wait_thread(_cc_thread_t *self, int32_t *status) {
 
 /**/
 _CC_API_PUBLIC(void) _cc_detach_thread(_cc_thread_t *self) {
-    _cc_assert(self != nullptr);
+    _cc_assert(self != NULL);
 
     /* Grab dibs if the state is alive+joinable. */
     if (_cc_atomic32_cas(&self->state, _CC_THREAD_STATE_ALIVE_, _CC_THREAD_STATE_DETACHED_)) {
@@ -129,7 +129,7 @@ _CC_API_PUBLIC(void) _cc_detach_thread(_cc_thread_t *self) {
             return;
         } else if (state == _CC_THREAD_STATE_COMPLETE_) {
             /* already done, clean it up. */
-            _cc_wait_thread(self, nullptr);
+            _cc_wait_thread(self, NULL);
         } else {
             _cc_assert(0 && "Unexpected thread state");
         }

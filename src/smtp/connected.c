@@ -42,7 +42,7 @@ _CC_API_PRIVATE(bool_t) libsmtp_connected(_cc_smtp_t* smtp, const byte_t* buf, u
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_smtp_connected(_cc_smtp_t* smtp) {
-    if (smtp == nullptr) {
+    if (smtp == NULL) {
         return false;
     }
     smtp->io->w.off = 0;

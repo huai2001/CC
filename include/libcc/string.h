@@ -27,7 +27,7 @@ typedef struct {
 
 #define _cc_string_null(_str) do { \
     (_str)->length = 0;\
-    (_str)->ptr = nullptr;\
+    (_str)->ptr = NULL;\
 } while(0)
 
 /*for porting from GCC compilers*/

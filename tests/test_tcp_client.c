@@ -47,7 +47,7 @@ bool_t _connect_server(const tchar_t *host, uint16_t port) {
 
     event = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_|_CC_EVENT_READABLE_);
     _cc_assert(event != NULL);
-    if (event == nullptr) {
+    if (event == NULL) {
         return false;
     }
 
@@ -65,7 +65,7 @@ bool_t _connect_server(const tchar_t *host, uint16_t port) {
 
 int main (int argc, char * const argv[]) {
     int c;
-    _cc_alloc_async_event(0, nullptr);
+    _cc_alloc_async_event(0, NULL);
 
     _connect_server(_T("127.0.0.1"), 5500);
 

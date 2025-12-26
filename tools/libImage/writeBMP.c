@@ -3,17 +3,17 @@
 
 bool_t _cc_write_BMP(const tchar_t *file_name, _cc_image_t *image) {
     BMPHeader_t imageHeader;
-    void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = nullptr;
-    byte_t *scan_lines = nullptr;
-    byte_t *row = nullptr;
+    void (*color_convert_format)(const pvoid_t sP, int32_t sN, pvoid_t dP) = NULL;
+    byte_t *scan_lines = NULL;
+    byte_t *row = NULL;
     int32_t y = 0;
     uint32_t row_stride = 0;
     size_t row_size = 0;
 
-    _cc_file_t *wfp = nullptr;
+    _cc_file_t *wfp = NULL;
 
     scan_lines = image->data;
-    if (scan_lines == nullptr) {
+    if (scan_lines == NULL) {
         return false;
     }
 
@@ -67,12 +67,12 @@ bool_t _cc_write_BMP(const tchar_t *file_name, _cc_image_t *image) {
     row_size = ((3 * imageHeader.Width) + 3) & ~3;
 
     row = (byte_t*)_cc_malloc(row_size);
-    if (row == nullptr) {
+    if (row == NULL) {
         return false;
     }
 
     wfp = _cc_open_file(file_name, _T("wb"));
-    if (wfp == nullptr) {
+    if (wfp == NULL) {
         _cc_free(row);
         return false;
     }

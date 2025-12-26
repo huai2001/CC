@@ -35,7 +35,7 @@ typedef BOOL(WINAPI *pfnGetUserPreferredUILanguages)(DWORD, PULONG, WCHAR *, PUL
 #define MUI_LANGUAGE_NAME 0x8
 #endif
 
-static pfnGetUserPreferredUILanguages pGetUserPreferredUILanguages = nullptr;
+static pfnGetUserPreferredUILanguages pGetUserPreferredUILanguages = NULL;
 
 /* this is the fallback for WinXP...one language, not a list. */
 _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t buflen) {
@@ -56,11 +56,11 @@ _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t
 /* this works on Windows Vista and later. */
 _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t buflen) {
     ULONG numlangs = 0;
-    WCHAR *wbuf = nullptr;
+    WCHAR *wbuf = NULL;
     ULONG wbuflen = 0;
 
-    _cc_assert(pGetUserPreferredUILanguages != nullptr);
-    pGetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numlangs, nullptr, &wbuflen);
+    _cc_assert(pGetUserPreferredUILanguages != NULL);
+    pGetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numlangs, NULL, &wbuflen);
 
     wbuf = (WCHAR *)_cc_malloc(sizeof(WCHAR) * wbuflen);
     if (!pGetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numlangs, wbuf, &wbuflen)) {
@@ -72,7 +72,7 @@ _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t
             const WCHAR ch = (WCHAR)wbuf[i];
             /* these should all be low-ASCII, safe to cast */
             if (ch == '\0') {
-                /* change nullptr separators to commas */
+                /* change NULL separators to commas */
                 wbuf[i] = ',';
                 str_start = i;
             }
@@ -91,7 +91,7 @@ _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_vista(tchar_t *buf, size_t
 _CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t buflen) {
     pGetUserPreferredUILanguages =
         (pfnGetUserPreferredUILanguages)GetProcAddress(_cc_load_windows_kernel32(), "GetUserPreferredUILanguages");
-    if (pGetUserPreferredUILanguages == nullptr) {
+    if (pGetUserPreferredUILanguages == NULL) {
         SYS_GetUserPreferredUILanguages_winxp(buf, buflen);
     } else {
         SYS_GetUserPreferredUILanguages_vista(buf, buflen);

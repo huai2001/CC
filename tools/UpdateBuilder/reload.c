@@ -30,16 +30,16 @@ static bool_t isFillerList(tchar_t *name, int32_t namlen) {
 static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_result_t *result) {
     tchar_t sourceFile[_CC_MAX_PATH_] = {0};
     tchar_t updateFile[_CC_MAX_PATH_] = {0};
-    DIR *dpath = nullptr;
+    DIR *dpath = NULL;
     struct dirent *d;
     struct _stat stat_buf;
 
-    if( (dpath = opendir(directory)) == nullptr) {
+    if( (dpath = opendir(directory)) == NULL) {
         _cc_logger_error("opendir:fail(%s).\n",directory);
         return;
     }
     
-    while ((d = readdir(dpath)) != nullptr) {
+    while ((d = readdir(dpath)) != NULL) {
         //
         if (isFillerList(d->d_name, -1)) continue;
 
@@ -69,17 +69,17 @@ static void OpenDeepDirectory(const tchar_t *directory, _cc_sql_t *sql, _cc_sql_
 
 int builder_ReloadList(void) {
     _cc_string_t sql_str;
-    _cc_sql_result_t *result = nullptr;
+    _cc_sql_result_t *result = NULL;
 
     _cc_sql_t *sql = openSQLite3();
-    if (sql == nullptr) {
+    if (sql == NULL) {
         return 1;
     }
 
     _cc_string_set(&sql_str, "DELETE FROM `FileList`;");
-    sqldelegate.execute(sql, &sql_str, nullptr);
+    sqldelegate.execute(sql, &sql_str, NULL);
     _cc_string_set(&sql_str, "UPDATE sqlite_sequence SET seq = 0 WHERE name = 'FileList';");
-    sqldelegate.execute(sql, &sql_str, nullptr);
+    sqldelegate.execute(sql, &sql_str, NULL);
     _cc_string_set(&sql_str, "INSERT INTO `FileList` (`Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path`) VALUES ( ?,'',0,?,?,?);");
     if (sqldelegate.execute(sql, &sql_str, &result)) {
         OpenDeepDirectory(sourceDirectory, sql, result);

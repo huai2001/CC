@@ -3,8 +3,8 @@
 
 _CC_API_PUBLIC(_cc_http_header_t*) _cc_http_header_alloc(void) {
     _cc_http_header_t *m = (_cc_http_header_t *)_cc_malloc(sizeof(_cc_http_header_t));
-    m->keyword = nullptr;
-    m->value = nullptr;
+    m->keyword = NULL;
+    m->value = NULL;
     return m;
 }
 
@@ -20,9 +20,9 @@ _CC_API_PUBLIC(void) _cc_http_header_free(_cc_http_header_t *m) {
 
 _CC_API_PUBLIC(bool_t) _cc_http_header_push(_cc_rbtree_t *ctx, _cc_http_header_t *data) {
     int32_t result = 0;
-    _cc_http_header_t *m = nullptr;
+    _cc_http_header_t *m = NULL;
 
-    _cc_rbtree_iterator_t **node = &(ctx->rb_node), *parent = nullptr;
+    _cc_rbtree_iterator_t **node = &(ctx->rb_node), *parent = NULL;
     while (*node) {
         m = _cc_upcast(*node, _cc_http_header_t, lnk);
         result = _tcsicmp(data->keyword, m->keyword);
@@ -39,7 +39,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_header_push(_cc_rbtree_t *ctx, _cc_http_header_t
             }
             m->value = data->value;
             
-            data->value = nullptr;
+            data->value = NULL;
             _cc_http_header_free(data);
             return true;
         }
@@ -64,7 +64,7 @@ _CC_API_PUBLIC(const _cc_http_header_t*) _cc_http_header_find(_cc_rbtree_t *ctx,
             return m;
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 static void _http_header_free(_cc_rbtree_iterator_t *node) {
@@ -72,7 +72,7 @@ static void _http_header_free(_cc_rbtree_iterator_t *node) {
 }
 
 _CC_API_PUBLIC(void) _cc_http_header_destroy(_cc_rbtree_t *ctx) {
-    _cc_assert(ctx != nullptr);
+    _cc_assert(ctx != NULL);
     _cc_rbtree_destroy(ctx, _http_header_free);
 }
 
@@ -127,7 +127,7 @@ _CC_API_PUBLIC(int) _cc_http_header_parser(_cc_http_header_fn_t fn, pvoid_t *arg
     int result = _CC_HTTP_STATE_HEADER_;
     while (true) {
         n = memchr(start, '\n', *length - (start - bytes));
-        if (n == nullptr) {
+        if (n == NULL) {
             break;
         }
 

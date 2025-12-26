@@ -101,9 +101,9 @@ _CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int3
     *percent = -1;
     *state = _CC_POWERSTATE_UNKNOWN_;
 
-    if (blob != nullptr) {
+    if (blob != NULL) {
         CFArrayRef list = IOPSCopyPowerSourcesList(blob);
-        if (list != nullptr) {
+        if (list != NULL) {
             /* don't CFRelease() the list items, or dictionaries! */
             bool_t have_ac = false;
             bool_t have_battery = false;
@@ -113,7 +113,7 @@ _CC_API_PUBLIC(bool_t) _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_ *state, int3
             for (i = 0; i < total; i++) {
                 CFTypeRef ps = (CFTypeRef)CFArrayGetValueAtIndex(list, i);
                 CFDictionaryRef dict = IOPSGetPowerSourceDescription(blob, ps);
-                if (dict != nullptr) {
+                if (dict != NULL) {
                     checkps(dict, &have_ac, &have_battery, &charging, seconds, percent);
                 }
             }

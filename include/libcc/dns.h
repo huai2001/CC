@@ -81,7 +81,7 @@ typedef struct _cc_dns {
 #define _CC_DNS_ERR_FORMAT_ERROR_            1  /* Format error of request string */
 #define _CC_DNS_ERR_TOKEN_TOO_LONG_          2  /* A token was longer than 63 */
 #define _CC_DNS_ERR_SEE_ERRNO_               3  /* Look at value of errno */
-#define _CC_DNS_ERR_NULL_PARAM_              4  /* A nullptr parameter was given */
+#define _CC_DNS_ERR_NULL_PARAM_              4  /* A NULL parameter was given */
 #define _CC_DNS_ERR_INVALID_QUERY_           5  /* The given _cc_dns_t is invalid */
 #define _CC_DNS_ERR_PARAM_ERROR_             6  /* Function given invalid param */
 #define _CC_DNS_ERR_QUERY_TOO_LONG_          7  /* The whole query is too big

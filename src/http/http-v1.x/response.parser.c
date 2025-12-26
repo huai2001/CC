@@ -5,7 +5,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
     int32_t first = 0, last = 0;
     _cc_http_response_header_t *response = *url_response;
     //_tprintf(_T("%.*s\n"), length, line);
-    if (response == nullptr) {
+    if (response == NULL) {
         /* Parse the first line of the HTTP response */
         if (_tcsnicmp(line, _T("HTTP/"), 5) != 0) {
             /* LOG: bad protocol in HTTP header */
@@ -13,7 +13,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
         }
 
         response = (_cc_http_response_header_t *)_cc_calloc(1, sizeof(_cc_http_response_header_t));
-        if (response == nullptr) {
+        if (response == NULL) {
             return false;
         }
         
@@ -57,12 +57,12 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
 
 _CC_API_PUBLIC(void) _cc_http_free_response_header(_cc_http_response_header_t **response_header) {
     _cc_http_response_header_t *res = *response_header;
-    _cc_assert(response_header != nullptr && res != nullptr);
-    if (response_header == nullptr || res == nullptr) {
+    _cc_assert(response_header != NULL && res != NULL);
+    if (response_header == NULL || res == NULL) {
         return;
     }
 
-    (*response_header) = nullptr;
+    (*response_header) = NULL;
 
     if (res->protocol) {
         _cc_sds_free(res->protocol);

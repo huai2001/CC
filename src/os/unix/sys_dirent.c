@@ -21,7 +21,7 @@ _CC_API_PRIVATE(int32_t) readSymLink(const char *path, tchar_t *cwd, int32_t max
     if (rc == -1) {
         return -1;
     } else if (rc < maxlen) {
-        /* readlink doesn't nullptr-terminate. */
+        /* readlink doesn't NULL-terminate. */
         cwd[rc] = '\0';
     } else {
         cwd[maxlen - 1] = '\0';
@@ -35,7 +35,7 @@ _CC_API_PRIVATE(size_t) _sym_link(tchar_t *cwd, size_t maxlen) {
 #if defined(__CC_FREEBSD__)
     rc = maxlen;
     const int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
-    if (sysctl(mib, _cc_countof(mib), cwd, &rc, nullptr, 0) != -1) {
+    if (sysctl(mib, _cc_countof(mib), cwd, &rc, NULL, 0) != -1) {
         if (!cwd) {
             _cc_logger_error("failed : sysctl! ");
             return 0;
@@ -47,9 +47,9 @@ _CC_API_PRIVATE(size_t) _sym_link(tchar_t *cwd, size_t maxlen) {
 #if defined(__CC_OPENBSD__)
     char **args;
     const int mib[] = {CTL_KERN, KERN_PROC_ARGS, getpid(), KERN_PROC_ARGV};
-    if (sysctl(mib, 4, nullptr, &rc, nullptr, 0) != -1) {
+    if (sysctl(mib, 4, NULL, &rc, NULL, 0) != -1) {
         args = (char **)_cc_malloc(rc);
-        sysctl(mib, 4, args, &rc, nullptr, 0);
+        sysctl(mib, 4, args, &rc, NULL, 0);
         realpath(args[0], cwd);
         _cc_free(args);
 
@@ -85,7 +85,7 @@ _CC_API_PRIVATE(size_t) _sym_link(tchar_t *cwd, size_t maxlen) {
     #if defined(__CC_SOLARIS__)
     if (rc <= 0) {
         char *path = getexecname();
-        if ((path != nullptr) && (path[0] == _CC_SLASH_C_)) { /* must be absolute path... */
+        if ((path != NULL) && (path[0] == _CC_SLASH_C_)) { /* must be absolute path... */
             _tcsncpy(cwd, path, maxlen);
             cwd[maxlen - 1] = 0;
             rc = (size_t)strlen(cwd);
@@ -119,7 +119,7 @@ _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t len) {
 }
 
 _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t length) {
-    const tchar_t *param = nullptr;
+    const tchar_t *param = NULL;
     struct passwd *pw = getpwuid(getuid());
 
     switch(folder) {

@@ -19,8 +19,8 @@ _CC_API_PRIVATE(bool_t) _XML_is_name_char(int ch) {
 }
 
 _CC_API_PRIVATE(_cc_sds_t) _XML_parser_name(_cc_sbuf_t *const buffer) {
-    _cc_sds_t output = nullptr;
-    const tchar_t *start = _cc_sbuf_offset(buffer), *ended = nullptr;
+    _cc_sds_t output = NULL;
+    const tchar_t *start = _cc_sbuf_offset(buffer), *ended = NULL;
     const tchar_t *p = start;
 
     while (*p && ((size_t)(p - buffer->content) < buffer->length)) {
@@ -39,7 +39,7 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_name(_cc_sbuf_t *const buffer) {
     }
 
     if (!ended) {
-        return nullptr;
+        return NULL;
     }
 
     output = _cc_sds_alloc(start, (size_t)(ended - start));
@@ -66,7 +66,7 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_doctype(_cc_sbuf_t *const buffer) {
 _CC_API_PRIVATE(bool_t) _XML_parser_comments(_cc_sbuf_t *const buffer, _cc_sds_t *output) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *start = p;
-    const tchar_t *endpos = nullptr;
+    const tchar_t *endpos = NULL;
     size_t alloc_length = 0;
     size_t skipped_bytes = 0;
 
@@ -99,14 +99,14 @@ _CC_API_PRIVATE(bool_t) _XML_parser_comments(_cc_sbuf_t *const buffer, _cc_sds_t
 
     /* This is at most how much we need for the output */
     alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
-    *output = _cc_sds_alloc(nullptr, alloc_length);
+    *output = _cc_sds_alloc(NULL, alloc_length);
     if (_convert_text(*output, start, p)) {
         buffer->offset = (size_t)(p - buffer->content) + 3;
         return true;
     }
 
     _cc_sds_free(*output);
-    *output = nullptr;
+    *output = NULL;
 
     return false;
 }
@@ -120,7 +120,7 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
     byte_t cdata = context->cdata;
 
     const tchar_t *start = p;
-    const tchar_t *endpos = nullptr;
+    const tchar_t *endpos = NULL;
 
     _cc_alloc_buf(&buf, 1024);
     endpos = buffer->content + buffer->length;
@@ -164,14 +164,14 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
 
     /* This is at most how much we need for the output */
     start = _cc_buf_stringify(&buf,&alloc_length);
-    context->text = _cc_sds_alloc(nullptr, alloc_length);
+    context->text = _cc_sds_alloc(NULL, alloc_length);
     if (_convert_text(context->text, (const tchar_t *)buf.bytes, (const tchar_t *)start + alloc_length)) {
         _cc_free_buf(&buf);
         return true;
     }
 
     _cc_sds_free(context->text);
-    context->text = nullptr;
+    context->text = NULL;
 
     _cc_free_buf(&buf);
     return false;
@@ -199,9 +199,9 @@ _CC_API_PRIVATE(int32_t) _XML_is_attr_value_end_tag(const tchar_t *p, const tcha
 
 _CC_API_PRIVATE(_cc_sds_t) _XML_parser_attr_value(_cc_sbuf_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
-    const tchar_t *start = nullptr;
-    const tchar_t *endpos = nullptr;
-    _cc_sds_t output = nullptr;
+    const tchar_t *start = NULL;
+    const tchar_t *endpos = NULL;
+    _cc_sds_t output = NULL;
     size_t alloc_length = 0;
     size_t skipped_bytes = 0;
     tchar_t quotes = *p;
@@ -223,7 +223,7 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_attr_value(_cc_sbuf_t *const buffer) {
         if (*p == _T('\\')) {
             /* is escape sequence */
             if ((p + 1) >= endpos) {
-                return nullptr;
+                return NULL;
             }
             skipped_bytes++;
             p++;
@@ -232,7 +232,7 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_attr_value(_cc_sbuf_t *const buffer) {
     }
 
     if (p >= endpos || endflag == 0) {
-        return nullptr;
+        return NULL;
     }
 
     endpos = p;
@@ -244,22 +244,22 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_attr_value(_cc_sbuf_t *const buffer) {
     
     /* This is at most how much we need for the output */
     alloc_length = ((size_t)(endpos - start) - skipped_bytes + 1);
-    output = _cc_sds_alloc(nullptr, alloc_length);
+    output = _cc_sds_alloc(NULL, alloc_length);
 
     if (_convert_text(output, start, endpos)) {
         buffer->offset = (size_t)(p - buffer->content) + endflag;
         return output;
     }
     _cc_sds_free(output);
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_t *const buffer) {
     const tchar_t *tmp;
 
     do {
-        _cc_sds_t name = nullptr;
-        _cc_sds_t value = nullptr;
+        _cc_sds_t name = NULL;
+        _cc_sds_t value = NULL;
         if (!_XML_jump_whitespace(buffer)) {
             return false;
         }
@@ -288,7 +288,7 @@ _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_t *const buffer)
         ** ! parse the name of the key
         */
         name = _XML_parser_name(buffer);
-        if (name == nullptr) {
+        if (name == NULL) {
             break;
         }
 
@@ -308,7 +308,7 @@ _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_t *const buffer)
             }
             /*parse the value*/
             value = _XML_parser_attr_value(buffer);
-            if (value == nullptr) {
+            if (value == NULL) {
                 _cc_sds_free(name);
                 break;
             }
@@ -372,7 +372,7 @@ static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer, int32_t 
                 /* skip < */
                 buffer->offset++;
                 item->name = _XML_parser_name(buffer);
-                if (item->name == nullptr) {
+                if (item->name == NULL) {
                     return false;
                 }
 
@@ -435,7 +435,7 @@ _CC_API_PRIVATE(bool_t) _XML_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer) {
         buffer->offset += 2;
 
         ctx->name = _XML_parser_name(buffer);
-        if (_cc_unlikely(ctx->name == nullptr)) {
+        if (_cc_unlikely(ctx->name == NULL)) {
             return false;
         }
         if (_XML_attr_read(&ctx->attr, buffer) == 0) {
@@ -450,10 +450,10 @@ _CC_API_PRIVATE(bool_t) _XML_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer) {
 }
 
 _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer) {
-    _cc_xml_t *item = nullptr;
+    _cc_xml_t *item = NULL;
     _cc_syntax_error_t local_error;
 
-    local_error.content = nullptr;
+    local_error.content = NULL;
     local_error.position = 0;
 
     item = (_cc_xml_t *)_cc_malloc(sizeof(_cc_xml_t));
@@ -474,16 +474,16 @@ _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_parser(_cc_sbuf_t *const buffer) {
     _cc_syntax_error(&local_error);
 
     _cc_free_xml(item);
-    return nullptr;
+    return NULL;
 }
 
 _CC_API_PUBLIC(_cc_xml_t*) _cc_xml_from_file(const tchar_t *file_name) {
     _cc_sbuf_t buffer;
-    _cc_xml_t *item = nullptr;
+    _cc_xml_t *item = NULL;
     _cc_buf_t buf;
 
     if (!_cc_buf_from_file(&buf, file_name)) {
-        return nullptr;
+        return NULL;
     }
 
     buffer.content = (tchar_t*)buf.bytes;
