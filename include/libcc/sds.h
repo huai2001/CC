@@ -52,8 +52,13 @@ struct _sds_hdr64 {
 #pragma pack(pop)
 
 _CC_FORCE_INLINE_ size_t _cc_sds_length(const _cc_sds_t s) {
-    byte_t *hdr = (byte_t*)s;
-    byte_t flags = *(hdr - sizeof(byte_t));
+    byte_t *hdr;
+    byte_t flags;
+    if (s == 0) {
+        return 0;
+    }
+    hdr = (byte_t*)s;
+    flags = *(hdr - sizeof(byte_t));
     switch (flags & _SDS_MASK_) {
         case _SDS_MASK_5_: {
             struct _sds_hdr5 *h = (struct _sds_hdr5 *)(hdr - sizeof(struct _sds_hdr5));
@@ -81,8 +86,13 @@ _CC_FORCE_INLINE_ size_t _cc_sds_length(const _cc_sds_t s) {
 }
 
 _CC_FORCE_INLINE_ void _cc_sds_set_length(_cc_sds_t s, size_t length) {
-    byte_t *hdr = (byte_t*)s;
-    byte_t flags = *(hdr - sizeof(byte_t));
+    byte_t *hdr;
+    byte_t flags;
+    if (s == 0) {
+        return;
+    }
+    hdr = (byte_t*)s;
+    flags = *(hdr - sizeof(byte_t));
     switch (flags & _SDS_MASK_) {
         case _SDS_MASK_5_: {
             struct _sds_hdr5 *h = (struct _sds_hdr5 *)(hdr - sizeof(struct _sds_hdr5));
@@ -117,6 +127,9 @@ _CC_FORCE_INLINE_ void _cc_sds_set_length(_cc_sds_t s, size_t length) {
 _CC_FORCE_INLINE_ size_t _cc_sds_available(const _cc_sds_t s) {
     byte_t *hdr = (byte_t*)s;
     byte_t flags = *(hdr - sizeof(byte_t));
+    if (s == 0) {
+        return 0;
+    }
     switch (flags & _SDS_MASK_) {
         case _SDS_MASK_5_: {
             struct _sds_hdr5 *h = (struct _sds_hdr5 *)(hdr - sizeof(struct _sds_hdr5));

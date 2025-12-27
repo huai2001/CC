@@ -221,15 +221,16 @@ _CC_API_PRIVATE(bool_t) _mysql_disconnect(_cc_sql_t *ctx) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t)
-_cc_mysql_prepare(_cc_sql_t *ctx, MYSQL_STMT *stmt, const char_t *sql_string, unsigned long sql_string_len) {
+_CC_API_PRIVATE(bool_t) _cc_mysql_prepare(_cc_sql_t *ctx, MYSQL_STMT *stmt, const char_t *sql_string, unsigned long sql_string_len) {
     if (mysql_stmt_prepare(stmt, sql_string, sql_string_len)) {
         if (_mysql_error(ctx)) {
             if (mysql_stmt_prepare(stmt, sql_string, sql_string_len)) {
+                _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_stmt_errno(stmt), mysql_stmt_error(stmt));
                 return false;
             }
             return true;
         }
+        _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_stmt_errno(stmt), mysql_stmt_error(stmt));
         return false;
     }
     return true;
@@ -239,10 +240,12 @@ _CC_API_PRIVATE(bool_t) _cc_mysql_query(_cc_sql_t *ctx, const char_t *sql_string
     if (mysql_real_query(ctx->sql, sql_string, sql_string_len)) {
         if (_mysql_error(ctx)) {
             if (mysql_real_query(ctx->sql, sql_string, sql_string_len)) {
+                _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
                 return false;
             }
             return true;
         }
+        _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
     return true;
@@ -271,13 +274,21 @@ _CC_API_PRIVATE(bool_t) _mysql_begin_transaction(_cc_sql_t *ctx) {
 /**/
 _CC_API_PRIVATE(bool_t) _mysql_commit(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
-    return mysql_commit(ctx->sql);
+    if (mysql_commit(ctx->sql) != 0) {
+        _cc_logger_error(_T("mysql_commit error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        return false;
+    }
+    return true;
 }
 
 /**/
 _CC_API_PRIVATE(bool_t) _mysql_rollback(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
-    return mysql_rollback(ctx->sql);
+    if (mysql_rollback(ctx->sql) != 0) {
+        _cc_logger_error(_T("mysql_commit error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        return false;
+    }
+    return true;
 }
 
 /**/
@@ -428,11 +439,13 @@ _CC_API_PRIVATE(bool_t) _mysql_step(_cc_sql_result_t *result) {
 
     if (result->binds) {
         if (mysql_stmt_bind_param(result->stmt, result->binds) != 0) {
+            _cc_logger_error(_T("mysql_stmt_bind_param error %d: %s"), mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
             return false;
         }
     }
 
     if (mysql_stmt_execute(result->stmt) != 0) {
+        _cc_logger_error(_T("mysql_stmt_execute error %d: %s"), mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
         return false;
     }
 
@@ -447,6 +460,7 @@ _CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_result_t *result) {
     __free_dataset(result);
 
     if (!mysql_stmt_next_result(result->stmt)) {
+        _cc_logger_error(_T("mysql_stmt_next_result error %d: %s"), mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
         return false;
     }
 

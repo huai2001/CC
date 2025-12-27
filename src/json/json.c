@@ -160,7 +160,11 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_float(_cc_json_t *ctx, const tchar_t *k
 /**/
 _CC_API_PUBLIC(_cc_json_t*) _cc_json_add_string(_cc_json_t *ctx, const tchar_t *keyword, const tchar_t *value) {
     _cc_json_t *item = _cc_json_alloc_object(_CC_JSON_STRING_, keyword);
-    item->element.uni_string = _cc_sds_alloc(value,_tcslen(value));
+    if (value) {
+        item->element.uni_string = _cc_sds_alloc(value,_tcslen(value));
+    } else {
+        item->element.uni_string = NULL;
+    }
     if (ctx->type == _CC_JSON_ARRAY_) {
         _json_array_push(ctx, item);
         return item;

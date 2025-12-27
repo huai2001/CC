@@ -70,11 +70,6 @@ void test_json_from_file() {
 
     read_remove_comments(&buf);
 }
-
-/* Main function */
 int main() {
-    printf("Running JSON tests...\n");
-    test_json_from_file();
-    printf("All tests completed.\n");
     return 0;
 }

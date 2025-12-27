@@ -1,111 +1,105 @@
-#include <check.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include "../src/rbtree.h"
+#include <string.h>
+#include <assert.h>
+#include <libcc/rbtree.h>
 
-START_TEST(test_rbtree_insert) {
-    _cc_rbtree_t tree = {0};
-    _cc_rbtree_iterator_t node = {0};
+// 数据节点结构
+struct data_node {
+    _cc_rbtree_iterator_t node;
+    int key;
+};
 
-    // Test inserting a single node
-    _cc_rbtree_insert_color(&tree, &node);
-    ck_assert_ptr_eq(tree.rb_node, &node);
-    ck_assert_int_eq(_rb_is_black(tree.rb_node), 1);
-
-    // Test inserting multiple nodes
-    _cc_rbtree_iterator_t node2 = {0};
-    _cc_rbtree_insert_color(&tree, &node2);
-    ck_assert_ptr_ne(tree.rb_node, &node2);
-}
-END_TEST
-
-START_TEST(test_rbtree_erase) {
-    _cc_rbtree_t tree = {0};
-    _cc_rbtree_iterator_t node = {0};
-    _cc_rbtree_iterator_t node2 = {0};
-
-    _cc_rbtree_insert_color(&tree, &node);
-    _cc_rbtree_insert_color(&tree, &node2);
-
-    // Test erasing a node
-    _cc_rbtree_erase(&tree, &node);
-    ck_assert_ptr_eq(tree.rb_node, &node2);
-}
-END_TEST
-
-START_TEST(test_rbtree_first_last) {
-    _cc_rbtree_t tree = {0};
-    _cc_rbtree_iterator_t node = {0};
-    _cc_rbtree_iterator_t node2 = {0};
-
-    _cc_rbtree_insert_color(&tree, &node);
-    _cc_rbtree_insert_color(&tree, &node2);
-
-    // Test first node
-    ck_assert_ptr_eq(_cc_rbtree_first(&tree), &node);
-
-    // Test last node
-    ck_assert_ptr_eq(_cc_rbtree_last(&tree), &node2);
-}
-END_TEST
-
-START_TEST(test_rbtree_next_prev) {
-    _cc_rbtree_t tree = {0};
-    _cc_rbtree_iterator_t node = {0};
-    _cc_rbtree_iterator_t node2 = {0};
-
-    _cc_rbtree_insert_color(&tree, &node);
-    _cc_rbtree_insert_color(&tree, &node2);
-
-    // Test next node
-    ck_assert_ptr_eq(_cc_rbtree_next(&node), &node2);
-
-    // Test previous node
-    ck_assert_ptr_eq(_cc_rbtree_prev(&node2), &node);
-}
-END_TEST
-
-START_TEST(test_rbtree_replace_node) {
-    _cc_rbtree_t tree = {0};
-    _cc_rbtree_iterator_t node = {0};
-    _cc_rbtree_iterator_t node2 = {0};
-    _cc_rbtree_iterator_t new_node = {0};
-
-    _cc_rbtree_insert_color(&tree, &node);
-    _cc_rbtree_insert_color(&tree, &node2);
-
-    // Test replacing a node
-    _cc_rbtree_replace_node(&tree, &node, &new_node);
-    ck_assert_ptr_eq(tree.rb_node, &new_node);
-}
-END_TEST
-
-Suite *rbtree_suite(void) {
-    Suite *s;
-    TCase *tc_core;
-
-    s = suite_create("Red-Black Tree");
-    tc_core = tcase_create("Core");
-
-    tcase_add_test(tc_core, test_rbtree_insert);
-    tcase_add_test(tc_core, test_rbtree_erase);
-    tcase_add_test(tc_core, test_rbtree_first_last);
-    tcase_add_test(tc_core, test_rbtree_next_prev);
-    tcase_add_test(tc_core, test_rbtree_replace_node);
-
-    suite_add_tcase(s, tc_core);
-    return s;
+// 递归遍历
+void rbtree_traverse_recursive(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rbtree_iterator_t *)) {
+    if (node->left) rbtree_traverse_recursive(node->left, cb);
+    cb(node);
+    if (node->right) rbtree_traverse_recursive(node->right, cb);
 }
 
-int main(void) {
-    int number_failed;
-    Suite *s;
-    SRunner *sr;
+// 迭代遍历
+void rbtree_traverse_iterative(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterator_t *)) {
+    _cc_rbtree_iterator_t *node;
+    for (node = _cc_rbtree_first(root); node; node = _cc_rbtree_next(node)) {
+        cb(node);
+    }
+}
+// 优化迭代遍历函数
+void rbtree_iterative_traverse(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterator_t *)) {
+    _cc_rbtree_iterator_t *stack[1000], *node = root->rb_node;
+    int top = -1;
+    while (node || top >= 0) {
+        if (node) {
+            stack[++top] = node;
+            node = node->left;
+        } else {
+            node = stack[top--];
+            cb(node); // 处理节点
+            node = node->right;
+        }
+    }
+}
+// 回调函数
+void print_node(_cc_rbtree_iterator_t *node) {
+    struct data_node *data = _cc_upcast(node, struct data_node, node);
+    //printf("%d ", data->key);
+    if (data == 0) {
+        printf("%d ", data->key);
+    }
+}
 
-    s = rbtree_suite();
-    sr = srunner_create(s);
+_CC_API_PUBLIC(bool_t) rbtree_push(_cc_rbtree_t *root, struct data_node *data) {
+    int32_t result = 0;
+    struct data_node *self;
+    _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = NULL;
 
-    srunner_run_all(sr, CK_NORMAL);
-    number_failed = srunner_ntests_failed(sr);
-    srunner_free(sr);
-    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+    while (*node) {
+        self = _cc_upcast(*node, struct data_node, node);
+        result = self->key - data->key;
+
+        parent = *node;
+
+        if (result < 0) {
+            node = &((*node)->left);
+        } else if (result > 0) {
+            node = &((*node)->right);
+        } else {
+            return false;
+        }
+    }
+
+    _cc_rbtree_insert(root, &data->node, parent, node);
+
+    return true;
+}
+
+int main() {
+    _cc_rbtree_t mytree = { NULL };
+    struct data_node *nodes[1000000];
+
+    // 插入10000个节点
+    for (int i = 0; i < 1000000; i++) {
+        nodes[i] = malloc(sizeof(struct data_node));
+        nodes[i]->key = i;
+        rbtree_push(&mytree,nodes[i]);
+    }
+
+    // 测试递归遍历性能
+    clock_t start = clock();
+    rbtree_traverse_recursive(mytree.rb_node, print_node);
+    clock_t end = clock();
+    printf("\n递归遍历耗时: %.6f秒\n", (double)(end - start) / CLOCKS_PER_SEC);
+
+    // 测试迭代遍历性能
+    start = clock();
+    rbtree_traverse_iterative(&mytree, print_node);
+    end = clock();
+    printf("迭代遍历耗时: %.6f秒\n", (double)(end - start) / CLOCKS_PER_SEC);
+
+    // 测试迭代遍历性能
+    start = clock();
+    rbtree_iterative_traverse(&mytree, print_node);
+    end = clock();
+    printf("优化迭代遍历: %.6f秒\n", (double)(end - start) / CLOCKS_PER_SEC);
+    return 0;
 }

@@ -304,6 +304,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_result_t *result) {
         if (res == SQLITE_DONE) {
             return true;
         }
+        _cc_logger_error(_T("_sqlite3_step %s"), _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
         return false;
     }
     return true;
@@ -448,7 +449,12 @@ _CC_API_PRIVATE(bool_t) _sqlite_fetch(_cc_sql_result_t *result) {
     result->step_status = _sqlite3_step(result->stmt);
     result->step = false;
     
-    return (result->step_status == SQLITE_ROW);
+    if (result->step_status == SQLITE_ROW) {
+        return true;
+    } else if (result->step_status == SQLITE_ERROR) {
+        _cc_logger_error(_T("_sqlite3_fetch %s"), _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
+    }
+    return false;
 }
 
 _CC_API_PRIVATE(uint64_t) _sqlite_get_num_rows(_cc_sql_result_t *result) {
@@ -536,7 +542,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, co
             return false;
     }
     if (SQLITE_OK != res) {
-        _cc_logger_error(_T("sqlite3_bind_int %s"), _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
+        _cc_logger_error(_T("sqlite3_bind %s"), _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
         return false;
     }
     return true;
