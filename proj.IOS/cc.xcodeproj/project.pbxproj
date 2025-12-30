@@ -25,11 +25,13 @@
 		4217A3C12EEC1E31006262EC /* sys_power.m in Sources */ = {isa = PBXBuildFile; fileRef = 4217A36F2EEC1E31006262EC /* sys_power.m */; };
 		4217A3C32EEC1E31006262EC /* sys_dirent.m in Sources */ = {isa = PBXBuildFile; fileRef = 4217A36B2EEC1E31006262EC /* sys_dirent.m */; };
 		4217A3C42EEC1E31006262EC /* sys_file.m in Sources */ = {isa = PBXBuildFile; fileRef = 4217A36C2EEC1E31006262EC /* sys_file.m */; };
-		4217A3CE2EEC1E7D006262EC /* header.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3CA2EEC1E7D006262EC /* header.c */; };
-		4217A3CF2EEC1E7D006262EC /* response.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3CC2EEC1E7D006262EC /* response.parser.c */; };
-		4217A3D02EEC1E7D006262EC /* request.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3CB2EEC1E7D006262EC /* request.parser.c */; };
+		4266F5552F02295000731DA7 /* response.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4266F5512F02295000731DA7 /* response.parser.c */; };
+		4266F5562F02295000731DA7 /* request.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4266F54F2F02295000731DA7 /* request.parser.c */; };
+		4266F5572F02295000731DA7 /* request.c in Sources */ = {isa = PBXBuildFile; fileRef = 4266F54E2F02295000731DA7 /* request.c */; };
+		4266F5582F02295000731DA7 /* http2.c in Sources */ = {isa = PBXBuildFile; fileRef = 4266F5532F02295000731DA7 /* http2.c */; };
+		4266F5592F02295000731DA7 /* request.response.c in Sources */ = {isa = PBXBuildFile; fileRef = 4266F5502F02295000731DA7 /* request.response.c */; };
+		4266F55A2F02295000731DA7 /* header.c in Sources */ = {isa = PBXBuildFile; fileRef = 4266F54D2F02295000731DA7 /* header.c */; };
 		42B96A722E885AAE009FE2F7 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A5F2E885AAE009FE2F7 /* list.c */; };
-		42B96A742E885AAE009FE2F7 /* url_response.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A4F2E885AAE009FE2F7 /* url_response.c */; };
 		42B96A752E885AAE009FE2F7 /* tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969CD2E885AAE009FE2F7 /* tcp.c */; };
 		42B96A762E885AAE009FE2F7 /* url.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A692E885AAE009FE2F7 /* url.c */; };
 		42B96A782E885AAE009FE2F7 /* json.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969F82E885AAE009FE2F7 /* json.parser.c */; };
@@ -53,7 +55,6 @@
 		42B96A9D2E885AAE009FE2F7 /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969B92E885AAE009FE2F7 /* sha1.c */; };
 		42B96A9E2E885AAE009FE2F7 /* sha256.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969BA2E885AAE009FE2F7 /* sha256.c */; };
 		42B96AA02E885AAE009FE2F7 /* sys_mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A3B2E885AAE009FE2F7 /* sys_mutex.c */; };
-		42B96AA22E885AAE009FE2F7 /* url_request.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A4E2E885AAE009FE2F7 /* url_request.c */; };
 		42B96AA52E885AAE009FE2F7 /* xml.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A542E885AAE009FE2F7 /* xml.c */; };
 		42B96AA72E885AAE009FE2F7 /* ini.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969EE2E885AAE009FE2F7 /* ini.parser.c */; };
 		42B96AA92E885AAE009FE2F7 /* sys_thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A422E885AAE009FE2F7 /* sys_thread.c */; };
@@ -81,7 +82,6 @@
 		42B96ADE2E885AAE009FE2F7 /* aes.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969B02E885AAE009FE2F7 /* aes.c */; };
 		42B96AE02E885AAE009FE2F7 /* queue.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A622E885AAE009FE2F7 /* queue.c */; };
 		42B96AE12E885AAE009FE2F7 /* cpu.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A5A2E885AAE009FE2F7 /* cpu.c */; };
-		42B96AE72E885AAE009FE2F7 /* url_request.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A512E885AAE009FE2F7 /* url_request.c */; };
 		42B96AE82E885AAE009FE2F7 /* from_rcpt.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A372E885AAE009FE2F7 /* from_rcpt.c */; };
 		42B96AEA2E885AAE009FE2F7 /* UTF.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A6A2E885AAE009FE2F7 /* UTF.c */; };
 		42B96AED2E885AAE009FE2F7 /* json.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969F42E885AAE009FE2F7 /* json.c */; };
@@ -123,9 +123,12 @@
 		4217A36E2EEC1E31006262EC /* sys_power.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sys_power.h; sourceTree = "<group>"; };
 		4217A36F2EEC1E31006262EC /* sys_power.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = sys_power.m; sourceTree = "<group>"; };
 		4217A3982EEC1E31006262EC /* os.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = os.c; sourceTree = "<group>"; };
-		4217A3CA2EEC1E7D006262EC /* header.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = header.c; sourceTree = "<group>"; };
-		4217A3CB2EEC1E7D006262EC /* request.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.parser.c; sourceTree = "<group>"; };
-		4217A3CC2EEC1E7D006262EC /* response.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = response.parser.c; sourceTree = "<group>"; };
+		4266F54D2F02295000731DA7 /* header.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = header.c; sourceTree = "<group>"; };
+		4266F54E2F02295000731DA7 /* request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.c; sourceTree = "<group>"; };
+		4266F54F2F02295000731DA7 /* request.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.parser.c; sourceTree = "<group>"; };
+		4266F5502F02295000731DA7 /* request.response.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.response.c; sourceTree = "<group>"; };
+		4266F5512F02295000731DA7 /* response.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = response.parser.c; sourceTree = "<group>"; };
+		4266F5532F02295000731DA7 /* http2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = http2.c; sourceTree = "<group>"; };
 		42B969A62E885A9A009FE2F7 /* cc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = cc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		42B969AD2E885AAE009FE2F7 /* atomic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = atomic.c; sourceTree = "<group>"; };
 		42B969AE2E885AAE009FE2F7 /* rwlock.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rwlock.c; sourceTree = "<group>"; };
@@ -173,9 +176,6 @@
 		42B96A422E885AAE009FE2F7 /* sys_thread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_thread.c; sourceTree = "<group>"; };
 		42B96A432E885AAE009FE2F7 /* sys_thread.c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sys_thread.c.h; sourceTree = "<group>"; };
 		42B96A4C2E885AAE009FE2F7 /* thread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = thread.c; sourceTree = "<group>"; };
-		42B96A4E2E885AAE009FE2F7 /* url_request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = url_request.c; sourceTree = "<group>"; };
-		42B96A4F2E885AAE009FE2F7 /* url_response.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = url_response.c; sourceTree = "<group>"; };
-		42B96A512E885AAE009FE2F7 /* url_request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = url_request.c; sourceTree = "<group>"; };
 		42B96A542E885AAE009FE2F7 /* xml.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = xml.c; sourceTree = "<group>"; };
 		42B96A552E885AAE009FE2F7 /* xml.c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xml.c.h; sourceTree = "<group>"; };
 		42B96A562E885AAE009FE2F7 /* xml.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = xml.parser.c; sourceTree = "<group>"; };
@@ -298,14 +298,24 @@
 			path = os;
 			sourceTree = "<group>";
 		};
-		4217A3CD2EEC1E7D006262EC /* http-v1.x */ = {
+		4266F5522F02295000731DA7 /* http-v1.x */ = {
 			isa = PBXGroup;
 			children = (
-				4217A3CA2EEC1E7D006262EC /* header.c */,
-				4217A3CB2EEC1E7D006262EC /* request.parser.c */,
-				4217A3CC2EEC1E7D006262EC /* response.parser.c */,
+				4266F54D2F02295000731DA7 /* header.c */,
+				4266F54E2F02295000731DA7 /* request.c */,
+				4266F54F2F02295000731DA7 /* request.parser.c */,
+				4266F5502F02295000731DA7 /* request.response.c */,
+				4266F5512F02295000731DA7 /* response.parser.c */,
 			);
 			path = "http-v1.x";
+			sourceTree = "<group>";
+		};
+		4266F5542F02295000731DA7 /* http-v2.x */ = {
+			isa = PBXGroup;
+			children = (
+				4266F5532F02295000731DA7 /* http2.c */,
+			);
+			path = "http-v2.x";
 			sourceTree = "<group>";
 		};
 		42B969AF2E885AAE009FE2F7 /* atomic */ = {
@@ -362,7 +372,8 @@
 		42B969EB2E885AAE009FE2F7 /* http */ = {
 			isa = PBXGroup;
 			children = (
-				4217A3CD2EEC1E7D006262EC /* http-v1.x */,
+				4266F5522F02295000731DA7 /* http-v1.x */,
+				4266F5542F02295000731DA7 /* http-v2.x */,
 			);
 			path = http;
 			sourceTree = "<group>";
@@ -441,32 +452,6 @@
 			path = thread;
 			sourceTree = "<group>";
 		};
-		42B96A502E885AAE009FE2F7 /* http */ = {
-			isa = PBXGroup;
-			children = (
-				42B96A4E2E885AAE009FE2F7 /* url_request.c */,
-				42B96A4F2E885AAE009FE2F7 /* url_response.c */,
-			);
-			path = http;
-			sourceTree = "<group>";
-		};
-		42B96A522E885AAE009FE2F7 /* http2 */ = {
-			isa = PBXGroup;
-			children = (
-				42B96A512E885AAE009FE2F7 /* url_request.c */,
-			);
-			path = http2;
-			sourceTree = "<group>";
-		};
-		42B96A532E885AAE009FE2F7 /* url_request */ = {
-			isa = PBXGroup;
-			children = (
-				42B96A502E885AAE009FE2F7 /* http */,
-				42B96A522E885AAE009FE2F7 /* http2 */,
-			);
-			path = url_request;
-			sourceTree = "<group>";
-		};
 		42B96A572E885AAE009FE2F7 /* xml */ = {
 			isa = PBXGroup;
 			children = (
@@ -492,7 +477,6 @@
 				42B969FE2E885AAE009FE2F7 /* malloc */,
 				42B96A3A2E885AAE009FE2F7 /* smtp */,
 				42B96A4D2E885AAE009FE2F7 /* thread */,
-				42B96A532E885AAE009FE2F7 /* url_request */,
 				42B96A572E885AAE009FE2F7 /* xml */,
 				42B96A582E885AAE009FE2F7 /* array.c */,
 				42B96A592E885AAE009FE2F7 /* buf.c */,
@@ -664,7 +648,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				42B96A722E885AAE009FE2F7 /* list.c in Sources */,
-				42B96A742E885AAE009FE2F7 /* url_response.c in Sources */,
 				42B96A752E885AAE009FE2F7 /* tcp.c in Sources */,
 				42B96A762E885AAE009FE2F7 /* url.c in Sources */,
 				42B96A782E885AAE009FE2F7 /* json.parser.c in Sources */,
@@ -688,7 +671,6 @@
 				42B96A9D2E885AAE009FE2F7 /* sha1.c in Sources */,
 				42B96A9E2E885AAE009FE2F7 /* sha256.c in Sources */,
 				42B96AA02E885AAE009FE2F7 /* sys_mutex.c in Sources */,
-				42B96AA22E885AAE009FE2F7 /* url_request.c in Sources */,
 				42B96AA52E885AAE009FE2F7 /* xml.c in Sources */,
 				42B96AA72E885AAE009FE2F7 /* ini.parser.c in Sources */,
 				42B96AA92E885AAE009FE2F7 /* sys_thread.c in Sources */,
@@ -705,6 +687,12 @@
 				42B96AC52E885AAE009FE2F7 /* file.c in Sources */,
 				42B96AC62E885AAE009FE2F7 /* string.c in Sources */,
 				42B96AC92E885AAE009FE2F7 /* md4.c in Sources */,
+				4266F5552F02295000731DA7 /* response.parser.c in Sources */,
+				4266F5562F02295000731DA7 /* request.parser.c in Sources */,
+				4266F5572F02295000731DA7 /* request.c in Sources */,
+				4266F5582F02295000731DA7 /* http2.c in Sources */,
+				4266F5592F02295000731DA7 /* request.response.c in Sources */,
+				4266F55A2F02295000731DA7 /* header.c in Sources */,
 				42B96ACA2E885AAE009FE2F7 /* crc.c in Sources */,
 				42B96ACD2E885AAE009FE2F7 /* json.array.c in Sources */,
 				42B96AD42E885AAE009FE2F7 /* syslog.c in Sources */,
@@ -718,9 +706,6 @@
 				4217A35C2EEC1E22006262EC /* power.c in Sources */,
 				4217A3B32EEC1E31006262EC /* sys_ios.m in Sources */,
 				4217A3BE2EEC1E31006262EC /* os.c in Sources */,
-				4217A3CE2EEC1E7D006262EC /* header.c in Sources */,
-				4217A3CF2EEC1E7D006262EC /* response.parser.c in Sources */,
-				4217A3D02EEC1E7D006262EC /* request.parser.c in Sources */,
 				4217A3BF2EEC1E31006262EC /* sys_clipboard.m in Sources */,
 				4217A3C12EEC1E31006262EC /* sys_power.m in Sources */,
 				4217A3C32EEC1E31006262EC /* sys_dirent.m in Sources */,
@@ -735,7 +720,6 @@
 				42B96ADE2E885AAE009FE2F7 /* aes.c in Sources */,
 				42B96AE02E885AAE009FE2F7 /* queue.c in Sources */,
 				42B96AE12E885AAE009FE2F7 /* cpu.c in Sources */,
-				42B96AE72E885AAE009FE2F7 /* url_request.c in Sources */,
 				42B96AE82E885AAE009FE2F7 /* from_rcpt.c in Sources */,
 				42B96AEA2E885AAE009FE2F7 /* UTF.c in Sources */,
 				42B96AED2E885AAE009FE2F7 /* json.c in Sources */,
@@ -881,9 +865,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8X9J3P3289;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -917,6 +902,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.libcc.ios.cc;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -939,9 +925,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8X9J3P3289;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -973,6 +960,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.libcc.ios.cc;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
