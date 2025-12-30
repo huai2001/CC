@@ -15,7 +15,7 @@
 		41CDDE2229A3857C008F372C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41CDDE2129A3857C008F372C /* Assets.xcassets */; };
 		41CDDE2529A3857C008F372C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41CDDE2329A3857C008F372C /* LaunchScreen.storyboard */; };
 		41CDDE2829A3857C008F372C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41CDDE2729A3857C008F372C /* main.m */; };
-		41CDDE3929A38AB5008F372C /* libcc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* libcc.a */; };
+		41CDDE3929A38AB5008F372C /* cc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,13 +25,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 414E4AF21F6CB6A20085AF50;
 			remoteInfo = cc;
-		};
-		42AC37182E7D6CF300B44396 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 41CDDE2F29A385AB008F372C /* cc.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 42FA02772E7D154E007B18F6;
-			remoteInfo = libcc.widgets;
 		};
 		42AC371A2E7D6CF300B44396 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,7 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				416D42B129DAC4CF00205B24 /* WebKit.framework in Frameworks */,
-				41CDDE3929A38AB5008F372C /* libcc.a in Frameworks */,
+				41CDDE3929A38AB5008F372C /* cc.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,9 +104,8 @@
 		41CDDE3029A385AB008F372C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				41CDDE3429A385AB008F372C /* libcc.a */,
-				42AC37192E7D6CF300B44396 /* libcc.widgets.framework */,
 				42AC371B2E7D6CF300B44396 /* sqlite3.framework */,
+				41CDDE3429A385AB008F372C /* cc.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -184,18 +176,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		41CDDE3429A385AB008F372C /* libcc.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libcc.a;
-			remoteRef = 41CDDE3329A385AB008F372C /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		42AC37192E7D6CF300B44396 /* libcc.widgets.framework */ = {
+		41CDDE3429A385AB008F372C /* cc.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = libcc.widgets.framework;
-			remoteRef = 42AC37182E7D6CF300B44396 /* PBXContainerItemProxy */;
+			path = cc.framework;
+			remoteRef = 41CDDE3329A385AB008F372C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		42AC371B2E7D6CF300B44396 /* sqlite3.framework */ = {
