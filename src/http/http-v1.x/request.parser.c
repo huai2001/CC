@@ -26,6 +26,8 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
         _cc_rbtree_cleanup(&request->headers);
 
         /*LOG: HTTP Protocol*/
+        /* CONNECT www.baidu.com:443 HTTP/1.1 */
+        /* GET / HTTP/1.1 */
         /* Find the first non-space letter */
         _cc_first_index_of(first, length, _cc_isspace(line[first]));
         last = first;

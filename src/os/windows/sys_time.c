@@ -12,7 +12,6 @@
 
 /**/
 _CC_API_PUBLIC(void) _cc_sleep(uint32_t ms) {
-    // Sleep(ms);
     /* Sleep() is not publicly available to apps in early versions of WinRT.
      *
      * Visual C++ 2013 Update 4 re-introduced Sleep() for Windows 8.1 and
@@ -76,7 +75,7 @@ typedef VOID(WINAPI *MyGetSystemTimeAsFileTime)(LPFILETIME lpSystemTimeAsFileTim
 
 static MyGetSystemTimeAsFileTime _getSystemTimeAsFileTimeFunc = NULL;
 
-_CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
+_CC_API_PRIVATE(int) get_file_system_time(struct timeval *tv) {
     FILETIME ft;
     unsigned __int64 ff = 0;
     ULARGE_INTEGER fft;
@@ -122,7 +121,7 @@ _CC_API_PRIVATE(int) getfilesystemtime(struct timeval *tv) {
 _CC_API_PUBLIC(int) gettimeofday(struct timeval *tp, struct timezone *tzp) {
     /* Get the time, if they want it */
     if (tp != NULL) {
-        getfilesystemtime(tp);
+        get_file_system_time(tp);
     }
     /* Get the timezone, if they want it */
     if (tzp != NULL) {

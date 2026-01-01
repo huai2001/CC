@@ -5,6 +5,21 @@
 #else
 #include <sys/time.h>
 #endif
+/**
+ * @brief Converts calendar date components to Unix timestamp
+ *
+ * Converts year, month, day, hour, minute, second to seconds since
+ * the Unix epoch (1970-01-01 00:00:00 UTC), with optional UTC offset.
+ *
+ * @param year  Year (e.g., 2024)
+ * @param mon   Month (1-12)
+ * @param day   Day of month (1-31)
+ * @param hour  Hour (0-23)
+ * @param min   Minute (0-59)
+ * @param sec   Second (0-59)
+ * @param utc   UTC offset in hours
+ * @return time_t Unix timestamp in seconds
+ */
 _CC_API_PUBLIC(time_t) _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_t hour, int32_t min, int32_t sec, int32_t utc) {
     /** 1..12 -> 11,12,1..10 */
     if (0 >= (int32_t)(mon -= 2)) {
@@ -21,14 +36,38 @@ _CC_API_PUBLIC(time_t) _cc_mktime(int32_t year, int32_t mon, int32_t day, int32_
            sec; /** finally seconds */
 }
 
+/**
+ * @brief Gets the current system timestamp in milliseconds
+ * 
+ * Returns the number of milliseconds elapsed since the Unix epoch
+ * (1970-01-01 00:00:00 UTC). This function is implemented using the
+ * POSIX standard gettimeofday() and provides millisecond precision.
+ * 
+ * @return uint64_t Millisecond timestamp
+ * 
+ * @note This function is cross-platform compatible and available on
+ *       Unix/Linux/macOS/Windows systems
+ * @note The return value uses uint64_t type to avoid the 2038 problem
+ */
 _CC_API_PUBLIC(uint64_t) _cc_timestamp(void) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return ((uint64_t)tv.tv_sec * 1000) + ((uint64_t)tv.tv_usec / 1000);
 }
 
-/* Given a calendar date, returns days since Jan 1 1970, and optionally
- * the day of the week [0-6, 0 is Sunday] and day of the year [0-365].
+/**
+ * @brief Converts calendar date to days since Unix epoch
+ *
+ * Given a calendar date, returns days since January 1, 1970.
+ * Optionally returns the day of week [0-6, 0 is Sunday] and
+ * day of year [0-365].
+ *
+ * @param _year       Year (e.g., 2024)
+ * @param month       Month (1-12)
+ * @param day         Day of month (1-31)
+ * @param day_of_week Output pointer for day of week (can be NULL)
+ * @param day_of_year Output pointer for day of year (can be NULL)
+ * @return int64_t Days since Unix epoch (1970-01-01)
  */
 _CC_API_PUBLIC(int64_t) _cc_civil_to_days(int _year, int month, int day, int *day_of_week, int *day_of_year) {
     int year = _year - (month <= 2);
@@ -54,6 +93,19 @@ _CC_API_PUBLIC(int64_t) _cc_civil_to_days(int _year, int month, int day, int *da
     return z;
 }
 
+/**
+ * @brief Gets the number of days in a month
+ *
+ * Returns the number of days in the specified month and year,
+ * accounting for leap years.
+ *
+ * @param year  Year (e.g., 2024)
+ * @param month Month (1-12)
+ * @return int Number of days in the month, or -1 on error
+ *
+ * @note Leap year rule: every 4 years, except every 100 years,
+ *       except every 400 years (e.g., 2000 is a leap year, 1900 is not)
+ */
 _CC_API_PUBLIC(int) _cc_days_in_month(int year, int month) {
     static const int DAYS_IN_MONTH[] = {
         31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
@@ -78,6 +130,16 @@ _CC_API_PUBLIC(int) _cc_days_in_month(int year, int month) {
     return days;
 }
 
+/**
+ * @brief Gets the day of year for a given date
+ *
+ * Returns the day of year (1-365/366) for the specified calendar date.
+ *
+ * @param year  Year (e.g., 2024)
+ * @param month Month (1-12)
+ * @param day   Day of month (1-31)
+ * @return int Day of year (1-366), or -1 on error
+ */
 _CC_API_PUBLIC(int) _cc_day_of_year(int year, int month, int day) {
     int day_of_year;
     int days;
@@ -96,6 +158,16 @@ _CC_API_PUBLIC(int) _cc_day_of_year(int year, int month, int day) {
     return day_of_year;
 }
 
+/**
+ * @brief Gets the day of week for a given date
+ *
+ * Returns the day of week for the specified calendar date.
+ *
+ * @param year  Year (e.g., 2024)
+ * @param month Month (1-12)
+ * @param day   Day of month (1-31)
+ * @return int Day of week [0-6, 0 is Sunday], or -1 on error
+ */
 _CC_API_PUBLIC(int) _cc_day_of_week(int year, int month, int day) {
     int day_of_week;
     int days;

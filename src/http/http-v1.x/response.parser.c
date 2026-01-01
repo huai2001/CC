@@ -24,10 +24,11 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
         response->content_length = 0;
 
         /*LOG: HTTP Protocol*/
+        /* HTTP/1.1 200 OK */
         /* Find the first non-space letter */
-        _cc_first_index_of(first, length, _cc_isspace(line[first]));
+        _cc_first_index_of(first, length, _CC_ISSPACE(line[first]));
         last = first;
-        _cc_first_index_of(last, length, !_cc_isspace(line[last]));
+        _cc_first_index_of(last, length, !_CC_ISSPACE(line[last]));
         if (first == last) {
             return false;
         }
@@ -35,9 +36,9 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
 
         first = last;
         /*LOG: HTTP Status*/
-        _cc_first_index_of(first, length, _cc_isspace(line[first]));
+        _cc_first_index_of(first, length, _CC_ISSPACE(line[first]));
         last = first;
-        _cc_first_index_of(last, length, !_cc_isspace(line[last]));
+        _cc_first_index_of(last, length, !_CC_ISSPACE(line[last]));
         if (first == last) {
             return false;
         }
@@ -46,8 +47,8 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
 
         /*LOG: HTTP Description*/
         first = last;
-        _cc_first_index_of(first, length, _cc_isspace(line[first]));
-        _cc_last_index_of(first, length, _cc_isspace(line[length]));
+        _cc_first_index_of(first, length, _CC_ISSPACE(line[first]));
+        _cc_last_index_of(first, length, _CC_ISSPACE(line[length]));
         response->description = _cc_sds_alloc(&line[first], length - first);
 
         return true;

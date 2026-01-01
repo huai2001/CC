@@ -77,11 +77,11 @@ _CC_API_PRIVATE(bool_t) _ws_response_header(_cc_event_t *e, _cc_ws_t *ws) {
 }
 
 _CC_API_PRIVATE(void)  _ws_send(_cc_io_buffer_t *io, byte_t *data, int64_t length) {
-    _cc_spin_lock(&io->lock_of_writable);
+    _cc_mutex_lock(io->lock_of_writable);
     io->w.off += _cc_ws_header(io->w.bytes + io->w.off, WS_OP_TEXT, length, NULL);
     memcpy(io->w.bytes + io->w.off, data, length);
     io->w.off += length;
-    _cc_unlock(&io->lock_of_writable);
+    _cc_mutex_unlock(io->lock_of_writable);
 }
 
 /**/

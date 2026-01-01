@@ -153,6 +153,7 @@ do { \
 #define _CC_LO_UINT8(_l)        ((uint8_t)((uint32_t)(_l) & 0xff))
 #define _CC_HI_UINT8(_h)        ((uint8_t)(((uint32_t)(_h) >> 8) & 0xff))
 
+#define _CC_LOWER(V)     ((unsigned)(V) | 0x20)
 #define _CC_ISDIGIT(V)   ((unsigned)(V) - '0' < 10u)
 #define _CC_ISLOWER(V)   ((unsigned)(V) - 'a' < 26u)
 #define _CC_ISUPPER(V)   ((unsigned)(V) - 'A' < 26u)

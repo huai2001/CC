@@ -15,8 +15,7 @@ _CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit) {
 #ifdef _CC_USE_OPENSSL_
     io->ssl = NULL;
 #endif
-
-    _cc_lock_init(&(io->lock_of_writable));
+    io->lock_of_writable = _cc_alloc_mutex();
     return io;
 }
 
@@ -48,6 +47,10 @@ _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io) {
     _cc_free(io->w.bytes);
     _cc_free(io->r.bytes);
 
+    if (io->lock_of_writable) {
+        _cc_free_mutex(io->lock_of_writable);
+    }
+
 #ifdef _CC_USE_OPENSSL_
     if (io->ssl) {
         _SSL_free(io->ssl);
@@ -70,22 +73,20 @@ _CC_API_PRIVATE(int32_t) _send(_cc_event_t *e, _cc_io_buffer_t *data, const byte
 _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data, const byte_t *bytes, int32_t length) {
     int32_t off = 0, required_length;
    
+    _cc_mutex_lock(data->lock_of_writable);
     if (data->w.off == 0) {
         // nothing queued? See if we can just send this without queueing.
         off = _send(e, data, bytes, length);
-        if (off == length) {
-            return off;
-        } else if (off < 0) {
+        if (length == off || off < 0) {
+            _cc_mutex_unlock(data->lock_of_writable);
             return off;
         }
         bytes += off;
         length -= off;
     }
 
-    /*queue this up for sending later.*/
-    _cc_spin_lock(&data->lock_of_writable);
     required_length = length + data->w.off;
-
+    /*queue this up for sending later.*/
     if (required_length >= data->w.limit) {
         data->w.limit = required_length + (int32_t)(data->w.limit * 0.72f);
         // uhoh, overflowed! That's a lot of memory!!
@@ -100,7 +101,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data
     data->w.off += length;
 
     _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-    _cc_unlock(&data->lock_of_writable);
+    _cc_mutex_unlock(data->lock_of_writable);
 
     return off;
 }
@@ -114,7 +115,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *dat
         return 0;
     }
 
-    _cc_spin_lock(&data->lock_of_writable);
+    _cc_mutex_lock(data->lock_of_writable);
     off = _send(e, data, data->w.bytes, data->w.off);
     if (off == data->w.off) {
         data->w.off = 0;
@@ -127,7 +128,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *dat
         memmove(data->w.bytes, data->w.bytes + off, data->w.off);
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
-    _cc_unlock(&data->lock_of_writable);
+    _cc_mutex_unlock(data->lock_of_writable);
     return off;
 }
 

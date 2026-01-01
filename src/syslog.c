@@ -3,6 +3,8 @@
 #include <libcc/atomic.h>
 #include <libcc/time.h>
 
+#ifdef _CC_USE_SYSLOG_
+
 #ifdef __CC_LINUX__
 #include <unistd.h>
 #endif
@@ -48,9 +50,11 @@ _CC_API_PUBLIC(void) _cc_syslogW(uint8_t level, const wchar_t* msg, size_t lengt
 #ifdef _CC_UNICODE_
     uint8_t utf8_buffer[_CC_16K_BUFFER_SIZE_];
 #endif
-    size_t buffer_length = _cc_syslog_header(_CC_SYSLOG_PRI(syslog.facility,level), buffer, _cc_countof(buffer));
-
+    if (syslog.enabled == false || syslog.fd == _CC_INVALID_SOCKET_) {
+        return;
+    }
     if (msg && length > 0) {
+        size_t buffer_length = _cc_syslog_header(_CC_SYSLOG_PRI(syslog.facility,level), buffer, _cc_countof(buffer));
         size_t remaining = (_CC_8K_BUFFER_SIZE_ - buffer_length);
 #ifdef _CC_UNICODE_
         if (remaining < length) {
@@ -61,20 +65,15 @@ _CC_API_PUBLIC(void) _cc_syslogW(uint8_t level, const wchar_t* msg, size_t lengt
 #else
         buffer_length += _cc_w2a(msg, (int32_t)length, buffer + buffer_length, (int32_t)remaining);
 #endif
-    }
-#if 0
-    if (level == _CC_LOG_LEVEL_ERROR_ && buffer_length < _CC_8K_BUFFER_SIZE_) {
-        buffer_length += _cc_get_resolve_symbol(buffer, _CC_8K_BUFFER_SIZE_ - buffer_length);
-    }
-#endif
-    buffer[buffer_length % _CC_8K_BUFFER_SIZE_] = 0;
+        buffer[buffer_length % _CC_8K_BUFFER_SIZE_] = 0;
 #ifdef _CC_UNICODE_
-    buffer_length = _cc_utf16_to_utf8((const uint16_t *)buffer, (const uint16_t *)&buffer[buffer_length], 
+        buffer_length = _cc_utf16_to_utf8((const uint16_t *)buffer, (const uint16_t *)&buffer[buffer_length], 
                                        utf8_buffer, &utf8_buffer[_cc_countof(utf8_buffer) - 1]);
-    _cc_syslog_send((byte_t*)utf8_buffer, buffer_length);
+        _cc_syslog_send((byte_t*)utf8_buffer, buffer_length);
 #else
-    _cc_syslog_send((byte_t*)buffer, buffer_length);
+        _cc_syslog_send((byte_t*)buffer, buffer_length);
 #endif
+    }
 }
 
 /**/
@@ -83,33 +82,31 @@ _CC_API_PUBLIC(void) _cc_syslogA(uint8_t level, const char_t* msg, size_t length
 #ifdef _CC_UNICODE_
     uint8_t utf8_buffer[_CC_16K_BUFFER_SIZE_];
 #endif
-    size_t buffer_length = _cc_syslog_header(_CC_SYSLOG_PRI(syslog.facility,level), buffer, _cc_countof(buffer));
-
+    if (syslog.enabled == false || syslog.fd == _CC_INVALID_SOCKET_) {
+        return;
+    }
     if (msg && length > 0) {
+        size_t buffer_length = _cc_syslog_header(_CC_SYSLOG_PRI(syslog.facility,level), buffer, _cc_countof(buffer));
         size_t remaining = (_CC_8K_BUFFER_SIZE_ - buffer_length);
 #ifdef _CC_UNICODE_
         buffer_length += _cc_a2w(msg, (int32_t)length, buffer + buffer_length, (int32_t)remaining);
 #else
         if (remaining < length) {
-            length += remaining;
+            length = remaining;
         }
         memcpy(buffer + buffer_length, msg, length);
         buffer_length += length;
 #endif
-    }
-#if 0
-    if (level == _CC_LOG_LEVEL_ERROR_ && buffer_length < _CC_8K_BUFFER_SIZE_) {
-        buffer_length += _cc_get_resolve_symbol(buffer + buffer_length, _CC_8K_BUFFER_SIZE_ - buffer_length);
-    }
-#endif
-    buffer[buffer_length % _CC_8K_BUFFER_SIZE_] = 0;
+        buffer[buffer_length % _CC_8K_BUFFER_SIZE_] = 0;
+
 #ifdef _CC_UNICODE_
-    buffer_length = _cc_utf16_to_utf8((const uint16_t *)buffer, (const uint16_t *)&buffer[buffer_length], 
-                                       utf8_buffer, &utf8_buffer[_cc_countof(utf8_buffer) - 1]);
-    _cc_syslog_send((byte_t*)utf8_buffer, buffer_length);
+        buffer_length = _cc_utf16_to_utf8((const uint16_t *)buffer, (const uint16_t *)&buffer[buffer_length], 
+                                        utf8_buffer, &utf8_buffer[_cc_countof(utf8_buffer) - 1]);
+        _cc_syslog_send((byte_t*)utf8_buffer, buffer_length);
 #else
-    _cc_syslog_send((byte_t*)buffer, buffer_length);
+        _cc_syslog_send((byte_t*)buffer, buffer_length);
 #endif
+    }
 }
 
 _CC_API_PUBLIC(size_t) _cc_syslog_header(uint8_t pri, tchar_t *buffer, size_t buffer_length) {
@@ -206,3 +203,4 @@ _CC_API_PUBLIC(void) _cc_close_syslog(void) {
     syslog.enabled = false;
     _cc_syslog_unlock();
 }
+#endif

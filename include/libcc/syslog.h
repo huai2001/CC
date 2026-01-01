@@ -65,7 +65,7 @@ enum {
 //RFC 5424
 //TIMESTAMP ISO 8601  2023-12-12T12:34:56Z
 //<PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID STRUCTURED-DATA MSG
-
+#ifdef _CC_USE_SYSLOG_
 /**/
 _CC_API_PUBLIC(void) _cc_open_syslog(uint8_t facility, const tchar_t *app_name, const tchar_t *ip, const uint16_t port);
 /**/
@@ -78,6 +78,8 @@ _CC_API_PUBLIC(void) _cc_syslogA(uint8_t level, const char_t* msg, size_t length
 _CC_API_PUBLIC(size_t) _cc_syslog_header(uint8_t pri, tchar_t *buffer, size_t buffer_length);
 /**/
 _CC_API_PUBLIC(void) _cc_syslog_send(const uint8_t *msg, size_t length);
+
+#endif
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

@@ -62,7 +62,7 @@ typedef struct _cc_io_data {
 struct _cc_io_buffer {
     _cc_io_data_t r;
     _cc_io_data_t w;
-    _cc_atomic_lock_t lock_of_writable;
+    _cc_mutex_t *lock_of_writable;
     _cc_SSL_t *ssl;
 };
 

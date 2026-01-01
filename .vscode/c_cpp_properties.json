@@ -5,8 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
-                "D:\\msys2\\ucrt64\\include",
-                "D:\\240216\\01\\include"
+                "D:\\msys2\\ucrt64\\include"
             ],
             "defines": ["_DEBUG","UNICODE","_unicode"],
             "macFrameworkPath": [],

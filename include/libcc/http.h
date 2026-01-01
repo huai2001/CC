@@ -11,19 +11,6 @@
 extern "C" {
 #endif
 
-/*http methods*/
-enum {
-    _CC_HTTP_METHOD_INVALID_ = 0,
-    _CC_HTTP_METHOD_GET_ = 1,
-    _CC_HTTP_METHOD_POST_,
-    _CC_HTTP_METHOD_PUT_,
-    _CC_HTTP_METHOD_HEAD_,
-    _CC_HTTP_METHOD_DELETE_,
-    _CC_HTTP_METHOD_OPTIONS_,
-    _CC_HTTP_METHOD_TRACE_,
-    _CC_HTTP_METHOD_CONNECT_
-};
-
 enum {
     _CC_HTTP_STATE_HEADER_ = 0,
     _CC_HTTP_STATE_PAYLOAD_ = 1,
@@ -35,42 +22,137 @@ enum {
     _CC_HTTP_ERROR_TOOLARGE_,
 };
 
-/* Successful 2xx.  */
-#define HTTP_STATUS_OK                    200
-#define HTTP_STATUS_CREATED               201
-#define HTTP_STATUS_ACCEPTED              202
-#define HTTP_STATUS_NO_CONTENT            204
-#define HTTP_STATUS_PARTIAL_CONTENTS      206
+/* Status Codes */
+#define _CC_HTTP_STATUS_MAP(XX)                                               \
+    XX(100, CONTINUE,                        Continue)                        \
+    XX(101, SWITCHING_PROTOCOLS,             Switching Protocols)             \
+    XX(102, PROCESSING,                      Processing)                      \
+    /* Successful 2xx.  */                                                    \
+    XX(200, OK,                              OK)                              \
+    XX(201, CREATED,                         Created)                         \
+    XX(202, ACCEPTED,                        Accepted)                        \
+    XX(203, NON_AUTHORITATIVE_INFORMATION,   Non-Authoritative Information)   \
+    XX(204, NO_CONTENT,                      No Content)                      \
+    XX(205, RESET_CONTENT,                   Reset Content)                   \
+    XX(206, PARTIAL_CONTENT,                 Partial Content)                 \
+    XX(207, MULTI_STATUS,                    Multi-Status)                    \
+    XX(208, ALREADY_REPORTED,                Already Reported)                \
+    XX(226, IM_USED,                         IM Used)                         \
+    /* Redirection 3xx.  */                                                   \
+    XX(300, MULTIPLE_CHOICES,                Multiple Choices)                \
+    XX(301, MOVED_PERMANENTLY,               Moved Permanently)               \
+    XX(302, FOUND,                           Found)                           \
+    XX(303, SEE_OTHER,                       See Other)                       \
+    XX(304, NOT_MODIFIED,                    Not Modified)                    \
+    XX(305, USE_PROXY,                       Use Proxy)                       \
+    XX(307, TEMPORARY_REDIRECT,              Temporary Redirect)              \
+    XX(308, PERMANENT_REDIRECT,              Permanent Redirect)              \
+    /* Client error 4xx.  */                                                  \
+    XX(400, BAD_REQUEST,                     Bad Request)                     \
+    XX(401, UNAUTHORIZED,                    Unauthorized)                    \
+    XX(402, PAYMENT_REQUIRED,                Payment Required)                \
+    XX(403, FORBIDDEN,                       Forbidden)                       \
+    XX(404, NOT_FOUND,                       Not Found)                       \
+    XX(405, METHOD_NOT_ALLOWED,              Method Not Allowed)              \
+    XX(406, NOT_ACCEPTABLE,                  Not Acceptable)                  \
+    XX(407, PROXY_AUTHENTICATION_REQUIRED,   Proxy Authentication Required)   \
+    XX(408, REQUEST_TIMEOUT,                 Request Timeout)                 \
+    XX(409, CONFLICT,                        Conflict)                        \
+    XX(410, GONE,                            Gone)                            \
+    XX(411, LENGTH_REQUIRED,                 Length Required)                 \
+    XX(412, PRECONDITION_FAILED,             Precondition Failed)             \
+    XX(413, PAYLOAD_TOO_LARGE,               Payload Too Large)               \
+    XX(414, URI_TOO_LONG,                    URI Too Long)                    \
+    XX(415, UNSUPPORTED_MEDIA_TYPE,          Unsupported Media Type)          \
+    XX(416, RANGE_NOT_SATISFIABLE,           Range Not Satisfiable)           \
+    XX(417, EXPECTATION_FAILED,              Expectation Failed)              \
+    XX(421, MISDIRECTED_REQUEST,             Misdirected Request)             \
+    XX(422, UNPROCESSABLE_ENTITY,            Unprocessable Entity)            \
+    XX(423, LOCKED,                          Locked)                          \
+    XX(424, FAILED_DEPENDENCY,               Failed Dependency)               \
+    XX(426, UPGRADE_REQUIRED,                Upgrade Required)                \
+    XX(428, PRECONDITION_REQUIRED,           Precondition Required)           \
+    XX(429, TOO_MANY_REQUESTS,               Too Many Requests)               \
+    XX(431, REQUEST_HEADER_FIELDS_TOO_LARGE, Request Header Fields Too Large) \
+    XX(451, UNAVAILABLE_FOR_LEGAL_REASONS,   Unavailable For Legal Reasons)   \
+    /* Server errors 5xx. */                                                  \
+    XX(500, INTERNAL_SERVER_ERROR,           Internal Server Error)           \
+    XX(501, NOT_IMPLEMENTED,                 Not Implemented)                 \
+    XX(502, BAD_GATEWAY,                     Bad Gateway)                     \
+    XX(503, SERVICE_UNAVAILABLE,             Service Unavailable)             \
+    XX(504, GATEWAY_TIMEOUT,                 Gateway Timeout)                 \
+    XX(505, HTTP_VERSION_NOT_SUPPORTED,      HTTP Version Not Supported)      \
+    XX(506, VARIANT_ALSO_NEGOTIATES,         Variant Also Negotiates)         \
+    XX(507, INSUFFICIENT_STORAGE,            Insufficient Storage)            \
+    XX(508, LOOP_DETECTED,                   Loop Detected)                   \
+    XX(510, NOT_EXTENDED,                    Not Extended)                    \
+    XX(511, NETWORK_AUTHENTICATION_REQUIRED, Network Authentication Required) \
 
-/* Redirection 3xx.  */
-#define HTTP_STATUS_MULTIPLE_CHOICES      300
-#define HTTP_STATUS_MOVED_PERMANENTLY     301
-#define HTTP_STATUS_MOVED_TEMPORARILY     302
-#define HTTP_STATUS_SEE_OTHER             303 /* from HTTP/1.1 */
-#define HTTP_STATUS_NOT_MODIFIED          304
-#define HTTP_STATUS_TEMPORARY_REDIRECT    307 /* from HTTP/1.1 */
-#define HTTP_STATUS_PERMANENT_REDIRECT    308 /* from HTTP/1.1 */
+enum {
+#define XX(NUM, NAME, STRING) _CC_HTTP_STATUS_##NAME##_ = NUM,
+    _CC_HTTP_STATUS_MAP(XX)
+#undef XX
+};
 
-/* Client error 4xx.  */
-#define HTTP_STATUS_BAD_REQUEST           400
-#define HTTP_STATUS_UNAUTHORIZED          401
-#define HTTP_STATUS_FORBIDDEN             403
-#define HTTP_STATUS_NOT_FOUND             404
-#define HTTP_STATUS_RANGE_NOT_SATISFIABLE 416
+/* Request Methods */
+#define _CC_HTTP_METHOD_MAP(XX)       \
+    XX(0,  DELETE,      DELETE)       \
+    XX(1,  GET,         GET)          \
+    XX(2,  HEAD,        HEAD)         \
+    XX(3,  POST,        POST)         \
+    XX(4,  PUT,         PUT)          \
+    /* pathological */                \
+    XX(5,  CONNECT,     CONNECT)      \
+    XX(6,  OPTIONS,     OPTIONS)      \
+    XX(7,  TRACE,       TRACE)        \
+    /* WebDAV */                      \
+    XX(8,  COPY,        COPY)         \
+    XX(9,  LOCK,        LOCK)         \
+    XX(10, MKCOL,       MKCOL)        \
+    XX(11, MOVE,        MOVE)         \
+    XX(12, PROPFIND,    PROPFIND)     \
+    XX(13, PROPPATCH,   PROPPATCH)    \
+    XX(14, SEARCH,      SEARCH)       \
+    XX(15, UNLOCK,      UNLOCK)       \
+    XX(16, BIND,        BIND)         \
+    XX(17, REBIND,      REBIND)       \
+    XX(18, UNBIND,      UNBIND)       \
+    XX(19, ACL,         ACL)          \
+    /* subversion */                  \
+    XX(20, REPORT,      REPORT)       \
+    XX(21, MKACTIVITY,  MKACTIVITY)   \
+    XX(22, CHECKOUT,    CHECKOUT)     \
+    XX(23, MERGE,       MERGE)        \
+    /* upnp */                        \
+    XX(24, MSEARCH,     M-SEARCH)     \
+    XX(25, NOTIFY,      NOTIFY)       \
+    XX(26, SUBSCRIBE,   SUBSCRIBE)    \
+    XX(27, UNSUBSCRIBE, UNSUBSCRIBE)  \
+    /* RFC-5789 */                    \
+    XX(28, PATCH,       PATCH)        \
+    XX(29, PURGE,       PURGE)        \
+    /* CalDAV */                      \
+    XX(30, MKCALENDAR,  MKCALENDAR)   \
+    /* RFC-2068, section 19.6.1.2 */  \
+    XX(31, LINK,        LINK)         \
+    XX(32, UNLINK,      UNLINK)       \
+    /* icecast */                     \
+    XX(33, SOURCE,      SOURCE)       \
 
-/* Server errors 5xx.  */
-#define HTTP_STATUS_INTERNAL              500
-#define HTTP_STATUS_NOT_IMPLEMENTED       501
-#define HTTP_STATUS_BAD_GATEWAY           502
-#define HTTP_STATUS_UNAVAILABLE           503
-#define HTTP_STATUS_GATEWAY_TIMEOUT       504
+enum {
+#define XX(NUM, NAME, STRING) _CC_HTTP_METHOD_##NAME##_ = NUM,
+    _CC_HTTP_METHOD_MAP(XX)
+#undef XX
+};
 
 /*
  * Define maximum number of headers that we accept.
  * This should be big enough to handle legitimate cases,
  * but limited to avoid DoS.
  */
+#ifndef _CC_HTTP_MAX_HEADERS_
 #define _CC_HTTP_MAX_HEADERS_   256
+#endif
 
 /**/
 typedef struct _cc_http_header {

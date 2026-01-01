@@ -127,7 +127,7 @@ static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e) {
     return false;
 }
 
-_CC_API_PRIVATE(void) bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
+_CC_API_PRIVATE(void) response_bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>");
 
     io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
@@ -136,7 +136,7 @@ _CC_API_PRIVATE(void) bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_io_buffer_flush(e, io);
 }
 
-_CC_API_PRIVATE(void) not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
+_CC_API_PRIVATE(void) response_not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY><p>The server could not find the requested URL.</p></BODY></HTML>");
 
     io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 404 NOT FOUND\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
@@ -145,7 +145,7 @@ _CC_API_PRIVATE(void) not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_io_buffer_flush(e, io);
 }
 #if 0
-_CC_API_PRIVATE(void) unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
+_CC_API_PRIVATE(void) response_unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Method Not Implemented</TITLE></HEAD><BODY><p>HTTP request method not supported.</p></BODY></HTML>");
     
     io->w.off = _sntprintf(io->w.bytes,io->w.limit,"HTTP/1.1 501 Method Not Implemented\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", (int32_t)body.length);
@@ -154,7 +154,7 @@ _CC_API_PRIVATE(void) unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_io_buffer_flush(e, io);
 }
 #endif
-_CC_API_PRIVATE(void) request_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
+_CC_API_PRIVATE(void) response_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Welcome to HTTP</TITLE></HEAD><BODY><p>If you see this page, the web server is successfully</p></BODY></HTML>");
     
     io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
@@ -163,7 +163,27 @@ _CC_API_PRIVATE(void) request_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_io_buffer_flush(e, io);
 }
 
-_CC_API_PRIVATE(void) request_file(_cc_event_t *e, _cc_io_buffer_t *io, tchar_t *www_file) {
+_CC_API_PRIVATE(void) response_options(_cc_event_t *e, _cc_io_buffer_t *io) {
+    _cc_string_t http_response_header = _cc_string(
+        "HTTP/1.1 200 OK\r\n"\
+        "Access-Control-Allow-Origin: *\r\n"\
+        "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"\
+        "Access-Control-Allow-Headers: *\r\n"\
+        "Access-Control-Allow-Credentials: true\r\n"\
+        "Connection: Keep-Alive;\r\n"\
+        "Content-type: application/json\r\n"\
+        "Content-Length: 0\r\n\r\n");
+
+    if ((io->w.off + http_response_header.length) > io->w.limit) {
+        _cc_realloc_write_buffer(io, io->w.off + (int32_t)http_response_header.length);
+    }
+    memcpy(io->w.bytes + io->w.off, http_response_header.ptr, http_response_header.length * sizeof(char_t));
+    io->w.off += (int32_t)http_response_header.length * sizeof(char_t);
+
+    _cc_io_buffer_flush(e, io);
+}
+
+_CC_API_PRIVATE(void) response_file(_cc_event_t *e, _cc_io_buffer_t *io, tchar_t *www_file) {
     _http_t *http = (_http_t*)e->data;
     http->file = _cc_fopen(www_file, "rb");
     if (http->file) {
@@ -190,7 +210,7 @@ _CC_API_PRIVATE(void) request_file(_cc_event_t *e, _cc_io_buffer_t *io, tchar_t 
         
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     } else {
-        not_found(e, io);
+        response_not_found(e, io);
     }
 }
 
@@ -222,7 +242,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
         if (http->state == _CC_HTTP_STATE_HEADER_) {
             return true;
         } else if (http->state != _CC_HTTP_STATE_PAYLOAD_) {
-            bad_request(e, io);
+            response_bad_request(e, io);
             return false;
         }
         http->keep_alive = _is_keep_alive(&http->request->headers);
@@ -236,7 +256,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
         }
     } 
 
-    if (http->state == _CC_HTTP_STATE_PAYLOAD_) {
+    if (http->state == _CC_HTTP_STATE_PAYLOAD_ && io->r.off > 0) {
         _cc_buf_append(&http->buffer, io->r.bytes, io->r.off);
         if (http->buffer.length >= http->payload) {
             http->state = _CC_HTTP_STATE_ESTABLISHED_;
@@ -245,25 +265,34 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
     }
 
     if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
-        if (http->request->script[0] == '/' && http->request->script[1] == 0) {
-            request_ok(e, io);
+        if (_tcsicmp(http->request->method, _T("OPTIONS")) == 0) {
+            response_options(e, io);
+        } else if (http->request->script[0] == '/' && http->request->script[1] == 0) {
+            response_ok(e, io);
         } else {
             tchar_t www_file[_CC_MAX_PATH_] = {0};
             _stprintf(www_file, _T("%s%s"), root, http->request->script);
             if (_taccess(www_file, _CC_ACCESS_F_) == 0) {
                 //_cc_logger_info("file:%s found.", www_file);
-                request_file(e, io, www_file);
+                response_file(e, io, www_file);
             } else {
-                not_found(e, io);
+                response_not_found(e, io);
             }
         }
 
-        http->state = _CC_HTTP_STATE_HEADER_;
         _cc_logger_info("http:%s %s %s",http->request->method,http->request->script,http->request->protocol);
 
         if (_tcsicmp(http->request->method, _T("POST")) == 0) {
-            _cc_logger_info("RAW:%.*s",http->buffer.length, http->buffer.bytes);
+            FILE *fp = fopen("./raw.txt", "wb");
+            if (fp) {
+                fwrite(http->buffer.bytes, 1, http->buffer.length,fp);
+                fclose(fp);
+            }
+            //printf("RAW:%.*s",http->buffer.length, http->buffer.bytes);
         }
+
+        http->buffer.length = 0;
+        http->state = _CC_HTTP_STATE_HEADER_;
         _cc_http_free_request_header(&http->request);
     }
 

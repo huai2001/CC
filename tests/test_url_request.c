@@ -51,9 +51,9 @@ static bool_t url_request_success(_cc_http_request_t *request) {
         _cc_http_header_t *header = _cc_upcast(node, _cc_http_header_t, lnk);
         _cc_logger_debug(_T("header:%s=%s"), header->keyword, header->value);
     }
+
     switch (response->status) {
-    case HTTP_STATUS_OK:
-    case HTTP_STATUS_PARTIAL_CONTENTS:{
+    case _CC_HTTP_STATUS_OK_:{
         _cc_json_t *root = _cc_json_parse((tchar_t*)request->buffer.bytes, request->buffer.length);
         if (root) {
             _cc_logger_warin(_T("url_request success,%s"), request->url.host);
@@ -64,9 +64,9 @@ static bool_t url_request_success(_cc_http_request_t *request) {
         _cc_buf_cleanup(&request->buffer);
     }
         return true;
-    case HTTP_STATUS_MOVED_TEMPORARILY: // 目标跳转
-    case HTTP_STATUS_MOVED_PERMANENTLY: // 目标跳转
-    case HTTP_STATUS_SEE_OTHER:         // 目标跳转
+    case _CC_HTTP_STATUS_MOVED_PERMANENTLY_: // 目标跳转
+    case _CC_HTTP_STATUS_FOUND_: // 目标跳转
+    case _CC_HTTP_STATUS_SEE_OTHER_:         // 目标跳转
     {
         const _cc_http_header_t *location = _cc_http_header_find(&response->headers, _T("Location"));
         if (location) {
@@ -147,35 +147,37 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_READABLE_, which)) {
-        int32_t off = _cc_io_buffer_read(e, request->io);
-        if (off < 0) {
-            return false;
-        } else if (off == 0) {
-            return true;
-        }
-        if (request->state == _CC_HTTP_STATE_HEADER_) {
-            //printf("response header\n");
-            if (!_cc_http_request_response_header(request)) {
+        while (true) {
+            int32_t off = _cc_io_buffer_read(e, request->io);
+            if (off < 0) {
                 return false;
+            } else if (off == 0) {
+                return true;
             }
-            //Response header completed.
+            if (request->state == _CC_HTTP_STATE_HEADER_) {
+                //printf("response header\n");
+                if (!_cc_http_request_response_header(request)) {
+                    return false;
+                }
+                //Response header completed.
+                if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
+                    url_response_header(request);
+                }
+            }
+
             if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
-                url_response_header(request);
-            }
-        }
+                //printf("response body\n");
+                if (!_cc_http_request_response_body(request)) {
+                    return false;
+                }
 
-        if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
-            //printf("response body\n");
-            if (!_cc_http_request_response_body(request)) {
-                return false;
-            }
+                url_request_read(request);
 
-            url_request_read(request);
-
-            if (request->state == _CC_HTTP_STATE_ESTABLISHED_) {
-                //printf("response successful\n");
-                url_request_success(request);
-                return request->response->keep_alive;
+                if (request->state == _CC_HTTP_STATE_ESTABLISHED_) {
+                    //printf("response successful\n");
+                    url_request_success(request);
+                    return request->response->keep_alive;
+                }
             }
         }
     }

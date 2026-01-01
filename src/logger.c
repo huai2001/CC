@@ -83,31 +83,14 @@ _CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, c
     OutputDebugStringA(msg);
     OutputDebugStringA("\n");
 #endif
-    switch(level) {
-        case _CC_LOG_LEVEL_EMERG_:
-        case _CC_LOG_LEVEL_ALERT_:
-        case _CC_LOG_LEVEL_ERROR_:
-            fputs("\033[31m", stdout);
-            break;
-        case _CC_LOG_LEVEL_CRIT_:
-        case _CC_LOG_LEVEL_WARNING_:
-            fputs("\033[33m", stdout);
-            break;
-        case _CC_LOG_LEVEL_NOTICE_:
-            fputs("\033[32m", stdout);
-            break;
-        case _CC_LOG_LEVEL_INFO_:
-            fputs("\033[34m", stdout);
-            break;
-        case _CC_LOG_LEVEL_DEBUG_:
-            fputs("\033[36m", stdout);
-            break;
-    }
     fputs(buffer, stdout);
     fputs(msg, stdout);
-    fputs("\033[0m\n", stdout);
+    fputc('\n', stdout);
 #endif
+
+#ifdef _CC_USE_SYSLOG_
     _cc_syslogA(level, msg, length);
+#endif
 }
 /*
 "\033[30m Black     \033[0m"
@@ -153,33 +136,14 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
     OutputDebugStringW(msg);
     OutputDebugStringW(L"\n");
 #endif
-    switch(level) {
-        case _CC_LOG_LEVEL_EMERG_:
-        case _CC_LOG_LEVEL_ALERT_:
-        case _CC_LOG_LEVEL_ERROR_:
-            fputs("\033[31m", stdout);
-            break;
-        case _CC_LOG_LEVEL_CRIT_:
-        case _CC_LOG_LEVEL_WARNING_:
-            fputs("\033[33m", stdout);
-            break;
-        case _CC_LOG_LEVEL_NOTICE_:
-            fputs("\033[32m", stdout);
-            break;
-        case _CC_LOG_LEVEL_INFO_:
-            fputs("\033[34m", stdout);
-            break;
-        case _CC_LOG_LEVEL_DEBUG_:
-            fputs("\033[36m", stdout);
-            break;
-    }
     fputs(buffer, stdout);
     fputws(msg, stdout);
-    fputws(L"\033[0m\n", stdout);
-
+    fputc('\n', stdout);
 #endif
 
+#ifdef _CC_USE_SYSLOG_
     _cc_syslogW(level, msg, length);
+#endif
 }
 
 _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t level, const char_t *fmt, va_list arg) {
