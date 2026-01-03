@@ -16,7 +16,17 @@ extern "C" {
 #endif
 
 /**
- * Number of milliseconds in a second.
+ * @brief Defines a constant for the number of seconds in a day
+ * 
+ * This macro defines the total number of seconds in a standard day (24 hours),
+ * used for time calculation and conversion scenarios.
+ * 
+ * Value is 86400 seconds (24 hours × 60 minutes × 60 seconds)
+ */
+#define _CC_DYAS_PER_SECOND_    86400
+
+/**
+ * @brief Number of milliseconds in a second.
  *
  * This is always 1000.
  *
@@ -24,7 +34,7 @@ extern "C" {
 #define _CC_MS_PER_SECOND_   1000
 
 /**
- * Number of microseconds in a second.
+ * @brief Number of microseconds in a second.
  *
  * This is always 1000000.
  *
@@ -32,7 +42,7 @@ extern "C" {
 #define _CC_US_PER_SECOND_   1000000
 
 /**
- * Number of nanoseconds in a second.
+ * @brief Number of nanoseconds in a second.
  *
  * This is always 1000000000.
  *
@@ -40,7 +50,7 @@ extern "C" {
 #define _CC_NS_PER_SECOND_   1000000000LL
 
 /**
- * Number of nanoseconds in a millisecond.
+ * @brief Number of nanoseconds in a millisecond.
  *
  * This is always 1000000.
  *
@@ -48,7 +58,7 @@ extern "C" {
 #define _CC_NS_PER_MS_       1000000
 
 /**
- * Number of nanoseconds in a microsecond.
+ * @brief Number of nanoseconds in a microsecond.
  *
  * This is always 1000.
  *
@@ -184,8 +194,10 @@ struct timespec {
 _CC_API_PUBLIC(int) gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info);
 
 #define _cc_gmtime(t, result) gmtime_s((result), (t))
+#define _cc_localtime(t, result) localtime_s((result), (t))
 #else
 #define _cc_gmtime(t, result) gmtime_r((t), (result))
+#define _cc_localtime(t, result) localtime_r((t), (result))
 #endif /* __CC_WINDOWS__ */
 /**/
 _CC_API_PUBLIC(const tchar_t *) _cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *tm);
