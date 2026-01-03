@@ -31,7 +31,7 @@ const tchar_t* _cc_get_syntax_error(void) {
 }
 
 tchar_t * _convert_text(_cc_sds_t sds, const tchar_t *input_ptr, const tchar_t *endpos) {
-    size_t alloc_length = _cc_sds_available(sds);
+    size_t alloc_length = _cc_sds_limit(sds);
     tchar_t *output_ptr = (tchar_t*)sds;
     tchar_t *output_endpos = output_ptr + alloc_length - 1; /* -1 for zero terminator */
     /* loop through the string literal */

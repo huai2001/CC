@@ -25,27 +25,6 @@
 #include "cpu.h"
 #include "rand.h"
 
-#if (defined(DEBUG) | defined(_DEBUG) | defined(NDK_DEBUG)) 
-    #define _CC_DEBUG_
-    #undef NDEBUG
-    #ifndef __CC_ANDROID__
-        #include <assert.h>
-        #define _cc_assert assert
-    #else
-        /**
-         * assert() equivalent.
-         */
-        #define _cc_assert(expr) \
-        if (!(expr)) { \
-            _cc_logger_error(_T("Assertion failed: %s"), #expr); \
-            abort(); \
-        }
-    #endif
-#else
-    #define _cc_assert(expr) ((void)0)
-    #undef _CC_DEBUG_
-#endif
-
 #define _cc_abort(fmt, ...) do {\
     _cc_logger_format(_CC_LOG_LEVEL_ALERT_, fmt, ##__VA_ARGS__);\
     abort();\

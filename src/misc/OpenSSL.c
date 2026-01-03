@@ -244,8 +244,8 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(uint32_t protocols) {
     SSL_CTX_set_mode(ssl_ctx, SSL_MODE_NO_AUTO_CHAIN);
 #endif
 
-    SSL_CTX_set_read_ahead(ssl_ctx, 1);
-    SSL_CTX_set_cipher_list(ssl_ctx, "HIGH:!aNULL:!MD5:!RC4");
+    //SSL_CTX_set_read_ahead(ssl_ctx, 1);
+    //SSL_CTX_set_cipher_list(ssl_ctx, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305");
 
     ctx->handle = ssl_ctx;
     ctx->refcount = 0;
@@ -345,7 +345,7 @@ _CC_API_PUBLIC(bool_t) _SSL_setup(_cc_OpenSSL_t *ctx,
         SSL_CTX_set_default_passwd_cb_userdata(ctx->handle, (void*)key_password);
         SSL_CTX_set_default_passwd_cb(ctx->handle, _ssl_pkey_password_callback);
     }
-
+    
     if (SSL_CTX_use_certificate_chain_file(ctx->handle, cert_file) <= 0) {
         _cc_logger_error(_T("Failed to load certificate file: %s SSL_CTX_use_certificate_file failed: %s"), cert_file, ERR_reason_error_string(ERR_get_error()));
         return false;
@@ -448,6 +448,11 @@ _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, const tchar_t *host, siz
 /**/
 _CC_API_PUBLIC(int) _SSL_set_alpn_protos(_cc_SSL_t *ssl, const unsigned char *protos, unsigned int protos_len) {
     return SSL_set_alpn_protos((SSL*)ssl->handle, protos, protos_len);
+}
+
+/**/
+_CC_API_PUBLIC(int) _SSL_set_cipher_list(_cc_OpenSSL_t *ctx, const char *ciphers) {
+    return SSL_CTX_set_cipher_list(ctx->handle, ciphers);
 }
 
 _CC_API_PRIVATE(uint8_t) _SSL_Error(SSL *handle,const char *fn) {

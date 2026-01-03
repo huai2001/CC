@@ -190,7 +190,7 @@ _ABUF_TRY_AGAIN:
     /* fmt_length is the length of the string required*/
     fmt_length = _vsnprintf((char_t *)(ctx->bytes + ctx->length), free_length - sizeof(char_t), fmt, arg);
 #ifdef __CC_WINDOWS__
-    if (fmt_length == -1) {
+    if (fmt_length == (size_t)-1) {
         fmt_length = _vsnprintf(NULL, 0, fmt, arg);
     }
 #endif
@@ -258,7 +258,7 @@ _WBUF_TRY_AGAIN:
     fmt_length = _vsnwprintf((wchar_t *)(ctx->bytes + ctx->length), free_length - sizeof(wchar_t), fmt, arg);
 
 #ifdef __CC_WINDOWS__
-    if (fmt_length == -1) {
+    if (fmt_length == (size_t)-1) {
         fmt_length = _vsnwprintf(NULL, 0, fmt, arg);
     }
 #endif

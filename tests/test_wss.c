@@ -364,7 +364,6 @@ int main(int argc, char *const argv[]) {
     }
 
     _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
-    //_SSL_setup(openSSL, "/opt/libcc/bin/arm64/debug/cert.pem", "/opt/libcc/bin/arm64/debug/key.pem",NULL);
 #endif
     if (_cc_register_poller(&async) == false) {
         return 1;

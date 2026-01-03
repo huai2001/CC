@@ -2,7 +2,8 @@
 #include <libcc/alloc.h>
 #include <libcc/sds.h>
 
-_CC_API_PRIVATE(byte_t) sds_hdr(byte_t type) {
+/* Get SDS header size for a given type */
+_CC_FORCE_INLINE_ byte_t sds_hdr(byte_t type) {
     switch(type & _SDS_MASK_) {
         case _SDS_MASK_5_:
             return (byte_t)sizeof(struct _sds_hdr5);
@@ -18,7 +19,8 @@ _CC_API_PRIVATE(byte_t) sds_hdr(byte_t type) {
     return 0;
 }
 
-_CC_API_PRIVATE(byte_t) sds_rtype(size_t length) {
+/* Select the appropriate SDS type based on string length */
+_CC_FORCE_INLINE_ byte_t sds_rtype(size_t length) {
     if (length < (1 << 5)) {
         return _SDS_MASK_5_;
     }
@@ -50,17 +52,15 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_alloc(const tchar_t *s, size_t length) {
     size_t ptr_length = 0;
     
     _cc_assert(s != NULL || length != 0);
-    if (s) {
-        if (length == 0) {
-            length = _tcslen(s);
-        }
+    if (s && length == 0) {
+        length = _tcslen(s);
     } else if (length == 0) {
         _cc_assert(false);
     }
 
     type = sds_rtype(length);
     hdr_length = sds_hdr(type);
-    hdr = (byte_t*)_cc_malloc(hdr_length + (length + sizeof(tchar_t)) * sizeof(tchar_t));
+    hdr = (byte_t*)_cc_malloc(hdr_length + (length + 1) * sizeof(tchar_t));
     ptr = hdr + hdr_length;
 
     if (s == NULL) {
@@ -115,6 +115,25 @@ _CC_API_PUBLIC(void) _cc_sds_free(_cc_sds_t s) {
         return;
     }
     _cc_free(hdr - sds_hdr(*(byte_t*)(hdr - 1)));
+}
+
+/* Copy a string to SDS */
+_CC_API_PUBLIC(_cc_sds_t) _cc_sds_copy(_cc_sds_t sds, const tchar_t *s, size_t size) {
+    size_t limit;
+    if (sds == NULL) {
+        return _cc_sds_alloc(s, size);
+    }
+    
+    limit = _cc_sds_limit(sds);
+    if (size > limit) {
+        _cc_sds_free(sds);
+        sds = _cc_sds_alloc(s, size);
+    } else {
+        // Copy data to existing SDS
+        memcpy(sds, s, size * sizeof(tchar_t));
+        _cc_sds_set_length(sds, size);
+    }
+    return sds;
 }
 
 _CC_API_PUBLIC(_cc_sds_t) _cc_sds_vformat(const tchar_t *format, va_list ap) {

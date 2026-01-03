@@ -55,6 +55,8 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(uint32_t protocols);
 /**/
 _CC_API_PUBLIC(void) _SSL_quit(_cc_OpenSSL_t *);
 /**/
+_CC_API_PUBLIC(int) _SSL_set_cipher_list(_cc_OpenSSL_t *ctx, const char *ciphers);
+/**/
 _CC_API_PUBLIC(_cc_SSL_t*) _SSL_alloc(_cc_OpenSSL_t*);
 /**/
 _CC_API_PUBLIC(bool_t) _SSL_free(_cc_SSL_t*);
@@ -71,8 +73,7 @@ _CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t*, const byte_t*, int32_t);
 /**/
 _CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t*, byte_t*, int32_t);
 /**/
-_CC_API_PUBLIC(int) _SSL_set_alpn_protos(_cc_SSL_t*, const unsigned char *protos, unsigned int protos_len);
-
+_CC_API_PUBLIC(int) _SSL_set_alpn_protos(_cc_SSL_t *ssl, const unsigned char *protos, unsigned int protos_len);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

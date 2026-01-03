@@ -247,36 +247,11 @@ static void _cc_json_dump_value(const _cc_json_t *item, _cc_buf_t *buf) {
         }
     } break;
     case _CC_JSON_FLOAT_: {
-        int length = 0;
-        double test = 0;
-        /* temporary buffer to print the number into */
-        tchar_t number_buffer[26];
-
-        /* This checks for NaN and Infinity */
-        if ((item->element.uni_float * 0) != 0) {
-            length = _sntprintf(number_buffer, _cc_countof(number_buffer), _T("null"));
-        } else {
-            /* Try 15 decimal places of precision to avoid nonsignificant
-             * nonzero digits */
-            length = _sntprintf(number_buffer, _cc_countof(number_buffer), _T("%1.15g"), item->element.uni_float);
-
-            /* Check whether the original double can be recovered */
-            if ((_stscanf(number_buffer, _T("%lg"), &test) != 1) || (test != item->element.uni_float)) {
-                /* If not, print with 17 decimal places of precision */
-                length = _sntprintf(number_buffer, _cc_countof(number_buffer), _T("%1.17g"), item->element.uni_float);
-            }
-        }
-
-        /* sprintf failed or buffer overrun occurred */
-        if ((length < 0) || (length > (int)(sizeof(number_buffer) - 1))) {
-            _sntprintf(number_buffer, _cc_countof(number_buffer), _T("null"));
-        }
-
-        number_buffer[_cc_countof(number_buffer) - 1] = 0;
-        _cc_buf_append(buf, number_buffer, sizeof(tchar_t) * (length - 1));
+        /* Try 15 decimal places of precision to avoid nonsignificant nonzero digits */
+        _cc_buf_appendf(buf, _T("%1.15g"), item->element.uni_float);
     } break;
     case _CC_JSON_INT_: {
-        _cc_buf_appendf(buf, _T("%lld"), (long long)item->element.uni_int);
+        _cc_buf_appendf(buf, _T("%lld"), (int64_t)item->element.uni_int);
     } break;
     case _CC_JSON_OBJECT_: {
         _cc_json_dump_object(item, buf);

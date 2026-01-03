@@ -329,4 +329,24 @@
     #define _CC_API_PRIVATE(t) _CC_FORCE_INLINE_ t
 #endif
 
+#if (defined(DEBUG) | defined(_DEBUG) | defined(NDK_DEBUG)) 
+    #define _CC_DEBUG_
+    #undef NDEBUG
+    #ifndef __CC_ANDROID__
+        #include <assert.h>
+        #define _cc_assert assert
+    #else
+        /**
+         * assert() equivalent.
+         */
+        #define _cc_assert(expr) \
+        if (!(expr)) { \
+            abort(); \
+        }
+    #endif
+#else
+    #define _cc_assert(expr) ((void)0)
+    #undef _CC_DEBUG_
+#endif
+
 #endif  /* _C_CC_CONFIG_COMPILER_H_INCLUDED_*/

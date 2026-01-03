@@ -130,7 +130,7 @@ static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e) {
 _CC_API_PRIVATE(void) response_bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>");
 
-    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
+    io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
@@ -139,7 +139,7 @@ _CC_API_PRIVATE(void) response_bad_request(_cc_event_t *e, _cc_io_buffer_t *io) 
 _CC_API_PRIVATE(void) response_not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY><p>The server could not find the requested URL.</p></BODY></HTML>");
 
-    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 404 NOT FOUND\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
+    io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 404 NOT FOUND\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
@@ -148,7 +148,7 @@ _CC_API_PRIVATE(void) response_not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
 _CC_API_PRIVATE(void) response_unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Method Not Implemented</TITLE></HEAD><BODY><p>HTTP request method not supported.</p></BODY></HTML>");
     
-    io->w.off = _sntprintf(io->w.bytes,io->w.limit,"HTTP/1.1 501 Method Not Implemented\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", (int32_t)body.length);
+    io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 501 Method Not Implemented\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
@@ -157,7 +157,7 @@ _CC_API_PRIVATE(void) response_unimplemented(_cc_event_t *e, _cc_io_buffer_t *io
 _CC_API_PRIVATE(void) response_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
     _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Welcome to HTTP</TITLE></HEAD><BODY><p>If you see this page, the web server is successfully</p></BODY></HTML>");
     
-    io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
+    io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
@@ -198,14 +198,14 @@ _CC_API_PRIVATE(void) response_file(_cc_event_t *e, _cc_io_buffer_t *io, tchar_t
         }
         if (ext != NULL) {
             if (_tcsicmp(".exe", ext) == 0) {
-                io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: Content-Disposition: attachment; filename=\"%s\"\r\nContent-Length: %lld\r\n\r\n", script_name,size);
+                io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: Content-Disposition: attachment; filename=\"%s\"\r\nContent-Length: %lld\r\n\r\n", script_name,size);
             } else if (_tcsicmp(".zip", ext) == 0) {
-                io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: Content-Disposition: attachment; filename=\"%s\"\r\nContent-Length: %lld\r\n\r\n", script_name,size);
+                io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: Content-Disposition: attachment; filename=\"%s\"\r\nContent-Length: %lld\r\n\r\n", script_name,size);
             } else {
-                io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html; charset=utf-8\r\nContent-Length: %lld\r\n\r\n",size);
+                io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html; charset=utf-8\r\nContent-Length: %lld\r\n\r\n",size);
             }
         } else {
-            io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html; charset=utf-8\r\nContent-Length: %lld\r\n\r\n",size);
+            io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html; charset=utf-8\r\nContent-Length: %lld\r\n\r\n",size);
         }
         
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
@@ -283,12 +283,12 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
         _cc_logger_info("http:%s %s %s",http->request->method,http->request->script,http->request->protocol);
 
         if (_tcsicmp(http->request->method, _T("POST")) == 0) {
-            FILE *fp = fopen("./raw.txt", "wb");
-            if (fp) {
-                fwrite(http->buffer.bytes, 1, http->buffer.length,fp);
-                fclose(fp);
-            }
-            //printf("RAW:%.*s",http->buffer.length, http->buffer.bytes);
+            // FILE *fp = fopen("./raw.txt", "wb");
+            // if (fp) {
+            //     fwrite(http->buffer.bytes, 1, http->buffer.length,fp);
+            //     fclose(fp);
+            // }
+            printf("RAW:%.*s\n",(int)http->buffer.length, http->buffer.bytes);
         }
 
         http->buffer.length = 0;
