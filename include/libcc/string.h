@@ -82,13 +82,13 @@ extern const char_t _a_upper_xdigits[];
     typedef _cc_astring_t       _cc_string_t;
 #endif
 
-#define _cc_first_index_of(FIRST, LAST, FN) do {\
+#define _cc_find_first_of(FIRST, LAST, FN) do {\
     while ((FIRST) < (LAST) && (FN)) {\
         (FIRST)++;\
     }\
 } while(0)
 
-#define _cc_last_index_of(FIRST, LAST, FN) do {\
+#define _cc_find_last_of(FIRST, LAST, FN) do {\
     (LAST)--;\
     while(FIRST > (LAST) && (FN)) {\
         (LAST)--;\

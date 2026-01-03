@@ -29,9 +29,9 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
         /* CONNECT www.baidu.com:443 HTTP/1.1 */
         /* GET / HTTP/1.1 */
         /* Find the first non-space letter */
-        _cc_first_index_of(first, length, _cc_isspace(line[first]));
+        _cc_find_first_of(first, length, _CC_ISSPACE(line[first]));
         last = first;
-        _cc_first_index_of(last, length, !_cc_isspace(line[last]));
+        _cc_find_first_of(last, length, !_CC_ISSPACE(line[last]));
         if (first == last) {
             return false;
         }
@@ -39,9 +39,9 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
 
         first = last;
         /*LOG: HTTP Script(Host:Port)*/
-        _cc_first_index_of(first, length, _cc_isspace(line[first]));
+        _cc_find_first_of(first, length, _CC_ISSPACE(line[first]));
         last = first;
-        _cc_first_index_of(last, length, !_cc_isspace(line[last]));
+        _cc_find_first_of(last, length, !_CC_ISSPACE(line[last]));
         if (first == last) {
             return false;
         }
@@ -51,8 +51,8 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_request_header(_cc_http_request_header_t *
 
         /*LOG: HTTP Protocol*/
         first = last;
-        _cc_first_index_of(first, length, _cc_isspace(line[first]));
-        _cc_last_index_of(first, length, _cc_isspace(line[length]));
+        _cc_find_first_of(first, length, _cc_isspace(line[first]));
+        _cc_find_last_of(first, length, _cc_isspace(line[length]));
         request->protocol = _cc_sds_alloc(&line[first], length - first);
         return true;
     }
