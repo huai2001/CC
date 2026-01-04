@@ -148,7 +148,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 
 _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t level, const char_t *fmt, va_list arg) {
     char_t buf[_CC_LOG_BUFFER_SIZE_];
-    size_t fmt_length, empty_len;
+    int fmt_length, remaining;
     char_t *ptr = buf;
     char_t *tmp_ptr = NULL;
 
@@ -156,17 +156,17 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
 
     _cc_assert(fmt != NULL);
 
-    empty_len = _CC_LOG_BUFFER_SIZE_;
+    remaining = _CC_LOG_BUFFER_SIZE_;
     /* If the first attempt to append fails, resize the buffer appropriately
      * and try again */
     do {
         /* fmt_length is the length of the string required, excluding the
          * trailing NULL */
-        fmt_length = _vsnprintf(ptr, empty_len, fmt, arg);
+        fmt_length = (int)_vsnprintf(ptr, remaining, fmt, arg);
 
 #ifdef __CC_WINDOWS__
-        if (fmt_length == (size_t)-1) {
-            fmt_length = _vsnprintf(NULL, 0, fmt, arg);
+        if (fmt_length == -1) {
+            fmt_length = (int)_vsnprintf(NULL, 0, fmt, arg);
         }
 #endif
         if (fmt_length <= 0) {
@@ -174,12 +174,12 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
         }
 
         /* SUCCESS */
-        if (fmt_length < empty_len) {
+        if (fmt_length < remaining) {
             _cc_loggerA(file, line, level, ptr, fmt_length);
             break;
         }
-        empty_len = _cc_aligned_alloc_opt(fmt_length + 10, 64);
-        ptr = (char_t *)_cc_realloc(tmp_ptr, sizeof(char_t) * empty_len);
+        remaining = fmt_length;
+        ptr = (char_t *)_cc_realloc(tmp_ptr, sizeof(char_t) * remaining);
         tmp_ptr = ptr;
     } while (true);
 
@@ -190,24 +190,24 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
 
 _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t level, const wchar_t *fmt, va_list arg) {
     wchar_t buf[_CC_LOG_BUFFER_SIZE_];
-    size_t fmt_length, empty_len;
+    int fmt_length, remaining;
 
     wchar_t *ptr = buf;
     wchar_t *tmp_ptr = NULL;
 
     fmt_length = 0;
 
-    empty_len = _CC_LOG_BUFFER_SIZE_;
+    remaining = _CC_LOG_BUFFER_SIZE_;
     /* If the first attempt to append fails, resize the buffer appropriately
      * and try again */
     do {
         /* fmt_length is the length of the string required, excluding the
          * trailing NULL */
-        fmt_length = _vsnwprintf(ptr, empty_len, fmt, arg);
+        fmt_length = (int)_vsnwprintf(ptr, remaining, fmt, arg);
 
 #ifdef __CC_WINDOWS__
-        if (fmt_length == (size_t)-1) {
-            fmt_length = _vsnwprintf(NULL, 0, fmt, arg);
+        if (fmt_length == -1) {
+            fmt_length = (int)_vsnwprintf(NULL, 0, fmt, arg);
         }
 #endif
         if (fmt_length <= 0) {
@@ -215,13 +215,13 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t 
         }
 
         /* SUCCESS */
-        if (fmt_length < empty_len) {
+        if (fmt_length < remaining) {
             _cc_loggerW(file, line, level, ptr, fmt_length);
             break;
         }
 
-        empty_len = _cc_aligned_alloc_opt(fmt_length + 10, 64);
-        ptr = (wchar_t *)_cc_realloc(tmp_ptr, sizeof(wchar_t) * empty_len);
+        remaining = fmt_length;
+        ptr = (wchar_t *)_cc_realloc(tmp_ptr, sizeof(wchar_t) * remaining);
         tmp_ptr = ptr;
     } while (true);
 
