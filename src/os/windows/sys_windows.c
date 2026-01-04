@@ -1,3 +1,4 @@
+#include <psapi.h>
 #include <libcc/atomic.h>
 #include <libcc/dirent.h>
 #include <libcc/logger.h>
@@ -264,6 +265,62 @@ _CC_API_PUBLIC(void) _cc_uninstall_dumper(void) {
 }
 
 #endif /*ndef _CC_DISABLED_DUMPER_ */
+
+/**
+ * @brief Get the current CPU usage percentage of the system
+ * 
+ * This function retrieves system idle time, kernel time, and user time through the Windows API
+ * to calculate CPU usage. It uses a time-difference-based algorithm to calculate instantaneous
+ * CPU usage, avoiding directly returning raw counter values.
+ * 
+ * @return double Returns a CPU usage percentage value between 0.0 and 100.0
+ *              Returns 0.0 if system time cannot be obtained or on the first call
+ * 
+ * @note This function uses static variables to store counter values from the previous call,
+ *       so consecutive calls are required to obtain accurate usage data
+ * @note The return value is calculated based on the time difference between two calls,
+ *       the first call always returns 0.0
+ */
+_CC_API_PUBLIC(double) _cc_get_cpu_usage(void) {
+    static ULONGLONG lastTotal = 0, lastIdle = 0;
+    FILETIME idleTime, kernelTime, userTime;
+    if (GetSystemTimes(&idleTime, &kernelTime, &userTime)) {
+        ULONGLONG idle = (idleTime.dwHighDateTime << 32) + idleTime.dwLowDateTime;
+        ULONGLONG total = ((kernelTime.dwHighDateTime << 32) + kernelTime.dwLowDateTime) +
+                         ((userTime.dwHighDateTime << 32) + userTime.dwLowDateTime);
+        
+        if (lastTotal > 0) {
+            ULONGLONG diffTotal = total - lastTotal;
+            ULONGLONG diffIdle = idle - lastIdle;
+            double usage = (double)(diffTotal - diffIdle) / diffTotal * 100;
+            
+            lastTotal = total;
+            lastIdle = idle;
+            return usage;
+        }
+        
+        lastTotal = total;
+        lastIdle = idle;
+    }
+    return 0.0;
+}
+/**
+ * @brief Get system memory usage information
+ * 
+ * @param[out] total Pointer to a double that will store the total memory in MB
+ * @param[out] used Pointer to a double that will store the used memory in MB
+ * 
+ * @note This function retrieves physical memory information through the Windows API GlobalMemoryStatusEx
+ * @note The returned memory unit is MB (Megabytes)
+ */
+_CC_API_PUBLIC(void) _cc_get_memory_usage(double* total, double* used) {
+    MEMORYSTATUSEX memInfo;
+    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+
+    GlobalMemoryStatusEx(&memInfo);
+    total = memInfo.ullTotalPhys / 1024.0 / 1024.0;
+    used = (memInfo.ullTotalPhys - memInfo.ullAvailPhys) / 1024.0 / 1024.0;
+}
 
 /**/
 _CC_API_PUBLIC(void) _cc_set_last_errno(int32_t _errno) {

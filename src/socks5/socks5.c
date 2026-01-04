@@ -84,19 +84,19 @@ bool_t _cc_socks5_response(_cc_socks5_t *socks, _cc_io_buffer_t *io) {
                 case _CC_SOCKS5_ADDRESS_TYPE_IPV4_: {
                     memcpy(buf, bytes + 4, 4);
                     length = 4;
-                    memcpy(&socks->port, (byets + 7), sizeof(uint16_t));
+                    memcpy(&socks->port, (bytes + 7), sizeof(uint16_t));
                 }
                 break;
                 case _CC_SOCKS5_ADDRESS_TYPE_DOMAIN_: {
                     length = *(bytes + 4);
                     memcpy(buf, bytes + 5, length);
-                    memcpy(&socks->port, (byets + 5 + length), sizeof(uint16_t));
+                    memcpy(&socks->port, (bytes + 5 + length), sizeof(uint16_t));
                 }
                 break;
                 case _CC_SOCKS5_ADDRESS_TYPE_IPV6_: {
                     length = 16;
                     memcpy(buf, bytes + 4, 16);
-                    memcpy(&socks->port, (byets + 20), 16);
+                    memcpy(&socks->port, (bytes + 20), 16);
                 }
                 break;
             }

@@ -299,7 +299,7 @@ _CC_API_PRIVATE(bool_t) __dataset(_cc_sql_result_t *result) {
 
     res = mysql_stmt_result_metadata(result->stmt);
     if (res == NULL) {
-        return mysql_stmt_affected_rows(stmt) > 0;
+        return mysql_stmt_affected_rows(result->stmt) > 0;
     }
 
     num_of_dataset = (int32_t)mysql_stmt_field_count(result->stmt);
@@ -409,7 +409,6 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
     res->binds = NULL;
     res->dataset = NULL;
     res->meta = NULL;
-    res->setp = false;
     res->num_of_dataset = 0;
     res->num_of_bind = num_of_bind;
     if (num_of_bind > 0) {

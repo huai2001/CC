@@ -203,7 +203,7 @@ _ABUF_TRY_AGAIN:
     }
     /* FAILURE */
     fmt_length = (fmt_length + (int)(fmt_length * factor));
-    fmt_length = _cc_aligned_alloc_opt(ctx->length + fmt_length, 64);
+    fmt_length = (int)_cc_aligned_alloc_opt(ctx->length + fmt_length, 64);
     if (_buf_expand(ctx, fmt_length)) {
         remaining = (int)_cc_buf_remaining(ctx);
         goto _ABUF_TRY_AGAIN;
@@ -273,7 +273,7 @@ _WBUF_TRY_AGAIN:
 
     /* FAILURE */
     fmt_length = (fmt_length + (int)(fmt_length * factor)) * sizeof(wchar_t);
-    fmt_length = _cc_aligned_alloc_opt((size_t)(ctx->length + fmt_length), 64);
+    fmt_length = (int)_cc_aligned_alloc_opt((size_t)(ctx->length + fmt_length), 64);
     if (_buf_expand(ctx, fmt_length)) {
         remaining = (int)(_cc_buf_remaining(ctx) / sizeof(wchar_t));
         goto _WBUF_TRY_AGAIN;

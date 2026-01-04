@@ -21,7 +21,7 @@ _CC_API_PRIVATE(void) _hmac_init_block(_cc_hmac_t *ctx, byte_t *block, byte_t cp
     for (i = 0; i < ctx->key_length; i++) {
         block[i] = *(ctx->key + i) ^ cp;
     }
-    for (i = ctx->key_length; i < ctx->block_length; i++) {
+    for (i = (int)ctx->key_length; i < (int)ctx->block_length; i++) {
         block[i] = cp;
     }
 }

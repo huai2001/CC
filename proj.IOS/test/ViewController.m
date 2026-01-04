@@ -58,6 +58,17 @@
     _cc_get_device_name(path, _cc_countof(path));
     NSLog(@"%s", path);
     
+    double c = _cc_get_cpu_usage();
+    NSLog(@"cpu:%lf", c);
+    c = _cc_get_cpu_usage();
+    NSLog(@"cpu:%lf", c);
+    
+    double t = 0.0f,u = 0.0f;
+    _cc_get_memory_usage(&t, &u);
+    
+    NSLog(@"memory:%lf, %lf", t, u);
+    
+    
 }
 //被自定义的WKScriptMessageHandler在回调方法里通过代理回调回来，绕了一圈就是为了解决内存不释放的问题
 //通过接收JS传出消息的name进行捕捉的回调方法

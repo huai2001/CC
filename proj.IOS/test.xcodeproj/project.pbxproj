@@ -15,7 +15,11 @@
 		41CDDE2229A3857C008F372C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41CDDE2129A3857C008F372C /* Assets.xcassets */; };
 		41CDDE2529A3857C008F372C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41CDDE2329A3857C008F372C /* LaunchScreen.storyboard */; };
 		41CDDE2829A3857C008F372C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41CDDE2729A3857C008F372C /* main.m */; };
-		41CDDE3929A38AB5008F372C /* cc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; };
+		425720BE2F09FD150060EE45 /* cc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; };
+		425720C62F09FDE60060EE45 /* libcrypto.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 425720C42F09FDE60060EE45 /* libcrypto.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		425720C72F09FDE60060EE45 /* libssl.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 425720C52F09FDE60060EE45 /* libssl.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		425720CA2F09FFC80060EE45 /* sqlite3.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 42AC371B2E7D6CF300B44396 /* sqlite3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		425720CB2F09FFCB0060EE45 /* cc.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +39,22 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		425720C32F09FDBE0060EE45 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				425720CB2F09FFCB0060EE45 /* cc.framework in CopyFiles */,
+				425720CA2F09FFC80060EE45 /* sqlite3.framework in CopyFiles */,
+				425720C62F09FDE60060EE45 /* libcrypto.3.dylib in CopyFiles */,
+				425720C72F09FDE60060EE45 /* libssl.3.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		416D42AF29DAC4CF00205B24 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		41CDDE1229A3857B008F372C /* test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = test.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -50,6 +70,10 @@
 		41CDDE2629A3857C008F372C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		41CDDE2729A3857C008F372C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		41CDDE2F29A385AB008F372C /* cc.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = cc.xcodeproj; sourceTree = "<group>"; };
+		425720BF2F09FD2D0060EE45 /* libcrypto.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.3.dylib; path = ../lib/arm64/libcrypto.3.dylib; sourceTree = "<group>"; };
+		425720C02F09FD2D0060EE45 /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.3.dylib; path = ../lib/arm64/libssl.3.dylib; sourceTree = "<group>"; };
+		425720C42F09FDE60060EE45 /* libcrypto.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.3.dylib; path = ../lib/arm64/libcrypto.3.dylib; sourceTree = "<group>"; };
+		425720C52F09FDE60060EE45 /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.3.dylib; path = ../lib/arm64/libssl.3.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,8 +81,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				425720BE2F09FD150060EE45 /* cc.framework in Frameworks */,
 				416D42B129DAC4CF00205B24 /* WebKit.framework in Frameworks */,
-				41CDDE3929A38AB5008F372C /* cc.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +92,8 @@
 		41CDDE0929A3857B008F372C = {
 			isa = PBXGroup;
 			children = (
+				425720C42F09FDE60060EE45 /* libcrypto.3.dylib */,
+				425720C52F09FDE60060EE45 /* libssl.3.dylib */,
 				41CDDE2F29A385AB008F372C /* cc.xcodeproj */,
 				41CDDE1429A3857B008F372C /* test */,
 				41CDDE1329A3857B008F372C /* Products */,
@@ -113,6 +139,8 @@
 		41CDDE3829A38AB5008F372C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				425720BF2F09FD2D0060EE45 /* libcrypto.3.dylib */,
+				425720C02F09FD2D0060EE45 /* libssl.3.dylib */,
 				416D42AF29DAC4CF00205B24 /* WebKit.framework */,
 			);
 			name = Frameworks;
@@ -128,6 +156,7 @@
 				41CDDE0E29A3857B008F372C /* Sources */,
 				41CDDE0F29A3857B008F372C /* Frameworks */,
 				41CDDE1029A3857B008F372C /* Resources */,
+				425720C32F09FDBE0060EE45 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -366,6 +395,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/libcc/lib/arm64,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.libcc.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -384,6 +417,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/libcc/lib/arm64,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.libcc.test;
 				PRODUCT_NAME = "$(TARGET_NAME)";

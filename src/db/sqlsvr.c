@@ -3,6 +3,7 @@
 #include <libcc/time.h>
 #include <libcc/thread.h>
 #include <libcc/sql.h>
+#include <libcc/buf.h>
 #include <time.h>
 
 #ifdef __CC_WINDOWS__
@@ -221,7 +222,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_reset(_cc_sql_result_t *result) {
     return true;
 }
 
-_CC_API_PRIVATE(size_t) _sqlsvr_step(_cc_sql_result_t *result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_step(_cc_sql_result_t *result) {
     _cc_assert(result != NULL && result->hSTMT != SQL_NULL_HSTMT);
     return SQLExecute_ex(result);
 }

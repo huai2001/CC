@@ -5,7 +5,8 @@ ARCHS=("arm64" "x86_64")
 SDK_VERSION="18.4"
 OPENSSL_VERSION="3.2.5"
 OPENSSL_OUTPUT=$(pwd)/openssl-${OPENSSL_VERSION}-iOS
-
+OPENSSL_SSL_NAME="libssl.3.dylib"
+OPENSSL_CRYPTO_NAME="libcrypto.3.dylib"
 #在编译的时候我碰到了一些编译问题，例如 fatal error: 'inttypes.h' file not found 使用sudo ./OpenSSL.ios.sh
 ## 编译 arm64 版本
 #./Configure darwin64-x86_64-cc
@@ -50,8 +51,14 @@ for ARCH in ${ARCHS[@]}; do
 
     # 拷贝
     mkdir -p ../../lib/${ARCH}/
-    cp -f ${OPENSSL_OUTPUT}/${ARCH}/lib/libssl.so  ../../lib/${ARCH}/libssl.so
-    cp -f ${OPENSSL_OUTPUT}/${ARCH}/lib/libcrypto.so ../../lib/${ARCH}/libcrypto.so
+    cp -f ${OPENSSL_OUTPUT}/${ARCH}/lib/${OPENSSL_SSL_NAME}  ../../lib/${ARCH}/${OPENSSL_SSL_NAME}
+    cp -f ${OPENSSL_OUTPUT}/${ARCH}/lib/${OPENSSL_CRYPTO_NAME} ../../lib/${ARCH}/${OPENSSL_CRYPTO_NAME}
+
+    install_name_tool -id @rpath/${OPENSSL_SSL_NAME} ../../lib/${ARCH}/${OPENSSL_SSL_NAME}
+    install_name_tool -id @rpath/${OPENSSL_CRYPTO_NAME} ../../lib/${ARCH}/${OPENSSL_CRYPTO_NAME}
+
+    otool -L ../../lib/${ARCH}/${OPENSSL_SSL_NAME}
+    otool -L ../../lib/${ARCH}/${OPENSSL_CRYPTO_NAME}
 done
 
 mkdir -p ../../include/openssl/
@@ -59,7 +66,7 @@ cp -rf ${OPENSSL_OUTPUT}/arm64/include/openssl/* ../../include/openssl
 
 
 # 合并静态库
-#lipo -create ${OPENSSL_OUTPUT}/arm64/lib/libssl.a ${OPENSSL_OUTPUT}/x86_64/lib/libssl.a -output ../../lib/iOS/libssl.a
-#lipo -create ${OPENSSL_OUTPUT}/arm64/lib/libcrypto.a ${OPENSSL_OUTPUT}/x86_64/lib/libcrypto.a -output ../../lib/iOS/libcrypto.a
+#lipo -create ${OPENSSL_OUTPUT}/arm64/lib/${OPENSSL_SSL_NAME} ${OPENSSL_OUTPUT}/x86_64/lib/${OPENSSL_SSL_NAME} -output ../../lib/iOS/${OPENSSL_SSL_NAME}
+#lipo -create ${OPENSSL_OUTPUT}/arm64/lib/${OPENSSL_CRYPTO_NAME} ${OPENSSL_OUTPUT}/x86_64/lib/${OPENSSL_CRYPTO_NAME} -output ../../lib/iOS/${OPENSSL_CRYPTO_NAME}
 
 echo "编译完成！静态库已生成到 ${OPENSSL_OUTPUT} 目录。"
