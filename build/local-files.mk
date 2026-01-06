@@ -6,9 +6,7 @@ INCLUDE_PATH	+= $(SRCROOT)/include
 LIBRARY_PATH	+= $(SRCROOT)/lib
 
 ifdef USE_LIB_OPENSSL
-	ifeq ($(PLATFORM), windows)
-		LIBS += ssl-3-x64 crypto-3-x64
-	else ifeq ($(PLATFORM), osx)
+	ifeq ($(PLATFORM), osx)
 		LIBS += ssl.3 crypto.3
 	else
 		LIBS += ssl crypto
@@ -178,6 +176,7 @@ ifeq ($(PLATFORM), linux)
 endif
 
 ifeq ($(PLATFORM), windows)
+	LIBS += bcrypt
 	LOCAL_SRC_FILES += \
 		$(SRCROOT)/src/os/windows/sys_time.c \
 		$(SRCROOT)/src/os/windows/sys_windows.c \

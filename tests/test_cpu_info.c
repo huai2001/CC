@@ -9,27 +9,27 @@
 #endif
 
 int main() {
-    _cc_get_cpu_cores();
+    int cpu_cores = _cc_get_cpu_cores();
     double cpu_usage = _cc_get_cpu_usage();
 #if defined(_SC_NPROCESSORS_ONLN)
-    printf("SC_NPROCESSORS_ONLN: %d\n", _cc_cpu_cores);
+    printf("SC_NPROCESSORS_ONLN: %d\n", cpu_cores);
 #endif
 
 #ifdef __CC_WINDOWS__
-    printf("Windows: %d\n", _cc_cpu_cores);
+    printf("Windows: %d\n", cpu_cores);
 #endif
 
 #if defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
-    printf("MacOSX: %d\n", _cc_cpu_cores);
+    printf("MacOSX: %d\n", cpu_cores);
 #endif
 #ifdef __CC_OS2__
-    printf("OS/2: %d\n", _cc_cpu_cores);
+    printf("OS/2: %d\n", cpu_cores);
 #endif
     if (cpu_usage <= 0) {
         _cc_sleep(1000);
         cpu_usage = _cc_get_cpu_usage();
     }
-    printf("All tests passed! cpu cores:%d, cpu usage: %lf\n", _cc_cpu_cores, cpu_usage);
+    printf("All tests passed! cpu cores:%d, cpu usage: %lf\n", cpu_cores, cpu_usage);
 
     double total = 0.0f, used = 0.0f;
 

@@ -41,7 +41,7 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_async_event(int32_t cores, void (*cb)(_cc_async
     }
 
     if (cores <= 0) {
-        cores = _cc_cpu_cores ? _cc_cpu_cores : _cc_get_cpu_cores();
+        cores = _cc_get_cpu_cores();
     }
     
     //0xFFF

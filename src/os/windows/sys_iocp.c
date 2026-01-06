@@ -378,7 +378,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
 
 #if (_WIN32_WINNT >= 0x0600)
     //API: GetQueuedCompletionStatusEx
-    result = GetQueuedCompletionStatusEx(IOCPPort, entries, _CC_countof(entries), &number_of_entries, timeout, false);
+    result = GetQueuedCompletionStatusEx(IOCPPort, entries, _cc_countof(entries), &number_of_entries, timeout, false);
     if (result) {
         for (i = 0; i < number_of_entries; i++) {
             key = entries[i].lpCompletionKey;

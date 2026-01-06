@@ -1,10 +1,10 @@
-#include <psapi.h>
 #include <libcc/atomic.h>
 #include <libcc/dirent.h>
 #include <libcc/logger.h>
 #include <libcc/rand.h>
 #include <libcc/thread.h>
 #include <libcc/socket.h>
+#include <psapi.h>
 
 #ifdef __CC_MSVC__
     #pragma comment(lib, "DbgHelp.lib")
@@ -285,9 +285,9 @@ _CC_API_PUBLIC(double) _cc_get_cpu_usage(void) {
     static ULONGLONG lastTotal = 0, lastIdle = 0;
     FILETIME idleTime, kernelTime, userTime;
     if (GetSystemTimes(&idleTime, &kernelTime, &userTime)) {
-        ULONGLONG idle = (idleTime.dwHighDateTime << 32) + idleTime.dwLowDateTime;
-        ULONGLONG total = ((kernelTime.dwHighDateTime << 32) + kernelTime.dwLowDateTime) +
-                         ((userTime.dwHighDateTime << 32) + userTime.dwLowDateTime);
+        ULONGLONG idle = ((ULONGLONG)idleTime.dwHighDateTime << 32) + idleTime.dwLowDateTime;
+        ULONGLONG total = (((ULONGLONG)kernelTime.dwHighDateTime << 32) + kernelTime.dwLowDateTime) +
+                         (((ULONGLONG)userTime.dwHighDateTime << 32) + userTime.dwLowDateTime);
         
         if (lastTotal > 0) {
             ULONGLONG diffTotal = total - lastTotal;
@@ -315,11 +315,12 @@ _CC_API_PUBLIC(double) _cc_get_cpu_usage(void) {
  */
 _CC_API_PUBLIC(void) _cc_get_memory_usage(double* total, double* used) {
     MEMORYSTATUSEX memInfo;
+    _cc_assert(total && used);
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
 
     GlobalMemoryStatusEx(&memInfo);
-    total = memInfo.ullTotalPhys / 1024.0 / 1024.0;
-    used = (memInfo.ullTotalPhys - memInfo.ullAvailPhys) / 1024.0 / 1024.0;
+    *total = memInfo.ullTotalPhys / 1024.0 / 1024.0;
+    *used = (memInfo.ullTotalPhys - memInfo.ullAvailPhys) / 1024.0 / 1024.0;
 }
 
 /**/
