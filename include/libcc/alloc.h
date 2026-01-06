@@ -56,7 +56,10 @@ _CC_API_PUBLIC(void) _cc_debug_free(pvoid_t p);
 #define _cc_realloc(P, N) _cc_debug_realloc((P),(N), _CC_FILE_, _CC_LINE_)
 /**/
 #define _cc_free(P) _cc_debug_free(P)
-
+/**/
+void _attach_debug_taracked(void);
+/**/
+void _detach_debug_taracked(void);
 #else
 
 /**/

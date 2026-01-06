@@ -67,7 +67,6 @@ xcuserdata/
 [Oo]bj/
 x64/
 [Bb]uild/openssl-*/
-[Bb]uild/intermediates/
 [Bb]uild/CMake/
 [Bb]uild/CMakeFiles/
 [Bb]uild/.cmake/

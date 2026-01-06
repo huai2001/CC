@@ -92,7 +92,7 @@ _CC_API_PRIVATE(bool_t) _emit_iocp_event(_cc_async_event_t *async, _cc_event_t *
             return true;
         }
 
-        fd = (_cc_socket_t)WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+        fd = (_cc_socket_t)WSASocketW(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
         if (fd == _CC_INVALID_SOCKET_) {
             int result = _cc_last_errno();
             _cc_logger_error(_T("WSASocket fail:%d, %s"), result, _cc_last_error(result));
@@ -357,16 +357,13 @@ _io_context_t* _iocp_upcast(_cc_async_event_t *async, LPOVERLAPPED overlapped) {
 _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t timeout) {
     ULONG_PTR key = 0;
     LPOVERLAPPED overlapped = NULL;
-	DWORD number_of_bytes;
-
+    DWORD number_of_bytes;
     _io_context_t *io_context = NULL;
 #if (_WIN32_WINNT >= 0x0600)
     OVERLAPPED_ENTRY entries[_CC_IOCP_EVENTS_] = {0};
-    ULONG number_of_entries = 0,i;
+    ULONG number_of_entries = 0, i;
 #endif
     BOOL result;
-
-    int32_t last_error;
 
     _cc_assert(IOCPPort != NULL);
     if (_cc_unlikely(IOCPPort == NULL)) {
@@ -377,61 +374,24 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
         timeout -= (uint32_t)async->diff;
     }
 
-    /**/
     _reset_event_pending(async, _reset);
+
 #if (_WIN32_WINNT >= 0x0600)
-        result = GetQueuedCompletionStatusEx(IOCPPort, entries, _cc_countof(entries), &number_of_entries, timeout, false);
-        if (result) {
-            for (i = 0; i < number_of_entries; i++) {
-                key = entries[i].lpCompletionKey;
-                overlapped = entries[i].lpOverlapped;
-				number_of_bytes = entries[i].dwNumberOfBytesTransferred;
-                /*exist work thread*/
-                if (key == _CC_IOCP_EXIT_) {
-                    return false;
-                }
-                /**/
-                io_context = _iocp_upcast(async,overlapped);
-                if (io_context) {
-					io_context->number_of_bytes = number_of_bytes;
-                    if (key == _CC_IOCP_PENDING_) {
-                        _reset(async, io_context->e);
-                    } else {
-                        _iocp_handle_entry(async, io_context);
-                    }
-                    _io_context_free(async->priv, io_context);
-                }
+    //API: GetQueuedCompletionStatusEx
+    result = GetQueuedCompletionStatusEx(IOCPPort, entries, _CC_countof(entries), &number_of_entries, timeout, false);
+    if (result) {
+        for (i = 0; i < number_of_entries; i++) {
+            key = entries[i].lpCompletionKey;
+            overlapped = entries[i].lpOverlapped;
+            number_of_bytes = entries[i].dwNumberOfBytesTransferred;
+            /*exist work thread*/
+            if (key == _CC_IOCP_EXIT_) {
+                return (bool_t)result;
             }
-        } else {
-            last_error = _cc_last_errno();
-            if (last_error != WAIT_TIMEOUT) {
-                _cc_logger_error(_T("GetQueuedCompletionStatusEx %d errorCode: %i, %s"), number_of_entries, last_error, _cc_last_error(last_error));
-                for (i = 0; i < number_of_entries; i++) {
-                    key = entries[i].lpCompletionKey;
-                    io_context = _iocp_upcast(async,entries[i].lpOverlapped);
-                    if (io_context) {
-                        if (key == _CC_IOCP_PENDING_) {
-                            _event_cleanup(async, io_context->e);
-                        }
-                        _io_context_free(async->priv, io_context);
-                    }
-                    _cc_logger_error(_T("overlapped error: %d\n"), i);
-                }
-            }
-        }
-#else
-        result = GetQueuedCompletionStatus(IOCPPort, &number_of_bytes, (PULONG_PTR)&key, &overlapped, timeout);
-
-        /*exist work thread*/
-        if (key == _CC_IOCP_EXIT_) {
-            return false;
-        }
-
-        io_context = _iocp_upcast(async,overlapped);
-        if (result) {
             /**/
+            io_context = _iocp_upcast(async, overlapped);
             if (io_context) {
-				io_context->number_of_bytes = number_of_bytes;
+                io_context->number_of_bytes = number_of_bytes;
                 if (key == _CC_IOCP_PENDING_) {
                     _reset(async, io_context->e);
                 } else {
@@ -439,23 +399,43 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
                 }
                 _io_context_free(async->priv, io_context);
             }
-        } else {
-            if (io_context) {
-                if (key == _CC_IOCP_PENDING_) {
-                    _event_cleanup(async, io_context->e);
-                }
-                _io_context_free(async->priv, io_context);
+        }
+    }
+#else
+    //API: GetQueuedCompletionStatus
+    result = GetQueuedCompletionStatus(IOCPPort, &number_of_bytes, (PULONG_PTR)&key, &overlapped, timeout);
+    if (result) {
+        /*exist work thread*/
+        if (key == _CC_IOCP_EXIT_) {
+            return (bool_t)result;
+        }
+        io_context = _iocp_upcast(async, overlapped);
+        if (io_context) {
+            io_context->number_of_bytes = number_of_bytes;
+            if (key == _CC_IOCP_PENDING_) {
+                _reset(async, io_context->e);
+            } else {
+                _iocp_handle_entry(async, io_context);
             }
-            last_error = _cc_last_errno();
-            /**/
-            if (last_error != ERROR_NETNAME_DELETED && last_error != WAIT_TIMEOUT) {
-                _cc_logger_error(_T("GetQueuedCompletionStatus errorCode: %i, %s"), last_error, _cc_last_error(last_error));
-            }
+            _io_context_free(async->priv, io_context);
+        }
+    }
+#endif
+
+    if (!result) {
+        int32_t last_error = _cc_last_errno();
+#if (_WIN32_WINNT >= 0x0600)
+        if (last_error != WAIT_TIMEOUT) {
+            _cc_logger_error(_T("GetQueuedCompletionStatusEx errorCode: %i, %s"), last_error, _cc_last_error(last_error));
+        }
+#else
+        if (last_error != ERROR_NETNAME_DELETED && last_error != WAIT_TIMEOUT) {
+            _cc_logger_error(_T("GetQueuedCompletionStatus errorCode: %i, %s"), last_error, _cc_last_error(last_error));
         }
 #endif
+    }
     _update_event_timeout(async, timeout);
-
-    return true;
+    return result;
 }
 
 /**/

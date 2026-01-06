@@ -283,19 +283,18 @@ _CC_API_PRIVATE(void) _event_link_free(_cc_async_event_t *async, _cc_list_iterat
     _cc_event_t *e;
 
     next = head->next;
-    _cc_list_iterator_cleanup(head);
 
     while (_cc_likely(next != head)) {
         curr = next;
         next = next->next;
 
         e = _cc_upcast(curr, _cc_event_t, lnk);
-
         if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, e->flags) == 0 && e->callback) {
             e->callback(async, e, _CC_EVENT_CLOSED_);
         }
         _cc_free_event(async, e);
     }
+    _cc_list_iterator_cleanup(head);
 }
 
 /**/

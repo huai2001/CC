@@ -162,11 +162,16 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
     do {
         /* fmt_length is the length of the string required, excluding the
          * trailing NULL */
-        fmt_length = (int)_vsnprintf(ptr, remaining, fmt, arg);
+        va_list arg_copy;
+        va_copy(arg_copy, arg);
+        fmt_length = (int)_vsnprintf(ptr, remaining, fmt, arg_copy);
+        va_end(arg_copy);
 
 #ifdef __CC_WINDOWS__
         if (fmt_length == -1) {
-            fmt_length = (int)_vsnprintf(NULL, 0, fmt, arg);
+            va_copy(arg_copy, arg);
+            fmt_length = (int)_vsnprintf(NULL, 0, fmt, arg_copy);
+            va_end(arg_copy);
         }
 #endif
         if (fmt_length <= 0) {
@@ -203,11 +208,16 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t 
     do {
         /* fmt_length is the length of the string required, excluding the
          * trailing NULL */
-        fmt_length = (int)_vsnwprintf(ptr, remaining, fmt, arg);
+        va_list arg_copy;
+        va_copy(arg_copy, arg);
+        fmt_length = (int)_vsnwprintf(ptr, remaining, fmt, arg_copy);
+        va_end(arg_copy);
 
 #ifdef __CC_WINDOWS__
         if (fmt_length == -1) {
-            fmt_length = (int)_vsnwprintf(NULL, 0, fmt, arg);
+            va_copy(arg_copy, arg);
+            fmt_length = (int)_vsnwprintf(NULL, 0, fmt, arg_copy);
+            va_end(arg_copy);
         }
 #endif
         if (fmt_length <= 0) {

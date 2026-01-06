@@ -73,6 +73,7 @@ struct _cc_event {
     uint32_t filter;
 
     //0xFFF(async index)FFFFF(self index)
+    /* read-only */
     uint32_t ident;
     _cc_socket_t fd;
 
@@ -90,6 +91,7 @@ struct _cc_event {
     uint32_t expire;
 
 #ifdef _CC_EVENT_USE_IOCP_
+    /* accepted socket file descriptor */
 	_cc_socket_t accept_fd;
 #endif
 };

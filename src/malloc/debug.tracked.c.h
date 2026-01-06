@@ -15,12 +15,7 @@ extern "C" {
 #define _CC_DEBUG_REALLOC_  0x03
 
 typedef struct _cc_debug_alloc {
-    /*
-    ** 2020-01-01 00:00:00
-    ** (create_time + 1577808000)
-    */
     uint32_t type;
-    uint32_t create_time;
     uint32_t line;
     size_t size;
     tchar_t *file;
@@ -31,11 +26,6 @@ typedef struct _cc_debug_alloc {
 pvoid_t _debug_alloc_link(const pvoid_t data, size_t n, const tchar_t *file_name, const int32_t line, byte_t m_type);
 /**/
 pvoid_t _debug_alloc_unlink(const pvoid_t data);
-
-/**/
-void _detach_debug_taracked(void);
-/**/
-void _attach_debug_taracked(void);
 
 #endif
 

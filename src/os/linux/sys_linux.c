@@ -30,7 +30,7 @@ _CC_API_PUBLIC(double) _cc_get_cpu_usage(void) {
         return 0.0;
     }
 
-    if (fscanf(fp, "cpu %llu %llu %llu %llu %llu %llu %llu",
+    if (fscanf(fp, "cpu %llu %llu %llu %llu %llu %llu %llu %llu",
                 &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal) != 8) {
         fclose(fp);
         return 0.0;

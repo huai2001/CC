@@ -162,10 +162,10 @@ endif
 ifeq ($(PLATFORM), linux)
 	LOCAL_SRC_FILES += \
 		$(SRCROOT)/src/os/unix/sys_unix.c \
-		$(SRCROOT)/src/os/unix/sys_linux.c \
 		$(SRCROOT)/src/os/unix/sys_dirent.c \
 		$(SRCROOT)/src/os/unix/sys_loadso.c \
 		$(SRCROOT)/src/os/unix/sys_locale.c \
+		$(SRCROOT)/src/os/linux/sys_linux.c \
 		$(SRCROOT)/src/os/linux/sys_time.c \
 		$(SRCROOT)/src/os/linux/sys_power.c \
 		$(SRCROOT)/src/os/linux/sys_socket.c \

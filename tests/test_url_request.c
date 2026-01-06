@@ -147,37 +147,35 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_READABLE_, which)) {
-        while (true) {
-            int32_t off = _cc_io_buffer_read(e, request->io);
-            if (off < 0) {
+        int32_t off = _cc_io_buffer_read(e, request->io);
+        if (off < 0) {
+            return false;
+        } else if (off == 0) {
+            return true;
+        }
+        if (request->state == _CC_HTTP_STATE_HEADER_) {
+            //printf("response header\n");
+            if (!_cc_http_request_response_header(request)) {
                 return false;
-            } else if (off == 0) {
-                return true;
             }
-            if (request->state == _CC_HTTP_STATE_HEADER_) {
-                //printf("response header\n");
-                if (!_cc_http_request_response_header(request)) {
-                    return false;
-                }
-                //Response header completed.
-                if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
-                    url_response_header(request);
-                }
-            }
-
+            //Response header completed.
             if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
-                //printf("response body\n");
-                if (!_cc_http_request_response_body(request)) {
-                    return false;
-                }
+                url_response_header(request);
+            }
+        }
 
-                url_request_read(request);
+        if (request->state == _CC_HTTP_STATE_PAYLOAD_) {
+            //printf("response body\n");
+            if (!_cc_http_request_response_body(request)) {
+                return false;
+            }
 
-                if (request->state == _CC_HTTP_STATE_ESTABLISHED_) {
-                    //printf("response successful\n");
-                    url_request_success(request);
-                    return request->response->keep_alive;
-                }
+            url_request_read(request);
+
+            if (request->state == _CC_HTTP_STATE_ESTABLISHED_) {
+                //printf("response successful\n");
+                url_request_success(request);
+                return request->response->keep_alive;
             }
         }
     }

@@ -25,6 +25,11 @@ _CC_API_PUBLIC(void) _cc_reset_http_request(_cc_http_request_t *request) {
 _CC_API_PUBLIC(void) _cc_free_http_request(_cc_http_request_t *request) {
     _cc_assert(request != NULL);
 
+    if (request->io) {
+        _cc_free_io_buffer(request->io);
+        request->io = NULL;
+    }
+
     if (request->gzip) {
         _gzip_free(request->gzip);
         request->gzip = NULL;

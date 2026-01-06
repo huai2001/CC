@@ -3,12 +3,11 @@
 #include <signal.h>
 #endif
 
+static bool_t _libcc_initialized = false;
+static bool_t _libcc_cleaned = false;
+
 #ifdef _CC_USE_OPENSSL_
 #include <openssl/evp.h>
-#endif
-
-#ifdef _CC_USE_DEBUG_MALLOC_
-#include "malloc/debug.tracked.c.h"
 #endif
 
 #ifndef __GNUC__
@@ -16,6 +15,12 @@
 #endif
 
 __attribute__((constructor)) void _libcc_attach(void) {
+    /* Prevent multiple initialization */
+    if (_libcc_initialized) {
+        return;
+    }
+    _libcc_initialized = true;
+
 	srand((uint32_t)time(NULL));
 #ifdef _CC_USE_DEBUG_MALLOC_
     _attach_debug_taracked();
@@ -25,10 +30,17 @@ __attribute__((constructor)) void _libcc_attach(void) {
 #ifdef _CC_USE_OPENSSL_
 	OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, NULL);
 #endif
+
 	_cc_logger_debug("libcc attach");
 }
 
 __attribute__((destructor)) void _libcc_detach(void) {
+    /* Prevent double cleanup */
+    if (_libcc_cleaned) {
+        return;
+    }
+    _libcc_cleaned = true;
+
 	_cc_uninstall_socket();
 
 #ifdef _CC_USE_DEBUG_MALLOC_

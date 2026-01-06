@@ -117,13 +117,10 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *dat
 
     _cc_mutex_lock(data->lock_of_writable);
     off = _send(e, data, data->w.bytes, data->w.off);
-    if (off == data->w.off) {
+    if (off == data->w.off || off < 0) {
         data->w.off = 0;
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-    } else if (off < 0) {
-        data->w.off = 0;
-        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
-    } else {
+    } else if (off > 0) {
         data->w.off -= off;
         memmove(data->w.bytes, data->w.bytes + off, data->w.off);
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);

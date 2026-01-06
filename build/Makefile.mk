@@ -102,12 +102,5 @@ $(EXT_OBJ_PATH)/%$(ASM_SUF) : $(SRCROOT)/%$(CPP_SUF)
 	$(CPP) $(CFLAGS) -S $< -o $@
 
 .PHONY: clean
-clean-debug:
-	$(eval CONFIGURATION = debug)
-	@if test -d $(BUILD_PATH); then $(RMDIR) $(BUILD_PATH); fi
-
-clean-release:
-	$(eval CONFIGURATION = release)
-	@if test -d $(BUILD_PATH); then $(RMDIR) $(BUILD_PATH); fi
-
-clean: clean-debug clean-release
+clean: 
+	@if test -d $(SRCROOT)/obj/$(ARCH); then $(RMDIR) $(SRCROOT)/obj/$(ARCH); fi

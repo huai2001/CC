@@ -124,13 +124,11 @@ else
 	CFLAGS  += -O3 -DNDEBUG
 endif
 
-BUILD_PATH	  = $(SRCROOT)/build/intermediates/$(ARCH)/$(CONFIGURATION)
+##编译过程中间文件输出目录
+EXT_OBJ_PATH  = $(SRCROOT)/obj/$(ARCH)/$(CONFIGURATION)/$(TARGET_NAME)
+EXT_LST_PATH  = $(SRCROOT)/lst/$(ARCH)/$(CONFIGURATION)/$(TARGET_NAME)
 EXT_LIB_PATH  = $(SRCROOT)/lib/$(ARCH)/$(CONFIGURATION)
 EXT_BIN_PATH  = $(SRCROOT)/bin/$(ARCH)/$(CONFIGURATION)
-
-##编译过程中间文件输出目录
-EXT_OBJ_PATH  = $(BUILD_PATH)/objs/$(TARGET_NAME)
-EXT_LST_PATH  = $(BUILD_PATH)/lsts/$(TARGET_NAME)
 
 ifeq ($(PLATFORM), osx)
 	INCLUDE_PATH	+= /opt/homebrew/include

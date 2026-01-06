@@ -78,6 +78,7 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
     http->state = _CC_HTTP_STATE_HEADER_;
     http->request = NULL;
     http->payload = 0;
+    http->file = NULL;
     http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
 #if ENABLE_SSL
     http->io->ssl = _SSL_accept(openSSL, fd);
@@ -233,6 +234,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
     } else if (off == 0) {
         return true;
     }
+    _cc_logger_debug(_T("%d onRead."), off);
 
     if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
         return false;
@@ -372,7 +374,7 @@ bool_t addListener(const tchar_t *host, uint16_t port) {
     _cc_inet_ipv4_addr(&sa, host, port);
     if (!_cc_tcp_listen(async, event, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
         _cc_free_event(async, event);    
-        _cc_assert(FALSE);
+        _cc_assert(false);
         return false;
     }
     return true;
@@ -386,9 +388,9 @@ int main() {
     if (openSSL == NULL) {
         return 1;
     }
-    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
+    _SSL_setup(openSSL, "/var/ssl/m.libcc.cn_bundle.crt", "/var/ssl/m.libcc.cn.key",NULL);
 #endif
-    addListener(NULL, 8080);
+    addListener(NULL, 5501);
 
     while((c = getchar()) != 'q') {
         _cc_sleep(100);
