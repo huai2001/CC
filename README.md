@@ -89,6 +89,14 @@ proj.IOS/cc.xcodeproj
     * wget https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm
     * rpm -ivh mysql80-community-release-el7-7.noarch.rpm
     * yum -y install mysql-devel
+  * Ubuntu
+    * sudo apt-get install libmysqlclient-dev
+  * FreeBSD
+    * sudo pkg install mysql80-client
+  * macOS Homebrew
+    * brew install mysql-client
+  * Windows
+    * https://dev.mysql.com/downloads/installer/
 
 ## OpenSSL Download Page
   * https://slproweb.com/products/Win32OpenSSL.html

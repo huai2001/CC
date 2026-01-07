@@ -11,20 +11,17 @@
 extern "C" {
 #endif
 
-extern _cc_sql_delegate_t sqldelegate;
+extern _cc_sql_delegate_t sql_delegator;
 
-extern int32_t updateDirectoryLen;
-extern tchar_t updateDirectory[_CC_MAX_PATH_];
-
-extern int32_t sourceDirectoryLen;
-extern tchar_t sourceDirectory[_CC_MAX_PATH_];
+extern _cc_sds_t dest_directory;
+extern _cc_sds_t source_directory;
 
 
-int builder_ReloadList(void);
-int builder_UpdateList(void);
+int builder_reload(void);
+int builder_updated(void);
 
-_cc_sql_t* openSQLite3(void);
-void closeSQLite3(_cc_sql_t *sql);
+_cc_sql_t* open_sqlite3(void);
+void close_sqlite3(_cc_sql_t *sql);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

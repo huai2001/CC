@@ -147,7 +147,7 @@ static bool_t isCompressFile(tchar_t *name, int32_t namlen) {
     return false;
 }
 
-static uint64_t fileCheck(const tchar_t *fileName, tchar_t *output) {
+static uint64_t file_check(const tchar_t *fileName, tchar_t *output) {
     byte_t t = 0;
     byte_t md[_CC_MD5_DIGEST_LENGTH_];
     byte_t buf[CHUNK_SOURCE];
@@ -225,53 +225,49 @@ static void CopyFile(const tchar_t *source, const tchar_t *dest) {
 
 int createUpdateFile(const tchar_t *,_cc_sql_t *);
 
-int builder_UpdateList(void) {
-    _cc_sql_result_t *resultSQL = NULL;
+int builder_update(void) {
+    _cc_sql_result_t *result = NULL;
     _cc_sql_result_t *resultUpdated = NULL;
     tchar_t name[64];
     tchar_t path[256];
-    tchar_t requestMD5[33];
-    tchar_t oldCheck[33];
-    int32_t sqlID = 0;
+    tchar_t token[33];
+    tchar_t check[33];
+    int32_t id = 0;
     uint64_t fileSize = 0;
     uint64_t resultSize = 0;
 
-    _cc_string_t sqlString = _cc_string("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;");
-    _cc_sql_t *sql = openSQLite3();
+    _cc_sql_t *sql = open_sqlite3();
 
     if (sql == NULL) {
         return 1;
     }
 
-    sqldelegate.execute(sql, sqlString, &resultUpdated);
-    _cc_string_set(sqlString, "select `ID`, `Name`, `CheckMD5`, `Path` from `FileList`;");
-    sqldelegate.execute(sql, sqlString, &resultSQL);
-    while (sqldelegate.fetch(resultSQL)) {
-        int32_t isCompress = 0;
-        sourceDirectory[sourceDirectoryLen] = 0;
-        updateDirectory[updateDirectoryLen] = 0;
+    _CC_STRING_SET("abc");
+    sql_delegator.execute(sql, _CC_SQL("UPDATE `FileList` SET `CheckMD5`=?, `Compress`=?, `CompressSize`=?, `Size`=? WHERE `ID`=?;"), &resultUpdated);
+    sql_delegator.execute(sql, _CC_SQL("select `ID`, `Name`, `CheckMD5`, `Path` from `FileList`;"), &result);
+    while (sql_delegator.fetch(result)) {
+        int32_t is_compress = 0;
+        tchar_t file[_CC_MAX_PATH_ * 4];
 
-        sqlID = sqldelegate.get_int(resultSQL, 0);
-        sqldelegate.get_string(resultSQL, 1, name, 64);
-        sqldelegate.get_string(resultSQL, 3, path, 256);
+        id = sql_delegator.get_int(result, 0);
+        sql_delegator.get_string(result, 1, name, 64);
+        sql_delegator.get_string(result, 3, path, 256);
         
-        _tcscat(sourceDirectory + sourceDirectoryLen - 1, path);
+        _sntprintf(file, _cc_countof(file), _T("%s%s"), source_directory, path);
 
-        fileSize = fileCheck(sourceDirectory, requestMD5);
+        fileSize = file_check(file, token);
         if (fileSize == 0) {
             _cc_sql_result_t *deleter;
-            _sntprintf(sqlString, _cc_countof(sqlString), "DELETE FROM `FileList` WHERE `ID`=%d;",sqlID);
-            _cc_string_set(sqlString, "DELETE FROM `FileList` WHERE `ID`=?;");
-            if(sqldelegate.execute(sql, sqlString, deleter)) {
-                sqldelegate.bind(deleter, 0, &sqlID, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
-                sqldelegate.step(sql, deleter);
-                sqldelegate.free_result(sql, deleter);
+            if(sql_delegator.execute(sql, _CC_SQL("DELETE FROM `FileList` WHERE `ID`=?;"), deleter)) {
+                sql_delegator.bind(deleter, 0, &id, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
+                sql_delegator.step(sql, deleter);
+                sql_delegator.free_result(sql, deleter);
             }
             continue;
         }
 
-        sqldelegate.get_string(resultSQL, 2, oldCheck, 33);
-        if (_tcsnicmp(oldCheck, requestMD5, 33) == 0) {
+        sql_delegator.get_string(result, 2, check, 33);
+        if (_tcsnicmp(check, token, 33) == 0) {
             continue;
         }
         
@@ -290,19 +286,19 @@ int builder_UpdateList(void) {
         if (!isCompress) {
             CopyFile(sourceDirectory, updateDirectory);
         }
-        sqldelegate.bind(resultUpdated, 0, &requestMD5,32,_CC_SQL_TYPE_STRING_);
-        sqldelegate.bind(resultUpdated, 1, &isCompress, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
-        sqldelegate.bind(resultUpdated, 2, &resultSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
-        sqldelegate.bind(resultUpdated, 3, &fileSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
-        sqldelegate.bind(resultUpdated, 4, &sqlID, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
-        sqldelegate.step(sql, resultUpdated);
-        sqldelegate.reset(sql, resultUpdated);
-        printf("%s\t(%s)\n",&sourceDirectory[sourceDirectoryLen],requestMD5);
+        sql_delegator.bind(resultUpdated, 0, &token,32,_CC_SQL_TYPE_STRING_);
+        sql_delegator.bind(resultUpdated, 1, &isCompress, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
+        sql_delegator.bind(resultUpdated, 2, &resultSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
+        sql_delegator.bind(resultUpdated, 3, &fileSize, sizeof(int64_t), _CC_SQL_TYPE_INT64_);
+        sql_delegator.bind(resultUpdated, 4, &id, sizeof(int32_t), _CC_SQL_TYPE_INT32_);
+        sql_delegator.step(sql, resultUpdated);
+        sql_delegator.reset(sql, resultUpdated);
+        printf("%s\t(%s)\n",&sourceDirectory[sourceDirectoryLen],token);
     }
-    sqldelegate.free_result(sql, resultUpdated);
+    sql_delegator.free_result(sql, resultUpdated);
     puts("更新完成\n");
-    if (resultSQL) {
-        sqldelegate.free_result(sql, resultSQL);
+    if (result) {
+        sql_delegator.free_result(sql, result);
     }
 
     updateDirectory[updateDirectoryLen] = 0;
@@ -317,32 +313,31 @@ int builder_UpdateList(void) {
 
 int createUpdateFile(const tchar_t *saveFile, _cc_sql_t *sql) {
     char_t str[256];
-    _cc_sql_result_t *resultSQL = NULL;
+    _cc_sql_result_t *result = NULL;
     _cc_buf_t buf;
-    _cc_string_t sqlString = _cc_string("select `ID`, `Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path` from `main`.`FileList`;");
     _cc_sql_t *sql = openSQLite3();
     _cc_json_t *rootJSON = _cc_json_alloc_object(_CC_JSON_ARRAY_, NULL);
-    sqldelegate.execute(sql, sqlString, &resultSQL);
-    while (sqldelegate.fetch(resultSQL)) {
+    sql_delegator.execute(sql, _CC_SQL("select `ID`, `Name`, `CheckMD5`, `Compress`, `CompressSize`, `Size`, `Path` from `main`.`FileList`;"), &result);
+    while (sql_delegator.fetch(result)) {
         _cc_json_t *json = _cc_json_alloc_object(_CC_JSON_OBJECT_, NULL);
         if (json) {
-            _cc_json_add_number(json, "ID",  sqldelegate.get_int(resultSQL, 0));
-            sqldelegate.get_string(resultSQL, 1, str, 256);
+            _cc_json_add_number(json, "ID",  sql_delegator.get_int(result, 0));
+            sql_delegator.get_string(result, 1, str, 256);
             _cc_json_add_string(json, "Name", str, true);
-            sqldelegate.get_string(resultSQL, 2, str, 256);
+            sql_delegator.get_string(result, 2, str, 256);
             _cc_json_add_string(json, "MD5", str, true);
-            sqldelegate.get_string(resultSQL, 6, str, 256);
+            sql_delegator.get_string(result, 6, str, 256);
             _cc_json_add_string(json, "Path", str, true);
 
-            _cc_json_add_number(json, "Compress", sqldelegate.get_int(resultSQL, 3));
-            _cc_json_add_number(json, "CompressSize", sqldelegate.get_int64(resultSQL, 4));
-            _cc_json_add_number(json, "Size", sqldelegate.get_int64(resultSQL, 5));
+            _cc_json_add_number(json, "Compress", sql_delegator.get_int(result, 3));
+            _cc_json_add_number(json, "CompressSize", sql_delegator.get_int64(result, 4));
+            _cc_json_add_number(json, "Size", sql_delegator.get_int64(result, 5));
             _cc_json_object_push(rootJSON, json, true);
         }
     }
     
-    if (resultSQL) {
-        sqldelegate.free_result(sql, resultSQL);
+    if (result) {
+        sql_delegator.free_result(sql, result);
     }
 
     _cc_json_dump(rootJSON, buf);

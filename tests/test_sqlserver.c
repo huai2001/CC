@@ -78,7 +78,6 @@ int main(int argc, char *const arvg[]) {
     _cc_sql_t *conn_ptr = NULL;
     _cc_sql_result_t *sql_result = NULL;
 	tchar_t strConnect[1024];
-    _cc_string_t sql_str;
     
     setlocale(LC_ALL, "chs");
 
@@ -110,32 +109,26 @@ int main(int argc, char *const arvg[]) {
         _cc_logger_error("connection failed\n");
         return 0;
     }
-    //_cc_string_set(sql_str, "CREATE TABLE [test] ([mid] INT,[price] DECIMAL(15,2),[text] VARCHAR(200), [date] DATETIME)");
-    //sql_delegate.execute(conn_ptr, &sql_str, NULL);
-    _cc_string_set(sql_str,"TRUNCATE TABLE test;");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
-    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( '1',100.99,'test1','2025-8-21 18:14:58')");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
-    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( '3',120.01,'test3', '2025-8-21 18:15:18')");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
-    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( '2',103.43,'test2', '2025-8-21 18:15:18')");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
+    //sql_delegate.execute(conn_ptr, _CC_SQL("CREATE TABLE [test] ([mid] INT,[price] DECIMAL(15,2),[text] VARCHAR(200), [date] DATETIME)"), NULL);
+    sql_delegate.execute(conn_ptr, _CC_SQL("TRUNCATE TABLE test;"), NULL);
 
-    _cc_string_set(sql_str,"insert into test ( mid, price, text, date) values ( ?, ?, ?, ?)");
-    if (sql_delegate.execute(conn_ptr, &sql_str, &sql_result)) {
+    sql_delegate.execute(conn_ptr, _CC_SQL("insert into test ( mid, price, text, date) values ( '1',100.99,'test1','2025-8-21 18:14:58')"), NULL);
+    sql_delegate.execute(conn_ptr, _CC_SQL("insert into test ( mid, price, text, date) values ( '3',120.01,'test3', '2025-8-21 18:15:18')"), NULL);
+    sql_delegate.execute(conn_ptr, _CC_SQL("insert into test ( mid, price, text, date) values ( '2',103.43,'test2', '2025-8-21 18:15:18')"), NULL);
+
+    if (sql_delegate.execute(conn_ptr, _CC_SQL("insert into test ( mid, price, text, date) values ( ?, ?, ?, ?)"), &sql_result)) {
     	struct tm tm_now;
     	uint16_t status = 10,i;
     	double price = 10.473;
     	time_t now = time(NULL);
     	_cc_gmtime(&now, &tm_now);
-    	_cc_string_t text = _cc_string("insert");
     	for (i = 0; i < 10; i++) {
     		status += i;
     		price += price * i;
 	        sql_delegate.reset(sql_result);
 	        sql_delegate.bind(sql_result, 0, &status, sizeof(uint16_t), _CC_SQL_TYPE_UINT16_);
 	        sql_delegate.bind(sql_result, 1, &price, sizeof(double), _CC_SQL_TYPE_DOUBLE_);
-	        sql_delegate.bind(sql_result, 2, text.data, text.length, _CC_SQL_TYPE_STRING_);
+	        sql_delegate.bind(sql_result, 2, "insert", 7, _CC_SQL_TYPE_STRING_);
 	        sql_delegate.bind(sql_result, 3, &tm_now, sizeof(struct tm), _CC_SQL_TYPE_DATETIME_);
 	        sql_delegate.step(sql_result);
 	    }
@@ -143,20 +136,14 @@ int main(int argc, char *const arvg[]) {
     }
     
     sql_delegate.begin_transaction(conn_ptr);
-    _cc_string_set(sql_str,"update [test] set mid=100 where mid=1");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
-    _cc_string_set(sql_str,"update [test] set mid=200 where mid=2");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
-    _cc_string_set(sql_str,"update [test] set mid=300 where mid=3");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
+    sql_delegate.execute(conn_ptr, _CC_SQL("update [test] set mid=100 where mid=1"), NULL);
+    sql_delegate.execute(conn_ptr, _CC_SQL("update [test] set mid=200 where mid=2"), NULL);
+    sql_delegate.execute(conn_ptr, _CC_SQL("update [test] set mid=300 where mid=3"), NULL);
     sql_delegate.commit(conn_ptr);
-    _cc_string_set(sql_str,"update [test] set mid=600 where mid=300");
-    sql_delegate.execute(conn_ptr, &sql_str, NULL);
+    sql_delegate.execute(conn_ptr, _CC_SQL("update [test] set mid=600 where mid=300"), NULL);
 	sql_delegate.rollback(conn_ptr);
 
-    _cc_string_set(sql_str, "select * from [test]");
-
-    if (sql_delegate.execute(conn_ptr, &sql_str, &sql_result)) {
+    if (sql_delegate.execute(conn_ptr, _CC_SQL("select * from [test]"), &sql_result)) {
         int num_fields = sql_delegate.get_num_fields(sql_result);
         int i = 0;
         int n = 0;

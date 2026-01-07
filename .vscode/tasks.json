@@ -13,7 +13,7 @@
     "tasks": [
         {
             "label": "test",
-            "args": [".bin","target=tests","build=wss","debug=1","target_name=test"],
+            "args": [".bin","target=tests","build=sqlite","debug=1","target_name=test"],
         },
         {
             "label": "clean",

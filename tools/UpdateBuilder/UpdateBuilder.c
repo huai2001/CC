@@ -1,38 +1,15 @@
 #include <stdio.h>
 #include "UpdateBuilder.h"
 
-int32_t updateDirectoryLen = 0;
-tchar_t updateDirectory[_CC_MAX_PATH_] = {0};
+_cc_sds_t dest_directory = NULL;
+_cc_sds_t source_directory = NULL;
 
 
 int32_t sourceDirectoryLen = 0;
 tchar_t sourceDirectory[_CC_MAX_PATH_] = {0};
 
 #ifdef __CC_WINDOWS__
-//  从 Windows 头文件中排除极少使用的信息
-#define WIN32_LEAN_AND_MEAN
-// Windows 头文件:
-#include <windows.h>
-/*
-// dllmain.c : 定义 DLL 应用程序的入口点。
-BOOL APIENTRY DllMain( HMODULE hModule,
-	DWORD  ul_reason_for_call,
-	LPVOID lpReserved
-	) {
-	switch (ul_reason_for_call) {
-	case DLL_PROCESS_ATTACH:
-		_cc_init_sqlite(&sqldelegate);
-		break;
-	case DLL_THREAD_ATTACH:
-		break;
-	case DLL_THREAD_DETACH:
-		break;
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-	return true;
-}
-*/
+
 #else
 static __attribute__((constructor)) void _dynamic_attach(void) {
     _cc_register_sqlite(&sqldelegate);
@@ -95,16 +72,11 @@ int main(int argc, char const *argv[]) {
         return 0;
     }
 
-    _tcsncpy(sourceDirectory, argv[1], _cc_countof(sourceDirectory));
-    sourceDirectory[_cc_countof(sourceDirectory) - 1] = 0;
-    _tcsncpy(updateDirectory, argv[2], _cc_countof(updateDirectory));
-    updateDirectory[_cc_countof(updateDirectory) - 1] = 0;
+    source_directory = _cc_sds_alloc(argv[1], _cc_strlen(argv[1]));
+    dest_directory = _cc_sds_alloc(argv[2], _cc_strlen(argv[2]));
 
-    sourceDirectoryLen = _tcslen(sourceDirectory);
-    updateDirectoryLen = _tcslen(updateDirectory);
-
-    builder_ReloadList();
-    builder_UpdateList();
+    builder_reload();
+    builder_updated();
     system("pause");
     return 0;
 }

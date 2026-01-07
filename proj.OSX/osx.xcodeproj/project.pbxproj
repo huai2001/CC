@@ -108,7 +108,6 @@
 		425720E62F0A071C0060EE45 /* sys_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720DD2F0A071C0060EE45 /* sys_unix.c */; };
 		425720E72F0A071C0060EE45 /* sys_loadso.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720D82F0A071C0060EE45 /* sys_loadso.c */; };
 		425720E92F0A075C0060EE45 /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 425720E82F0A075C0060EE45 /* libmysqlclient.a */; };
-		425720EB2F0A077B0060EE45 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720EA2F0A077B0060EE45 /* sqlite3.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -214,7 +213,6 @@
 		425720DC2F0A071C0060EE45 /* sys_time.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_time.c; sourceTree = "<group>"; };
 		425720DD2F0A071C0060EE45 /* sys_unix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_unix.c; sourceTree = "<group>"; };
 		425720E82F0A075C0060EE45 /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = "../../homebrew/Cellar/mysql-client/9.5.0/lib/libmysqlclient.a"; sourceTree = "<group>"; };
-		425720EA2F0A077B0060EE45 /* sqlite3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sqlite3.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -464,7 +462,6 @@
 		4217A4BB2EEC1FA8006262EC /* src */ = {
 			isa = PBXGroup;
 			children = (
-				425720EA2F0A077B0060EE45 /* sqlite3.c */,
 				4217A3F22EEC1FA8006262EC /* atomic */,
 				4217A4082EEC1FA8006262EC /* crypto */,
 				4217A40D2EEC1FA8006262EC /* db */,
@@ -667,7 +664,6 @@
 				4217A5082EEC1FA8006262EC /* socket.c in Sources */,
 				4217A50C2EEC1FA8006262EC /* base64.c in Sources */,
 				4217A50D2EEC1FA8006262EC /* mysql.c in Sources */,
-				425720EB2F0A077B0060EE45 /* sqlite3.c in Sources */,
 				4217A50E2EEC1FA8006262EC /* atomic.c in Sources */,
 				4217A50F2EEC1FA8006262EC /* cpu.c in Sources */,
 				4217A5112EEC1FA8006262EC /* power.c in Sources */,

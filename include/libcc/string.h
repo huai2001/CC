@@ -30,6 +30,8 @@ typedef struct {
     (_str)->ptr = NULL;\
 } while(0)
 
+#define _CC_STRING(X) X, (size_t)(sizeof(X) - 1)
+
 /*for porting from GCC compilers*/
 #ifndef __CC_MSVC__
     #include <stdarg.h>

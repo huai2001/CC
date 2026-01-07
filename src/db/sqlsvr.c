@@ -174,7 +174,7 @@ _CC_API_PRIVATE(bool_t) SQLExecute_ex(_cc_sql_result_t *result) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const tchar_t *sql, size_t length, _cc_sql_result_t **result) {
     SQLHSTMT hSTMT = SQL_NULL_HSTMT;
     _cc_assert(ctx != NULL && ctx->hDBC != SQL_NULL_HSTMT);
 
@@ -187,7 +187,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
         return false;
     }
 
-    if (is_odbc_error(SQLPrepare(hSTMT, (SQLTCHAR *)sql->ptr, SQL_NTS))) {
+    if (is_odbc_error(SQLPrepare(hSTMT, (SQLTCHAR *)sql, SQL_NTS))) {
         _logger_fail_message_from_odbc(SQL_HANDLE_STMT, hSTMT, _T("SQLPrepare"));
         SQLCloseCursor(hSTMT);
         SQLFreeStmt(hSTMT, SQL_CLOSE);

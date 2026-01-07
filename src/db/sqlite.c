@@ -310,18 +310,16 @@ _CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_result_t *result) {
     return true;
 }
 
-_CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
+_CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql, size_t length, _cc_sql_result_t **result) {
     int res = SQLITE_OK;
     sqlite3_stmt *stmt = NULL;
     const tchar_t *tail;
-    const tchar_t *sql_string = sql->ptr;
-    size_t sql_length = sql->length;
 
 
     _cc_assert(ctx != NULL && ctx->sql != NULL);
 
     do {
-        res = _sqlite3_prepare(ctx->sql, sql_string, (int)sql_length, &stmt, &tail);
+        res = _sqlite3_prepare(ctx->sql, sql, (int)length, &stmt, &tail);
         if (res != SQLITE_OK) {
             _cc_logger_error(_T("_sqlite3_prepare: %s"), _sqlite3_errmsg(ctx->sql));
             if (stmt) {
@@ -332,12 +330,12 @@ _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const _cc_string_t *sql,
 
         if (!stmt) {
             /* this happens for a comment or white-space */
-            sql_length = tail - sql_string;
-            sql_string = tail;
+            length = tail - sql;
+            sql = tail;
         } else {
             break;
         }
-    } while (res == SQLITE_OK && *sql_string);
+    } while (res == SQLITE_OK && *sql);
 
     if (result) {
         *result = (_cc_sql_result_t*)_cc_malloc(sizeof(_cc_sql_result_t));

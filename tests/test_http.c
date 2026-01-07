@@ -129,7 +129,7 @@ static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e) {
 }
 
 _CC_API_PRIVATE(void) response_bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>");
+    struct {const tchar_t *ptr; size_t length;} body = {_CC_STRING("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>")};
 
     io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
@@ -138,7 +138,7 @@ _CC_API_PRIVATE(void) response_bad_request(_cc_event_t *e, _cc_io_buffer_t *io) 
 }
 
 _CC_API_PRIVATE(void) response_not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY><p>The server could not find the requested URL.</p></BODY></HTML>");
+    struct {const tchar_t *ptr; size_t length;} body = {_CC_STRING("<HTML><HEAD><TITLE>Not Found</TITLE></HEAD><BODY><p>The server could not find the requested URL.</p></BODY></HTML>")};
 
     io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 404 NOT FOUND\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
@@ -147,7 +147,7 @@ _CC_API_PRIVATE(void) response_not_found(_cc_event_t *e, _cc_io_buffer_t *io) {
 }
 #if 0
 _CC_API_PRIVATE(void) response_unimplemented(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Method Not Implemented</TITLE></HEAD><BODY><p>HTTP request method not supported.</p></BODY></HTML>");
+    struct {const tchar_t *ptr; size_t length;} body = {_CC_STRING("<HTML><HEAD><TITLE>Method Not Implemented</TITLE></HEAD><BODY><p>HTTP request method not supported.</p></BODY></HTML>");
     
     io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 501 Method Not Implemented\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
@@ -156,7 +156,7 @@ _CC_API_PRIVATE(void) response_unimplemented(_cc_event_t *e, _cc_io_buffer_t *io
 }
 #endif
 _CC_API_PRIVATE(void) response_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>Welcome to HTTP</TITLE></HEAD><BODY><p>If you see this page, the web server is successfully</p></BODY></HTML>");
+    struct {const tchar_t *ptr; size_t length;} body = {_CC_STRING("<HTML><HEAD><TITLE>Welcome to HTTP</TITLE></HEAD><BODY><p>If you see this page, the web server is successfully</p></BODY></HTML>")};
     
     io->w.off += snprintf((char*)io->w.bytes + io->w.off, io->w.limit - io->w.off,"HTTP/1.1 200 OK\r\nConnection: Keep-Alive\r\nContent-type: text/html\r\nContent-Length: %d\r\n\r\n", (int32_t)body.length);
     memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
@@ -165,7 +165,7 @@ _CC_API_PRIVATE(void) response_ok(_cc_event_t *e, _cc_io_buffer_t *io) {
 }
 
 _CC_API_PRIVATE(void) response_options(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_string_t http_response_header = _cc_string(
+    struct {const tchar_t *ptr; size_t length;} body = {_CC_STRING(
         "HTTP/1.1 200 OK\r\n"\
         "Access-Control-Allow-Origin: *\r\n"\
         "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"\
@@ -173,7 +173,7 @@ _CC_API_PRIVATE(void) response_options(_cc_event_t *e, _cc_io_buffer_t *io) {
         "Access-Control-Allow-Credentials: true\r\n"\
         "Connection: Keep-Alive;\r\n"\
         "Content-type: application/json\r\n"\
-        "Content-Length: 0\r\n\r\n");
+        "Content-Length: 0\r\n\r\n")};
 
     if ((io->w.off + http_response_header.length) > io->w.limit) {
         _cc_realloc_write_buffer(io, io->w.off + (int32_t)http_response_header.length);

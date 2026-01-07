@@ -4,35 +4,32 @@
 #include <libcc.h>
 #include <libcc/sql.h>
 
-#if _CC_USE_SYSTEM_SQLITE3_LIB_
-#include <sqlite3.h>
-#else 
-#include <sqlite3/sqlite3.h>
-#endif
 #define SQLite_DB "SQLITE:///./sqlite3test.db"
 
 _cc_sql_delegate_t sql_delegate;
 _cc_sql_t *sql = NULL;
 
-const _cc_string_t createTable1 = _cc_string("create table if not exists FileList1 (" \
+typedef struct {const tchar_t *data; size_t length;} sql_table_t;
+
+const sql_table_t createTable1 = {_CC_STRING("create table if not exists FileList1 (" \
         "`check` VARCHAR(65) PRIMARY KEY NOT NULL," \
         "`size` INTEGER NOT NULL," \
         "`path` TEXT NOT NULL" \
-    ")");
-const _cc_string_t createTable2 = _cc_string("create table if not exists FileList2 (" \
+    ")")};
+const sql_table_t createTable2 = {_CC_STRING("create table if not exists FileList2 (" \
         "`check` VARCHAR(65) PRIMARY KEY NOT NULL," \
         "`size` INTEGER NOT NULL," \
         "`path` TEXT NOT NULL," \
         "`upload` INTEGER default(0)" \
-    ")");
+    ")")};
 
-const _cc_string_t createTable3 = _cc_string("create table if not exists FileList (" \
+const sql_table_t createTable3 = {_CC_STRING("create table if not exists FileList (" \
         "`check` VARCHAR(65) PRIMARY KEY NOT NULL," \
         "`size` INTEGER NOT NULL," \
         "`path` TEXT NOT NULL," \
         "`upload` INTEGER default(0)," \
         "`update_time` timestamp NOT NULL default(datetime('now','localtime'))" \
-    ")");
+    ")")};
 bool_t scanFile(const tchar_t *directory, _cc_sql_result_t *result) {
     tchar_t sourceFile[_CC_MAX_PATH_] = {0};
     tchar_t check[_CC_SHA1_DIGEST_LENGTH_ * 2 + 1];
@@ -54,8 +51,8 @@ bool_t scanFile(const tchar_t *directory, _cc_sql_result_t *result) {
         _tstat( sourceFile, &stat_buf);
 
         if (S_ISDIR(stat_buf.st_mode) == 0) {
-            //_cc_md5file(sourceFile, check);
-            _cc_sha1file(sourceFile, check);
+            //_cc_md5_from_file(sourceFile, check);
+            _cc_sha1_from_file(sourceFile, check);
             size = stat_buf.st_size;
             sql_delegate.reset(result);
             sql_delegate.bind(result, 0, check, _CC_SHA1_DIGEST_LENGTH_ * 2, _CC_SQL_TYPE_STRING_);
@@ -73,11 +70,10 @@ bool_t scanFile(const tchar_t *directory, _cc_sql_result_t *result) {
 int main(int argc, char *const arvg[]) {
     bool_t createTable = false;
     _cc_sql_result_t *sql_result = NULL;
-    _cc_string_t sql_str;
     tchar_t currentPath[_CC_MAX_PATH_];
     _cc_get_cwd(currentPath,_CC_MAX_PATH_);
 
-    _cc_init_sqlite(&sql_delegate);
+    _cc_register_sqlite(&sql_delegate);
     if (_taccess("./sqlite3test.db", _CC_ACCESS_F_) == -1) {
         createTable = true;
     }
@@ -92,33 +88,24 @@ int main(int argc, char *const arvg[]) {
     
     sql_delegate.begin_transaction(sql);
     if (createTable) {
-        sql_delegate.execute(sql, &createTable1, NULL);
-        sql_delegate.execute(sql, &createTable2, NULL);
-        sql_delegate.execute(sql, &createTable3, NULL);
+        sql_delegate.execute(sql, createTable1.data,createTable1.length, NULL);
+        sql_delegate.execute(sql, createTable2.data,createTable2.length, NULL);
+        sql_delegate.execute(sql, createTable3.data,createTable3.length, NULL);
     }
-    _cc_string_set(sql_str,"delete from `FileList1`;");
-    sql_delegate.execute(sql, &sql_str, NULL);
-    _cc_string_set(sql_str, "delete from `FileList2`;");
-    sql_delegate.execute(sql, &sql_str, NULL);
+    sql_delegate.execute(sql, _CC_SQL("delete from `FileList1`;"), NULL);
+    sql_delegate.execute(sql, _CC_SQL("delete from `FileList2`;"), NULL);
 
-    _cc_string_set(sql_str, "INSERT INTO `FileList1` (`check`, `size`, `path`) VALUES (?,?,?);");
-    if (sql_delegate.execute(sql, &sql_str, &sql_result)) {
+    if (sql_delegate.execute(sql, _CC_SQL("INSERT INTO `FileList1` (`check`, `size`, `path`) VALUES (?,?,?);"), &sql_result)) {
         scanFile(currentPath, sql_result);
         sql_delegate.free_result(sql_result);
     }
     
-    _cc_string_set(sql_str,
-                   "REPLACE INTO `FileList2` (`check`, `size`, `path`,`upload`) SELECT f1.`check`, f1.`size`, "
-                   "f1.`path`,f2.`upload` FROM FileList1 as f1 left join FileList as f2 on f1.`check`=f2.`check`;");
-    sql_delegate.execute(sql, &sql_str, NULL);
-    _cc_string_set(sql_str, "REPLACE INTO `FileList`(`check`, `size`, `path`,`upload`) SELECT `check`, `size`, `path`, `upload` FROM FileList2;");
-    sql_delegate.execute(sql, &sql_str, NULL);
-    _cc_string_set(sql_str, "UPDATE `FileList` SET `upload`=0 WHERE `upload` is null;");
-    sql_delegate.execute(sql, &sql_str, NULL);
-    _cc_string_set(sql_str, "delete from `FileList1`;");
-    sql_delegate.execute(sql, &sql_str, NULL);
-    _cc_string_set(sql_str, "delete from `FileList2`;");
-    sql_delegate.execute(sql, &sql_str, NULL);
+    sql_delegate.execute(sql, _CC_SQL("REPLACE INTO `FileList2` (`check`, `size`, `path`,`upload`) SELECT f1.`check`, f1.`size`, "\
+                   "f1.`path`,f2.`upload` FROM FileList1 as f1 left join FileList as f2 on f1.`check`=f2.`check`;"), NULL);
+    sql_delegate.execute(sql, _CC_SQL("REPLACE INTO `FileList`(`check`, `size`, `path`,`upload`) SELECT `check`, `size`, `path`, `upload` FROM FileList2;"), NULL);
+    sql_delegate.execute(sql, _CC_SQL("UPDATE `FileList` SET `upload`=0 WHERE `upload` is null;"), NULL);
+    sql_delegate.execute(sql, _CC_SQL("delete from `FileList1`;"), NULL);
+    sql_delegate.execute(sql, _CC_SQL("delete from `FileList2`;"), NULL);
     sql_delegate.commit(sql);
     
     uint16_t status = 10;
@@ -126,8 +113,7 @@ int main(int argc, char *const arvg[]) {
     tchar_t check[CHECK_SIZE] = {0};
     memcpy(check, _T("d80c14694c68ca064cff6ad99470029334a2bd38"), CHECK_SIZE-1);
     sql_delegate.begin_transaction(sql);
-    _cc_string_set(sql_str, "UPDATE `FileList` SET `upload`=? WHERE `check`=?;");
-    if (sql_delegate.execute(sql, &sql_str, &sql_result)) {
+    if (sql_delegate.execute(sql, _CC_SQL("UPDATE `FileList` SET `upload`=? WHERE `check`=?;"), &sql_result)) {
         sql_delegate.reset(sql_result);
         sql_delegate.bind(sql_result, 0, &status, sizeof(uint16_t), _CC_SQL_TYPE_UINT16_);
         sql_delegate.bind(sql_result, 1, check, CHECK_SIZE - 1, _CC_SQL_TYPE_STRING_);
@@ -136,8 +122,7 @@ int main(int argc, char *const arvg[]) {
     }
     sql_delegate.commit(sql);
 
-    _cc_string_set(sql_str, "SELECT `check`, `size`, `path` FROM FileList;");
-    if (sql_delegate.execute(sql, &sql_str, &sql_result)) {
+    if (sql_delegate.execute(sql, _CC_SQL("SELECT `check`, `size`, `path` FROM FileList;"), &sql_result)) {
         int num_fields = sql_delegate.get_num_fields(sql_result);
         int i = 0;
         //struct tm t;

@@ -87,9 +87,9 @@ _CC_API_PUBLIC(float32_t) _cc_randf(void) {
 #if defined(__CC_WINDOWS__) || defined(__CC_LINUX__)
 _CC_API_PRIVATE(void) generic_random_bytes(byte_t *buf, size_t nbytes) {
     byte_t *cp = buf;
-    size_t i;
+    int32_t i;
     int32_t n = ((int32_t) (0x7fffffff & ( ((uint32_t) rand() << 16) ^ ((uint32_t) rand() << 8) ^ ((uint32_t) rand()) )));
-    for ( i = 0; i < nbytes; i++) {
+    for ( i = 0; i < (int32_t)nbytes; i++) {
         *cp++ ^= (_cc_rand(n + i) >> 7) & 0xFF;
     }
 }
@@ -98,7 +98,7 @@ _CC_API_PRIVATE(void) generic_random_bytes(byte_t *buf, size_t nbytes) {
 #ifdef __CC_WINDOWS__
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 #if _WIN32_WINNT >= 0x0600
-    NTSTATUS status = BCryptGenRandom(NULL, buf, nbytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    NTSTATUS status = BCryptGenRandom(NULL, buf, (ULONG)nbytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
     if (!BCRYPT_SUCCESS(status)) {
         generic_random_bytes(buf,nbytes);
     }

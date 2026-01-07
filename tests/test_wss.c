@@ -200,10 +200,10 @@ _CC_API_PRIVATE(bool_t) _ws_unpack(_cc_event_t *e) {
 }
 
 static void bad_request(_cc_event_t *e, _cc_io_buffer_t *io) {
-    _cc_string_t body = _cc_string("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>");
+    struct {const tchar_t *data; size_t length;} body = {_CC_STRING("<HTML><HEAD><TITLE>BAD REQUEST</TITLE></HEAD><BODY><P>Your browser sent a bad request, such as a POST without a Content-Length.</P></BODY></HTML>")};
 
     io->w.off = snprintf((char*)io->w.bytes, io->w.limit,"HTTP/1.1 400 BAD REQUEST\r\nConnection: close;\r\nContent-type: text/html\r\nContent-Length: %ld\r\n\r\n", body.length);
-    memcpy(io->w.bytes + io->w.off, body.ptr, body.length * sizeof(char_t));
+    memcpy(io->w.bytes + io->w.off, body.data, body.length * sizeof(char_t));
     io->w.off += (int32_t)body.length * sizeof(char_t);
     _cc_io_buffer_flush(e, io);
 }

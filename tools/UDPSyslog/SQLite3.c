@@ -4,9 +4,10 @@
 
 _cc_sql_delegate_t delegator;
 _cc_sql_t *defaultSQL = NULL;
+typedef struct {const tchar_t *data; size_t length;} sql_table_t;
 
-const _cc_string_t createLogsTable = _cc_string("CREATE TABLE IF NOT EXISTS logs (" \
-        ("id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," \
+const sql_table_t createLogsTable = {_CC_SQL("CREATE TABLE IF NOT EXISTS logs (" \
+        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," \
         "facility   INTEGER         NOT NULL," \
         "severity   INTEGER         NOT NULL," \
         "host       VARCHAR(64)     DEFAULT ('-')," \
@@ -17,12 +18,12 @@ const _cc_string_t createLogsTable = _cc_string("CREATE TABLE IF NOT EXISTS logs
         "sd         TEXT            DEFAULT ('-')," \
         "msg        TEXT            NOT NULL," \
         "create_date timestamp NOT NULL DEFAULT(DATETIME('now','localtime'))" \
-    ")");
-const _cc_string_t createExceptionTable = _cc_string("CREATE TABLE IF NOT EXISTS exception_logs ("
+    ")")};
+const sql_table_t createExceptionTable = {_CC_SQL("CREATE TABLE IF NOT EXISTS exception_logs ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
         "msg        TEXT            NOT NULL,"
         "create_date timestamp NOT NULL DEFAULT(DATETIME('now','localtime'))"
-        ")");
+        ")")};
 
 void openSQLite3(void) {
     tchar_t fileSQLite[_CC_MAX_PATH_ * 2];
@@ -45,8 +46,8 @@ void openSQLite3(void) {
     }
     
     if (isCreateTabel) {
-        delegator.execute(defaultSQL, createLogsTable, false);
-        delegator.execute(defaultSQL, createExceptionTable, false);
+        delegator.execute(defaultSQL, createLogsTable.data, createLogsTable.length, false);
+        delegator.execute(defaultSQL, createExceptionTable.data, createExceptionTable.length, false);
     }
 }
 
@@ -60,11 +61,9 @@ void sqlite3_syslog(_syslog_t *syslog) {
     tchar_t *v = _T("-");
     uint8_t facility = _CC_SYSLOG_FACILITY(syslog->priority);
     uint8_t severity = _CC_SYSLOG_SEVERITY(syslog->priority);
-    _cc_string_t sql;
 
     if (facility == 31) {
-        _cc_string_set(sql,"DELETE FROM `logs` WHERE `host`=?");
-        if (delegator.execute(defaultSQL, &sql, &result)) {
+        if (delegator.execute(defaultSQL, _CC_SQL("DELETE FROM `logs` WHERE `host`=?"), &result)) {
             delegator.bind(result, 0, syslog->host.data, syslog->host.length, _CC_SQL_TYPE_STRING_);
             delegator.step(defaultSQL, result);
             delegator.free_result(defaultSQL, result);
@@ -89,9 +88,8 @@ void sqlite3_syslog(_syslog_t *syslog) {
         syslog->msg.length = 1;
     }
 
-    _cc_string_set(sql,"INSERT INTO `logs` (`facility`, `severity`, `host`, `app`, `pid`, `mid`, `date`, `sd`, `msg`) VALUES "\
-                                  "( ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-    if (delegator.execute(defaultSQL, &sql, &result)) {
+    if (delegator.execute(defaultSQL, _CC_SQL("INSERT INTO `logs` (`facility`, `severity`, `host`, `app`, `pid`, `mid`, `date`, `sd`, `msg`) VALUES "\
+                                  "( ?, ?, ?, ?, ?, ?, ?, ?, ?);"), &result)) {
         uint8_t i = 0;
         //delegator.reset(defaultSQL, result);
         delegator.bind(result, i++, &facility, sizeof(facility), _CC_SQL_TYPE_INT8_);
@@ -111,8 +109,7 @@ void sqlite3_syslog(_syslog_t *syslog) {
 
 void sqlite3_exception_syslog(const tchar_t *msg, size_t length) {
     _cc_sql_result_t *result = NULL;
-    _cc_string_t sql = _cc_string("INSERT INTO `exception_logs` (`msg`) VALUES ( ? );");
-    if (delegator.execute(defaultSQL, &sql, &result)) {
+    if (delegator.execute(defaultSQL, _CC_SQL("INSERT INTO `exception_logs` (`msg`) VALUES ( ? );"), &result)) {
         delegator.bind(result, 0, msg, length, _CC_SQL_TYPE_STRING_);
         delegator.step(defaultSQL, result);
         delegator.free_result(defaultSQL, result);

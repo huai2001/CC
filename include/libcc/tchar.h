@@ -35,11 +35,6 @@
     #define CC_SIZEOF_WCHAR_T 4
 #endif
 
-/* Use system tchar.h on MSVC only */
-#if defined(__CC_MSVC__)
-    #include <tchar.h>
-#else
-
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -648,7 +643,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* !__CC_MSVC__ */
 
 #endif /* _C_CC_TCHAR_H_INCLUDED_ */

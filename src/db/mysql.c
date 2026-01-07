@@ -45,9 +45,9 @@ struct _cc_sql_result {
 #endif
 };
 
-_CC_API_PRIVATE(bool_t) _get_url_query(const _cc_string_t *keyword, const tchar_t *p, char_t *buf, int32_t length) {
+_CC_API_PRIVATE(bool_t) _get_url_query(const tchar_t *keyword, const tchar_t *p, char_t *buf, int32_t length) {
     int i;
-    const tchar_t *r = _tcsstr(p, keyword->ptr);
+    const tchar_t *r = _tcsstr(p, keyword);
     if (r == NULL) {
         return false;
     }
@@ -160,9 +160,6 @@ _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string
     _cc_sql_t *ctx = NULL;
     _cc_url_t url;
 
-    static _cc_string_t charset_attr = _cc_string("charset=");
-    static _cc_string_t SSL_attr = _cc_string("SSL=");
-
     if (!_cc_parse_url(&url, sql_connection_string)) {
         return NULL;
     }
@@ -194,9 +191,9 @@ _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string
 
     if (url.query) {
         const tchar_t *r;
-        _get_url_query(&charset_attr, url.query, ctx->charset, _cc_countof(ctx->charset));
-        r = _tcsstr(url.query, SSL_attr.ptr);
-        if (r && _tcsnicmp(r + SSL_attr.length, _T("true"), 4) == 0) {
+        _get_url_query(url.query, ctx->charset, _cc_countof(ctx->charset));
+        r = _tcsstr(url.query, _T("SSL="));
+        if (r && _tcsnicmp(r + 5, _T("true"), 4) == 0) {
             ctx->use_SSL = true;
         }
     }
@@ -364,10 +361,8 @@ _CC_API_PRIVATE(void) __free_dataset(_cc_sql_result_t *result) {
     }
 }
 
-_CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, _cc_sql_result_t **result) {
-    size_t sql_string_len;
+_CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql, size_t length, _cc_sql_result_t **result) {
     int32_t num_of_bind;
-    const char *ptr;
     MYSQL_STMT *stmt = NULL;
     _cc_sql_result_t *res;
 
@@ -379,17 +374,14 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
 
 #ifdef _CC_UNICODE_
     _cc_buf_cleanup(&ctx->buffer);
-    _cc_buf_append(&ctx->buffer, sql->ptr, sql->length);
+    _cc_buf_append(&ctx->buffer, sql, length);
     _cc_buf_utf16_to_utf8(&ctx->buffer, 0);
-    ptr = (const char *)ctx->buffer.bytes;
-    sql_string_len = ctx->buffer.length / sizeof(char_t);
-#else
-    ptr = sql->ptr;
-    sql_string_len = sql->length;
+    sql = (const char *)ctx->buffer.bytes;
+    length = ctx->buffer.length / sizeof(char_t);
 #endif
 
     if (result == NULL) {
-        return _cc_mysql_query(ctx, ptr, (unsigned long)sql_string_len);
+        return _cc_mysql_query(ctx, sql, (unsigned long)length);
     }
 
     stmt = mysql_stmt_init(ctx->sql);
@@ -398,7 +390,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const _cc_string_t *sql, 
         return false;
     }
 
-    if (!_cc_mysql_prepare(ctx, stmt, ptr, (unsigned long)sql_string_len)) {
+    if (!_cc_mysql_prepare(ctx, stmt, ptr, (unsigned long)length)) {
         return false;
     }
 

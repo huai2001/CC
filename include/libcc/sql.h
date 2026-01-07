@@ -16,6 +16,8 @@ typedef struct _cc_sql_delegate _cc_sql_delegate_t;
 typedef struct _cc_sql _cc_sql_t;
 typedef struct _cc_sql_result _cc_sql_result_t;
 
+#define _CC_SQL(X) X, (size_t)(sizeof(X) - 1)
+
 enum {
     _CC_SQL_TYPE_NULL_ = 0,
     _CC_SQL_TYPE_INT8_,
@@ -41,7 +43,7 @@ struct _cc_sql_delegate {
     /**/
     bool_t (*disconnect)(_cc_sql_t *);
     /**/
-    bool_t (*execute)(_cc_sql_t *, const _cc_string_t *, _cc_sql_result_t **);
+    bool_t (*execute)(_cc_sql_t *, const tchar_t *, size_t, _cc_sql_result_t **);
     /**/
     bool_t (*auto_commit)(_cc_sql_t *, bool_t);
     /**/
