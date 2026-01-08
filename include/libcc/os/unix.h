@@ -45,7 +45,7 @@ typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length);
 /**/
-_CC_API_PUBLIC(const _cc_string_t *) _cc_get_module_file_name(void);
+_CC_API_PUBLIC(size_t) _cc_get_module_file_name(pvoid_t func, tchar_t *module, size_t length);
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_device_name(tchar_t *cname, size_t length);
 /**/

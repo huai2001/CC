@@ -358,32 +358,39 @@ _CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
 }
 
 /**/
-_CC_API_PUBLIC(const _cc_string_t*) _cc_get_module_file_name(void) {
-    static TCHAR dl[64];
-    static _cc_string_t path = {0};
-    if (path.length == 0) {
-        size_t length = 0, i;
-        HMODULE hModule = NULL;
-        GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)_cc_get_module_file_name, &hModule);
+_CC_API_PUBLIC(size_t) _cc_get_module_file_name(pvoid_t func, tchar_t *module, size_t length) {
+    int i;
+    DWORD path_length;
+    HMODULE hModule = NULL;
 
-        length = GetModuleFileName(hModule, dl, _cc_countof(dl));
-        if (length <= 0) {
-            return &path;
-        }
-        for (i = length - 1; i > 0; i--) {
-            if (dl[i] == _CC_SLASH_C_) {
-                break;
-            }
-        }
-        if (i > 0) {
-            path.ptr = dl;
-            path.length = length - i;
-            memmove(dl,dl + i + 1, length - i);
-            dl[length - 1] = 0;
+    _cc_assert(module != NULL);
+    _cc_assert(length > 0);
+    if (module == NULL || length == 0) {
+        return 0;
+    }
+
+    GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)(func?func:_cc_get_module_file_name), &hModule);
+    path_length = GetModuleFileName(hModule, module, length);
+    if (path_length == 0 || path_length >= (DWORD)length) {
+        return 0;
+    }
+
+    module[path_length] = 0;
+    for (i = (int)(path_length - 1); i > 0; i--) {
+        if (module[i] == _CC_SLASH_C_) {
+            break;
         }
     }
 
-    return &path;
+    if (i > 0) {
+        length = path_length - i - 1;
+        memmove(module, module + i + 1, length);
+        module[length] = 0;
+    } else {
+        length = path_length;
+    }
+
+    return length;
 }
 
 _CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t *s2, int32_t size) {

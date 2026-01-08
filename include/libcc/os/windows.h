@@ -170,7 +170,7 @@ _CC_API_PUBLIC(void) _cc_uninstall_dumper(void);
 /* }}} */
 
 /**/
-_CC_API_PUBLIC(const _cc_string_t *) _cc_get_module_file_name(void);
+_CC_API_PUBLIC(size_t) _cc_get_module_file_name(pvoid_t func, tchar_t *module, size_t length);
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length);
 /**/

@@ -153,6 +153,8 @@ CFLAGS += -fPIC
 #gnu工具链编译过程中,输出信息会根据控制台的宽度自动换行
 CFLAGS += -fmessage-length=0
 
+CFLAGS += -rdynamic
+
 #该选项能发现程序中一系列的常见错误警告
 CFLAGS += -Wall
 

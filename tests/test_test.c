@@ -3,6 +3,8 @@
 #include <string.h>
 #include <assert.h>
 #include <libcc/json.h>
+#include <libcc/alloc.h>
+#include <dlfcn.h>
 
 void read_remove_comments(_cc_buf_t *buf) {
 	size_t length = 0;
@@ -70,6 +72,11 @@ void test_json_from_file() {
 
     read_remove_comments(&buf);
 }
+
 int main() {
+	tchar_t module[1024];
+	_cc_get_module_file_name(main, module, _cc_countof(module));
+	printf("module: %s\n", module);
+	test_json_from_file();
     return 0;
 }

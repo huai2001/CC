@@ -83,27 +83,33 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
 }
 
 /**/
-_CC_API_PUBLIC(const _cc_string_t *) _cc_get_module_file_name(void) {
-    static tchar_t dl[64];
-    static _cc_string_t path = {0, dl};
-    if (path.length == 0) {
-        Dl_info info;
-        size_t length = 0, i;
-        if (!dladdr((void*)_cc_get_module_file_name, &info)) {
-            return &path;
-        }
-        for (i = length - 1; i > 0; i--) {
-            if (dl[i] == _CC_SLASH_C_) {
+_CC_API_PUBLIC(size_t) _cc_get_module_file_name(pvoid_t func, tchar_t *module, size_t length) {
+    Dl_info info;
+    _cc_assert(module != NULL);
+    _cc_assert(length > 0);
+    if (module == NULL || length == 0) {
+        return 0;
+    }
+
+    if (dladdr(func ? func : (pvoid_t)_cc_get_module_file_name, &info)) {
+        int i;
+        int res = (int)_tcslen(info.dli_fname);
+        for (i = res - 1; i > 0; i--) {
+            if (info.dli_fname[i] == _CC_SLASH_C_) {
                 break;
             }
         }
-        if (i > 0) {
-            path.ptr = dl;
-            path.length = (length - i) & 63;
-            memmove(dl,dl + i + 1, path.length);
-            dl[path.length] = 0;
+        if (i >= 1) {
+            res = (res - i - 1);
+        }
+        
+        length = ((size_t)res < length) ? (size_t)res : length;
+        if (length > 0){
+            memcpy(module, info.dli_fname + i + 1, length);
+            module[length] = 0;
+            return length;
         }
     }
 
-    return &path;
+    return 0;
 }
