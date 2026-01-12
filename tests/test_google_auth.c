@@ -5,26 +5,55 @@
 #include <libcc.h>
 
 int main() {
-    const char *secret = "JBSWY3DPEHPK3PXP";  // Base32 密钥
+    tchar_t secret[33];
+    int32_t length;
+    uint32_t user_code;
+    uint32_t prev_code = 0;
     bool_t valid;
+    uint32_t countdown;
+    time_t now;
+    int iteration = 0;
 
-	uint32_t user_code = _cc_generate_totp(secret, 30);
-    printf("Generated TOTP code: %u\n", user_code);
+    /* Generate otpauth URL with user and host info */
+    length = _cc_generate_secret(secret, sizeof(secret) / sizeof(tchar_t));
     
-    /* 方法1: 严格验证（当前时间点）*/
+    printf("\n========== Google Authenticator TOTP Test ==========\n\n");
+    printf("1. Scan this QR Code with Google Authenticator app:\n");
+    printf("otpauth://totp/Google:alice?secret=%*s&issuer=Google\n\n", length, secret);
+    printf("2. Or manually enter this secret: %s\n\n", secret);
+    
+    /* Verify the secret is valid */
+    user_code = _cc_generate_totp(secret, 30);
+    printf("Initial TOTP code: %06u\n\n", user_code);
+    
+    /* Test verification functions */
     valid = _cc_verify_totp(secret, user_code, 30, 0);
-    printf("Strict validation: %s\n", valid ? "PASS" : "FAIL");
-
-	//30秒后再验证
-    _cc_sleep(60000);
-
-    /* 方法2: 宽松验证（±1个时间步，即前后30秒）*/
-    valid = _cc_verify_totp(secret, user_code, 30, 1);
-    printf("Window validation (±30s): %s\n", valid ? "PASS" : "FAIL");
+    printf("Strict validation (window=0): %s\n", valid ? "✓ PASS" : "✗ FAIL");
     
-    /* 方法3: 标准验证（±2个时间步，即前后60秒）*/
-    valid = _cc_verify_totp(secret, user_code, 30, 2);
-    printf("Standard validation (±60s): %s\n", valid ? "PASS" : "FAIL");
+    valid = _cc_verify_totp(secret, user_code, 30, 1);
+    printf("Window validation (window=1): %s\n\n", valid ? "✓ PASS" : "✗ FAIL");
+    
+    printf("========== TOTP Display (Sync with App) ==========\n");
+    printf("Press Ctrl+C to exit\n\n");
+    
+    /* Sync display with 30-second TOTP period */
+    while (1) {
+        now = time(NULL);
+        countdown = 30 - (now % 30);
+        
+        user_code = _cc_generate_totp(secret, 30);
+        
+        printf("\r[%03d] TOTP Code: %06u | Expires in: %2u seconds", iteration, user_code, countdown);
+        /* Display with real-time countdown (clear and redraw) */
+        if (user_code != prev_code || iteration == 0) {
+            prev_code = user_code;
+            iteration++;
+        }
+        fflush(stdout);
+        
+        /* Sleep for 1 second to update countdown */
+        _cc_sleep(1000);
+    }
     
     return 0;
 }

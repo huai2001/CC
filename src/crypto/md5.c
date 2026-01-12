@@ -231,29 +231,29 @@ _CC_API_PUBLIC(void) _cc_md5_final(_cc_md5_t *ctx, byte_t *digest) {
     PUT_UINT32_LE(ctx->state[3], digest, 12);
 }
 
-_CC_API_PRIVATE(void) __md5_init(_cc_hash_t *ctx) {
+_CC_API_PRIVATE(void) __md5_init(_cc_hasher_t *ctx) {
     _cc_md5_init((_cc_md5_t*)ctx->handle);
     ctx->method = _CC_MD5_;
 }
 
-_CC_API_PRIVATE(void) __md5_update(_cc_hash_t *ctx, const byte_t *input, size_t length) {
+_CC_API_PRIVATE(void) __md5_update(_cc_hasher_t *ctx, const byte_t *input, size_t length) {
     _cc_md5_update((_cc_md5_t*)ctx->handle, input, length);
 }
 
-_CC_API_PRIVATE(void) __md5_final(_cc_hash_t *ctx, byte_t *digest, int32_t *digest_length) {
+_CC_API_PRIVATE(void) __md5_final(_cc_hasher_t *ctx, byte_t *digest, int32_t *digest_length) {
     _cc_md5_final((_cc_md5_t*)ctx->handle, digest);
     if (digest_length) {
         *digest_length = _CC_MD5_DIGEST_LENGTH_;
     }
 }
 
-_CC_API_PRIVATE(void) __free_md5(_cc_hash_t *ctx) {
+_CC_API_PRIVATE(void) __free_md5(_cc_hasher_t *ctx) {
     if (ctx->handle) {
         _cc_free((_cc_md5_t*)ctx->handle);
     }
 }
 
-_CC_API_PUBLIC(void) _cc_md5_hash_init(_cc_hash_t *ctx) {
+_CC_API_PUBLIC(void) _cc_md5_hash_init(_cc_hasher_t *ctx) {
     ctx->handle = (uintptr_t)_cc_malloc(sizeof(_cc_md5_t));
     ctx->init = __md5_init;
     ctx->update = __md5_update;

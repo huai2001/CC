@@ -15,14 +15,14 @@
 extern "C" {
 #endif
 
-typedef struct _cc_hash {
+typedef struct _cc_hasher {
     uintptr_t handle;
     byte_t method;
     void (*init)(struct _cc_hash *);
     void (*update)(struct _cc_hash *, const byte_t *, size_t);
     void (*final)(struct _cc_hash *, byte_t *, int32_t *);
     void (*free)(struct _cc_hash *);
-} _cc_hash_t;
+} _cc_hasher_t;
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

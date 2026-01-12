@@ -35,7 +35,7 @@ struct _cc_sha256 {
 /*
  * SHA-256 context setup
  */
-_CC_API_PRIVATE(void) __sha256_init(_cc_hash_t *sha) {
+_CC_API_PRIVATE(void) __sha256_init(_cc_hasher_t *sha) {
     struct _cc_sha256 *ctx = (struct _cc_sha256 *)sha->handle;
     sha->method = _CC_SHA256_;
     ctx->total[0] = 0;
@@ -54,7 +54,7 @@ _CC_API_PRIVATE(void) __sha256_init(_cc_hash_t *sha) {
 /*
  * SHA-256 context setup
  */
-_CC_API_PRIVATE(void) __sha224_init(_cc_hash_t *sha) {
+_CC_API_PRIVATE(void) __sha224_init(_cc_hasher_t *sha) {
     struct _cc_sha256 *ctx = (struct _cc_sha256 *)sha->handle;
     sha->method = _CC_SHA224_;
     ctx->total[0] = 0;
@@ -71,7 +71,7 @@ _CC_API_PRIVATE(void) __sha224_init(_cc_hash_t *sha) {
     ctx->state[7] = 0xBEFA4FA4;
 }
 
-_CC_API_PRIVATE(void) __free_sha256(_cc_hash_t *sha) {
+_CC_API_PRIVATE(void) __free_sha256(_cc_hasher_t *sha) {
     if (sha->handle) {
         _cc_free((struct _cc_sha256 *)sha->handle);
     }
@@ -177,7 +177,7 @@ _CC_API_PRIVATE(void) __sha256_process(struct _cc_sha256 *ctx, const byte_t *dat
 /*
  * SHA-256 process buffer
  */
-_CC_API_PRIVATE(void) __sha256_update(_cc_hash_t *sha, const byte_t *input, size_t length) {
+_CC_API_PRIVATE(void) __sha256_update(_cc_hasher_t *sha, const byte_t *input, size_t length) {
     struct _cc_sha256 *ctx = (struct _cc_sha256 *)sha->handle;
     size_t fill;
     uint32_t left;
@@ -222,7 +222,7 @@ static const byte_t sha256_padding[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 /*
  * SHA-256 final digest
  */
-_CC_API_PRIVATE(void) __sha256_final(_cc_hash_t *sha, byte_t *digest, int32_t *digest_length) {
+_CC_API_PRIVATE(void) __sha256_final(_cc_hasher_t *sha, byte_t *digest, int32_t *digest_length) {
     struct _cc_sha256 *ctx = (struct _cc_sha256 *)sha->handle;
     uint32_t last, padn;
     uint32_t high, low;
@@ -258,7 +258,7 @@ _CC_API_PRIVATE(void) __sha256_final(_cc_hash_t *sha, byte_t *digest, int32_t *d
 }
 #endif /* !_cc_SHA256_ALT */
 
-_CC_API_PUBLIC(void) _cc_sha224_init(_cc_hash_t *sha) {
+_CC_API_PUBLIC(void) _cc_sha224_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha256));
     sha->init = __sha224_init;
     sha->update = __sha256_update;
@@ -268,7 +268,7 @@ _CC_API_PUBLIC(void) _cc_sha224_init(_cc_hash_t *sha) {
     __sha224_init(sha);
 }
 
-_CC_API_PUBLIC(void) _cc_sha256_init(_cc_hash_t *sha) {
+_CC_API_PUBLIC(void) _cc_sha256_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha256));
     sha->init = __sha256_init;
     sha->update = __sha256_update;
@@ -283,7 +283,7 @@ _CC_API_PUBLIC(void) _cc_sha256_init(_cc_hash_t *sha) {
  * output = SHA-256( input buffer )
  */
 _CC_API_PUBLIC(void) _cc_sha256(const byte_t *input, size_t length, tchar_t *output, bool_t is224) {
-    _cc_hash_t c;
+    _cc_hasher_t c;
     byte_t results[_CC_SHA256_DIGEST_LENGTH_];
     int32_t digest_length = _CC_SHA256_DIGEST_LENGTH_;
 
@@ -308,7 +308,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha256_fp(FILE *fp, tchar_t *output, bool_t is224) {
     byte_t buf[1024 * 16];
     size_t i;
     long seek_cur = 0;
-    _cc_hash_t c;
+    _cc_hasher_t c;
     int32_t digest_length = _CC_SHA256_DIGEST_LENGTH_;
 
     if (fp == NULL) {

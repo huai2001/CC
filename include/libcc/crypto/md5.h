@@ -10,7 +10,7 @@ extern "C" {
 
 #define _CC_MD5_DIGEST_LENGTH_ 16
 
-_CC_API_PUBLIC(void) _cc_md5_hash_init(_cc_hash_t *ctx);
+_CC_API_PUBLIC(void) _cc_md5_hash_init(_cc_hasher_t *ctx);
 
 /**/
 typedef struct _cc_md5 {

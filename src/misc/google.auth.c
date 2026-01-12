@@ -3,19 +3,14 @@
 
 
 /* HOTP - HMAC-Based One-Time Password (RFC 4226) */
-static uint32_t hotp(const uint8_t *password, size_t length, uint64_t counter) {
+static uint32_t hotp(const _cc_hasher_t* hmac, uint64_t counter) {
     uint8_t digest[_CC_SHA1_DIGEST_LENGTH_];
     int32_t digest_length = _CC_SHA1_DIGEST_LENGTH_;
     uint8_t counter_bytes[8];
     int offset;
     uint32_t code;
-    _cc_hash_t hmac;
     int i;
-    
-    if (_cc_unlikely(password == NULL || length == 0)) {
-        return 0;
-    }
-    
+
     /* Convert counter to big-endian bytes */
     for (i = 7; i >= 0; i--) {
         counter_bytes[i] = (uint8_t)(counter & 0xFF);
@@ -23,10 +18,8 @@ static uint32_t hotp(const uint8_t *password, size_t length, uint64_t counter) {
     }
     
     /* Compute HMAC-SHA1 */
-    _cc_hmac_init(&hmac, _CC_SHA1_, password, length);
-    hmac.update(&hmac, counter_bytes, 8);
-    hmac.final(&hmac, digest, &digest_length);
-    hmac.free(&hmac);
+    hmac->update(hmac, counter_bytes, 8);
+    hmac->final(hmac, digest, &digest_length);
     
     /* Dynamic truncation */
     offset = digest[_CC_SHA1_DIGEST_LENGTH_ - 1] & 0x0F;
@@ -46,6 +39,8 @@ _CC_API_PUBLIC(uint32_t) _cc_generate_totp(const tchar_t *secret, uint32_t time_
     uint8_t password[64]; /* Max secret length */
     size_t length;
     uint64_t time_step;
+    uint32_t code;
+    _cc_hasher_t hmac;
     
     if (_cc_unlikely(secret == NULL || time_step_seconds == 0)) {
         return 0;
@@ -60,8 +55,12 @@ _CC_API_PUBLIC(uint32_t) _cc_generate_totp(const tchar_t *secret, uint32_t time_
     /* Get current time step */
     time_step = get_time_step(time_step_seconds);
     
+    _cc_hmac_init(&hmac, _CC_SHA1_, password, length);
     /* Generate HOTP using time as counter */
-    return hotp(password, length, time_step);
+    code = hotp(&hmac, time_step);
+    hmac.free(&hmac);
+
+    return code;
 }
 
 /* Verify TOTP code with a window of allowed steps */
@@ -69,6 +68,7 @@ _CC_API_PUBLIC(bool_t) _cc_verify_totp(const tchar_t *secret, uint32_t code, uin
     uint8_t password[64];
     size_t length;
     uint64_t time_step;
+    _cc_hasher_t hmac;
     int i;
     
     if (_cc_unlikely(secret == NULL || time_step_seconds == 0 || window < 0)) {
@@ -84,12 +84,15 @@ _CC_API_PUBLIC(bool_t) _cc_verify_totp(const tchar_t *secret, uint32_t code, uin
     time_step = get_time_step(time_step_seconds);
     
     /* Check code in the allowed time window */
+    _cc_hmac_init(&hmac, _CC_SHA1_, password, length);
     for (i = -window; i <= window; i++) {
-        if (hotp(password, length, time_step + (uint64_t)i) == code) {
+        if (hotp(&hmac, time_step + (uint64_t)i) == code) {
+            hmac.free(&hmac);
             return true;
         }
+        hmac.init(&hmac);
     }
-    
+    hmac.free(&hmac);
     return false;
 }
 
@@ -101,9 +104,10 @@ _CC_API_PUBLIC(void) _cc_generate_secret(tchar_t *secret, size_t length) {
     if (_cc_unlikely(secret == NULL || length == 0)) {
         return ;
     }
-    
+
     for (i = 0; i < length - 1; i++) {
         secret[i] = charset[_cc_rand((sizeof(charset) - 1))];
     }
-    secret[length - 1] = '\0';
+
+    secret[length - 1] = 0;
 }

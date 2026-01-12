@@ -16,11 +16,11 @@
 extern "C" {
 #endif
 
-_CC_API_PUBLIC(void) _cc_sha1_init(_cc_hash_t *sha);
-_CC_API_PUBLIC(void) _cc_sha224_init(_cc_hash_t *sha);
-_CC_API_PUBLIC(void) _cc_sha256_init(_cc_hash_t *sha);
-_CC_API_PUBLIC(void) _cc_sha384_init(_cc_hash_t *sha);
-_CC_API_PUBLIC(void) _cc_sha512_init(_cc_hash_t *sha);
+_CC_API_PUBLIC(void) _cc_sha1_init(_cc_hasher_t *sha);
+_CC_API_PUBLIC(void) _cc_sha224_init(_cc_hasher_t *sha);
+_CC_API_PUBLIC(void) _cc_sha256_init(_cc_hasher_t *sha);
+_CC_API_PUBLIC(void) _cc_sha384_init(_cc_hasher_t *sha);
+_CC_API_PUBLIC(void) _cc_sha512_init(_cc_hasher_t *sha);
 
 /**/
 _CC_API_PUBLIC(void) _cc_sha1(const byte_t* input, size_t length, tchar_t* output);

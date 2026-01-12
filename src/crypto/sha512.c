@@ -50,7 +50,7 @@ struct _cc_sha512 {
 /*
  * SHA-512 context setup
  */
-_CC_API_PRIVATE(void) __sha512_init(_cc_hash_t *sha) {
+_CC_API_PRIVATE(void) __sha512_init(_cc_hasher_t *sha) {
     struct _cc_sha512 *ctx = (struct _cc_sha512*)sha->handle;
     sha->method = _CC_SHA512_;
 
@@ -69,7 +69,7 @@ _CC_API_PRIVATE(void) __sha512_init(_cc_hash_t *sha) {
 }/*
  * SHA-512 context setup
  */
-_CC_API_PRIVATE(void) __sha384_init(_cc_hash_t *sha) {
+_CC_API_PRIVATE(void) __sha384_init(_cc_hasher_t *sha) {
     struct _cc_sha512 *ctx = (struct _cc_sha512*)sha->handle;
     sha->method = _CC_SHA384_;
     
@@ -89,7 +89,7 @@ _CC_API_PRIVATE(void) __sha384_init(_cc_hash_t *sha) {
 /*
  * SHA-512 context free
  */
-_CC_API_PRIVATE(void) __free_sha512(_cc_hash_t *ctx) {
+_CC_API_PRIVATE(void) __free_sha512(_cc_hasher_t *ctx) {
     if (ctx->handle) {
         _cc_free((struct _cc_sha512 *)ctx->handle);
     }
@@ -197,7 +197,7 @@ _CC_API_PRIVATE(void) __sha512_process(struct _cc_sha512 *ctx, const byte_t data
 /*
  * SHA-512 process buffer
  */
-_CC_API_PRIVATE(void) __sha512_update(_cc_hash_t *sha, const byte_t *input, size_t length) {
+_CC_API_PRIVATE(void) __sha512_update(_cc_hasher_t *sha, const byte_t *input, size_t length) {
     struct _cc_sha512 *ctx = (struct _cc_sha512 *)sha->handle;
     size_t fill;
     unsigned int left;
@@ -243,7 +243,7 @@ static const byte_t sha512_padding[128] = {
 /*
  * SHA-512 final digest
  */
-_CC_API_PRIVATE(void) __sha512_final(_cc_hash_t *sha, byte_t *digest, int32_t *digest_length) {
+_CC_API_PRIVATE(void) __sha512_final(_cc_hasher_t *sha, byte_t *digest, int32_t *digest_length) {
     struct _cc_sha512 *ctx = (struct _cc_sha512 *)sha->handle;
     size_t last, padn;
     uint64_t high, low;
@@ -278,7 +278,7 @@ _CC_API_PRIVATE(void) __sha512_final(_cc_hash_t *sha, byte_t *digest, int32_t *d
 }
 
 #endif /* !CC_SHA512_ALT */
-_CC_API_PUBLIC(void) _cc_sha384_init(_cc_hash_t *sha) {
+_CC_API_PUBLIC(void) _cc_sha384_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha512));
     sha->init = __sha384_init;
     sha->update = __sha512_update;
@@ -288,7 +288,7 @@ _CC_API_PUBLIC(void) _cc_sha384_init(_cc_hash_t *sha) {
     __sha384_init(sha);
 }
 
-_CC_API_PUBLIC(void) _cc_sha512_init(_cc_hash_t *sha) {
+_CC_API_PUBLIC(void) _cc_sha512_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha512));
     sha->method = _CC_SHA512_;
     sha->init = __sha512_init;
@@ -304,7 +304,7 @@ _CC_API_PUBLIC(void) _cc_sha512_init(_cc_hash_t *sha) {
  * output = SHA-512( input buffer )
  */
 _CC_API_PUBLIC(void) _cc_sha512(const byte_t *input, size_t length, tchar_t *output, bool_t is384) {
-    _cc_hash_t c;
+    _cc_hasher_t c;
     byte_t results[_CC_SHA512_DIGEST_LENGTH_];
     int32_t digest_length = _CC_SHA512_DIGEST_LENGTH_;
 
@@ -329,7 +329,7 @@ _CC_API_PUBLIC(bool_t) _cc_sha512_fp(FILE *fp, tchar_t *output, bool_t is384) {
     byte_t buf[1024 * 16];
     size_t i;
     long seek_cur = 0;
-    _cc_hash_t c;
+    _cc_hasher_t c;
     int32_t digest_length = _CC_SHA512_DIGEST_LENGTH_;
 
     if (fp == NULL) {

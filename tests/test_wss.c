@@ -45,7 +45,7 @@ _CC_API_PRIVATE(void) _ws_free(_cc_ws_t *ws) {
 
 /**/
 _CC_API_PRIVATE(bool_t) _ws_response_header(_cc_event_t *e, _cc_ws_t *ws) {
-    _cc_hash_t c;
+    _cc_hasher_t c;
     int32_t length;
     char_t results[1024];
     byte_t digest[_CC_SHA1_DIGEST_LENGTH_];
