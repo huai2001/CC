@@ -22,6 +22,7 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 LOCAL_SRC_FILES := \
     ../../src/crypto/aes.c \
     ../../src/crypto/base16.c \
+    ../../src/crypto/base32.c \
     ../../src/crypto/base58.c \
     ../../src/crypto/base64.c \
     ../../src/crypto/md2.c \
@@ -70,6 +71,7 @@ LOCAL_SRC_FILES := \
     ../../src/ini/ini.parser.c\
     ../../src/xml/xml.c \
     ../../src/xml/xml.parser.c \
+    ../../src/misc/google.auth.c \
     ../../src/misc/strptime.c \
     ../../src/misc/tick.c \
     ../../src/misc/time.c \

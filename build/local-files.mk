@@ -43,6 +43,7 @@ endif # --end USE_LIB_SQLITE3--
 LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/crypto/aes.c \
 	$(SRCROOT)/src/crypto/base16.c \
+	$(SRCROOT)/src/crypto/base32.c \
 	$(SRCROOT)/src/crypto/base58.c \
 	$(SRCROOT)/src/crypto/base64.c \
 	$(SRCROOT)/src/crypto/md2.c \
@@ -92,6 +93,7 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/ini/ini.parser.c\
 	$(SRCROOT)/src/xml/xml.c \
 	$(SRCROOT)/src/xml/xml.parser.c \
+	$(SRCROOT)/src/misc/google.auth.c \
 	$(SRCROOT)/src/misc/strptime.c \
 	$(SRCROOT)/src/misc/OpenSSL.c \
 	$(SRCROOT)/src/misc/tick.c \

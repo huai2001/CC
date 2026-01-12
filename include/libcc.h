@@ -10,6 +10,7 @@
 #include "libcc/crc.h"
 #include "libcc/ring.h"
 #include "libcc/socket.h"
+#include "libcc/google.auth.h"
 #include "libcc/crypto/crypto.h"
 #include "libcc/crypto/xxtea.h"
 #include "libcc/math.h"
@@ -25,6 +26,9 @@
 #include "libcc/queue.h"
 #include <libcc/timeout.h>
 #include <libcc/json.h>
+#include <libcc/xml.h>
+#include <libcc/ini.h>
+#include <libcc/sql.h>
 #include <libcc/WS.h>
 #include "libcc/version.h"
 

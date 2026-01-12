@@ -52,12 +52,10 @@ _CC_API_PRIVATE(void) __hmac_update(_cc_hash_t *ctx, const byte_t *input, size_t
 }
 
 _CC_API_PRIVATE(void) __hmac_final(_cc_hash_t *ctx, byte_t *digest, int32_t *digest_length) {
-    size_t length = (size_t)*digest_length;
-    struct _hmac *hmac = (struct _hmac *)ctx->handle;
-     EVP_MAC_final(hmac->ctx, digest, (size_t*)&length, (size_t)length);
-     if (*digest_length) {
-         *digest_length = (int32_t)length;
-     }
+    if (digest && digest_length) {
+        struct _hmac *hmac = (struct _hmac *)ctx->handle;
+        EVP_MAC_final(hmac->ctx, digest, (size_t*)digest_length, (size_t)*digest_length);
+    }
 }
 
 _CC_API_PRIVATE(void) __free_hmac(_cc_hash_t *ctx) {

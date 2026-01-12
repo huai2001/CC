@@ -26,112 +26,133 @@ static const uint8_t base58_alphabet_table[] = {
 
 /* {{{ */
 _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tchar_t *output, size_t output_length) {
-    size_t total = 0;
+    byte_t *out_ptr = (byte_t *)output;
     size_t idx = 0;
-    size_t c_idx;
+    size_t total = 0;
+    size_t leading_zeros = 0;
     size_t i, j;
 
-    if (_cc_unlikely(length < 0 || output == NULL)) {
+    if (_cc_unlikely(input == NULL || output == NULL || length == 0)) {
         return 0;
     }
-#if 0
-    // leading zeroes
-    for (i = 0; i < length && !input[i]; ++i) {
-        if (total == output_length) {
+
+    /* Count leading zeros (Bitcoin style) */
+    while (leading_zeros < length && input[leading_zeros] == 0) {
+        if (total >= output_length) {
             return 0;
         }
         output[total++] = base58_table[0];
+        leading_zeros++;
     }
 
-    input += total;
-    length -= total;
-    output += total;
-#endif
-    // encoding
-    for (i = 0; i < length; ++i) {
-        unsigned int carry = (byte_t)input[i];
-        for (j = 0; j < idx; ++j) {
-            carry += (unsigned int)output[j] << 8;
-            output[j] = (byte_t)(carry % 58);
+    input += leading_zeros;
+    length -= leading_zeros;
+
+    /* Maximum possible output length: ceil(length * log(256) / log(58)) */
+    size_t max_output = (length * 137 / 100) + leading_zeros;
+    if (output_length < max_output + 1) {
+        return 0;
+    }
+
+    /* Encoding - process each input byte */
+    for (i = 0; i < length; i++) {
+        unsigned int carry = input[i];
+        
+        for (j = 0; j < idx; j++) {
+            carry += (unsigned int)out_ptr[j] << 8;
+            out_ptr[j] = (byte_t)(carry % 58);
             carry /= 58;
         }
+        
         while (carry > 0) {
-            if (total == output_length) {
-                return 0;
-            }
-            total++;
-            output[idx++] = (byte_t)(carry % 58);
+            out_ptr[idx++] = (byte_t)(carry % 58);
             carry /= 58;
         }
     }
 
-    // apply alphabet and reverse
-    c_idx = idx >> 1;
-    for (i = 0; i < c_idx; ++i) {
-        byte_t s = base58_table[(byte_t)output[i]];
-        output[i] = base58_table[(byte_t)output[idx - (i + 1)]];
-        output[idx - (i + 1)] = s;
+    /* Apply alphabet and reverse the result */
+    total = idx / 2;
+    for (i = 0; i < total; i++) {
+        byte_t temp = base58_table[out_ptr[i]];
+        out_ptr[i] = base58_table[out_ptr[idx - i - 1]];
+        out_ptr[idx - i - 1] = temp;
+    }
+    if (idx & 1) {
+        out_ptr[total] = base58_table[out_ptr[total]];
     }
 
-    if ((idx & 1)) {
-        output[c_idx] = base58_table[(byte_t)output[c_idx]];
+    /* Move encoded data after leading zeros */
+    if (leading_zeros > 0 && idx > 0) {
+        memmove(output + leading_zeros, out_ptr, idx);
     }
 
-    output[total] = 0;
+    total = leading_zeros + idx;
+    output[total] = _T('\0');
     return total;
 }
 
 /* {{{ */
 _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, byte_t *output, size_t output_length) {
-    size_t total = 0;
+    byte_t *out_ptr = output;
     size_t idx = 0;
-    size_t c_idx;
-    size_t i,j;
+    size_t total = 0;
+    size_t leading_ones = 0;
+    size_t i, j;
 
-    // leading ones
-    if (_cc_unlikely(output == NULL)) {
+    if (_cc_unlikely(input == NULL || output == NULL)) {
         return 0;
     }
-#if 0
-    for (i = 0; i < length && input[i] == _T('1'); ++i) {
-        if (total == output_length) {
-            return -1;
-        }
-        output[total++] = 0;
-    }
-    input += total;
-    length -= total;
-    output += total;
-#endif
-    // decoding
-    for (i = 0; i < length; ++i) {
-        unsigned int carry = (unsigned int)base58_alphabet_table[(byte_t)input[i]];
-        if (carry == UINT_MAX) {
+
+    /* Count leading ones (map to leading zeros) */
+    while (leading_ones < length && input[leading_ones] == _T('1')) {
+        if (total >= output_length) {
             return 0;
         }
+        out_ptr[total++] = 0;
+        leading_ones++;
+    }
+
+    input += leading_ones;
+    length -= leading_ones;
+
+    /* Maximum possible output length: ceil(length * log(58) / log(256)) */
+    size_t max_output = (length * 733 / 1000) + leading_ones;
+    if (output_length < max_output) {
+        return 0;
+    }
+
+    /* Decoding - process each input character */
+    for (i = 0; i < length; i++) {
+        unsigned int carry = base58_alphabet_table[(unsigned char)input[i]];
+        
+        if (carry == 0xFF) {
+            return 0; /* Invalid character */
+        }
+        
         for (j = 0; j < idx; j++) {
-            carry += (byte_t)output[j] * 58;
-            output[j] = (byte_t)(carry & 0xff);
+            carry += (unsigned int)out_ptr[leading_ones + j] * 58;
+            out_ptr[leading_ones + j] = (byte_t)(carry & 0xFF);
             carry >>= 8;
         }
+        
         while (carry > 0) {
-            if (total == output_length) {
+            if (leading_ones + idx >= output_length) {
                 return 0;
             }
-            total++;
-            output[idx++] = (byte_t)(carry & 0xff);
+            out_ptr[leading_ones + idx++] = (byte_t)(carry & 0xFF);
             carry >>= 8;
         }
     }
 
-    // apply simple reverse
-    c_idx = idx >> 1;
-    for (i = 0; i < c_idx; ++i) {
-        byte_t s = output[i];
-        output[i] = output[idx - (i + 1)];
-        output[idx - (i + 1)] = s;
+    /* Reverse the result */
+    total = idx / 2;
+    for (i = 0; i < total; i++) {
+        byte_t temp = out_ptr[leading_ones + i];
+        out_ptr[leading_ones + i] = out_ptr[leading_ones + idx - i - 1];
+        out_ptr[leading_ones + idx - i - 1] = temp;
     }
-    
-    output[total] = 0;
+
+    total = leading_ones + idx;
+    output[total] = _T('\0');
     return total;
 }

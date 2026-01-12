@@ -3,19 +3,19 @@
 #include <assert.h>
 
 void test_base58_encode() {
-    const byte_t input[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};
     tchar_t output[100] = {0};
-    size_t result = _cc_base58_encode(input, sizeof(input), output, sizeof(output));
+    size_t result = _cc_base58_encode((byte_t*)"dsafdsaf", sizeof("dsafdsaf") - 1, output, sizeof(output));
     assert(result > 0);
     assert(output[0] != 0);
+    printf("output: %s\n", output);//HoVs9wvz68d
 }
 
 void test_base58_decode() {
-    const tchar_t input[] = _T("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz");
     byte_t output[100] = {0};
-    size_t result = _cc_base58_decode(input, sizeof(input) - 1, output, sizeof(output));
+    size_t result = _cc_base58_decode("HoVs9wvz68d", sizeof("HoVs9wvz68d") - 1, output, sizeof(output));
     assert(result > 0);
     assert(output[0] != 0);
+    printf("output: %s\n", output);
 }
 
 void test_base58_encode_empty_input() {

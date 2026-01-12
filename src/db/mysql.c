@@ -45,35 +45,6 @@ struct _cc_sql_result {
 #endif
 };
 
-_CC_API_PRIVATE(bool_t) _get_url_query(const tchar_t *keyword, const tchar_t *p, char_t *buf, int32_t length) {
-    int i;
-    const tchar_t *r = _tcsstr(p, keyword);
-    if (r == NULL) {
-        return false;
-    }
-
-#ifdef _CC_UNICODE_
-    r += keyword->length;
-    for (i = 0; *r && *r != _T('&'); i++) {
-    }
-    if (i >= 0) {
-        _cc_utf16_to_utf8((uint16_t *)r, (uint16_t *)(r + i), (uint8_t *)buf, (uint8_t *)(buf + length));
-    } else {
-        buf[0] = 0;
-    }
-
-#else
-    r += keyword->length;
-    for (i = 0; *r && *r != _T('&'); i++) {
-        buf[i] = *r++;
-        if (i >= length) {
-            break;
-        }
-    }
-    buf[i] = 0;
-#endif
-    return true;
-}
 _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx);
 _CC_API_PRIVATE(bool_t) _mysql_error(_cc_sql_t *ctx) {
     int sql_errno = mysql_errno(ctx->sql);
@@ -191,7 +162,16 @@ _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string
 
     if (url.query) {
         const tchar_t *r;
-        _get_url_query(url.query, ctx->charset, _cc_countof(ctx->charset));
+        r = _tcsstr(url.query, _T("charset="));
+        if (r) {
+            int i = 0;
+            r += 8;
+            while (r && *r != '&' && i < _cc_countof(ctx->charset)) {
+                ctx->charset[i++] = (char)*r++;
+            }
+            ctx->charset[i] = 0;
+        }
+        
         r = _tcsstr(url.query, _T("SSL="));
         if (r && _tcsnicmp(r + 5, _T("true"), 4) == 0) {
             ctx->use_SSL = true;
@@ -390,7 +370,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql, size_
         return false;
     }
 
-    if (!_cc_mysql_prepare(ctx, stmt, ptr, (unsigned long)length)) {
+    if (!_cc_mysql_prepare(ctx, stmt, sql, (unsigned long)length)) {
         return false;
     }
 

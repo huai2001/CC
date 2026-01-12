@@ -4,6 +4,7 @@
 #include "aes.h"
 #include "des.h"
 #include "base16.h"
+#include "base32.h"
 #include "base58.h"
 #include "base64.h"
 #include "md2.h"

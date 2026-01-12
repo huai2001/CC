@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <libcc/json.h>
-#include <libcc/alloc.h>
-#include <dlfcn.h>
+#include <libcc.h>
 
 void read_remove_comments(_cc_buf_t *buf) {
 	size_t length = 0;
@@ -80,3 +78,4 @@ int main() {
 	test_json_from_file();
     return 0;
 }
+

@@ -98,6 +98,7 @@
 		4217A5612EEC1FA8006262EC /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4AA2EEC1FA8006262EC /* crc.c */; };
 		4217A5622EEC1FA8006262EC /* sha256.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4052EEC1FA8006262EC /* sha256.c */; };
 		4217A5662EEC1FA8006262EC /* strptime.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4472EEC1FA8006262EC /* strptime.c */; };
+		421DEAB02F149DDC005678DE /* base32.c in Sources */ = {isa = PBXBuildFile; fileRef = 421DEAAF2F149DDC005678DE /* base32.c */; };
 		425720D02F0A04A50060EE45 /* request.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720CE2F0A04A50060EE45 /* request.c */; };
 		425720D12F0A04A50060EE45 /* request.response.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720CF2F0A04A50060EE45 /* request.response.c */; };
 		425720D42F0A07060060EE45 /* libodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 425720D32F0A07060060EE45 /* libodbc.a */; };
@@ -203,6 +204,7 @@
 		4217A4B82EEC1FA8006262EC /* url.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = url.c; sourceTree = "<group>"; };
 		4217A4B92EEC1FA8006262EC /* UTF.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = UTF.c; sourceTree = "<group>"; };
 		4217A4BA2EEC1FA8006262EC /* uuid.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = uuid.c; sourceTree = "<group>"; };
+		421DEAAF2F149DDC005678DE /* base32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base32.c; sourceTree = "<group>"; };
 		425720CE2F0A04A50060EE45 /* request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.c; sourceTree = "<group>"; };
 		425720CF2F0A04A50060EE45 /* request.response.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.response.c; sourceTree = "<group>"; };
 		425720D32F0A07060060EE45 /* libodbc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libodbc.a; path = ../../homebrew/Cellar/unixodbc/2.3.12/lib/libodbc.a; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 		4217A4082EEC1FA8006262EC /* crypto */ = {
 			isa = PBXGroup;
 			children = (
+				421DEAAF2F149DDC005678DE /* base32.c */,
 				4217A3FB2EEC1FA8006262EC /* aes.c */,
 				4217A3FC2EEC1FA8006262EC /* base16.c */,
 				4217A3FD2EEC1FA8006262EC /* base58.c */,
@@ -669,6 +672,7 @@
 				4217A5112EEC1FA8006262EC /* power.c in Sources */,
 				4217A5132EEC1FA8006262EC /* xml.parser.c in Sources */,
 				4217A5162EEC1FA8006262EC /* array.c in Sources */,
+				421DEAB02F149DDC005678DE /* base32.c in Sources */,
 				4217A5172EEC1FA8006262EC /* sys_file.m in Sources */,
 				4217A5182EEC1FA8006262EC /* login.c in Sources */,
 				4217A51A2EEC1FA8006262EC /* event.c in Sources */,

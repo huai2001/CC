@@ -20,51 +20,48 @@ static const short base16_reverse_table[256] = {
 
 /* {{{ */
 _CC_API_PUBLIC(size_t) _cc_base16_encode(const byte_t *input, size_t length, tchar_t *output, size_t output_length) {
-    const byte_t *current = input;
-    tchar_t *p = output;
+    const byte_t *in_end = input + length;
+    tchar_t *out_ptr = output;
 
-    if (_cc_unlikely(length < 0 || output == NULL)) {
+    if (_cc_unlikely(input == NULL || output == NULL || length == 0)) {
         return 0;
     }
 
-    if (_cc_unlikely((length * 2) > output_length)) {
-        return -1;
+    /* Check output buffer size: length * 2 + 1 for null terminator */
+    if (_cc_unlikely((length * 2 + 1) > output_length)) {
+        return 0;
     }
 
-    while (length > 0) {
-        *p++ = base16_table[(*current >> 4) & 0x0F];
-        *p++ = base16_table[*current & 0x0F];
-
-        current++;
-        /* we just handle 1 octets of data */
-        length--;
+    while (input < in_end) {
+        *out_ptr++ = base16_table[(*input >> 4) & 0x0F];
+        *out_ptr++ = base16_table[*input++ & 0x0F];
     }
 
-    *p = 0;
-
-    return (size_t)(p - output);
+    *out_ptr = _T('\0');
+    return (size_t)(out_ptr - output);
 }
 
 /* {{{ */
 _CC_API_PUBLIC(size_t) _cc_base16_decode(const tchar_t *input, size_t length, byte_t *output, size_t output_length) {
-    size_t i = 0;
-    byte_t *p = output;
-    /* this sucks for threaded environments */
-    if (_cc_unlikely(output == NULL)) {
+    const tchar_t *in_end = input + length;
+    byte_t *out_end = output + output_length;
+    byte_t *out_ptr = output;
+
+    if (_cc_unlikely(input == NULL || output == NULL)) {
         return 0;
     }
 
-    if (_cc_unlikely((length / 2) > output_length)) {
-        return -1;
+    /* Check output buffer size */
+    if (_cc_unlikely((length + 1) / 2 > output_length)) {
+        return 0;
     }
 
-    /* run through the whole string, converting as we go */
-    for (i = 0; i < length; i += 2) {
-        *p = (base16_reverse_table[*input++ & 0x7F] << 4);
-        *p++ |= (base16_reverse_table[*input++ & 0x7F]);
+    while (input + 1 < in_end && out_ptr < out_end) {
+        int high = base16_reverse_table[(byte_t)*input++ & 0x7F];
+        int low = base16_reverse_table[(byte_t)*input++ & 0x7F];
+        *out_ptr++ = (byte_t)((high << 4) | low);
     }
 
-    *p = 0;
-
-    return (size_t)(p - output);
+    *out_ptr = _T('\0');
+    return (size_t)(out_ptr - output);
 }
