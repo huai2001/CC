@@ -280,7 +280,7 @@ _CC_API_PRIVATE(void) __sha512_final(_cc_hasher_t *sha, byte_t *digest, int32_t 
 #endif /* !CC_SHA512_ALT */
 _CC_API_PUBLIC(void) _cc_sha384_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha512));
-    sha->init = __sha384_init;
+    sha->reset = __sha384_init;
     sha->update = __sha512_update;
     sha->final = __sha512_final;
     sha->free = __free_sha512;
@@ -291,7 +291,7 @@ _CC_API_PUBLIC(void) _cc_sha384_init(_cc_hasher_t *sha) {
 _CC_API_PUBLIC(void) _cc_sha512_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha512));
     sha->method = _CC_SHA512_;
-    sha->init = __sha512_init;
+    sha->reset = __sha512_init;
     sha->update = __sha512_update;
     sha->final = __sha512_final;
     sha->free = __free_sha512;

@@ -260,7 +260,7 @@ _CC_API_PRIVATE(void) __sha256_final(_cc_hasher_t *sha, byte_t *digest, int32_t 
 
 _CC_API_PUBLIC(void) _cc_sha224_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha256));
-    sha->init = __sha224_init;
+    sha->reset = __sha224_init;
     sha->update = __sha256_update;
     sha->final = __sha256_final;
     sha->free = __free_sha256;
@@ -270,7 +270,7 @@ _CC_API_PUBLIC(void) _cc_sha224_init(_cc_hasher_t *sha) {
 
 _CC_API_PUBLIC(void) _cc_sha256_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha256));
-    sha->init = __sha256_init;
+    sha->reset = __sha256_init;
     sha->update = __sha256_update;
     sha->final = __sha256_final;
     sha->free = __free_sha256;

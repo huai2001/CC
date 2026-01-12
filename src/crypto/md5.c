@@ -255,7 +255,7 @@ _CC_API_PRIVATE(void) __free_md5(_cc_hasher_t *ctx) {
 
 _CC_API_PUBLIC(void) _cc_md5_hash_init(_cc_hasher_t *ctx) {
     ctx->handle = (uintptr_t)_cc_malloc(sizeof(_cc_md5_t));
-    ctx->init = __md5_init;
+    ctx->reset = __md5_init;
     ctx->update = __md5_update;
     ctx->final = __md5_final;
     ctx->free = __free_md5;

@@ -1,7 +1,6 @@
 #include <libcc/crypto/hmac.h>
 #include <libcc/crypto/base32.h>
 
-
 /* HOTP - HMAC-Based One-Time Password (RFC 4226) */
 static uint32_t hotp(const _cc_hasher_t* hmac, uint64_t counter) {
     uint8_t digest[_CC_SHA1_DIGEST_LENGTH_];
@@ -90,7 +89,7 @@ _CC_API_PUBLIC(bool_t) _cc_verify_totp(const tchar_t *secret, uint32_t code, uin
             hmac.free(&hmac);
             return true;
         }
-        hmac.init(&hmac);
+        hmac.reset(&hmac);
     }
     hmac.free(&hmac);
     return false;

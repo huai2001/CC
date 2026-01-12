@@ -35,7 +35,7 @@ _CC_API_PRIVATE(void) __free_sha(_cc_hasher_t *ctx) {
 
 _CC_API_PUBLIC(void) _cc_sha224_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)EVP_MD_CTX_new();
-    sha->init = __sha224_init;
+    sha->reset = __sha224_init;
     sha->update = __update;
     sha->final = __final;
     sha->free = __free_sha;
@@ -45,7 +45,7 @@ _CC_API_PUBLIC(void) _cc_sha224_init(_cc_hasher_t *sha) {
 
 _CC_API_PUBLIC(void) _cc_sha256_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)EVP_MD_CTX_new();
-    sha->init = __sha256_init;
+    sha->reset = __sha256_init;
     sha->update = __update;
     sha->final = __final;
     sha->free = __free_sha;

@@ -18,10 +18,10 @@ extern "C" {
 typedef struct _cc_hasher {
     uintptr_t handle;
     byte_t method;
-    void (*init)(struct _cc_hash *);
-    void (*update)(struct _cc_hash *, const byte_t *, size_t);
-    void (*final)(struct _cc_hash *, byte_t *, int32_t *);
-    void (*free)(struct _cc_hash *);
+    void (*reset)(struct _cc_hasher *);
+    void (*update)(struct _cc_hasher *, const byte_t *, size_t);
+    void (*final)(struct _cc_hasher *, byte_t *, int32_t *);
+    void (*free)(struct _cc_hasher *);
 } _cc_hasher_t;
 
 /* Ends C function definitions when using C++ */

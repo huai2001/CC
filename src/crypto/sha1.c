@@ -291,7 +291,7 @@ _CC_API_PRIVATE(void) __sha1_final(_cc_hasher_t *sha, byte_t *digest, int32_t *d
 
 _CC_API_PUBLIC(void) _cc_sha1_init(_cc_hasher_t *sha) {
     sha->handle = (uintptr_t)_cc_malloc(sizeof(struct _cc_sha1));
-    sha->init = __sha1_init;
+    sha->reset = __sha1_init;
     sha->update = __sha1_update;
     sha->final = __sha1_final;
     sha->free = __free_sha1;

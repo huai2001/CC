@@ -79,22 +79,22 @@ _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hasher_t *ctx, byte_t method, const byte_
     ctx->free = __free_hmac;
     switch (method) {
         case _CC_SHA1_:
-            ctx->init = __hmac_sha1_init;
+            ctx->reset = __hmac_sha1_init;
             break;
         case _CC_SHA256_:
-            ctx->init = __hmac_sha256_init;
+            ctx->reset = __hmac_sha256_init;
             break;
         case _CC_SHA224_:
-            ctx->init = __hmac_sha224_init;
+            ctx->reset = __hmac_sha224_init;
             break;
         case _CC_SHA384_:
-            ctx->init = __hmac_sha384_init;
+            ctx->reset = __hmac_sha384_init;
             break;
         case _CC_SHA512_:
-            ctx->init = __hmac_sha512_init;
+            ctx->reset = __hmac_sha512_init;
             break;
         case _CC_MD5_:
-            ctx->init = __hmac_md5_init;
+            ctx->reset = __hmac_md5_init;
             break;
     }
 
@@ -104,5 +104,5 @@ _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hasher_t *ctx, byte_t method, const byte_
         hmac->key_length = key_length;
     }
 
-    ctx->init(ctx);
+    ctx->reset(ctx);
 }
