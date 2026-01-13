@@ -1,8 +1,9 @@
+#include <libcc/time.h>
 #include <libcc/crypto/hmac.h>
 #include <libcc/crypto/base32.h>
 
 /* HOTP - HMAC-Based One-Time Password (RFC 4226) */
-static uint32_t hotp(const _cc_hasher_t* hmac, uint64_t counter) {
+static uint32_t hotp(_cc_hasher_t* hmac, uint64_t counter) {
     uint8_t digest[_CC_SHA1_DIGEST_LENGTH_];
     int32_t digest_length = _CC_SHA1_DIGEST_LENGTH_;
     uint8_t counter_bytes[8];
@@ -97,7 +98,7 @@ _CC_API_PUBLIC(bool_t) _cc_verify_totp(const tchar_t *secret, uint32_t code, uin
 
 /* Generate a random Base32 secret key */
 _CC_API_PUBLIC(void) _cc_generate_secret(tchar_t *secret, size_t length) {
-    const tchar_t charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    const tchar_t charset[] = _T("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567");
     size_t i;
     
     if (_cc_unlikely(secret == NULL || length == 0)) {
