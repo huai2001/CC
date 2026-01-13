@@ -183,9 +183,11 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
 }
 
 static bool_t url_request_connect(_cc_http_request_t *request) {
-    struct sockaddr_in sa;
     _cc_socket_t fd;
     _cc_event_t *e;
+    _cc_sockaddr_t *sockaddr_ptr;
+    _cc_union_sockaddr_t sockaddr;
+    socklen_t sockaddr_len;
     _cc_async_event_t *async = _cc_get_async_event();
     if (request == NULL) {
         return false;
@@ -203,6 +205,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
 
     e = _cc_alloc_event(async, _CC_EVENT_CONNECT_|_CC_EVENT_TIMEOUT_);
     if (e == NULL) {
+        _cc_close_socket(fd);
         return false;
     }
 
@@ -217,17 +220,23 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
         _cc_http_request_ssl(openSSL, request, e);
     }
 
-    _cc_inet_ipv4_addr(&sa, request->url.host, request->url.port);
-
-    /* required to get parallel v4 + v6 working */
-    if (sa.sin_family == AF_INET6) {
+    /* Determine address family */
+    if (request->url.ipv6) {
+        _cc_inet_ipv6_addr(&sockaddr.addr_in6, request->url.host, request->url.port);
+        sockaddr_ptr = (_cc_sockaddr_t*)&sockaddr.addr_in6;
+        sockaddr_len = sizeof(struct sockaddr_in6);
+        /* required to get parallel v4 + v6 working */
         e->flags |= _CC_EVENT_SOCKET_IPV6_;
 #if defined(IPV6_V6ONLY)
         _cc_socket_ipv6only(e->fd);
 #endif
+    } else {
+        _cc_inet_ipv4_addr(&sockaddr.addr_in, request->url.host, request->url.port);
+        sockaddr_ptr = (_cc_sockaddr_t*)&sockaddr.addr_in;
+        sockaddr_len = sizeof(struct sockaddr_in);
     }
 
-    if (async->connect(async, e, (_cc_sockaddr_t*)&sa, sizeof(struct sockaddr_in))) {
+    if (async->connect(async, e, sockaddr_ptr, sockaddr_len)) {
         return true;
     }
 
