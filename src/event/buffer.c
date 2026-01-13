@@ -20,7 +20,7 @@ _CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_realloc_read_buffer(_cc_io_buffer_t *io,int32_t limit) {
+_CC_API_PUBLIC(void) _cc_realloc_read_buffer(_cc_io_buffer_t *io, int32_t limit) {
     io->r.limit = limit;
     io->r.bytes = (byte_t*)_cc_realloc(io->r.bytes,limit * sizeof(byte_t));
     if (io->r.off > limit) {
@@ -29,7 +29,7 @@ _CC_API_PUBLIC(void) _cc_realloc_read_buffer(_cc_io_buffer_t *io,int32_t limit) 
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_realloc_write_buffer(_cc_io_buffer_t *io,int32_t limit) {
+_CC_API_PUBLIC(void) _cc_realloc_write_buffer(_cc_io_buffer_t *io, int32_t limit) {
     io->w.limit = limit;
     io->w.bytes = (byte_t*)_cc_realloc(io->w.bytes,limit * sizeof(byte_t));
     if (io->w.off > limit) {
@@ -93,11 +93,10 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data
         if (data->w.limit <= 0) {
             _cc_abort(_T("uhoh, overflowed! That's a lot of memory!!"));
         }
-        data->w.off = 0;
         data->w.bytes = (byte_t*)_cc_realloc(data->w.bytes, data->w.limit);
     }
 
-    memcpy(data->w.bytes, bytes + off, length);
+    memcpy(data->w.bytes + data->w.off, bytes + off, length);
     data->w.off += length;
 
     _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
