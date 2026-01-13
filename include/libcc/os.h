@@ -6,8 +6,6 @@
 /* _taccess include */
 #ifdef __CC_WINDOWS__
 #include  <io.h>
-#else
-#include <unistd.h>
 #endif
  
 #ifdef __CC_WINDOWS__
@@ -108,9 +106,8 @@
  * while ZeroMemory() and bzero() are the calls.
  * icc7 may also inline several mov's of a zeroed register for small blocks.
  */
-#ifndef bzero
+#undef bzero
 #define bzero(_a, _s) memset((_a), 0, (_s))
-#endif
 
 /**/
 #define _CC_CHECKING_BIT(_number, _x) ((((_number) >> (_x)) & 1) == 1)
@@ -237,13 +234,6 @@ _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length);
 _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t length);
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_cwd(tchar_t *path, size_t length);
-
-/**/
-_CC_API_PUBLIC(int32_t) _cc_last_errno(void);
-/**/
-_CC_API_PUBLIC(void) _cc_set_last_errno(int32_t _errno);
-/**/
-_CC_API_PUBLIC(tchar_t*) _cc_last_error(int32_t _errno);
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_set_clipboard_text(const tchar_t *text);

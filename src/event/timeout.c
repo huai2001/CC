@@ -2,6 +2,8 @@
 #include <libcc/alloc.h>
 #include <libcc/timeout.h>
 
+#define _CC_MAX_TIMEOUT_BATCH_ 64
+
 /**/
 _CC_API_PRIVATE(void) _timeout_move_slot(_cc_async_event_t *async, int level, int n) {
     _cc_list_iterator_t *head = &async->level[level][n];
@@ -86,16 +88,17 @@ void _update_event_timeout(_cc_async_event_t *async, uint32_t timeout) {
 
         if (async->diff >= timeout) {
             uint32_t i;
-
+            //Limit the number of processes processed at a time to prevent CPU speed racing
+            uint32_t limit = async->diff > _CC_MAX_TIMEOUT_BATCH_ ? _CC_MAX_TIMEOUT_BATCH_ : async->diff;
             async->tick = tick;
-            for (i = 0; i < async->diff; i++) {
+            for (i = 0; i < limit; i++) {
                 /*try to dispatch timeout 0*/
                 _timeout_execute(async);
                 /*shift time first, and then callback timeout*/
                 _timeout_shift(async);
                 _timeout_execute(async);
             }
-            async->diff = 0;
+            async->diff -= limit;
         }
     }
 }

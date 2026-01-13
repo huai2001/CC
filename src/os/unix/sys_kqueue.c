@@ -17,7 +17,8 @@ _CC_API_PRIVATE(bool_t) _emit_kevent(_cc_async_event_priv_t *priv, _cc_event_t *
     if (priv->number_of_changes >= _CC_KQUEUE_MAX_UPDATE_) {
         /**/
         int r = kevent(priv->fd, priv->changes, priv->number_of_changes, NULL, 0, NULL);
-        if (_cc_unlikely(r)) {
+        if (_cc_unlikely(r < 0)) {
+            r = _cc_last_errno();
             _cc_logger_error(_T("kevent error %d. events:%d, error:%s"), r, priv->number_of_changes, _cc_last_error(r));
             return false;
         }
@@ -89,7 +90,7 @@ _CC_API_PRIVATE(_cc_socket_t) _kqueue_event_accept(_cc_async_event_t *async, _cc
 
 /**/
 _CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
-    uint16_t m = _CC_EVENT_IS_SOCKET(e->filter), u;
+    uint16_t m = _CC_EVENT_IS_SOCKET(e->filter);
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_WRITABLE_, e->flags) == 0) {
         if (m) {
             _emit_kevent(async->priv, e, true);
@@ -108,7 +109,7 @@ _CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
         }
     } else {
         /*update event*/
-        u = _CC_EVENT_IS_SOCKET(e->flags);
+        uint16_t u = _CC_EVENT_IS_SOCKET(e->flags);
         if (u && u != m) {
             _emit_kevent(async->priv, e, false);
         }
@@ -124,12 +125,12 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_wait(_cc_async_event_t *async, uint32_t ti
     struct kevent actives[_CC_KQUEUE_EVENTS_];
     _cc_async_event_priv_t *priv = async->priv;
 
-    bzero(&actives, sizeof(struct kevent) * _CC_KQUEUE_EVENTS_);
+    //bzero(&actives, sizeof(struct kevent) * _CC_KQUEUE_EVENTS_);
     /**/
     _reset_event_pending(async, _reset);
 
     if (async->diff > 0) {
-        timeout -= async->diff;
+        timeout = (async->diff >= timeout) ? 0 : (timeout - async->diff);
     }
 
     tv.tv_sec = timeout / 1000;
@@ -165,7 +166,6 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_wait(_cc_async_event_t *async, uint32_t ti
             /* Can occur for reasons not fully understood
              * on FreeBSD. */
             case EINVAL:
-                continue;
 #if defined(__CC_FREEBSD__)
             /*
              * This currently occurs if an FD is closed
@@ -181,8 +181,8 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_wait(_cc_async_event_t *async, uint32_t ti
              * the pending changes.
              */
             case ENOTCAPABLE:
-                continue;
 #endif
+                continue;
             /* Can occur on a delete if the fd is closed. */
             case EBADF:
                 /* XXXX On NetBSD, we can also get EBADF if we
@@ -301,9 +301,6 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
     }
 #endif
     async->priv = priv;
-    do {
-        r = ioctl(async->priv->fd, FIOCLEX);
-    } while (r == -1 && _cc_last_errno() == EINTR);
 
     return true;
 }
@@ -320,6 +317,5 @@ _CC_API_PUBLIC(bool_t) _cc_register_kqueue(_cc_async_event_t *async) {
     async->accept = _kqueue_event_accept;
     async->wait = _kqueue_event_wait;
     async->free = _kqueue_event_free;
-    async->reset = _kqueue_event_reset;
     return true;
 }

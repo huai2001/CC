@@ -149,6 +149,20 @@ _CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32(void);
 /**/
 _CC_API_PUBLIC(void) _cc_unload_windows_kernel32(void);
 
+
+/**/
+_CC_FORCE_INLINE_ void _cc_set_last_errno(int32_t _errno) {
+    WSASetLastError(_errno);
+}
+
+/**/
+_CC_FORCE_INLINE_ int32_t _cc_last_errno(void) {
+    return WSAGetLastError();
+}
+
+/**/
+_CC_API_PUBLIC(const tchar_t *) _cc_last_error(int32_t _errno);
+
 /* {{{ dumper */
 #ifndef _CC_DISABLED_DUMPER_
 

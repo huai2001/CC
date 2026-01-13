@@ -138,7 +138,7 @@ _CC_API_PRIVATE(bool_t) _select_event_wait(_cc_async_event_t *async, uint32_t ti
     _reset_event_pending(async, _reset);
 
     if (async->diff > 0) {
-        timeout -= (uint32_t)async->diff;
+        timeout = (async->diff >= timeout) ? 0 : (timeout - async->diff);
     }
 
     if (priv->nfds == 0) {

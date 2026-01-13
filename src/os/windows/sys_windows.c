@@ -324,16 +324,6 @@ _CC_API_PUBLIC(void) _cc_get_memory_usage(double* total, double* used) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_set_last_errno(int32_t _errno) {
-    WSASetLastError(_errno);
-}
-
-/**/
-_CC_API_PUBLIC(int32_t) _cc_last_errno(void) {
-    return WSAGetLastError();
-}
-
-/**/
 _CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
     static tchar_t sys_error_info[4096];
     tchar_t *p = sys_error_info;

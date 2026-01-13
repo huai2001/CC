@@ -16,7 +16,7 @@ _CC_API_PRIVATE(bool_t) _emit_epoll_event(int efd, _cc_event_t *e, bool_t clean)
     int op = EPOLL_CTL_DEL;
     struct epoll_event ev;
 
-    bzero(&ev, sizeof(struct epoll_event));
+    //bzero(&ev, sizeof(struct epoll_event));
     ev.data.fd = e->fd;
     ev.data.ptr = e;
     ev.events = 0;
@@ -51,7 +51,7 @@ _CC_API_PRIVATE(bool_t) _emit_epoll_event(int efd, _cc_event_t *e, bool_t clean)
                  * should retry the operation as an ADD.
                  */
                 if (epoll_ctl(efd, EPOLL_CTL_ADD, e->fd, &ev) == -1) {
-                    _cc_logger_error(_T("Epoll MOD(%d) on %d retried as MOD; that failed too"), (int)ev.events, e->fd);
+                    _cc_logger_error(_T("Epoll MOD(%d) on %d retried as ADD; that failed too"), (int)ev.events, e->fd);
                     return false;
                 }
             }
@@ -66,7 +66,7 @@ _CC_API_PRIVATE(bool_t) _emit_epoll_event(int efd, _cc_event_t *e, bool_t clean)
                  * rather than a fresh one.  For the second case,
                  * we must retry with MOD. */
                 if (epoll_ctl(efd, EPOLL_CTL_MOD, e->fd, &ev) == -1) {
-                    _cc_logger_error(_T("Epoll ADD(%d) on %d retried as ADD; that failed too"), (int)ev.events, e->fd);
+                    _cc_logger_error(_T("Epoll ADD(%d) on %d retried as MOD; that failed too"), (int)ev.events, e->fd);
                     return false;
                 }
             }
@@ -150,13 +150,13 @@ _CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_async_event_t *async, uint32_t tim
     struct epoll_event actives[_CC_EPOLL_EVENTS_];
     _cc_async_event_priv_t *priv = async->priv;
 
-    bzero(&actives, sizeof(struct epoll_event) * _CC_EPOLL_EVENTS_);
+    //bzero(&actives, sizeof(struct epoll_event) * _CC_EPOLL_EVENTS_);
 
     /**/
     _reset_event_pending(async, _reset);
 
     if (async->diff > 0) {
-        timeout -= async->diff;
+        timeout = (async->diff >= timeout) ? 0 : (timeout - async->diff);
     }
 
     rc = epoll_wait(priv->fd, actives, _CC_EPOLL_EVENTS_, timeout);
@@ -244,7 +244,7 @@ _CC_API_PRIVATE(bool_t) _epoll_event_alloc(_cc_async_event_t *async) {
         /* Initialize the kernel queue using the old interface.  (The
            size field is ignored   since 2.6.8.) */
         if ((fd = epoll_create(1024)) == -1) {
-            if (errno != ENOSYS) {
+            if (_cc_last_errno() != ENOSYS) {
                 _cc_logger_error(_T("cannot create epoll!"));
             }
             return false;
@@ -270,6 +270,5 @@ _CC_API_PUBLIC(bool_t) _cc_register_epoll(_cc_async_event_t *async) {
     async->accept = _epoll_event_accept;
     async->wait = _epoll_event_wait;
     async->free = _epoll_event_free;
-    async->reset = _epoll_event_reset;
     return true;
 }

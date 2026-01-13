@@ -371,7 +371,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
     }
 
     if (async->diff > 0) {
-        timeout -= (uint32_t)async->diff;
+        timeout = (async->diff >= timeout) ? 0 : (timeout - async->diff);
     }
 
     _reset_event_pending(async, _reset);

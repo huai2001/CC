@@ -107,7 +107,14 @@ struct _cc_async_event {
     uint32_t timer;
     uint32_t diff;
     uint64_t tick;
-
+    /*
+    │  Timer Wheel
+    │  ├─ nears[256]        // 0-256ms (2^8) 
+    │  ├─ level[0][64]      // 256-16s (2^14)
+    │  ├─ level[1][64]      // 16s-17min (2^20)
+    │  ├─ level[2][64]      // 17min-18h (2^26) 
+    │  └─ level[3][64]      // 18h-47d (2^32)
+    */
     _cc_list_iterator_t nears[_CC_TIMEOUT_NEAR_];
     _cc_list_iterator_t level[_CC_TIMEOUT_MAX_LEVEL_][_CC_TIMEOUT_LEVEL_];
     _cc_list_iterator_t pending;

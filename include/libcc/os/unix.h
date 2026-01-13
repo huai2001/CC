@@ -1,6 +1,8 @@
 #ifndef _C_CC_SYS_UNIX_HEAD_FILE_
 #define _C_CC_SYS_UNIX_HEAD_FILE_
 
+#include <sys/errno.h>
+#include <unistd.h>
 #include "../string.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -22,6 +24,20 @@ extern "C" {
 /***/
 #define _cc_getpid() ((uint32_t)getpid())
 
+/**/
+_CC_FORCE_INLINE_ int32_t _cc_last_errno(void) {
+    return errno;
+}
+
+/**/
+_CC_FORCE_INLINE_ void _cc_set_last_errno(int32_t _errno) {
+    errno = _errno;
+}
+
+/**/
+_CC_FORCE_INLINE_ const tchar_t* _cc_last_error(int32_t _errno) {
+    return strerror(_errno);
+}
 /**/
 _CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1,int32_t s1_len,wchar_t* s2,int32_t size);
 /**/
