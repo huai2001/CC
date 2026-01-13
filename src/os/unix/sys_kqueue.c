@@ -24,7 +24,9 @@ _CC_API_PRIVATE(bool_t) _emit_kevent(_cc_async_event_priv_t *priv, _cc_event_t *
         }
         priv->number_of_changes = 0;
     }
-
+    
+    // (Edge Triggered)   OR  (Level Triggered)
+    // EV_ADD | EV_CLEAR  OR  EV_ADD
     if (clean) {
         if (_CC_ISSET_BIT(_CC_EVENT_READABLE_ | _CC_EVENT_ACCEPT_, e->filter)) {
             EV_SET(&priv->changes[priv->number_of_changes++], e->fd, EVFILT_READ, EV_DELETE, 0, 0, e);
