@@ -34,6 +34,7 @@ LOCAL_SRC_FILES := \
     ../../src/crypto/hmac.c \
     ../../src/crypto/des.c \
     ../../src/crypto/xxtea.c \
+    ../../src/crypto/OpenSSL.c \
     ../../src/crc.c \
     ../../src/UTF.c \
     ../../src/GBK.c \
@@ -77,7 +78,6 @@ LOCAL_SRC_FILES := \
     ../../src/misc/time.c \
     ../../src/misc/inet.c \
     ../../src/misc/socket.c \
-    ../../src/misc/OpenSSL.c \
     ../../src/misc/power.c  \
     ../../src/misc/misc.c \
     ../../src/misc/WS.c \

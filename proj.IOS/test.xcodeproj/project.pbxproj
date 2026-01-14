@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,8 +18,8 @@
 		425720BE2F09FD150060EE45 /* cc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; };
 		425720C62F09FDE60060EE45 /* libcrypto.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 425720C42F09FDE60060EE45 /* libcrypto.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		425720C72F09FDE60060EE45 /* libssl.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 425720C52F09FDE60060EE45 /* libssl.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		425720CA2F09FFC80060EE45 /* sqlite3.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 42AC371B2E7D6CF300B44396 /* sqlite3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		425720CB2F09FFCB0060EE45 /* cc.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		42AA27B82F17384800D5ABE2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42AA27B52F17384800D5ABE2 /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,13 +29,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 414E4AF21F6CB6A20085AF50;
 			remoteInfo = cc;
-		};
-		42AC371A2E7D6CF300B44396 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 41CDDE2F29A385AB008F372C /* cc.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 42E140132E7D6B4E0045A73C;
-			remoteInfo = sqlite3;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -47,7 +40,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				425720CB2F09FFCB0060EE45 /* cc.framework in CopyFiles */,
-				425720CA2F09FFC80060EE45 /* sqlite3.framework in CopyFiles */,
 				425720C62F09FDE60060EE45 /* libcrypto.3.dylib in CopyFiles */,
 				425720C72F09FDE60060EE45 /* libssl.3.dylib in CopyFiles */,
 			);
@@ -74,6 +66,7 @@
 		425720C02F09FD2D0060EE45 /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.3.dylib; path = ../lib/arm64/libssl.3.dylib; sourceTree = "<group>"; };
 		425720C42F09FDE60060EE45 /* libcrypto.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.3.dylib; path = ../lib/arm64/libcrypto.3.dylib; sourceTree = "<group>"; };
 		425720C52F09FDE60060EE45 /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.3.dylib; path = ../lib/arm64/libssl.3.dylib; sourceTree = "<group>"; };
+		42AA27B52F17384800D5ABE2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				42AA27B82F17384800D5ABE2 /* Security.framework in Frameworks */,
 				425720BE2F09FD150060EE45 /* cc.framework in Frameworks */,
 				416D42B129DAC4CF00205B24 /* WebKit.framework in Frameworks */,
 			);
@@ -130,7 +124,6 @@
 		41CDDE3029A385AB008F372C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				42AC371B2E7D6CF300B44396 /* sqlite3.framework */,
 				41CDDE3429A385AB008F372C /* cc.framework */,
 			);
 			name = Products;
@@ -139,6 +132,7 @@
 		41CDDE3829A38AB5008F372C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				42AA27B52F17384800D5ABE2 /* Security.framework */,
 				425720BF2F09FD2D0060EE45 /* libcrypto.3.dylib */,
 				425720C02F09FD2D0060EE45 /* libssl.3.dylib */,
 				416D42AF29DAC4CF00205B24 /* WebKit.framework */,
@@ -173,7 +167,8 @@
 		41CDDE0A29A3857B008F372C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1200;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					41CDDE1129A3857B008F372C = {
 						CreatedOnToolsVersion = 12.0.1;
@@ -210,13 +205,6 @@
 			fileType = wrapper.framework;
 			path = cc.framework;
 			remoteRef = 41CDDE3329A385AB008F372C /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		42AC371B2E7D6CF300B44396 /* sqlite3.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = sqlite3.framework;
-			remoteRef = 42AC371A2E7D6CF300B44396 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -303,8 +291,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 8X9J3P3289;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -363,8 +353,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 8X9J3P3289;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -388,7 +380,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8X9J3P3289;
 				INFOPLIST_FILE = test/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -411,7 +402,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8X9J3P3289;
 				INFOPLIST_FILE = test/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
