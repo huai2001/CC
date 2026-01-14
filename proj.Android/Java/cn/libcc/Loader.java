@@ -80,8 +80,7 @@ public class Loader {
             // Actually load the library!
             Method loadMethod = relinkInstanceClass.getDeclaredMethod("loadLibrary", contextClass, stringClass, stringClass, relinkListenerClass);
             loadMethod.invoke(relinkInstance, context, libraryName, null, null);
-        }
-        catch (final Throwable e) {
+        } catch (final Throwable e) {
             // Fall back
             try {
                 System.loadLibrary(libraryName);
