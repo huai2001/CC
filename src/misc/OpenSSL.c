@@ -474,6 +474,7 @@ _CC_API_PRIVATE(uint8_t) _SSL_Error(SSL *handle,const char *fn) {
     return _CC_SSL_HS_ERROR_;
 }
 
+/**/
 _CC_API_PUBLIC(_cc_SSL_t*) _SSL_accept(_cc_OpenSSL_t *ctx, _cc_socket_t fd) {
     _cc_SSL_t *ssl = _SSL_alloc(ctx);
 

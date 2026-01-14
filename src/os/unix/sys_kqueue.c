@@ -260,7 +260,6 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_free(_cc_async_event_t *async) {
 
 /**/
 _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
-    int r = 0;
     _cc_async_event_priv_t *priv;
 #ifdef __CC_MACOSX__
     struct kevent changes[2];

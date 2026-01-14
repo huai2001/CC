@@ -36,7 +36,7 @@ _CC_API_PRIVATE(void) __hmac_final(_cc_hasher_t *ctx, byte_t *digest, int32_t *d
     _cc_hmac_t *hmac_ctx = (_cc_hmac_t *)ctx->handle;
 
     hmac_ctx->hash.final(&hmac_ctx->hash, digest, digest_length);
-    hmac_ctx->hash.init(&hmac_ctx->hash);
+    hmac_ctx->hash.reset(&hmac_ctx->hash);
 
     _hmac_init_block(hmac_ctx, block, 0x5C);
 
@@ -95,7 +95,7 @@ _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hasher_t *ctx, byte_t method, const byte_
 
     if (key && key_length) {
         if (key_length > hmac_ctx->block_length) {
-            hmac_ctx->hash.init(&hmac_ctx->hash);
+            hmac_ctx->hash.reset(&hmac_ctx->hash);
             hmac_ctx->hash.update(&hmac_ctx->hash, key, key_length);
             hmac_ctx->hash.final(&hmac_ctx->hash, digest, &digest_length);
             key_length = digest_length;
@@ -108,7 +108,7 @@ _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hasher_t *ctx, byte_t method, const byte_
 
     _hmac_init_block(hmac_ctx, block, 0x36);
 
-    hmac_ctx->hash.init(&hmac_ctx->hash);
+    hmac_ctx->hash.reset(&hmac_ctx->hash);
     hmac_ctx->hash.update(&hmac_ctx->hash, block, hmac_ctx->block_length);
 
     ctx->update = __hmac_update;

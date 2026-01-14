@@ -34,93 +34,33 @@ extern "C" {
 #endif
 
 /*
- * @brief Initializes an event async class
- *
- * @param async _cc_async_event_t structure
- *
- * @return true if successful or false on error.
  */
 bool_t _register_async_event(_cc_async_event_t *async);
-
 /*
- * @brief Free an event async class
- *
- * @param async _cc_async_event_t structure
- *
- * @return true if successful or false on error.
  */
 bool_t _unregister_async_event(_cc_async_event_t *async);
-
-/**
- * @brief Calls back an event function
- *
- * @param async _cc_async_event_t structure
- * @param e _cc_event_t structure
- * @param which The state of an event
- *
- * @return true if successful or false on error.
+/*
  */
 bool_t _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which);
-/**
- * @brief Check the Socket is valid
- *
- * @param fd socket
- *
- * @return true if successful or false on error.
+/*
  */
 bool_t _valid_fd(_cc_socket_t fd);
-
-/**
- * @brief Socket disconnect event
- *
- * @param async _cc_async_event_t structure
- * @param e _cc_event_t structure
- *
- * @return true if successful or false on error.
+/*
  */
 bool_t _disconnect_event(_cc_async_event_t *async, _cc_event_t *e);
-
-/**
- * @brief Wait for reset event
- *
- * @param async _cc_async_event_t structure
- * @param e _cc_event_t structure
- *
- * @return true if successful or false on error.
+/*
  */
 bool_t _reset_event(_cc_async_event_t *async, _cc_event_t *e);
-
-/**
- * @brief Reset pending events
- *
- * @param async _cc_async_event_t structure
- * @param func callback
- *
+/*
  */
 void _reset_event_pending(_cc_async_event_t *async, void (*func)(_cc_async_event_t *, _cc_event_t *));
-/**
- * @brief add timeout events
- *
- * @param async _cc_async_event_t structure
- * @param e _cc_event_t structure
- *
+/*
  */
 void _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
-/**
- * @brief Reset timeout events
- *
- * @param async _cc_async_event_t structure
- * @param e _cc_event_t structure
- *
+/*
  */
 void _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
-/**
- * @brief Run timeout events
- *
- * @param async _cc_async_event_t structure
- * @param func callback function
- *
- * @return true if successful or false on error.
+/*
  */
 void _update_event_timeout(_cc_async_event_t *async, uint32_t timeout);
 
