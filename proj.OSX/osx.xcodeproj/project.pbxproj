@@ -86,7 +86,6 @@
 		4217A5462EEC1FA8006262EC /* rbtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4B32EEC1FA8006262EC /* rbtree.c */; };
 		4217A5472EEC1FA8006262EC /* select.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4162EEC1FA8006262EC /* select.c */; };
 		4217A5492EEC1FA8006262EC /* tcp.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4172EEC1FA8006262EC /* tcp.c */; };
-		4217A54A2EEC1FA8006262EC /* OpenSSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4442EEC1FA8006262EC /* OpenSSL.c */; };
 		4217A54C2EEC1FA8006262EC /* inet.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4412EEC1FA8006262EC /* inet.c */; };
 		4217A54D2EEC1FA8006262EC /* sys_clipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4602EEC1FA8006262EC /* sys_clipboard.m */; };
 		4217A5512EEC1FA8006262EC /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4042EEC1FA8006262EC /* sha1.c */; };
@@ -109,6 +108,8 @@
 		425720E62F0A071C0060EE45 /* sys_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720DD2F0A071C0060EE45 /* sys_unix.c */; };
 		425720E72F0A071C0060EE45 /* sys_loadso.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720D82F0A071C0060EE45 /* sys_loadso.c */; };
 		425720E92F0A075C0060EE45 /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 425720E82F0A075C0060EE45 /* libmysqlclient.a */; };
+		42907D422F177621008AE8C9 /* OpenSSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 42907D412F177621008AE8C9 /* OpenSSL.c */; };
+		42907D442F17763E008AE8C9 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 42907D432F17763E008AE8C9 /* libsqlite3.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -156,7 +157,6 @@
 		4217A4412EEC1FA8006262EC /* inet.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = inet.c; sourceTree = "<group>"; };
 		4217A4422EEC1FA8006262EC /* misc.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = misc.c; sourceTree = "<group>"; };
 		4217A4432EEC1FA8006262EC /* misc.c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = misc.c.h; sourceTree = "<group>"; };
-		4217A4442EEC1FA8006262EC /* OpenSSL.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = OpenSSL.c; sourceTree = "<group>"; };
 		4217A4452EEC1FA8006262EC /* power.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = power.c; sourceTree = "<group>"; };
 		4217A4462EEC1FA8006262EC /* socket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = socket.c; sourceTree = "<group>"; };
 		4217A4472EEC1FA8006262EC /* strptime.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = strptime.c; sourceTree = "<group>"; };
@@ -215,21 +215,16 @@
 		425720DC2F0A071C0060EE45 /* sys_time.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_time.c; sourceTree = "<group>"; };
 		425720DD2F0A071C0060EE45 /* sys_unix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_unix.c; sourceTree = "<group>"; };
 		425720E82F0A075C0060EE45 /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = "../../homebrew/Cellar/mysql-client/9.5.0/lib/libmysqlclient.a"; sourceTree = "<group>"; };
+		42907D412F177621008AE8C9 /* OpenSSL.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = OpenSSL.c; sourceTree = "<group>"; };
+		42907D432F17763E008AE8C9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		4217A3E62EEC1F76006262EC /* osx */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = osx;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		4217A3E12EEC1F76006262EC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				42907D442F17763E008AE8C9 /* libsqlite3.tbd in Frameworks */,
 				425720E92F0A075C0060EE45 /* libmysqlclient.a in Frameworks */,
 				425720D42F0A07060060EE45 /* libodbc.a in Frameworks */,
 			);
@@ -242,7 +237,6 @@
 			isa = PBXGroup;
 			children = (
 				4217A4BB2EEC1FA8006262EC /* src */,
-				4217A3E62EEC1F76006262EC /* osx */,
 				425720D22F0A07060060EE45 /* Frameworks */,
 				4217A3E52EEC1F76006262EC /* Products */,
 			);
@@ -268,6 +262,7 @@
 		4217A4082EEC1FA8006262EC /* crypto */ = {
 			isa = PBXGroup;
 			children = (
+				42907D412F177621008AE8C9 /* OpenSSL.c */,
 				421DEAAF2F149DDC005678DE /* base32.c */,
 				4217A3FB2EEC1FA8006262EC /* aes.c */,
 				4217A3FC2EEC1FA8006262EC /* base16.c */,
@@ -377,7 +372,6 @@
 				4217A4412EEC1FA8006262EC /* inet.c */,
 				4217A4422EEC1FA8006262EC /* misc.c */,
 				4217A4432EEC1FA8006262EC /* misc.c.h */,
-				4217A4442EEC1FA8006262EC /* OpenSSL.c */,
 				4217A4452EEC1FA8006262EC /* power.c */,
 				4217A4462EEC1FA8006262EC /* socket.c */,
 				4217A4472EEC1FA8006262EC /* strptime.c */,
@@ -506,6 +500,7 @@
 		425720D22F0A07060060EE45 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				42907D432F17763E008AE8C9 /* libsqlite3.tbd */,
 				425720E82F0A075C0060EE45 /* libmysqlclient.a */,
 				425720D32F0A07060060EE45 /* libodbc.a */,
 			);
@@ -558,9 +553,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				4217A3E62EEC1F76006262EC /* osx */,
 			);
 			name = osx;
 			packageProductDependencies = (
@@ -683,6 +675,7 @@
 				4217A5262EEC1FA8006262EC /* xml.c in Sources */,
 				4217A5292EEC1FA8006262EC /* timeout.c in Sources */,
 				4217A52A2EEC1FA8006262EC /* json.c in Sources */,
+				42907D422F177621008AE8C9 /* OpenSSL.c in Sources */,
 				4217A52D2EEC1FA8006262EC /* WS.c in Sources */,
 				4217A5312EEC1FA8006262EC /* main.c in Sources */,
 				4217A5322EEC1FA8006262EC /* hmac.c in Sources */,
@@ -698,7 +691,6 @@
 				4217A5462EEC1FA8006262EC /* rbtree.c in Sources */,
 				4217A5472EEC1FA8006262EC /* select.c in Sources */,
 				4217A5492EEC1FA8006262EC /* tcp.c in Sources */,
-				4217A54A2EEC1FA8006262EC /* OpenSSL.c in Sources */,
 				4217A54C2EEC1FA8006262EC /* inet.c in Sources */,
 				4217A54D2EEC1FA8006262EC /* sys_clipboard.m in Sources */,
 				4217A5512EEC1FA8006262EC /* sha1.c in Sources */,
