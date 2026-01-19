@@ -105,9 +105,9 @@ _CC_API_PUBLIC(void) _cc_generate_secret(tchar_t *secret, size_t length) {
         return ;
     }
 
-    for (i = 0; i < length - 1; i++) {
+    for (i = 0; i < length; i++) {
         secret[i] = charset[_cc_rand((sizeof(charset) - 1))];
     }
 
-    secret[length - 1] = 0;
+    secret[length] = 0;
 }

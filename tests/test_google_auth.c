@@ -5,8 +5,7 @@
 #include <libcc.h>
 
 int main() {
-    tchar_t secret[33];
-    int32_t length;
+    tchar_t secret[13];
     uint32_t user_code;
     uint32_t prev_code = 0;
     bool_t valid;
@@ -15,13 +14,12 @@ int main() {
     int iteration = 0;
 
     /* Generate otpauth URL with user and host info */
-    length = _cc_generate_secret(secret, sizeof(secret) / sizeof(tchar_t));
+    _cc_generate_secret(secret, _cc_countof(secret));
     
     printf("\n========== Google Authenticator TOTP Test ==========\n\n");
     printf("1. Scan this QR Code with Google Authenticator app:\n");
-    printf("otpauth://totp/Google:alice?secret=%*s&issuer=Google\n\n", length, secret);
+    printf("otpauth://totp/Google:alice?secret=%*s&issuer=Google\n\n", (int)_cc_countof(secret) - 1, secret);
     printf("2. Or manually enter this secret: %s\n\n", secret);
-    
     /* Verify the secret is valid */
     user_code = _cc_generate_totp(secret, 30);
     printf("Initial TOTP code: %06u\n\n", user_code);

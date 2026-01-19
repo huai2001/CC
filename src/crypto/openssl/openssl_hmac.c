@@ -53,19 +53,19 @@ _CC_API_PRIVATE(void) __hmac_update(_cc_hasher_t *ctx, const byte_t *input, size
 
 _CC_API_PRIVATE(void) __hmac_final(_cc_hasher_t *ctx, byte_t *digest, int32_t *digest_length) {
     if (digest && digest_length) {
+        size_t length = *digest_length;
         struct _hmac *hmac = (struct _hmac *)ctx->handle;
-        EVP_MAC_final(hmac->ctx, digest, (size_t*)digest_length, (size_t)*digest_length);
+        EVP_MAC_final(hmac->ctx, digest, &length, length);
+        *digest_length = (int32_t)length;
     }
 }
 
 _CC_API_PRIVATE(void) __free_hmac(_cc_hasher_t *ctx) {
-    if (ctx) {
-        struct _hmac *hmac = (struct _hmac *)ctx->handle;
-        EVP_MAC_CTX_free(hmac->ctx);
-        EVP_MAC_free(hmac->mac);
-        _cc_free(hmac->key);
-        _cc_free(hmac);
-    }
+    struct _hmac *hmac = (struct _hmac *)ctx->handle;
+    EVP_MAC_CTX_free(hmac->ctx);
+    EVP_MAC_free(hmac->mac);
+    _cc_free(hmac->key);
+    _cc_free(hmac);
 }
 
 _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hasher_t *ctx, byte_t method, const byte_t *key, size_t key_length) {

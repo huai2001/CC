@@ -55,6 +55,7 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/crypto/hmac.c \
 	$(SRCROOT)/src/crypto/des.c \
 	$(SRCROOT)/src/crypto/xxtea.c \
+	$(SRCROOT)/src/crypto/OpenSSL.c \
 	$(SRCROOT)/src/crc.c \
 	$(SRCROOT)/src/UTF.c \
 	$(SRCROOT)/src/GBK.c \
@@ -95,7 +96,6 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/xml/xml.parser.c \
 	$(SRCROOT)/src/misc/google.auth.c \
 	$(SRCROOT)/src/misc/strptime.c \
-	$(SRCROOT)/src/misc/OpenSSL.c \
 	$(SRCROOT)/src/misc/tick.c \
 	$(SRCROOT)/src/misc/time.c \
 	$(SRCROOT)/src/misc/inet.c \

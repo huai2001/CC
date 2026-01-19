@@ -26,6 +26,16 @@ _CC_API_PRIVATE(void) _hmac_init_block(_cc_hmac_t *ctx, byte_t *block, byte_t cp
     }
 }
 
+_CC_API_PRIVATE(void) _hmac_init(_cc_hasher_t *ctx) {
+    byte_t block[MAX_BLOCKLEN];
+    _cc_hmac_t *hmac_ctx = (_cc_hmac_t *)ctx->handle;
+
+    _hmac_init_block(hmac_ctx, block, 0x36);
+
+    hmac_ctx->hash.reset(&hmac_ctx->hash);
+    hmac_ctx->hash.update(&hmac_ctx->hash, block, hmac_ctx->block_length);
+}
+
 _CC_API_PRIVATE(void) __hmac_update(_cc_hasher_t *ctx, const byte_t *input, size_t length) {
     _cc_hmac_t *hmac_ctx = (_cc_hmac_t *)ctx->handle;
     hmac_ctx->hash.update(&hmac_ctx->hash, input, length);
@@ -59,8 +69,10 @@ _CC_API_PRIVATE(void) __free_hmac(_cc_hasher_t *ctx) {
 _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hasher_t *ctx, byte_t method, const byte_t *key, size_t key_length) {
     _cc_hmac_t *hmac_ctx = (_cc_hmac_t *)_cc_malloc(sizeof(_cc_hmac_t));
     byte_t digest[MAX_BLOCKLEN];
-    byte_t block[MAX_BLOCKLEN];
     int32_t digest_length = MAX_BLOCKLEN;
+    if (key == NULL || key_length == 0) {
+        return ;
+    }
     
     ctx->handle = (uintptr_t)hmac_ctx;
 
@@ -93,24 +105,18 @@ _CC_API_PUBLIC(void) _cc_hmac_init(_cc_hasher_t *ctx, byte_t method, const byte_
     
     ctx->method = method;
 
-    if (key && key_length) {
-        if (key_length > hmac_ctx->block_length) {
-            hmac_ctx->hash.reset(&hmac_ctx->hash);
-            hmac_ctx->hash.update(&hmac_ctx->hash, key, key_length);
-            hmac_ctx->hash.final(&hmac_ctx->hash, digest, &digest_length);
-            key_length = digest_length;
-            key = digest;
-        }
-        hmac_ctx->key = (byte_t*)_cc_malloc(key_length);
-        memcpy(hmac_ctx->key, key, key_length);
-        hmac_ctx->key_length = key_length;
+    if (key_length > hmac_ctx->block_length) {
+        hmac_ctx->hash.update(&hmac_ctx->hash, key, key_length);
+        hmac_ctx->hash.final(&hmac_ctx->hash, digest, &digest_length);
+        key_length = digest_length;
+        key = digest;
     }
+    hmac_ctx->key = (byte_t*)_cc_malloc(key_length);
+    memcpy(hmac_ctx->key, key, key_length);
+    hmac_ctx->key_length = key_length;
 
-    _hmac_init_block(hmac_ctx, block, 0x36);
-
-    hmac_ctx->hash.reset(&hmac_ctx->hash);
-    hmac_ctx->hash.update(&hmac_ctx->hash, block, hmac_ctx->block_length);
-
+    _hmac_init(ctx);
+    ctx->reset = _hmac_init;
     ctx->update = __hmac_update;
     ctx->final = __hmac_final;
     ctx->free = __free_hmac;
