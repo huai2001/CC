@@ -32,9 +32,9 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
     rc = _cc_getaddrinfo(host, NULL, &hints, &addr_list);
     if (rc != 0 || addr_list == NULL) {
 #ifdef EAI_SYSTEM
-        _cc_logger_error(_T("getaddrinfo Error: %s, %s"), rc != EAI_SYSTEM ? gai_strerror(rc) : _cc_last_error(rc), host);
+        _cc_logger_error("getaddrinfo Error: %s, %s", rc != EAI_SYSTEM ? gai_strerror(rc) : _cc_last_error(rc), host);
 #else
-        _cc_logger_error(_T("getaddrinfo Error: %s, %s"), _cc_last_error(rc), host);
+        _cc_logger_error("getaddrinfo Error: %s, %s", _cc_last_error(rc), host);
 #endif
         if (addr_list) {
             _cc_freeaddrinfo(addr_list);

@@ -48,7 +48,7 @@ _CC_API_PRIVATE(void) _logger_fail_message_from_odbc(const SQLSMALLINT type, con
     SQLSMALLINT length;
     
     SQLGetDiagRec(type, handle, 1, sqlstate, &native_error,  message, sizeof(message), &length);
-    _cc_logger_error(_T("Error in : %s SQLSTATE: %s Message: %s"), action, sqlstate, message);
+    _cc_logger_error("Error in : %s SQLSTATE: %s Message: %s", action, sqlstate, message);
 }
 
 _CC_API_PRIVATE(void) _init_sqlsvr(void) {
@@ -56,7 +56,7 @@ _CC_API_PRIVATE(void) _init_sqlsvr(void) {
     /*Allocate the ODBC environment and save handle.*/
     request = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &hEnv);
     if ((request != SQL_SUCCESS_WITH_INFO) && (request != SQL_SUCCESS)) {  
-        _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("SQLAllocHandle(Env) Failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "SQLAllocHandle(Env) Failed");
         hEnv = SQL_NULL_HENV;
         return;
     }
@@ -64,7 +64,7 @@ _CC_API_PRIVATE(void) _init_sqlsvr(void) {
     /*Notify ODBC that this is an ODBC 3.0 app.*/
     request = SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER *)SQL_OV_ODBC3, SQL_IS_INTEGER);
     if ((request != SQL_SUCCESS_WITH_INFO) && (request != SQL_SUCCESS)) {  
-        _cc_logger(_CC_LOG_LEVEL_ERROR_, _T("SQLSetEnvAttr(ODBC version) Failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "SQLSetEnvAttr(ODBC version) Failed");
         SQLFreeEnv(hEnv);
         hEnv = SQL_NULL_HENV;
         return;
@@ -475,7 +475,7 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_bind(_cc_sql_result_t *result, int32_t index, co
 /**/
 _CC_API_PRIVATE(uint64_t) _sqlsvr_get_last_id(_cc_sql_t *ctx,_cc_sql_result_t *result) {
     _cc_assert(ctx != NULL && ctx->hDBC != NULL);
-    _cc_logger_debug(_T("SQLServer get_last_id: Not implemented yet"));
+    _cc_logger(_CC_LOG_LEVEL_ERROR_,"SQLServer get_last_id: Not implemented yet");
     return -1;
 }
 

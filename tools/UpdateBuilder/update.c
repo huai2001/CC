@@ -76,21 +76,21 @@ static void zerr(int res) {
     switch (res) {
         case Z_ERRNO:
             if (ferror(stdin))
-                _cc_logger_error(_T("zpipe: error reading stdin"));
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, "zpipe: error reading stdin");
             if (ferror(stdout))
-                _cc_logger_error(_T("zpipe: error reading stdout"));
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, "zpipe: error reading stdout");
             break;
         case Z_STREAM_ERROR:
-            _cc_logger_error(_T("zpipe: invalid compression level"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "zpipe: invalid compression level");
             break;
         case Z_DATA_ERROR:
-            _cc_logger_error(_T("zpipe: invalid or incomplete deflate data"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "zpipe: invalid or incomplete deflate data");
             break;
         case Z_MEM_ERROR:
-            _cc_logger_error(_T("zpipe: out of memory"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "zpipe: out of memory");
             break;
         case Z_VERSION_ERROR:
-            _cc_logger_error(_T("zpipe: zlib version mismatch"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "zpipe: zlib version mismatch");
     }
 }
 
@@ -99,12 +99,12 @@ static int compressZipFile(const char *source, const char *dest, uint64_t *resul
     FILE *filein, *fileout;
     
     if ((filein = fopen(source, "rb")) == NULL) {
-        _cc_logger_error(_T("Can\'t open %s!"), source);
+        _cc_logger_error("Can\'t open %s!", source);
         return -1;
     }
     
     if ((fileout = fopen(dest, "wb")) == NULL) {
-        _cc_logger_error(_T("Can\'t open %s!\n"), dest);
+        _cc_logger_error("Can\'t open %s!\n", dest);
         fclose(filein);
         return -1;
     }

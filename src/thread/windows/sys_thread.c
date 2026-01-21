@@ -86,7 +86,7 @@ bool_t _cc_create_sys_thread(_cc_thread_t* self) {
     }
     
     if (self->handle == NULL) {
-        _cc_logger_error(_T("Not enough resources to create thread"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Not enough resources to create thread");
         return false;
     }
     self->thread_id = thread_id;
@@ -180,7 +180,7 @@ bool_t _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
         value = THREAD_PRIORITY_NORMAL;
     }
     if (!SetThreadPriority(GetCurrentThread(), value)) {
-        _cc_logger_error(_T("Set Thread Priority Error."));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Set Thread Priority Error.");
         return false;
     }
     return true;

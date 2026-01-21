@@ -268,7 +268,7 @@ DEFINE_GUID(_CC_FOLDERID_VIDEOS_, 0x18989B1D, 0x99B5, 0x455B, 0x84, 0x1C, 0xAB, 
 _CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
     length = GetModuleFileName(NULL, path, (DWORD)length);
     if (length == 0) {
-        _cc_logger_error(_T("Couldn't locate our .exe"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't locate our .exe");
         return 0;
     }
     return length;
@@ -278,7 +278,7 @@ _CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
 _CC_API_PUBLIC(size_t) _cc_get_base_path(tchar_t *path, size_t length) {
     length = GetModuleFileName(NULL, path, (DWORD)length);
     if (length == 0) {
-        _cc_logger_error(_T("Couldn't locate our .exe"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't locate our .exe");
         return 0;
     }
 
@@ -351,7 +351,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             break;
 
         case _CC_FOLDER_PUBLICSHARE_:
-            _cc_logger_error(_T("Public share unavailable on Windows"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Public share unavailable on Windows");
             goto done;
 
         case _CC_FOLDER_SAVEDGAMES_:
@@ -371,7 +371,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             break;
 
         default:
-            _cc_logger_error(_T("Invalid _cc_folder_t: %d"), (int)folder);
+            _cc_logger_error("Invalid _cc_folder_t: %d", (int)folder);
             goto done;
         };
 
@@ -388,7 +388,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             //CoTaskMemFree(pszPath);
         } else {
             rc = 0;
-            _cc_logger_error(_T("Couldn't get folder, %s"), _cc_last_error(hr));
+            _cc_logger_error("Couldn't get folder, %s", _cc_last_error(hr));
         }
     } else {
         int type;
@@ -408,7 +408,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             break;
 
         case _CC_FOLDER_DOWNLOADS_:
-            _cc_logger_error(_T("Downloads folder unavailable before Vista"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Downloads folder unavailable before Vista");
             goto done;
 
         case _CC_FOLDER_MUSIC_:
@@ -420,15 +420,15 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             break;
 
         case _CC_FOLDER_PUBLICSHARE_:
-            _cc_logger_error(_T("Public share unavailable on Windows"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Public share unavailable on Windows");
             goto done;
 
         case _CC_FOLDER_SAVEDGAMES_:
-            _cc_logger_error(_T("Saved games unavailable before Vista"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Saved games unavailable before Vista");
             goto done;
 
         case _CC_FOLDER_SCREENSHOTS_:
-            _cc_logger_error(_T("Screenshots folder unavailable before Vista"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Screenshots folder unavailable before Vista");
             goto done;
 
         case _CC_FOLDER_TEMPLATES_:
@@ -440,7 +440,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             break;
 
         default:
-            _cc_logger_error(_T("Unsupported _CC_Folder_ on Windows before Vista: %d"), (int)folder);
+            _cc_logger_error("Unsupported _CC_Folder_ on Windows before Vista: %d", (int)folder);
             goto done;
         };
 
@@ -461,7 +461,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             length = _tcslen(path);
         } else {
             length = 0;
-            _cc_logger_error(_T("Couldn't get folder, %s"), _cc_last_error(hr));
+            _cc_logger_error("Couldn't get folder, %s", _cc_last_error(hr));
         }
     }
 

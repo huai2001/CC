@@ -64,16 +64,16 @@ _CC_API_PRIVATE(bool_t) _mysql_error(_cc_sql_t *ctx) {
         break;
     case ER_BAD_FIELD_ERROR:
     case ER_NO_SUCH_TABLE:
-        _cc_logger_error(_T("Your database structure is not up to date. Please make ")
+        _cc_logger_error("Your database structure is not up to date. Please make "
                          _T("sure you've executed all queries in the sql/updates ")
                          _T("folders. %u: %s."),
                          sql_errno, mysql_error(ctx->sql));
         break;
     case ER_PARSE_ERROR:
-        _cc_logger_error(_T("Error while parsing SQL. %u: %s."), sql_errno, mysql_error(ctx->sql));
+        _cc_logger_error("Error while parsing SQL. %u: %s.", sql_errno, mysql_error(ctx->sql));
         break;
     default:
-        _cc_logger_error(_T("Unhandled MySQL errno %u: %s."), sql_errno, mysql_error(ctx->sql));
+        _cc_logger_error("Unhandled MySQL errno %u: %s.", sql_errno, mysql_error(ctx->sql));
         break;
     }
     return false;
@@ -84,7 +84,7 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
     char *charset;
     ctx->sql = mysql_init(NULL);
     if (_cc_unlikely(ctx->sql == NULL)) {
-        _cc_logger_error(_T("Could not initialize Mysql connection to database `%s`"), ctx->host);
+        _cc_logger_error("Could not initialize Mysql connection to database `%s`", ctx->host);
         return false;
     }
 
@@ -100,7 +100,7 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
 
     res = mysql_real_connect(ctx->sql, ctx->host, ctx->user_name, ctx->user_pass, ctx->db_name, ctx->port, NULL, 0);
     if (_cc_unlikely(res == NULL)) {
-        _cc_logger_error(_T("Connection error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        _cc_logger_error("Connection error %d: %s", mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
 
@@ -115,7 +115,7 @@ _CC_API_PRIVATE(bool_t) _mysql_reconnect(_cc_sql_t *ctx) {
     }
 #else
     if (mysql_set_character_set(ctx->sql, charset)) {
-        _cc_logger_error(_T("mysql_set_character_set error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        _cc_logger_error("mysql_set_character_set error %d: %s", mysql_errno(ctx->sql), mysql_error(ctx->sql));
     }
 #endif
 
@@ -202,12 +202,12 @@ _CC_API_PRIVATE(bool_t) _cc_mysql_prepare(_cc_sql_t *ctx, MYSQL_STMT *stmt, cons
     if (mysql_stmt_prepare(stmt, sql_string, sql_string_len)) {
         if (_mysql_error(ctx)) {
             if (mysql_stmt_prepare(stmt, sql_string, sql_string_len)) {
-                _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_stmt_errno(stmt), mysql_stmt_error(stmt));
+                _cc_logger_error("mysql_stmt_prepare error %d: %s", mysql_stmt_errno(stmt), mysql_stmt_error(stmt));
                 return false;
             }
             return true;
         }
-        _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_stmt_errno(stmt), mysql_stmt_error(stmt));
+        _cc_logger_error("mysql_stmt_prepare error %d: %s", mysql_stmt_errno(stmt), mysql_stmt_error(stmt));
         return false;
     }
     return true;
@@ -217,12 +217,12 @@ _CC_API_PRIVATE(bool_t) _cc_mysql_query(_cc_sql_t *ctx, const char_t *sql_string
     if (mysql_real_query(ctx->sql, sql_string, sql_string_len)) {
         if (_mysql_error(ctx)) {
             if (mysql_real_query(ctx->sql, sql_string, sql_string_len)) {
-                _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+                _cc_logger_error("mysql_stmt_prepare error %d: %s", mysql_errno(ctx->sql), mysql_error(ctx->sql));
                 return false;
             }
             return true;
         }
-        _cc_logger_error(_T("mysql_stmt_prepare error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        _cc_logger_error("mysql_stmt_prepare error %d: %s", mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
     return true;
@@ -252,7 +252,7 @@ _CC_API_PRIVATE(bool_t) _mysql_begin_transaction(_cc_sql_t *ctx) {
 _CC_API_PRIVATE(bool_t) _mysql_commit(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
     if (mysql_commit(ctx->sql) != 0) {
-        _cc_logger_error(_T("mysql_commit error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        _cc_logger_error("mysql_commit error %d: %s", mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
     return true;
@@ -262,7 +262,7 @@ _CC_API_PRIVATE(bool_t) _mysql_commit(_cc_sql_t *ctx) {
 _CC_API_PRIVATE(bool_t) _mysql_rollback(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
     if (mysql_rollback(ctx->sql) != 0) {
-        _cc_logger_error(_T("mysql_commit error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        _cc_logger_error("mysql_commit error %d: %s", mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
     return true;
@@ -317,7 +317,7 @@ _CC_API_PRIVATE(bool_t) __dataset(_cc_sql_result_t *result) {
 #if DEBUG_EXECUTION_TIME
     result->execution_time = clock() - result->execution_time;
     if (result->execution_time > 500) {
-        _cc_logger_warin(_T("MySQL query took %ld ms"), result->execution_time / CLOCKS_PER_SEC);
+        _cc_logger_warin("MySQL query took %ld ms", result->execution_time / CLOCKS_PER_SEC);
     }
 #endif
     return true;
@@ -366,7 +366,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql, size_
 
     stmt = mysql_stmt_init(ctx->sql);
     if (stmt == NULL) {
-        _cc_logger_error(_T("mysql_stmt_init error %d: %s"), mysql_errno(ctx->sql), mysql_error(ctx->sql));
+        _cc_logger_error("mysql_stmt_init error %d: %s", mysql_errno(ctx->sql), mysql_error(ctx->sql));
         return false;
     }
 
@@ -410,13 +410,13 @@ _CC_API_PRIVATE(bool_t) _mysql_step(_cc_sql_result_t *result) {
 
     if (result->binds) {
         if (mysql_stmt_bind_param(result->stmt, result->binds) != 0) {
-            _cc_logger_error(_T("mysql_stmt_bind_param error %d: %s"), mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
+            _cc_logger_error("mysql_stmt_bind_param error %d: %s", mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
             return false;
         }
     }
 
     if (mysql_stmt_execute(result->stmt) != 0) {
-        _cc_logger_error(_T("mysql_stmt_execute error %d: %s"), mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
+        _cc_logger_error("mysql_stmt_execute error %d: %s", mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
         return false;
     }
 
@@ -431,7 +431,7 @@ _CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_result_t *result) {
     __free_dataset(result);
 
     if (!mysql_stmt_next_result(result->stmt)) {
-        _cc_logger_error(_T("mysql_stmt_next_result error %d: %s"), mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
+        _cc_logger_error("mysql_stmt_next_result error %d: %s", mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
         return false;
     }
 

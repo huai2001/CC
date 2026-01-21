@@ -133,7 +133,7 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
             *(dataPtr + 1) != 'B' ||
             *(dataPtr + 2) != 'P' ||
             *(dataPtr + 3) != 'S') {
-        _cc_logger_error(_T("LoadPSD: Unsupported file"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "LoadPSD: Unsupported file");
         return NULL;
     }
 
@@ -147,12 +147,12 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
     __BYTE_SWAP_16(header.mode, image_data);
 
     if (header.version != 1) {
-        _cc_logger_error(_T("LoadPSD: Unsupported PSD file version"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "LoadPSD: Unsupported PSD file version");
         return NULL;
     }
 
     if (header.mode != 3 || header.depth != 8) {
-        _cc_logger_error(_T("Unsupported PSD color mode or depth"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Unsupported PSD color mode or depth");
         return NULL;
     }
 
@@ -161,7 +161,7 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
 
     dataPtr += skip;
     if (dataPtr > (image_data + image_size)) {
-        _cc_logger_error(_T("Error seeking file pos to image resources"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Error seeking file pos to image resources");
         return NULL;
     }
 
@@ -170,7 +170,7 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
 
     dataPtr += skip;
     if (dataPtr > (image_data + image_size)) {
-        _cc_logger_error(_T("Error seeking file pos to layer and mask"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Error seeking file pos to layer and mask");
         return NULL;
     }
 
@@ -179,13 +179,13 @@ _cc_image_t* _cc_load_PSD(const byte_t *image_data, uint32_t image_size) {
 
     dataPtr += skip;
     if (dataPtr > (image_data + image_size)) {
-        _cc_logger_error(_T("Error seeking file pos to image data section"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Error seeking file pos to image data section");
         return NULL;
     }
     /**/
     __BYTE_SWAP_32(compression_type, dataPtr);
     if (compression_type != 1 && compression_type != 0) {
-        _cc_logger_error(_T("Unsupported psd compression mode"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Unsupported psd compression mode");
         return NULL;
     }
 

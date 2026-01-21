@@ -55,12 +55,12 @@ _CC_API_PRIVATE(int64_t) _cc_win_file_size(_cc_file_t *context) {
     LARGE_INTEGER size;
 
     if (!context || (HANDLE)context->fp == INVALID_HANDLE_VALUE) {
-        _cc_logger_error(_T("Error seek invalid context/file not opened"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Error seek invalid context/file not opened");
         return -1;
     }
 
     if (!GetFileSizeEx((HANDLE)context->fp, &size)) {
-        _cc_logger_error(_T("Error size: %s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("Error size: %s", _cc_last_error(_cc_last_errno()));
         return -1;
     }
 
@@ -72,7 +72,7 @@ _CC_API_PRIVATE(int64_t) _cc_win_file_seek(_cc_file_t *context, int64_t offset, 
     LARGE_INTEGER windowsoffset;
 
     if (!context || (HANDLE)context->fp == INVALID_HANDLE_VALUE) {
-        _cc_logger_error(_T("Error seek: invalid context/file not opened"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Error seek: invalid context/file not opened");
         return false;
     }
 
@@ -87,13 +87,13 @@ _CC_API_PRIVATE(int64_t) _cc_win_file_seek(_cc_file_t *context, int64_t offset, 
         windowswhence = FILE_END;
         break;
     default:
-        _cc_logger_error(_T("Error seek: Unknown value for 'whence'"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Error seek: Unknown value for 'whence'");
         return -1;
     }
 
     windowsoffset.QuadPart = offset;
     if (!SetFilePointerEx((HANDLE)context->fp, windowsoffset, &windowsoffset, windowswhence)) {
-        _cc_logger_error(_T("Error seek: %s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("Error seek: %s", _cc_last_error(_cc_last_errno()));
         return false;
     }
     return windowsoffset.QuadPart;
@@ -132,7 +132,7 @@ _CC_API_PRIVATE(size_t) _cc_win_file_write(_cc_file_t *context, const pvoid_t pt
         LARGE_INTEGER windowsoffset;
         windowsoffset.QuadPart = 0;
         if (!SetFilePointerEx(context->fp, windowsoffset, &windowsoffset, FILE_END)) {
-            _cc_logger_error(_T("Error seeking: %s"), strerror(errno));
+            _cc_logger_error("Error seeking: %s", strerror(errno));
             return 0;
         }
     }
@@ -146,7 +146,7 @@ _CC_API_PRIVATE(size_t) _cc_win_file_write(_cc_file_t *context, const pvoid_t pt
 
 _CC_API_PRIVATE(bool_t) _cc_win_file_flush(_cc_file_t *context) {
     if (!FlushFileBuffers((HANDLE)context->fp)) {
-        _cc_logger_error(_T("Error flushing: %s"), strerror(errno));
+        _cc_logger_error("Error flushing: %s", strerror(errno));
         return false;
     }
     return true;
@@ -158,7 +158,7 @@ _CC_API_PRIVATE(bool_t) _cc_win_file_eof(_cc_file_t *context) {
 
 _CC_API_PRIVATE(bool_t) _cc_win_file_close(_cc_file_t *context) {
     if (!context || (HANDLE)context->fp == NULL) {
-        //_cc_logger_error(_T("_cc_win_file_close: invalid context/file not closed"));
+        //_cc_logger(_CC_LOG_LEVEL_ERROR_, "_cc_win_file_close: invalid context/file not closed");
         return false;
     }
 

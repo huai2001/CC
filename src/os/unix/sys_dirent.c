@@ -37,7 +37,7 @@ _CC_API_PRIVATE(size_t) _sym_link(tchar_t *cwd, size_t maxlen) {
     const int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
     if (sysctl(mib, _cc_countof(mib), cwd, &rc, NULL, 0) != -1) {
         if (!cwd) {
-            _cc_logger_error("failed : sysctl! ");
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "failed : sysctl! ");
             return 0;
         }
         return rc;
@@ -165,7 +165,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
         param = _T("Videos");
         break;
     default:
-        _cc_logger_error(_T("Invalid _cc_folder_: %d"), (int) folder);
+        _cc_logger_error("Invalid _cc_folder_: %d", (int) folder);
         return 0;
     }
 

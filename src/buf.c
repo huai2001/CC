@@ -205,7 +205,7 @@ _ABUF_TRY_AGAIN:
     }
 #endif
     if (fmt_length < 0) {
-        _cc_logger_error(_T("_cc_buf_appendvf: Invalid parameters or out of memory (%d)"), fmt_length);
+        _cc_logger_error("_cc_buf_appendvf: Invalid parameters or out of memory (%d)", fmt_length);
         return false;
     } else if (fmt_length < remaining) {
         /* SUCCESS */
@@ -213,7 +213,7 @@ _ABUF_TRY_AGAIN:
         return true;
     } else if (cnt >= 3) {
         _cc_assert(false);
-        _cc_logger_error(_T("_cc_buf_appendvf: too many attempts (%d)"), cnt);
+        _cc_logger_error("_cc_buf_appendvf: too many attempts (%d)", cnt);
         return false;
     }
     /* FAILURE */
@@ -223,7 +223,7 @@ _ABUF_TRY_AGAIN:
         cnt++;
         goto _ABUF_TRY_AGAIN;
     }
-    _cc_logger_error(_T("_cc_buf_appendvf: out of memory (%d)"), expand_length);
+    _cc_logger_error("_cc_buf_appendvf: out of memory (%d)", expand_length);
     return false;
 }
 
@@ -284,7 +284,7 @@ _WBUF_TRY_AGAIN:
     }
 #endif
     if (fmt_length < 0) {
-        _cc_logger_error(_T("_cc_buf_appendvf: Invalid parameters or out of memory (%d)"), fmt_length);
+        _cc_logger_error("_cc_buf_appendvf: Invalid parameters or out of memory (%d)", fmt_length);
         return false;
     } else if (fmt_length < remaining) {
         /* SUCCESS */
@@ -292,7 +292,7 @@ _WBUF_TRY_AGAIN:
         return true;
     } else if (cnt >= 3) {
         _cc_assert(false);
-        _cc_logger_error(_T("_cc_buf_appendvf: too many attempts (%d)"), cnt); 
+        _cc_logger_error("_cc_buf_appendvf: too many attempts (%d)", cnt); 
         return false;
     }
 
@@ -305,7 +305,7 @@ _WBUF_TRY_AGAIN:
         goto _WBUF_TRY_AGAIN;
     }
 
-    _cc_logger_error(_T("_cc_buf_appendvf: out of memory (%d)"), expand_length);
+    _cc_logger_error("_cc_buf_appendvf: out of memory (%d)", expand_length);
     return false;
 }
 /* _cc_bufA_appendf() can be used when the there is no known

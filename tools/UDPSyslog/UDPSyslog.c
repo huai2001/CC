@@ -239,7 +239,7 @@ _CC_API_PRIVATE(bool_t) udp(_cc_async_event_t *async, _cc_event_t *e, uint32_t w
         size_t length = recvfrom(e->fd, buffer, _cc_countof(buffer), 0, (struct sockaddr *)&remote_addr, &addr_len);
 
         if (length < 0) {
-            _cc_logger_error(_T("recvfrom error: %d"), errno);
+            _cc_logger_error("recvfrom error: %d", errno);
             return true;
         }
 
@@ -300,7 +300,7 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
     _cc_set_socket_nonblock(io_fd, 1);
 
     if (!async.attach(&async, event)) {
-        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), io_fd);
+        _cc_logger_debug("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), io_fd);
         _cc_free_event(&async, event);
         return false;
     }

@@ -24,7 +24,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
 #endif
     if (handle == NULL) {
         int32_t e = _cc_last_errno();
-        _cc_logger_error(_T("Failed loading: %s(%d) %s"), sofile, e, _cc_last_error(e));
+        _cc_logger_error("Failed loading: %s(%d) %s", sofile, e, _cc_last_error(e));
     }
 #ifndef _WIN32_WCE
     SetErrorMode(em);

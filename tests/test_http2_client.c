@@ -43,7 +43,7 @@ int32_t hpack_decode_integer(
 
     // 检查前缀位数是否合法（1-8）
     if (prefix_bits < 1 || prefix_bits > 8) {
-        _cc_logger_error(_T("Invalid prefix bits: %u"), prefix_bits);
+        _cc_logger_error("Invalid prefix bits: %u", prefix_bits);
         return -1;
     }
 
@@ -58,7 +58,7 @@ int32_t hpack_decode_integer(
     while (ptr < end) {
         byte_t byte = *ptr++;
         if (shift > 28) { // 防止溢出（32 位整数最多左移 28 位）
-            _cc_logger_error(_T("Integer overflow"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Integer overflow");
             return -1;
         }
 
@@ -72,7 +72,7 @@ int32_t hpack_decode_integer(
         }
     }
 
-    _cc_logger_error(_T("Incomplete integer encoding"));
+    _cc_logger(_CC_LOG_LEVEL_ERROR_, "Incomplete integer encoding");
     return -1;
 }
 
@@ -99,7 +99,7 @@ int hpack_decode_field(
     size_t name_length, value_length;
 
     if (ptr >= end) {
-        _cc_logger_error(_T("No data to decode"));
+        _cc_logger_error("No data to decode");
         return -1;
     }
 
@@ -107,25 +107,25 @@ int hpack_decode_field(
     if ((*ptr & 0x80) != 0) {
         // 索引字段（Indexed Header Field）
         if (hpack_decode_integer(&data, end, 7, &index) < 0) {
-            _cc_logger_error(_T("Failed to decode indexed field index"));
+            _cc_logger_error("Failed to decode indexed field index");
             return -1;
         }
         if (!hpack_get_indexed_field(decoder, index, &name, &name_length, &value, &value_length)) {
-            _cc_logger_error(_T("Invalid indexed field index: %u"), index);
+            _cc_logger_error("Invalid indexed field index: %u", index);
             return -1;
         }
     } else if ((*data & 0xC0) == 0x40) {
         // 字面量字段（Literal Header Field with Indexed Name）
         if (hpack_decode_integer(&data, end, 6, &index) < 0) {
-            _cc_logger_error(_T("Failed to decode literal field index"));
+            _cc_logger_error("Failed to decode literal field index");
             return -1;
         }
         if (!hpack_get_indexed_name(decoder, index, &name, &name_length)) {
-            _cc_logger_error(_T("Invalid literal field name index: %u"), index);
+            _cc_logger_error("Invalid literal field name index: %u", index);
             return -1;
         }
         if (hpack_decode_string(&data, end, &value, &value_length) < 0) {
-            _cc_logger_error(_T("Failed to decode literal field value"));
+            _cc_logger_error("Failed to decode literal field value");
             return -1;
         }
         // 可选：将字段添加到动态表
@@ -135,11 +135,11 @@ int hpack_decode_field(
     } else if ((*data & 0xF0) == 0x00) {
         // 字面量字段（Literal Header Field without Indexed Name）
         if (hpack_decode_string(&data, end, &name, &name_length) < 0) {
-            _cc_logger_error(_T("Failed to decode literal field name"));
+            _cc_logger_error("Failed to decode literal field name");
             return -1;
         }
         if (hpack_decode_string(&data, end, &value, &value_length) < 0) {
-            _cc_logger_error(_T("Failed to decode literal field value"));
+            _cc_logger_error("Failed to decode literal field value");
             return -1;
         }
         // 可选：将字段添加到动态表
@@ -150,14 +150,14 @@ int hpack_decode_field(
         // 动态表大小更新（Dynamic Table Size Update）
         uint32_t max_size;
         if (hpack_decode_integer(&data, end, 5, &max_size) < 0) {
-            _cc_logger_error(_T("Failed to decode dynamic table size update"));
+            _cc_logger_error("Failed to decode dynamic table size update");
             return -1;
         }
         hpack_set_dynamic_table_size(decoder, max_size);
         *ptr = data;
         return 0; // 无字段输出
     } else {
-        _cc_logger_error(_T("Invalid HPACK field prefix: 0x%02X"), *data);
+        _cc_logger_error("Invalid HPACK field prefix: 0x%02X", *data);
         return -1;
     }
 
@@ -165,7 +165,7 @@ int hpack_decode_field(
     header->name = (byte_t *)malloc(name_len + 1);
     header->value = (byte_t *)malloc(value_len + 1);
     if (header->name == NULL || header->value == NULL) {
-        _cc_logger_error(_T("Failed to allocate memory for header field"));
+        _cc_logger_error("Failed to allocate memory for header field");
         free(header->name);
         free(header->value);
         return -1;
@@ -268,7 +268,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
-        _cc_logger_info(_T("url_request connected,%s"), request->url.host);
+        _cc_logger_info("url_request connected,%s", request->url.host);
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
             return _handshaking(e, request);
         }
@@ -318,7 +318,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
                 if (header.length > 0) {
                     // _cc_http2_headers_t headers;
                     // if (!_cc_http2_parse_headers(buffer, header.length, &headers)) {
-                    //     _cc_logger_error(_T("Failed to parse HEADERS frame"));
+                    //     _cc_logger_error("Failed to parse HEADERS frame");
                     //     return false;
                     // }
                     //printf("Received HEADERS frame: stream_id=%u, field_count=%u\n", header.stream_id, headers.count);
@@ -333,7 +333,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
                            header.stream_id, dependent_stream_id, weight);
                     //_cc_http2_update_stream_priority(header.stream_id, dependent_stream_id, weight);
                 } else {
-                    _cc_logger_error(_T("Invalid PRIORITY frame length: %u"), header.length);
+                    _cc_logger_error("Invalid PRIORITY frame length: %u", header.length);
                     return false;
                 }
                 break;
@@ -343,14 +343,14 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
                     printf("Received RST_STREAM frame: stream_id=%u, error_code=%u\n", header.stream_id, error_code);
                     //_cc_http2_close_stream(header.stream_id, error_code);
                 } else {
-                    _cc_logger_error(_T("Invalid RST_STREAM frame length: %u"), header.length);
+                    _cc_logger_error("Invalid RST_STREAM frame length: %u", header.length);
                     return false;
                 }
                 break;
             case _CC_HTTP2_FRAME_TYPE_SETTINGS_: {
                 int32_t i;
                 if (header.length % 6 != 0) {
-                    _cc_logger_error(_T("Invalid SETTINGS frame length: %u"), header.length);
+                    _cc_logger_error("Invalid SETTINGS frame length: %u", header.length);
                     return false;
                 }
                 for (i = 0; i < header.length; i += 6) {
@@ -452,7 +452,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     /*Open then socket*/
     fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (fd == -1) {
-        _cc_logger_error(_T("socket fail:%s."), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("socket fail:%s.", _cc_last_error(_cc_last_errno()));
         return false;
     }
 

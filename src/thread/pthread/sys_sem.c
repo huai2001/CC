@@ -13,7 +13,7 @@ _CC_API_PUBLIC(_cc_semaphore_t*) _cc_alloc_semaphore(int32_t initial_value) {
     _cc_semaphore_t *sem = (_cc_semaphore_t *)_cc_malloc(sizeof(_cc_semaphore_t));
 
     if (sem_init(&sem->sem, 0, initial_value) < 0) {
-        _cc_logger_error(_T("sem_init() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "sem_init() failed");
         _cc_free(sem);
         sem = NULL;
     }
@@ -39,7 +39,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t ti
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL semaphore");
         return -1;
     }
 
@@ -85,7 +85,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait_timeout(_cc_semaphore_t *sem, uint32_t ti
         if (errno == ETIMEDOUT) {
             res = _CC_MUTEX_TIMEDOUT_;
         } else {
-            _cc_logger_error(_T("sem_timedwait returned an error: %s"), strerror(errno));
+            _cc_logger_error("sem_timedwait returned an error: %s", strerror(errno));
         }
     }
 
@@ -97,7 +97,7 @@ _CC_API_PUBLIC(int) _cc_semaphore_try_wait(_cc_semaphore_t *sem) {
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL semaphore");
         return -1;
     }
 
@@ -114,13 +114,13 @@ _CC_API_PUBLIC(int) _cc_semaphore_wait(_cc_semaphore_t *sem) {
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL semaphore");
         return -1;
     }
 
     res = sem_wait(&sem->sem);
     if (res < 0) {
-        _cc_logger_error(_T("sem_wait() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "sem_wait() failed");
     }
 
     return res;
@@ -143,12 +143,12 @@ _CC_API_PUBLIC(bool_t) _cc_semaphore_post(_cc_semaphore_t *sem) {
     _cc_assert(sem);
 
     if (_cc_unlikely(!sem)) {
-        _cc_logger_error(_T("Passed a NULL semaphore"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL semaphore");
         return false;
     }
 
     if (sem_post(&sem->sem) < 0) {
-        _cc_logger_error(_T("sem_post() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "sem_post() failed");
         return false;
     }
 

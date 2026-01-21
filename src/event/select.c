@@ -30,7 +30,7 @@ _CC_API_PRIVATE(bool_t) _select_event_attach(_cc_async_event_t *async, _cc_event
     fset = async->priv;
 
     if (e->fd && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= FD_SETSIZE) {
-        _cc_logger_error(_T("The maximum number of descriptors supported by the select() is %d"), FD_SETSIZE);
+        _cc_logger_error("The maximum number of descriptors supported by the select() is %d", FD_SETSIZE);
         return false;
     }
 
@@ -191,7 +191,7 @@ _CC_API_PRIVATE(bool_t) _select_event_wait(_cc_async_event_t *async, uint32_t ti
         if (_cc_unlikely(ready == -1)) {
             int32_t lerrno = _cc_last_errno();
             if (lerrno != _CC_EINTR_) {
-                _cc_logger_error(_T("error:%d, %s"), lerrno, _cc_last_error(lerrno));
+                _cc_logger_error("error:%d, %s", lerrno, _cc_last_error(lerrno));
             }
         }
     }

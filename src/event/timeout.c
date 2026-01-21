@@ -81,7 +81,7 @@ void _update_event_timeout(_cc_async_event_t *async, uint32_t timeout) {
     uint64_t tick = _cc_get_ticks();
 
     if (_cc_unlikely(tick < async->tick)) {
-        _cc_logger_warin(_T("time diff error: change from %ld to %ld"), tick, async->tick);
+        _cc_logger_warin("time diff error: change from %ld to %ld", tick, async->tick);
         async->tick = tick;
     } else {
         async->diff = (int32_t)(tick - async->tick);

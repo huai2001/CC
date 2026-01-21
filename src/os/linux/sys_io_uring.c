@@ -86,7 +86,7 @@ static struct io_uring_sqe *get_sqe_from_ring(struct io_uring *uring) {
 
     /* Check if the ring is full */
     if (next_tail - uring->sq.head > uring->sq.ring_entries) {
-        _cc_logger_error(_T("SQ ring is full"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"SQ ring is full");
         return NULL;
     }
 
@@ -109,14 +109,14 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_update(_cc_async_event_t *async, _cc_eve
         /* Remove event from io_uring */
         sqe = get_sqe_from_ring(&priv->uring);
         if (!sqe) {
-            _cc_logger_error(_T("Failed to get SQE for remove event on fd %d"), e->fd);
+            _cc_logger_error("Failed to get SQE for remove event on fd %d", e->fd);
             return false;
         }
         sqe->opcode = IORING_OP_NOP;
         sqe->user_data = (uintptr_t)e;
         e->filter = 0;
         if (io_uring_enter(priv->fd, 1, 0, 0, NULL) < 0) {
-            _cc_logger_error(_T("io_uring_enter failed: %s"), _cc_last_error(_cc_last_errno()));
+            _cc_logger_error("io_uring_enter failed: %s", _cc_last_error(_cc_last_errno()));
             return false;
         }
         return true;
@@ -126,7 +126,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_update(_cc_async_event_t *async, _cc_eve
     if (_CC_ISSET_BIT(_CC_EVENT_ACCEPT_ | _CC_EVENT_READABLE_, e->flags)) {
         sqe = get_sqe_from_ring(&priv->uring);
         if (!sqe) {
-            _cc_logger_error(_T("Failed to get SQE for read event on fd %d"), e->fd);
+            _cc_logger_error("Failed to get SQE for read event on fd %d", e->fd);
             return false;
         }
         sqe->opcode = IORING_OP_RECV;
@@ -147,7 +147,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_update(_cc_async_event_t *async, _cc_eve
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_ | _CC_EVENT_CONNECT_, e->flags)) {
         sqe = get_sqe_from_ring(&priv->uring);
         if (!sqe) {
-            _cc_logger_error(_T("Failed to get SQE for write event on fd %d"), e->fd);
+            _cc_logger_error("Failed to get SQE for write event on fd %d", e->fd);
             return false;
         }
         sqe->opcode = IORING_OP_WRITE;
@@ -165,7 +165,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_update(_cc_async_event_t *async, _cc_eve
     }
 
     if (io_uring_enter(priv->fd, to_submit, 0, 0, NULL) < 0) {
-        _cc_logger_error(_T("io_uring_enter failed: %s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("io_uring_enter failed: %s", _cc_last_error(_cc_last_errno()));
         return false;
     }
     e->filter = filter;
@@ -251,7 +251,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_wait(_cc_async_event_t *async, uint32_t 
     if (rc < 0) {
         int32_t lerrno = _cc_last_errno();
         if (lerrno != _CC_EINTR_) {
-            _cc_logger_error(_T("io_uring_wait_cqe error:%d, %s"), lerrno, _cc_last_error(lerrno));
+            _cc_logger_error("io_uring_wait_cqe error:%d, %s", lerrno, _cc_last_error(lerrno));
         }
         goto URING_END;
     }
@@ -357,7 +357,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_alloc(_cc_async_event_t *async) {
     priv = (_cc_async_event_priv_t *)_cc_malloc(sizeof(_cc_async_event_priv_t));
     priv->fd = io_uring_setup(_CC_IO_URING_EVENTS_, &params);
     if (priv->fd < 0) {
-        _cc_logger_error(_T("io_uring_setup failed: %s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("io_uring_setup failed: %s", _cc_last_error(_cc_last_errno()));
         return false;
     }
     memcpy(&priv->params, &params, sizeof(struct io_uring_params));
@@ -365,7 +365,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_alloc(_cc_async_event_t *async) {
      * actually detecting is whether IORING_OP_STATX works with SQPOLL.
      */
     if (!(params.features & IORING_FEAT_RSRC_TAGS)) {
-        _cc_logger_error(_T("io_uring_setup failed: %s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("io_uring_setup failed: %s", _cc_last_error(_cc_last_errno()));
         close(priv->fd);
         _cc_free(priv);
         return false;
@@ -373,7 +373,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_alloc(_cc_async_event_t *async) {
 
     /* Implied by IORING_FEAT_RSRC_TAGS but checked explicitly anyway. */
     if (!(params.features & IORING_FEAT_SINGLE_MMAP)) {
-        _cc_logger_error(_T("io_uring_setup failed: %s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("io_uring_setup failed: %s", _cc_last_error(_cc_last_errno()));
         close(priv->fd);
         _cc_free(priv);
         return false;
@@ -381,7 +381,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_alloc(_cc_async_event_t *async) {
 
     /* Implied by IORING_FEAT_RSRC_TAGS but checked explicitly anyway. */
     if (!(params.features & IORING_FEAT_NODROP)) {
-        _cc_logger_error(_T("io_uring_setup failed: %s"), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("io_uring_setup failed: %s", _cc_last_error(_cc_last_errno()));
         close(priv->fd);
         _cc_free(priv);
         return false;

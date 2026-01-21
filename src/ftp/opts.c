@@ -87,7 +87,7 @@ bool_t _cc_ftp_opts_datatype(_cc_ftp_t* ftp) {
         return false;
 
     if (ftp->ctrl.e == NULL) {
-        _cc_logger_error(_T("Not connected to FTP server"));
+        _cc_logger_error("Not connected to FTP server");
         return false;
     }
 
@@ -109,7 +109,7 @@ bool_t _cc_ftp_opts_utf8(_cc_ftp_t* ftp) {
         return false;
 
     if (ftp->ctrl.e == NULL) {
-        _cc_logger_error(_T("Not connected to FTP server"));
+        _cc_logger_error("Not connected to FTP server");
         return false;
     }
 
@@ -133,7 +133,7 @@ bool_t _cc_ftp_open_port(_cc_ftp_t* ftp) {
         return false;
 
     if (ftp->ctrl.e == NULL) {
-        _cc_logger_error(_T("Not connected to FTP server"));
+        _cc_logger_error("Not connected to FTP server");
         return false;
     }
 
@@ -143,7 +143,7 @@ bool_t _cc_ftp_open_port(_cc_ftp_t* ftp) {
 
     l = sizeof(ftp->sa);
     if (getsockname(ftp->data.e->fd, &ftp->sa, &l) < 0) {
-        _cc_logger_error(_T("getsockname error(%d) %s"), err, _cc_last_error(err));
+        _cc_logger_error("getsockname error(%d) %s", err, _cc_last_error(err));
         return false;
     }
 

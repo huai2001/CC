@@ -61,7 +61,7 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        _cc_logger_debug(_T("thread %d accept fail %s."), _cc_get_thread_id(NULL),
+        _cc_logger_debug("thread %d accept fail %s.", _cc_get_thread_id(NULL),
                          _cc_last_error(_cc_last_errno()));
         return false;
     }
@@ -97,16 +97,16 @@ static bool_t onAccept(_cc_async_event_t *async, _cc_event_t *e) {
     #endif
 
     if (async2->attach(async2, event) == false) {
-        _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
+        _cc_logger_debug("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
         return false;
     }
-    _cc_logger_debug(_T("%d accept."), event->ident);
+    _cc_logger_debug("%d accept.", event->ident);
     return true;
 }
 
 static bool_t onClose(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_logger_debug(_T("%d onClose."), e->ident);
+    _cc_logger_debug("%d onClose.", e->ident);
     if (e->data) {
         _http_t *http = (_http_t*)e->data;
         if (http->io) {
@@ -234,7 +234,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
     } else if (off == 0) {
         return true;
     }
-    _cc_logger_debug(_T("%d onRead."), off);
+    _cc_logger_debug("%d onRead.", off);
 
     if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
         return false;
@@ -304,7 +304,7 @@ static bool_t onRead(_cc_async_event_t *async, _cc_event_t *e) {
 static bool_t onWrite(_cc_async_event_t *async, _cc_event_t *e) {
     _http_t *http = (_http_t*)e->data;
     _cc_io_buffer_t *io = http->io;
-    _cc_logger_debug(_T("%d onWrite."), e->ident);
+    _cc_logger_debug("%d onWrite.", e->ident);
     if (io->w.off) {
         if (_cc_io_buffer_flush(e, http->io) < 0) {
             return false;
@@ -354,7 +354,7 @@ static bool_t onTimeout(_cc_async_event_t *async, _cc_event_t *e) {
         }
     }
 #endif
-    _cc_logger_debug(_T("%d onTimeout."), e->ident);
+    _cc_logger_debug("%d onTimeout.", e->ident);
     return false;
 }
 

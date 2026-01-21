@@ -240,7 +240,7 @@ _CC_API_PRIVATE(void) register_methods(JNIEnv *env, const char *classname, JNINa
 _CC_API_PUBLIC(JNIEnv*) Android_JNI_OnLoad(JavaVM *vm, void *reserved, jint version) {
     JNIEnv *env = NULL;
 
-    _cc_logger_debug("Android_JNI_OnLoad");
+    _cc_logger(_CC_LOG_LEVEL_DEBUG_,"Android_JNI_OnLoad");
 
     mJavaVM = vm;
 
@@ -456,7 +456,7 @@ _CC_API_PRIVATE(struct LocalReferenceHolder) LocalReferenceHolder_Setup(const ch
     refholder.m_env = NULL;
     refholder.m_func = func;
 #ifdef _CC_DEBUG_
-    _cc_logger_debug(_T("Entering function %s"), func);
+    _cc_logger_debug("Entering function %s", func);
 #endif
     return refholder;
 }
@@ -464,7 +464,7 @@ _CC_API_PRIVATE(struct LocalReferenceHolder) LocalReferenceHolder_Setup(const ch
 _CC_API_PRIVATE(bool_t) LocalReferenceHolder_Init(struct LocalReferenceHolder *refholder, JNIEnv *env) {
     const int capacity = 16;
     if ((*env)->PushLocalFrame(env, capacity) < 0) {
-        _cc_logger_error(_T("Failed to allocate enough JVM local references"));
+        _cc_logger_error("Failed to allocate enough JVM local references");
         return false;
     }
     refholder->m_env = env;
@@ -473,7 +473,7 @@ _CC_API_PRIVATE(bool_t) LocalReferenceHolder_Init(struct LocalReferenceHolder *r
 
 _CC_API_PRIVATE(void) LocalReferenceHolder_Cleanup(struct LocalReferenceHolder *refholder) {
 #ifdef _CC_DEBUG_
-    _cc_logger_debug(_T("Leaving function %s"), refholder->m_func);
+    _cc_logger_debug("Leaving function %s", refholder->m_func);
 #endif
     if (refholder->m_env) {
         JNIEnv *env = refholder->m_env;
@@ -523,10 +523,10 @@ _CC_API_PRIVATE(bool_t) Android_JNI_ExceptionOccurred(bool_t silent) {
 
             if (exceptionMessage != NULL) {
                 const char *exceptionMessageUTF8 = (*env)->GetStringUTFChars(env, exceptionMessage, 0);
-                _cc_logger_error(_T("%s: %s"), exceptionNameUTF8, exceptionMessageUTF8);
+                _cc_logger_error("%s: %s", exceptionNameUTF8, exceptionMessageUTF8);
                 (*env)->ReleaseStringUTFChars(env, exceptionMessage, exceptionMessageUTF8);
             } else {
-                _cc_logger_error(_T("%s"), exceptionNameUTF8);
+                _cc_logger_error("%s", exceptionNameUTF8);
             }
 
             (*env)->ReleaseStringUTFChars(env, exceptionName, exceptionNameUTF8);
@@ -594,13 +594,13 @@ _CC_API_PUBLIC(bool_t) Android_JNI_FileOpen(pvoid_t *puserdata, const tchar_t *f
     }
 
     if (!asset_manager) {
-        _cc_logger_error(_T("Couldn't create asset manager"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't create asset manager");
         return false;
     }
 
     asset = AAssetManager_open(asset_manager, fileName, AASSET_MODE_UNKNOWN);
     if (!asset) {
-        _cc_logger_error(_T("Couldn't open asset %s"), fileName);
+        _cc_logger_error("Couldn't open asset %s", fileName);
         return false;
     }
 
@@ -611,14 +611,14 @@ _CC_API_PUBLIC(bool_t) Android_JNI_FileOpen(pvoid_t *puserdata, const tchar_t *f
 _CC_API_PUBLIC(size_t) Android_JNI_FileRead(pvoid_t userdata, pvoid_t buffer, size_t size) {
     const int bytes = AAsset_read((AAsset *)userdata, buffer, size);
     if (bytes < 0) {
-        _cc_logger_error(_T("AAsset_read() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "AAsset_read() failed");
         return 0;
     }
     return (size_t)bytes;
 }
 
 _CC_API_PUBLIC(size_t) Android_JNI_FileWrite(pvoid_t userdata, const pvoid_t buffer, size_t size) {
-    _cc_logger_error(_T("Cannot write to Android package filesystem"));
+    _cc_logger(_CC_LOG_LEVEL_ERROR_,"Cannot write to Android package filesystem");
     return 0;
 }
 
@@ -760,7 +760,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetInternalStoragePath(void) {
         // context = CCWidgets.getContext();
         context = (*env)->CallStaticObjectMethod(env, mJNIMainClass, midGetContext);
         if (!context) {
-            _cc_logger_error(_T("Couldn't get Android context!"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't get Android context!");
             LocalReferenceHolder_Cleanup(&refs);
             return NULL;
         }
@@ -769,7 +769,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetInternalStoragePath(void) {
         mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, context), "getFilesDir", "()Ljava/io/File;");
         fileObject = (*env)->CallObjectMethod(env, context, mid);
         if (!fileObject) {
-            _cc_logger_error(_T("Couldn't get internal directory"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't get internal directory");
             LocalReferenceHolder_Cleanup(&refs);
             return NULL;
         }
@@ -851,7 +851,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetExternalStoragePath(void) {
         mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, context), "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;");
         fileObject = (*env)->CallObjectMethod(env, context, mid, NULL);
         if (!fileObject) {
-            _cc_logger_error(_T("Couldn't get external directory"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_,"Couldn't get external directory");
             LocalReferenceHolder_Cleanup(&refs);
             return NULL;
         }
@@ -892,7 +892,7 @@ _CC_API_PUBLIC(_cc_sds_t) Android_JNI_GetCachePath(void) {
         mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, context), "getCacheDir", "()Ljava/io/File;");
         fileObject = (*env)->CallObjectMethod(env, context, mid, NULL);
         if (!fileObject) {
-            _cc_logger_error(_T("Couldn't get cache directory"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_,"Couldn't get cache directory");
             LocalReferenceHolder_Cleanup(&refs);
             return NULL;
         }
@@ -963,10 +963,10 @@ JNIEXPORT void JNICALL _CC_JAVA_INTERFACE(nativePermissionResult)(
 
 _CC_API_PUBLIC(bool_t) Android_JNI_RequestPermission(const tchar_t *permission, RequestAndroidPermissionCallback_t cb, pvoid_t userdata){
     if (!permission) {
-        _cc_logger_error(_T("Parameter permission is invalid"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"Parameter permission is invalid");
         return false;
     } else if (!cb) {
-        _cc_logger_error(_T("Parameter cb is invalid"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"Parameter cb is invalid");
         return false;
     }
 
@@ -1091,7 +1091,7 @@ _CC_API_PUBLIC(int) Android_JNI_OpenFileDescriptor(const tchar_t *uri, const tch
     (*env)->DeleteLocalRef(env, jstringMode);
 
     // if (fd == -1) {
-    //     _cc_logger_error("Unspecified error in JNI");
+    //     _cc_logger(_CC_LOG_LEVEL_ERROR_, "Unspecified error in JNI");
     // }
 
     return fd;

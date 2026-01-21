@@ -111,7 +111,7 @@ _CC_API_PRIVATE(bool_t) _ws_unpack(_cc_event_t *e) {
                 case WS_OP_PING:
                 case WS_OP_PONG:
                     if (ws->header.payload > (int64_t)io->r.limit) {
-                        _cc_logger_debug(_T("big data fail. operation 0x%x"), ws->header.operation);
+                        _cc_logger_debug("big data fail. operation 0x%x", ws->header.operation);
                         return false;
                     }
                     break;
@@ -125,7 +125,7 @@ _CC_API_PRIVATE(bool_t) _ws_unpack(_cc_event_t *e) {
                     return false;
                 default:
                     /* not handled or failed */
-                    _cc_logger_debug(_T("Unhandled ext operation 0x%x"), ws->header.operation);
+                    _cc_logger_debug("Unhandled ext operation 0x%x", ws->header.operation);
                     return false;
             }
         }
@@ -134,7 +134,7 @@ _CC_API_PRIVATE(bool_t) _ws_unpack(_cc_event_t *e) {
             int64_t length = (io->r.off - off);
             if (ws->header.payload > (int64_t)io->r.limit) {
                 int64_t remaining = ws->header.payload - ws->length;
-                //_cc_logger_debug(_T("big data. operation 0x%x"), ws->header.operation);
+                //_cc_logger_debug("big data. operation 0x%x", ws->header.operation);
                 if (remaining <= length) {
                     //copy data
                     //memcpy(ws->buf + ws->length, io->r.bytes + off, remaining);
@@ -251,7 +251,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
 
         fd = async->accept(async, e, (_cc_sockaddr_t*)&remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
-            _cc_logger_error(_T("accept fail %s."), _cc_last_error(_cc_last_errno()));
+            _cc_logger_error("accept fail %s.", _cc_last_error(_cc_last_errno()));
             return true;
         }
 
@@ -275,7 +275,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         event->data = (uintptr_t)_ws_alloc(fd);
 
         if (async->attach(async, event) == false) {
-            _cc_logger_debug(_T("thread %d add socket (%d) event fial."), _cc_get_thread_id(NULL), fd);
+            _cc_logger_debug("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
             _cc_free_event(async, event);
             _ws_free(ws);
             return true;
@@ -284,7 +284,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         {
             struct sockaddr_in *remote_ip = (struct sockaddr_in *)&remote_addr;
             byte_t *ip_addr = (byte_t *)&remote_ip->sin_addr.s_addr;
-            _cc_logger_debug(_T("TCP accept [%d,%d,%d,%d] fd:%d"), ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
+            _cc_logger_debug("TCP accept [%d,%d,%d,%d] fd:%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
         }
 
         return true;
@@ -304,13 +304,13 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         }
     }
 #endif
-        _cc_logger_debug(_T("TCP timeout %d"), e->fd);
+        _cc_logger_debug("TCP timeout %d", e->fd);
         if (_ws_heartbeat(e, WS_OP_PONG)) {
             return true;
         }
         return false;
     } else if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug(_T("%d disconnect to client."), e->fd);
+        _cc_logger_debug("%d disconnect to client.", e->fd);
         if (e->data) {
             _ws_free((_cc_ws_t*)e->data);
         }
@@ -322,7 +322,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         do {
             int32_t off = _cc_io_buffer_read(e, io);
             if (off < 0) {
-                _cc_logger_debug(_T("read fail %s."), _cc_last_error(_cc_last_errno()));
+                _cc_logger_debug("read fail %s.", _cc_last_error(_cc_last_errno()));
                 return false;
             } else if (off == 0) {
                 break;
@@ -378,7 +378,7 @@ int main(int argc, char *const argv[]) {
 
     _cc_inet_ipv4_addr(&sa, NULL, port);
     _cc_tcp_listen(&async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in));
-    _cc_logger_debug(_T("listen port: %d"), port);
+    _cc_logger_debug("listen port: %d", port);
 
     while (1) {
         // while((c = getchar()) != 'q') {

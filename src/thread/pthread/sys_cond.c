@@ -4,7 +4,7 @@
 _CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
     _cc_condition_t *cond = (_cc_condition_t *)_cc_malloc(sizeof(_cc_condition_t));
     if (pthread_cond_init(&cond->cond_var, NULL) < 0) {
-        _cc_logger_error(_T("pthread_cond_init() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_cond_init() failed");
         _cc_free(cond);
     }
     return (cond);
@@ -22,12 +22,12 @@ _CC_API_PUBLIC(void) _cc_free_condition(_cc_condition_t *cond) {
 /* Restart one of the threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return false;
     }
 
     if (pthread_cond_signal(&cond->cond_var) != 0) {
-        _cc_logger_error(_T("pthread_cond_signal() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_cond_signal() failed");
         return false;
     }
     return true;
@@ -36,12 +36,12 @@ _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
 /* Restart all threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_broadcast(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return false;
     }
 
     if (pthread_cond_broadcast(&cond->cond_var) != 0) {
-        _cc_logger_error(_T("pthread_cond_broadcast() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_cond_broadcast() failed");
         return false;
     }
     return true;
@@ -55,7 +55,7 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
     struct timespec abstim;
 
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return 0;
     }
 
@@ -86,7 +86,7 @@ COND_TRY_AGAIN:
     case 0:
         break;
     default:
-        _cc_logger_error(_T("pthread_cond_timedwait() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_cond_timedwait() failed");
         retval = -1;
         break;
     }
@@ -98,12 +98,12 @@ COND_TRY_AGAIN:
  */
 _CC_API_PUBLIC(bool_t) _cc_condition_wait(_cc_condition_t *cond, _cc_mutex_t *mutex) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return false;
     }
 
     if (pthread_cond_wait(&cond->cond_var, &mutex->ident) != 0) {
-        _cc_logger_error(_T("pthread_cond_wait() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_cond_wait() failed");
         return false;
     }
     return true;

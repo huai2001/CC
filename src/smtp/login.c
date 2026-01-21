@@ -97,7 +97,7 @@ _CC_API_PUBLIC(bool_t) libsmtp_login(_cc_smtp_t* smtp) {
     }
 
     if (smtp->io == NULL) {
-        _cc_logger_error(_T("Not connected to SMTP server"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Not connected to SMTP server");
         return false;
     }
 

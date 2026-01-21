@@ -6,20 +6,20 @@
 
 static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_CONNECT_) {
-        _cc_logger_info(_T("connected event %d"), e->ident);
+        _cc_logger_info("connected event %d", e->ident);
         return true;
     } else if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_info(_T("closed event %d"), e->ident);
+        _cc_logger_info("closed event %d", e->ident);
         return false;
     } else if (which & _CC_EVENT_READABLE_) {
-        _cc_logger_info(_T("readable event %d"), e->ident);
+        _cc_logger_info("readable event %d", e->ident);
         byte_t buf[_CC_IO_BUFFER_SIZE_];
         int off = _cc_recv(e->fd, buf, _cc_countof(buf));
         if (off < 0) {
-            _cc_logger_debug(_T("%d recv fail."), e->ident);
+            _cc_logger_debug("%d recv fail.", e->ident);
             return false;
         } else if (off == 0) {
-            _cc_logger_debug(_T("%d client close."), e->ident);
+            _cc_logger_debug("%d client close.", e->ident);
             return false;
         }
         buf[off] = 0;
@@ -27,12 +27,12 @@ static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const 
     }
 
     if (which & _CC_EVENT_WRITABLE_) {
-        _cc_logger_info(_T("writable event %d"), e->ident);
+        _cc_logger_info("writable event %d", e->ident);
         _CC_UNSET_BIT(e->which, _CC_EVENT_WRITABLE_);
     }
 
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_info(_T("timeout event %d"), e->ident);
+        _cc_logger_info("timeout event %d", e->ident);
         return false;
     }
 
@@ -55,7 +55,7 @@ bool_t _connect_server(const tchar_t *host, uint16_t port) {
     event->callback = _do_event_handler;
 
     _cc_inet_ipv4_addr(&sa, host, port);
-    _cc_logger_info(_T("connect to %s:%d!"),host,port);
+    _cc_logger_info("connect to %s:%d!",host,port);
     if (!_cc_tcp_connect(async, event, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
         _cc_free_event(async, event);
         return false;

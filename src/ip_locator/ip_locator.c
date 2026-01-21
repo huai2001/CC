@@ -33,14 +33,14 @@ _CC_API_PRIVATE(int32_t) read_from_file(FILE* fp,
                                          int len) {
     int32_t rlen = 0;
     if (fseek(fp, offset, SEEK_SET)) {
-        _cc_logger_error(_T("fseek() error in read_from_file()..."));
+        _cc_logger_error("fseek() error in read_from_file()...");
         memset(buf, 0, len);
         return 0;
     }
 
     rlen = (int32_t)fread(buf, sizeof(byte_t), len, fp);
     if (rlen != len) {
-        _cc_logger_error(_T("Fail read %d bytes in read_from_file()..."), len);
+        _cc_logger_error("Fail read %d bytes in read_from_file()...", len);
         memset(buf, 0, len);
         return 0;
     }
@@ -213,7 +213,7 @@ bool_t _cc_init_ip_locator(_cc_ip_locator_t* f, const char_t* path) {
     byte_t buf[4];
 
     if ((f->fp = fopen(path, "rb")) == NULL) {
-        _cc_logger_error(_T("Unable to open file: %s"), path);
+        _cc_logger_error("Unable to open file: %s", path);
         return false;
     }
 

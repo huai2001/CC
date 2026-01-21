@@ -113,7 +113,7 @@ _CC_API_PUBLIC(int) _cc_days_in_month(int year, int month) {
     int days;
 
     if (month < 1 || month > 12) {
-        _cc_logger_error(_T("Month out of range [1-12], requested: %i"), month);
+        _cc_logger_error("Month out of range [1-12], requested: %i", month);
         return -1;
     }
 
@@ -145,12 +145,12 @@ _CC_API_PUBLIC(int) _cc_day_of_year(int year, int month, int day) {
     int days;
 
     if (month < 1 || month > 12) {
-        _cc_logger_error(_T("Month out of range [1-12], requested: %i"), month);
+        _cc_logger_error("Month out of range [1-12], requested: %i", month);
         return -1;
     }
     days = _cc_days_in_month(year, month);
     if (day < 1 || day > days) {
-        _cc_logger_error(_T("Day out of range [1-%i], requested: %i"), days, month);
+        _cc_logger_error("Day out of range [1-%i], requested: %i", days, month);
         return -1;
     }
 
@@ -173,12 +173,12 @@ _CC_API_PUBLIC(int) _cc_day_of_week(int year, int month, int day) {
     int days;
 
     if (month < 1 || month > 12) {
-        _cc_logger_error(_T("Month out of range [1-12], requested: %i"), month);
+        _cc_logger_error("Month out of range [1-12], requested: %i", month);
         return -1;
     }
     days = _cc_days_in_month(year, month);
     if (day < 1 || day > days) {
-        _cc_logger_error(_T("Day out of range [1-%i], requested: %i"), days, month);
+        _cc_logger_error("Day out of range [1-%i], requested: %i", days, month);
         return -1;
     }
 

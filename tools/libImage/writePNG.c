@@ -9,13 +9,13 @@
 
 // PNG function for error handling
 static void _png_cpexcept_error(png_structp png_ptr, png_const_charp msg) {
-	_cc_logger_error(_T("PNG fatal Error:%s"), msg);
+	_cc_logger_error("PNG fatal Error:%s", msg);
 	longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 // PNG function for warning handling
 static void _png_cpexcept_warning(png_structp png_ptr, png_const_charp msg) {
-	_cc_logger_error(_T("PNG fatal warning:%s"), msg);
+	_cc_logger_error("PNG fatal warning:%s", msg);
 }
 
 // PNG function for file writing
@@ -46,7 +46,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 
 	if (png_ptr == NULL) {
 		_cc_file_close(wfp);
-		_cc_logger_error(_T("Internal PNG create write struct failure."));
+		_cc_logger(_CC_LOG_LEVEL_ERROR_, "Internal PNG create write struct failure.");
 		return false;
 	}
 
@@ -54,7 +54,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
-		_cc_logger_error(_T("Internal PNG create info struct failure."));
+		_cc_logger(_CC_LOG_LEVEL_ERROR_, "Internal PNG create info struct failure.");
 		png_destroy_write_struct(&png_ptr, NULL);
 		_cc_file_close(wfp);
 		return false;
@@ -100,7 +100,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	tmp = (byte_t *)_cc_malloc(image->height * line_width);
 
 	if (!tmp) {
-		_cc_logger_error(_T("Internal PNG create image struct failure."));
+		_cc_logger(_CC_LOG_LEVEL_ERROR_, "Internal PNG create image struct failure.");
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 		return false;
 	}
@@ -129,7 +129,7 @@ bool_t _cc_write_PNG(const tchar_t *file_name, _cc_image_t *image) {
 	//Used to point to image rows
 	row_pointers = (png_bytep*)_cc_malloc(sizeof(png_bytep) * image->height);
 	if (row_pointers == NULL) {
-		_cc_logger_error(_T("Internal PNG create row pointers failure."));
+		_cc_logger(_CC_LOG_LEVEL_ERROR_, "Internal PNG create row pointers failure.");
 		png_destroy_write_struct(&png_ptr, &info_ptr);
 		_cc_free(tmp);
 		_cc_file_close(wfp);

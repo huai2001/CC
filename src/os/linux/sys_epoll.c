@@ -51,7 +51,7 @@ _CC_API_PRIVATE(bool_t) _emit_epoll_event(int efd, _cc_event_t *e, bool_t clean)
                  * should retry the operation as an ADD.
                  */
                 if (epoll_ctl(efd, EPOLL_CTL_ADD, e->fd, &ev) == -1) {
-                    _cc_logger_error(_T("Epoll MOD(%d) on %d retried as ADD; that failed too"), (int)ev.events, e->fd);
+                    _cc_logger_error("Epoll MOD(%d) on %d retried as ADD; that failed too", (int)ev.events, e->fd);
                     return false;
                 }
             }
@@ -66,14 +66,14 @@ _CC_API_PRIVATE(bool_t) _emit_epoll_event(int efd, _cc_event_t *e, bool_t clean)
                  * rather than a fresh one.  For the second case,
                  * we must retry with MOD. */
                 if (epoll_ctl(efd, EPOLL_CTL_MOD, e->fd, &ev) == -1) {
-                    _cc_logger_error(_T("Epoll ADD(%d) on %d retried as MOD; that failed too"), (int)ev.events, e->fd);
+                    _cc_logger_error("Epoll ADD(%d) on %d retried as MOD; that failed too", (int)ev.events, e->fd);
                     return false;
                 }
             }
         } break;
         case EPOLL_CTL_DEL: {
             if (err != ENOENT && err != EBADF && err != EPERM) {
-                _cc_logger_error(_T("Epoll DEL(%d) on %d retried as DEL; that failed too"), (int)ev.events, e->fd);
+                _cc_logger_error("Epoll DEL(%d) on %d retried as DEL; that failed too", (int)ev.events, e->fd);
                 return false;
             }
         } break;
@@ -163,7 +163,7 @@ _CC_API_PRIVATE(bool_t) _epoll_event_wait(_cc_async_event_t *async, uint32_t tim
     if (rc < 0) {
         int32_t lerrno = _cc_last_errno();
         if (lerrno != _CC_EINTR_) {
-            _cc_logger_error(_T("error:%d, %s"), lerrno, _cc_last_error(lerrno));
+            _cc_logger_error("error:%d, %s", lerrno, _cc_last_error(lerrno));
         }
         goto EPOLL_END;
     }
@@ -245,7 +245,7 @@ _CC_API_PRIVATE(bool_t) _epoll_event_alloc(_cc_async_event_t *async) {
            size field is ignored   since 2.6.8.) */
         if ((fd = epoll_create(1024)) == -1) {
             if (_cc_last_errno() != ENOSYS) {
-                _cc_logger_error(_T("cannot create epoll!"));
+                _cc_logger_error("cannot create epoll!");
             }
             return false;
         }

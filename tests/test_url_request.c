@@ -49,17 +49,17 @@ static bool_t url_request_success(_cc_http_request_t *request) {
 
     _cc_rbtree_for_next(node, &response->headers) {
         _cc_http_header_t *header = _cc_upcast(node, _cc_http_header_t, lnk);
-        _cc_logger_debug(_T("header:%s=%s"), header->keyword, header->value);
+        _cc_logger_debug("header:%s=%s", header->keyword, header->value);
     }
 
     switch (response->status) {
     case _CC_HTTP_STATUS_OK_:{
         _cc_json_t *root = _cc_json_parse((tchar_t*)request->buffer.bytes, request->buffer.length);
         if (root) {
-            _cc_logger_warin(_T("url_request success,%s"), request->url.host);
+            _cc_logger_warin("url_request success,%s", request->url.host);
             _cc_free_json(root);
         } else {
-            _cc_logger_alert(_T("json parse fail,%s\n\n"), _cc_json_error());
+            _cc_logger_alert("json parse fail,%s\n\n", _cc_json_error());
         }
         _cc_buf_cleanup(&request->buffer);
     }
@@ -76,7 +76,7 @@ static bool_t url_request_success(_cc_http_request_t *request) {
     }
     }
 
-    _cc_logger_warin(_T("url_request fail,%s\n\n"), request->url.host);
+    _cc_logger_warin("url_request fail,%s\n\n", request->url.host);
     return true;
 }
 
@@ -93,7 +93,7 @@ static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, co
     if (which == _CC_EVENT_CLOSED_) {
         return false;
     }
-    _cc_logger_warin(_T("url-timout reset connect,%d"),e->ident);
+    _cc_logger_warin("url-timout reset connect,%d",e->ident);
     return (url_request_connect(request))?false:true;
 }
 
@@ -133,7 +133,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
-        _cc_logger_info(_T("url_request connected,%s"), request->url.host);
+        _cc_logger_info("url_request connected,%s", request->url.host);
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
             return _handshaking(e, request);
         }
@@ -196,7 +196,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     /*Open then socket*/
     fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (fd == -1) {
-        _cc_logger_error(_T("socket fail:%s."), _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("socket fail:%s.", _cc_last_error(_cc_last_errno()));
         return false;
     }
 

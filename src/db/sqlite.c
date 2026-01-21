@@ -251,7 +251,7 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlite_connect(const tchar_t *sql_connection_string
     }
 
     if (_sqlite3_open(params.path + 1, &sql) != SQLITE_OK) {
-        _cc_logger_error(_T("Can't open database: %s, %s"), params.path + 1, _sqlite3_errmsg(sql));
+        _cc_logger_error("Can't open database: %s, %s", params.path + 1, _sqlite3_errmsg(sql));
         _cc_free_url(&params);
         return NULL;
     }
@@ -280,7 +280,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_disconnect(_cc_sql_t *ctx) {
     if (ctx->sql) {
         int res = _sqlite3_close(ctx->sql);
         if (res != SQLITE_OK) {
-            _cc_logger_error(_T("_sqlite3_close: %s"), _sqlite3_errmsg(ctx->sql));
+            _cc_logger_error("_sqlite3_close: %s", _sqlite3_errmsg(ctx->sql));
             return false;
         }
         _cc_free(ctx);
@@ -304,7 +304,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_step(_cc_sql_result_t *result) {
         if (res == SQLITE_DONE) {
             return true;
         }
-        _cc_logger_error(_T("_sqlite3_step %s"), _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
+        _cc_logger_error("_sqlite3_step %s", _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
         return false;
     }
     return true;
@@ -321,7 +321,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql, size
     do {
         res = _sqlite3_prepare(ctx->sql, sql, (int)length, &stmt, &tail);
         if (res != SQLITE_OK) {
-            _cc_logger_error(_T("_sqlite3_prepare: %s"), _sqlite3_errmsg(ctx->sql));
+            _cc_logger_error("_sqlite3_prepare: %s", _sqlite3_errmsg(ctx->sql));
             if (stmt) {
                 _sqlite3_finalize(stmt);
             }
@@ -349,7 +349,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql, size
     _sqlite3_finalize(stmt);
 
     if ((res != SQLITE_OK) && (res != SQLITE_DONE)) {
-        _cc_logger_error(_T("_sqlite3_step: %s"), _sqlite3_errmsg(ctx->sql));
+        _cc_logger_error("_sqlite3_step: %s", _sqlite3_errmsg(ctx->sql));
         return false;
     }
 
@@ -370,7 +370,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_auto_commit(_cc_sql_t *ctx, bool_t is_auto_commi
         res = _sqlite3_exec(ctx->sql, "BEGIN", NULL, NULL, &errmsg);
 
         if (res != SQLITE_OK) {
-            _cc_logger_error(_T("_sqlite_auto_commit %s"), errmsg);
+            _cc_logger_error("_sqlite_auto_commit %s", errmsg);
             _sqlite3_free(errmsg);
             return false;
         }
@@ -391,7 +391,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_begin_transaction(_cc_sql_t *ctx) {
     res = _sqlite3_exec(ctx->sql, "BEGIN", NULL, NULL, &errmsg);
 
     if (res != SQLITE_OK) {
-        _cc_logger_error(_T("_sqlite_begin_transaction %s"), errmsg);
+        _cc_logger_error("_sqlite_begin_transaction %s", errmsg);
         _sqlite3_free(errmsg);
         return false;
     }
@@ -410,7 +410,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_commit(_cc_sql_t *ctx) {
     _cc_assert(ctx != NULL);
     res = _sqlite3_exec(ctx->sql, "COMMIT", NULL, NULL, &errmsg);
     if (res != SQLITE_OK) {
-        _cc_logger_error(_T("_sqlite_commit %s"), errmsg);
+        _cc_logger_error("_sqlite_commit %s", errmsg);
         _sqlite3_free(errmsg);
         return false;
     }
@@ -429,7 +429,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_rollback(_cc_sql_t *ctx) {
 
     res = _sqlite3_exec(ctx->sql, "ROLLBACK", NULL, NULL, &errmsg);
     if (res != SQLITE_OK) {
-        _cc_logger_error(_T("_sqlite_rollback %s"), errmsg);
+        _cc_logger_error("_sqlite_rollback %s", errmsg);
         _sqlite3_free(errmsg);
         return false;
     }
@@ -450,7 +450,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_fetch(_cc_sql_result_t *result) {
     if (result->step_status == SQLITE_ROW) {
         return true;
     } else if (result->step_status == SQLITE_ERROR) {
-        _cc_logger_error(_T("_sqlite3_fetch %s"), _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
+        _cc_logger_error("_sqlite3_fetch %s", _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
     }
     return false;
 }
@@ -540,7 +540,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, co
             return false;
     }
     if (SQLITE_OK != res) {
-        _cc_logger_error(_T("sqlite3_bind %s"), _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
+        _cc_logger_error("sqlite3_bind %s", _sqlite3_errmsg(sqlite3_db_handle(result->stmt)));
         return false;
     }
     return true;

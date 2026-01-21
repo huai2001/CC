@@ -70,7 +70,7 @@ _CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *self) {
 
     /* Set the thread attributes */
     if (pthread_attr_init(&type) != 0) {
-        _cc_logger_error(_T("Couldn't initialize pthread attributes"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't initialize pthread attributes");
         return false;
     }
     pthread_attr_setdetachstate(&type, PTHREAD_CREATE_JOINABLE);
@@ -80,7 +80,7 @@ _CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *self) {
     }
     /* Create the thread and go! */
     if (pthread_create(&(self->handle), &type, RunThread, self) != 0) {
-        _cc_logger_error(_T("Not enough resources to create thread"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Not enough resources to create thread");
         return false;
     }
 
@@ -145,7 +145,7 @@ _CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ pri
            running the following command on your application binary:
                sudo setcap 'cap_sys_nice=eip' <application>
          */
-        _cc_logger_error(_T("Set Thread Priority Error."));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Set Thread Priority Error.");
         return false;
     }
     return true;
@@ -155,7 +155,7 @@ _CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ pri
     pthread_t thread = pthread_self();
 
     if (pthread_getschedparam(thread, &policy, &sched) < 0) {
-        _cc_logger_error(_T("pthread_getschedparam failed."));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_getschedparam failed.");
         return false;
     }
     if (priority == _CC_THREAD_PRIORITY_LOW_) {
@@ -168,7 +168,7 @@ _CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ pri
         sched.sched_priority = (min_priority + (max_priority - min_priority) / 2);
     }
     if (pthread_setschedparam(thread, policy, &sched) < 0) {
-        _cc_logger_error(_T("pthread_setschedparam failed."));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_setschedparam failed.");
         return false;
     }
     return true;

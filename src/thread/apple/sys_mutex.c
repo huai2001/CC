@@ -21,7 +21,7 @@ _CC_API_PUBLIC(void) _cc_free_mutex(_cc_mutex_t *mutex) {
 _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
     pthread_t self;
     if (_cc_unlikely(mutex == NULL)) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return false;
     }
 
@@ -40,7 +40,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
 _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     pthread_t self;
     if (_cc_unlikely(mutex == NULL)) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return -1;
     }
     self = pthread_self();
@@ -60,7 +60,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 /* Unlock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     if (_cc_unlikely(mutex == NULL)) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return false;
     }
     /* We can only unlock the mutex if we own it */

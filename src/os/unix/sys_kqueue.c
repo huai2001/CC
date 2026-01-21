@@ -19,7 +19,7 @@ _CC_API_PRIVATE(bool_t) _emit_kevent(_cc_async_event_priv_t *priv, _cc_event_t *
         int r = kevent(priv->fd, priv->changes, priv->number_of_changes, NULL, 0, NULL);
         if (_cc_unlikely(r < 0)) {
             r = _cc_last_errno();
-            _cc_logger_error(_T("kevent error %d. events:%d, error:%s"), r, priv->number_of_changes, _cc_last_error(r));
+            _cc_logger_error("kevent error %d. events:%d, error:%s", r, priv->number_of_changes, _cc_last_error(r));
             return false;
         }
         priv->number_of_changes = 0;
@@ -144,7 +144,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_wait(_cc_async_event_t *async, uint32_t ti
     if (_cc_unlikely(rc < 0)) {
         int32_t lerrno = _cc_last_errno();
         if (lerrno != _CC_EINTR_) {
-            _cc_logger_error(_T("error:%d, %s"), lerrno, _cc_last_error(lerrno));
+            _cc_logger_error("error:%d, %s", lerrno, _cc_last_error(lerrno));
         }
         goto KEVENT_END;
     }
@@ -214,7 +214,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_wait(_cc_async_event_t *async, uint32_t ti
                 }
             /* Other errors shouldn't occur. */
             default:
-                _cc_logger_error(_T("Other errors shouldn't occur:%d(%s)."), (int32_t)actives[i].data,
+                _cc_logger_error("Other errors shouldn't occur:%d(%s).", (int32_t)actives[i].data,
                                  _cc_last_error((int32_t)actives[i].data));
                 goto KEVENT_END;
             }
@@ -274,7 +274,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
     priv->fd = kqueue();
     if (_cc_unlikely(priv->fd == -1)) {
         _cc_free(priv);
-        _cc_logger_error(_T("cannot create kqueue!"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "cannot create kqueue!");
         return false;
     }
 
@@ -295,7 +295,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
      */
     if (kevent(priv->fd, changes, 1, changes, 2, NULL) != 1 ||
         (int)changes[0].ident != -1 || !(changes[0].flags & EV_ERROR)) {
-        _cc_logger_error(_T("detected broken kqueue; not using."));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "detected broken kqueue; not using.");
         _cc_close_socket(priv->fd);
         _cc_free(priv);
         return false;

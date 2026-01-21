@@ -3,7 +3,7 @@
 #include <libcc/alloc.h>
 
 _CC_API_PUBLIC(size_t) _cc_get_executable_path(tchar_t *path, size_t length) {
-    _cc_logger_error(_T("That operation is not supported"));
+    _cc_logger_error("That operation is not supported");
     return 0;
 }
 

@@ -38,7 +38,7 @@ _CC_API_PRIVATE(unsigned char) nibble(unsigned char c) {
     }
 
     /* received an invalid character, and no real way to return an error */
-    /* _cc_logger_error(_T("nibble invalid hex character '%c' "), c); */
+    /* _cc_logger_error("nibble invalid hex character '%c' ", c); */
     return 0;
 }
 #endif

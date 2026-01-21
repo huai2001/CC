@@ -61,7 +61,7 @@ _CC_API_PUBLIC(uintptr_t) _cc_array_get(const _cc_array_t ctx, const size_t inde
 
     hdr = (__array_hdr_t *)((byte_t *)ctx - sizeof(__array_hdr_t));
     if (_cc_unlikely(hdr->length <= index)) {
-        _cc_logger_error(_T("Array find: index out of range [%d] with size %d"), index, hdr->length);
+        _cc_logger_error("Array find: index out of range [%d] with size %d", index, hdr->length);
         return -1;
     }
     return _cc_array_value(ctx,index);
@@ -130,7 +130,7 @@ _CC_API_PUBLIC(bool_t) _cc_array_set(_cc_array_t ctx, const size_t index, uintpt
     _cc_assert(ctx != 0);
     hdr = (__array_hdr_t *)((byte_t *)ctx - sizeof(__array_hdr_t));
     if (index >= hdr->length) {
-        _cc_logger_error(_T("Array set: index out of range [%d] with length %d"), index, hdr->length);
+        _cc_logger_error("Array set: index out of range [%d] with length %d", index, hdr->length);
         return false;
     }
 
@@ -147,7 +147,7 @@ _CC_API_PUBLIC(uintptr_t) _cc_array_remove(_cc_array_t ctx, const size_t index) 
     hdr = (__array_hdr_t *)((byte_t *)ctx - sizeof(__array_hdr_t));
     
     if (index >= hdr->length) {
-        _cc_logger_error(_T("Array remove: index out of range [%d] with length %d"), index, hdr->length);
+        _cc_logger_error("Array remove: index out of range [%d] with length %d", index, hdr->length);
         return -1;
     } else if ((hdr->length - 1) == index) {
         /*data is the last element*/

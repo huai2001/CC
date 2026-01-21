@@ -32,7 +32,7 @@ _CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
         pInitializeConditionVariable =
             (fptrInitializeConditionVariable)GetProcAddress(hModuleKernel32, "InitializeConditionVariable");
         if (_cc_unlikely(pInitializeConditionVariable == NULL)) {
-            _cc_logger_error(_T("GetProcAddress(InitializeConditionVariable) Error Code: %ld"), GetLastError());
+            _cc_logger_error("GetProcAddress(InitializeConditionVariable) Error Code: %ld", GetLastError());
             _cc_free(cond);
             return NULL;
         }
@@ -51,7 +51,7 @@ _CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
 #else
     cond->cond_var = CreateEvent(NULL, false, false, NULL);
     if (cond->cond_var == NULL) {
-        _cc_logger_error(_T("CreateEvent() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "CreateEvent() failed");
         _cc_free(cond);
         cond = NULL;
     }
@@ -74,7 +74,7 @@ _CC_API_PUBLIC(void) _cc_free_condition(_cc_condition_t *cond) {
 /* Restart one of the threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return false;
     }
 #ifdef _CC_WINDOWS_SUPPORTED_CONDITION_
@@ -90,7 +90,7 @@ _CC_API_PUBLIC(bool_t) _cc_condition_signal(_cc_condition_t *cond) {
 /* Restart all threads that are waiting on the condition variable */
 _CC_API_PUBLIC(bool_t) _cc_condition_broadcast(_cc_condition_t *cond) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return false;
     }
 #ifdef _CC_WINDOWS_SUPPORTED_CONDITION_
@@ -110,12 +110,12 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
     HRESULT result = NO_ERROR;
 #endif
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return 0;
     }
 
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return 0;
     }
 
@@ -124,7 +124,7 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
         int result;
         struct _cc_mutex_srw *mutex_srw = (struct _cc_mutex_srw *)mutex;
         if (mutex_srw->count != 1 || mutex_srw->owner != GetCurrentThreadId()) {
-            _cc_logger_error(_T("Passed mutex is not locked or locked recursively"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed mutex is not locked or locked recursively");
             return 0;
         }
 
@@ -144,7 +144,7 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
                 result = _CC_MUTEX_TIMEDOUT_;
             } else {
                 result = 0;
-                _cc_logger_error(_T("SleepConditionVariableSRW() failed"));
+                _cc_logger(_CC_LOG_LEVEL_ERROR_, "SleepConditionVariableSRW() failed");
             }
         } else {
             result = 0;
@@ -175,7 +175,7 @@ _CC_API_PUBLIC(int) _cc_condition_wait_timeout(_cc_condition_t *cond, _cc_mutex_
  */
 _CC_API_PUBLIC(bool_t) _cc_condition_wait(_cc_condition_t *cond, _cc_mutex_t *mutex) {
     if (_cc_unlikely(!cond)) {
-        _cc_logger_error(_T("Passed a NULL condition variable"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL condition variable");
         return false;
     }
 #ifdef _CC_WINDOWS_SUPPORTED_CONDITION_

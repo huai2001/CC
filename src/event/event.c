@@ -50,7 +50,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
             _cc_event_t *data;
 
             if (g.slot_limit <= g.slot_length) {
-                _cc_logger_error(_T("The maximum number of event supported by the RLIMIT_NOFILE is %d"), g.slot_limit);
+                _cc_logger_error("The maximum number of event supported by the RLIMIT_NOFILE is %d", g.slot_limit);
                 return NULL;
             }
 
@@ -119,7 +119,7 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
         _cc_event_t *e = g.slots[index];
         _cc_assert(e != NULL);
         if (e->ident != ident) {
-            _cc_logger_error(_T("event id:%d is deleted"), ident);
+            _cc_logger_error("event id:%d is deleted", ident);
             return NULL;
         }
         return e;
@@ -134,7 +134,7 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
 _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event_by_id(uint32_t ident) {
     int16_t i = (ident >> 20) & 0x0FFF;
     if (g.async_limit <= i) {
-        _cc_logger_error(_T("async_event id:%d is unregistered!"), ident);
+        _cc_logger_error("async_event id:%d is unregistered!", ident);
         return NULL;
     }
     return (_cc_async_event_t *)g.async[i];
@@ -239,7 +239,7 @@ bool_t _register_async_event(_cc_async_event_t *async) {
             }
         }
         if (async_limit == 0xFFFF) {
-            _cc_logger_error(_T("The maximum number of events supported by asynchronous events is %d"), g.async_limit);
+            _cc_logger_error("The maximum number of events supported by asynchronous events is %d", g.async_limit);
             return false;
         }
     } else {
@@ -358,12 +358,12 @@ bool_t _valid_fd(_cc_socket_t fd) {
 
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (char *)&r, &length) != 0) {
         r = _cc_last_errno();
-        _cc_logger_error(_T("Socket Error:%d, %s"), r, _cc_last_error(r));
+        _cc_logger_error("Socket Error:%d, %s", r, _cc_last_error(r));
         return false;
     }
 
     if (r != 0) {
-        _cc_logger_error(_T("Socket Error:%d, %s"), r, _cc_last_error(r));
+        _cc_logger_error("Socket Error:%d, %s", r, _cc_last_error(r));
         return false;
     }
     return true;

@@ -181,15 +181,15 @@ _cc_image_t* _cc_load_BMP(const byte_t *data, uint32_t size) {
     __BYTE_SWAP_32(bmpHeader.ImportantColors, dataPtr);
 
     if ( bmpHeader.Id != 0x4d42 ) {
-        _cc_logger_error(_T("LoadBMP: only Windows-style BMP files supported"));
+        _cc_logger_error("LoadBMP: only Windows-style BMP files supported");
         return NULL;
     }
     if ( bmpHeader.FileSize != size ) {
-        _cc_logger_error(_T("LoadBMP: header size does not match file size"));
+        _cc_logger_error("LoadBMP: header size does not match file size");
         return NULL;
     }
     if ( bmpHeader.Compression > 2 ) {
-        _cc_logger_error(_T("LoadBMP: only uncompressed BMP files supported"));
+        _cc_logger_error("LoadBMP: only uncompressed BMP files supported");
         return NULL;
     }
 

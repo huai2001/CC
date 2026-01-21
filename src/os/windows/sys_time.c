@@ -44,7 +44,7 @@ _CC_API_PUBLIC(void) _cc_nsleep(uint64_t ns) {
     double counter = 0;
 
     if (!QueryPerformanceFrequency(&freq)) {
-        _cc_logger_error(_T("don't support high precision timers"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "don't support high precision timers");
         _cc_sleep(0);
         return;
     }

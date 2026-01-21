@@ -23,7 +23,7 @@ _CC_API_PRIVATE(bool_t) _poll_event_attach(_cc_async_event_t *async, _cc_event_t
     fset = async->priv;
 
     if (e->fd && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= _CC_POLL_EVENTS_) {
-        _cc_logger_error(_T("The maximum number of descriptors supported by the poll() is %d"), _CC_POLL_EVENTS_);
+        _cc_logger_error("The maximum number of descriptors supported by the poll() is %d", _CC_POLL_EVENTS_);
         return false;
     }
 
@@ -148,11 +148,11 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_async_event_t *async, uint32_t time
             which = 0;
             what = fds[i].events;
             if (what & POLLNVAL) {
-                _cc_logger_warin(_T("poll() error fd:%d ev:%04Xd rev:%04Xd"), e->fd, e->flags, what);
+                _cc_logger_warin("poll() error fd:%d ev:%04Xd rev:%04Xd", e->fd, e->flags, what);
             }
 
             if (what & ~(POLLIN | POLLOUT | POLLERR | POLLHUP | POLLNVAL)) {
-                _cc_logger_warin(_T("strange poll() events fd:%d ev:%04Xd rev:%04Xd"), e->fd, e->flags, what);
+                _cc_logger_warin("strange poll() events fd:%d ev:%04Xd rev:%04Xd", e->fd, e->flags, what);
             }
 
             if (what & POLLIN) {
@@ -179,7 +179,7 @@ _CC_API_PRIVATE(bool_t) _poll_event_wait(_cc_async_event_t *async, uint32_t time
         if (_cc_unlikely(ready < 0)) {
             int32_t lerrno = _cc_last_errno();
             if (lerrno != _CC_EINTR_) {
-                _cc_logger_error(_T("error:%d, %s"), lerrno, _cc_last_error(lerrno));
+                _cc_logger_error("error:%d, %s", lerrno, _cc_last_error(lerrno));
             }
         }
     }

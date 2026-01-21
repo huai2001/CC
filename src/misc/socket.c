@@ -78,7 +78,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_reuseport(_cc_socket_t fd, int optval) {
 #ifdef SO_REUSEPORT
     res = setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, SETSOCKOPT_OPTVAL_TYPE & optval, (socklen_t)(sizeof(int)));
     if (res < 0 && optval) {
-        _cc_logger_error(_T("SO_REUSEPORT failed: %s(%d)"), _cc_last_error(res), res);
+        _cc_logger_error("SO_REUSEPORT failed: %s(%d)", _cc_last_error(res), res);
     }
 #endif
     return res;
@@ -90,7 +90,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_reuseaddr(_cc_socket_t fd) {
      * will be able to close/open sockets a zillion of times */
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, SETSOCKOPT_OPTVAL_TYPE & yes, sizeof(yes)) == -1) {
         int err = _cc_last_errno();
-        _cc_logger_error(_T("SO_REUSEADDR failed: %s(%d)"), _cc_last_error(err), err);
+        _cc_logger_error("SO_REUSEADDR failed: %s(%d)", _cc_last_error(err), err);
         return err;
     }
     return 0;
@@ -141,13 +141,13 @@ _CC_API_PUBLIC(int) _cc_set_socket_timeout(_cc_socket_t fd, long ms) {
 
     if (_cc_setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) == -1) {
         err = _cc_last_errno();
-        _cc_logger_error(_T("setsockopt SO_RCVTIMEO: (%d)%s"), err, _cc_last_error(err));
+        _cc_logger_error("setsockopt SO_RCVTIMEO: (%d)%s", err, _cc_last_error(err));
         return err;
     }
 
     if (_cc_setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) == -1) {
         err = _cc_last_errno();
-        _cc_logger_error(_T("setsockopt SO_SNDTIMEO: (%d)%s"), err, _cc_last_error(err));
+        _cc_logger_error("setsockopt SO_SNDTIMEO: (%d)%s", err, _cc_last_error(err));
         return err;
     }
     return 0;

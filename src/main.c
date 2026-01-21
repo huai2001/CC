@@ -31,7 +31,7 @@ __attribute__((constructor)) void _libcc_attach(void) {
 	OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, NULL);
 #endif
 
-	_cc_logger_debug("libcc attach");
+	_cc_logger(_CC_LOG_LEVEL_DEBUG_,"libcc attach");
 }
 
 __attribute__((destructor)) void _libcc_detach(void) {
@@ -47,7 +47,7 @@ __attribute__((destructor)) void _libcc_detach(void) {
     _detach_debug_taracked();
 #endif
 
-	_cc_logger_debug("libcc detach");
+	_cc_logger(_CC_LOG_LEVEL_DEBUG_,"libcc detach");
 }
 
 #if defined(__CC_WINDOWS__) && defined (_CC_API_USE_DYNAMIC_)

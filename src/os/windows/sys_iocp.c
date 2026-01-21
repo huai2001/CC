@@ -40,7 +40,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_accept_event(_io_context_t *io_context) {
     result = _WSA_socket_accept(io_context);
     if (NO_ERROR != result) {
         _CC_UNSET_BIT(_CC_EVENT_ACCEPT_, io_context->e->filter);
-        _cc_logger_warin(_T("_WSA_socket_accept:%d, %s"), result, _cc_last_error(result));
+        _cc_logger_warin("_WSA_socket_accept:%d, %s", result, _cc_last_error(result));
         return false;
     }
 
@@ -55,7 +55,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_write_event(_io_context_t *io_context) {
     result = _WSA_socket_send(io_context);
     if (result != NO_ERROR) {
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, io_context->e->filter);
-        _cc_logger_error(_T("WSASend fail:%d, %s"), result, _cc_last_error(result));
+        _cc_logger_error("WSASend fail:%d, %s", result, _cc_last_error(result));
         return false;
     }
 
@@ -70,7 +70,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_receive_event(_io_context_t *io_context) {
     result = _WSA_socket_receive(io_context);
     if (result != NO_ERROR) {
         _CC_UNSET_BIT(_CC_EVENT_READABLE_, io_context->e->filter);
-        _cc_logger_error(_T("_WSAReceive fail:%d, %s"), result, _cc_last_error(result));
+        _cc_logger_error("_WSAReceive fail:%d, %s", result, _cc_last_error(result));
         return false;
     }
 
@@ -95,7 +95,7 @@ _CC_API_PRIVATE(bool_t) _emit_iocp_event(_cc_async_event_t *async, _cc_event_t *
         fd = (_cc_socket_t)WSASocketW(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
         if (fd == _CC_INVALID_SOCKET_) {
             int result = _cc_last_errno();
-            _cc_logger_error(_T("WSASocket fail:%d, %s"), result, _cc_last_error(result));
+            _cc_logger_error("WSASocket fail:%d, %s", result, _cc_last_error(result));
             return false;
         }
 
@@ -154,7 +154,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_attach(_cc_async_event_t *async, _cc_event_t
 
     if (_CC_EVENT_IS_SOCKET(e->flags)) {
         if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == NULL) {
-            _cc_logger_error(_T("CreateIoCompletionPort Error Code:%d."), _cc_last_errno());
+            _cc_logger_error("CreateIoCompletionPort Error Code:%d.", _cc_last_errno());
             return false;
         }
     } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, e->flags) == 0) {
@@ -181,13 +181,13 @@ _CC_API_PRIVATE(bool_t) _iocp_bind(_cc_async_event_t *async, const _cc_event_t *
 
     if (bind(e->fd, (struct sockaddr *)sockaddr_any, socklen) == SOCKET_ERROR) {
 		int err = _cc_last_errno();
-		_cc_logger_error(_T("bind Error Code:%d. %s"),err, _cc_last_error(err));
+		_cc_logger_error("bind Error Code:%d. %s",err, _cc_last_error(err));
         return false;
     }
 
     if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == NULL) {
 		int err = _cc_last_errno();
-		_cc_logger_error(_T("CreateIoCompletionPort Error Code:%d. %s"),err, _cc_last_error(err));
+		_cc_logger_error("CreateIoCompletionPort Error Code:%d. %s",err, _cc_last_error(err));
         return false;
     }
     return true;
@@ -217,7 +217,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_async_event_t *async, _cc_event_
         int err = _cc_last_errno();
         if (err != WSA_IO_PENDING) {
             _io_context_free(async->priv, io_context);
-            _cc_logger_error(_T("Socket Connect:(%d) %s"), err, _cc_last_error(err));
+            _cc_logger_error("Socket Connect:(%d) %s", err, _cc_last_error(err));
             return false;
         }
     }
@@ -246,7 +246,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_disconnect(_cc_async_event_t *async, _cc_eve
         int err = _cc_last_errno();
         if (err != WSA_IO_PENDING) {
             _io_context_free(async->priv, io_context);
-            _cc_logger_error(_T("Socket Disconnect:(%d) %s\n"), err, _cc_last_error(err));
+            _cc_logger_error("Socket Disconnect:(%d) %s\n", err, _cc_last_error(err));
             return false;
         }
     }*/
@@ -268,13 +268,13 @@ _CC_API_PRIVATE(_cc_socket_t) _iocp_event_accept(_cc_async_event_t *async, _cc_e
 
         if (sa && sa_len && getpeername(accept_fd, (struct sockaddr *)sa, sa_len) == -1) {
             int32_t err = _cc_last_errno();
-            _cc_logger_warin(_T("discovery client information failed, fd=%d, errno=%d(%#x)."), accept_fd, err, err);
+            _cc_logger_warin("discovery client information failed, fd=%d, errno=%d(%#x).", accept_fd, err, err);
         }
 
 		e->accept_fd = _CC_INVALID_SOCKET_;
         return (_cc_socket_t)accept_fd;
     } else {
-        _cc_logger_error(_T("Listening object is null"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Listening object is null");
     }
     return _CC_INVALID_SOCKET_;
 }
@@ -426,11 +426,11 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
         int32_t last_error = _cc_last_errno();
 #if (_WIN32_WINNT >= 0x0600)
         if (last_error != WAIT_TIMEOUT) {
-            _cc_logger_error(_T("GetQueuedCompletionStatusEx errorCode: %i, %s"), last_error, _cc_last_error(last_error));
+            _cc_logger_error("GetQueuedCompletionStatusEx errorCode: %i, %s", last_error, _cc_last_error(last_error));
         }
 #else
         if (last_error != ERROR_NETNAME_DELETED && last_error != WAIT_TIMEOUT) {
-            _cc_logger_error(_T("GetQueuedCompletionStatus errorCode: %i, %s"), last_error, _cc_last_error(last_error));
+            _cc_logger_error("GetQueuedCompletionStatus errorCode: %i, %s", last_error, _cc_last_error(last_error));
         }
 #endif
     }
@@ -466,7 +466,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_alloc(_cc_async_event_t *async) {
     priv = (_cc_async_event_priv_t *)_cc_malloc(sizeof(_cc_async_event_priv_t));
     priv->port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
     if (priv->port == NULL) {
-        _cc_logger_error(_T("CreateIoCompletionPort Error Code:%d."), _cc_last_errno());
+        _cc_logger_error("CreateIoCompletionPort Error Code:%d.", _cc_last_errno());
         return false;
     }
 

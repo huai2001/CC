@@ -148,7 +148,7 @@ bool_t ProtocolRequest(byte_t *m, _cc_socks5_t *socks, _cc_event_t *e) {
 
     if (rep == 0x07) {
         socks->port = _cc_swap16(socks->port);
-        _cc_logger_debug(_T("IP:%s, Port:%d."), buf, socks->port);
+        _cc_logger_debug("IP:%s, Port:%d.", buf, socks->port);
         if (atype == _CC_SOCKS5_ADDRESS_TYPE_IPV6_) {
             _cc_inet_ipv6_addr(&socks->addr_in6, (const tchar_t *)buf, socks->port);
         } else {

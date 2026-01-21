@@ -27,7 +27,7 @@ _CC_API_PRIVATE(bool_t) io_flush(_cc_file_t *context) {
         if (errno == EAGAIN) {
             return false;
         } else {
-            _cc_logger_error(_T("Error flushing datastream: %s"), strerror(errno));
+            _cc_logger_error("Error flushing datastream: %s", strerror(errno));
             return false;
         }
     }
@@ -38,7 +38,7 @@ _CC_API_PRIVATE(bool_t) io_flush(_cc_file_t *context) {
     } while (result < 0 && errno == EINTR);
 
     if (result < 0) {
-        _cc_logger_error(_T("Error flushing datastream: %s"), strerror(errno));
+        _cc_logger_error("Error flushing datastream: %s", strerror(errno));
         return false;
     }
     return true;
@@ -48,7 +48,7 @@ _CC_API_PRIVATE(int64_t) io_size(_cc_file_t *context) {
     _cc_assert(context && _GET_HANDLE(context));
     /*
     if (!context || _GET_HANDLE(context) == NULL) {
-        _cc_logger_error(_T("invalid context/file not opened"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "invalid context/file not opened");
         return -1;
     }
     */
@@ -73,19 +73,19 @@ _CC_API_PRIVATE(int64_t) io_seek(_cc_file_t *context, int64_t offset, int whence
     _cc_assert(context && _GET_HANDLE(context));
     /*
     if (!context || _GET_HANDLE(context) == NULL) {
-        _cc_logger_error(_T("invalid context/file not opened"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "invalid context/file not opened");
         return false;
     }
     */
     if (is_noop || _cc_fseek_off(_GET_HANDLE(context), (_cc_fseek_off_t)offset, whence) == 0) {
         const int64_t pos = _cc_ftell_off(_GET_HANDLE(context));
         if (pos < 0) {
-            _cc_logger_error(_T("Couldn't get stream offset: %s"), strerror(errno));
+            _cc_logger_error("Couldn't get stream offset: %s", strerror(errno));
             return -1;
         }
         return pos;
     }
-    _cc_logger_error(_T("Error seeking in datastream: %s"), strerror(errno));
+    _cc_logger_error("Error seeking in datastream: %s", strerror(errno));
     return -1;
 }
 
@@ -97,7 +97,7 @@ _CC_API_PRIVATE(size_t) io_read(_cc_file_t *context, pvoid_t ptr, size_t size, s
         if (errno == EAGAIN) {
             clearerr(_GET_HANDLE(context));
         } else {
-            _cc_logger_error(_T("Error reading from datastream: %s"), strerror(errno));
+            _cc_logger_error("Error reading from datastream: %s", strerror(errno));
         }
     }
     return bytes;
@@ -109,7 +109,7 @@ _CC_API_PRIVATE(size_t) io_write(_cc_file_t *context, const pvoid_t ptr, size_t 
         if (errno == EAGAIN) {
             clearerr(_GET_HANDLE(context));
         } else {
-            _cc_logger_error(_T("Error writing from datastream: %s"), strerror(errno));
+            _cc_logger_error("Error writing from datastream: %s", strerror(errno));
         }
     }
     return bytes;
@@ -124,14 +124,14 @@ _CC_API_PRIVATE(bool_t) io_close(_cc_file_t *context) {
 
     _cc_assert(context && _GET_HANDLE(context));
     if (!context || _GET_HANDLE(context) == NULL) {
-        _cc_logger_error(_T("invalid context/file not opened"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"invalid context/file not opened");
         return false;
     }
 
     /* WARNING:  Check the return value here! */
     if (fclose(_GET_HANDLE(context)) != 0) {
         status = false;
-        _cc_logger_error(_T("Error closing datastream: %s"), strerror(errno));
+        _cc_logger_error("Error closing datastream: %s", strerror(errno));
     }
 
     _cc_free(context);
@@ -155,7 +155,7 @@ _CC_API_PUBLIC(_cc_file_t*) _cc_open_file(const tchar_t *filename, const tchar_t
 
     f = (_cc_file_t *)_cc_malloc(sizeof(_cc_file_t));
     if (!_cc_sys_open_file(f, filename, mode)) {
-        _cc_logger_error(_T("Couldn't open %s"), filename);
+        _cc_logger_error("Couldn't open %s", filename);
         _cc_free(f);
         return NULL;
     }

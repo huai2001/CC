@@ -63,7 +63,7 @@ _CC_API_PUBLIC(void) _cc_get_preferred_languages(tchar_t *buf, size_t length) {
     }
 
     if (*tmp == '\0') {
-        _cc_logger_error(_T("LANG environment variable isn't set"));
+        _cc_logger_error("LANG environment variable isn't set");
     } else {
         normalize_locales(buf, tmp, length);
     }

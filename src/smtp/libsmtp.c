@@ -95,7 +95,7 @@ _CC_API_PUBLIC(bool_t) libsmtp_send_email(_cc_smtp_t* smtp) {
     
     required_length = length_of_content + 5 + io->w.off;
     if (required_length > io->w.limit) {
-        _cc_logger_error(_T("email content too long. length:%d > limit:%d"), length_of_content, io->w.limit - 5 - io->w.off);
+        _cc_logger_error("email content too long. length:%d > limit:%d", length_of_content, io->w.limit - 5 - io->w.off);
         return false;
     }
 

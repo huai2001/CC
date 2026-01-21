@@ -155,7 +155,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *data
         if (er == _CC_EINTR_ || er == _CC_EAGAIN_) {
             return 0;
         }
-        _cc_logger_warin(_T("fd:%d fail to recv (%d): %s"), e->fd, er, _cc_last_error(er));
+        _cc_logger_warin("fd:%d fail to recv (%d): %s", e->fd, er, _cc_last_error(er));
     }
     
     data->r.off += off;

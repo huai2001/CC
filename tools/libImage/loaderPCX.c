@@ -49,7 +49,7 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
     }
     // return if this isn't a supported type
     if ((pcxHeader.BitsPerPixel != 8) && (pcxHeader.BitsPerPixel != 4) && (pcxHeader.BitsPerPixel != 1)) {
-        _cc_logger_error(_T("Unsupported bits per pixel in PCX file."));
+        _cc_logger_error("Unsupported bits per pixel in PCX file.");
         return NULL;
     }
 

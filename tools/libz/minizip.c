@@ -10,7 +10,7 @@ static bool_t saveFile(unzFile zFile, FILE *wfp) {
         byte_t buff[CHUNK];
         int readSize = unzReadCurrentFile(zFile, buff, _cc_countof(buff));
         if (readSize < 0) {
-            _cc_logger_error(_T("read Size %d with zipfile in unzReadCurrentFile"), readSize);
+            _cc_logger_error("read Size %d with zipfile in unzReadCurrentFile", readSize);
             return false;
         } else if (readSize == 0) {
             break;
@@ -174,12 +174,12 @@ int CompressZipFile(const char *source, const char *dest, uint64_t *resultSize) 
     FILE *filein, *fileout;
     
     if((filein = fopen(source, "rb")) == NULL) {
-        _cc_logger_error(_T("Can\'t open %s!"), source);
+        _cc_logger_error("Can\'t open %s!", source);
         return -1;
     }
     
     if((fileout = fopen(dest, "wb")) == NULL) {
-        _cc_logger_error(_T("Can\'t open %s!\n"), dest);
+        _cc_logger_error("Can\'t open %s!\n", dest);
         fclose(filein);
         return -1;
     }
@@ -200,12 +200,12 @@ int DecompressZipFile(const char *source, const char *dest, uint64_t *resultSize
     FILE *filein, *fileout;
     
     if((filein = fopen(source, "rb")) == NULL) {
-        _cc_logger_error(_T("Can\'t open %s!"), source);
+        _cc_logger_error("Can\'t open %s!", source);
         return -1;
     }
     
     if((fileout = fopen(dest, "wb")) == NULL) {
-        _cc_logger_error(_T("Can\'t open %s!\n"), dest);
+        _cc_logger_error("Can\'t open %s!\n", dest);
         fclose(filein);
         return -1;
     }
@@ -230,13 +230,13 @@ int MiniUnzip(const char *zipFile, const char *savePath, const char *pass) {
     unzFile zFile = unzOpen64(zipFile);
 
     if (zFile == NULL) {
-        _cc_logger_error(_T("Can\'t open zip file:%s"), zipFile);
+        _cc_logger_error("Can\'t open zip file:%s", zipFile);
         return 0;
     }
     
     err = unzGoToFirstFile(zFile);
     if (err != UNZ_OK) {
-        _cc_logger_error(_T("error zip file:%s"), zipFile);
+        _cc_logger_error("error zip file:%s", zipFile);
         return 0;
     }
 
@@ -251,12 +251,12 @@ int MiniUnzip(const char *zipFile, const char *savePath, const char *pass) {
          char_t com[1024];
          
          if ((err = unzGetCurrentFileInfo64(zFile, &fileInfo, file, sizeof(file), ext, _cc_countof(ext), com, _cc_countof(com))) != UNZ_OK) {
-         _cc_logger_error(_T("unzGetCurrentFileInfo failed... error:%d\n"), err);
+         _cc_logger_error("unzGetCurrentFileInfo failed... error:%d\n", err);
          return false;
          }
          */
         if ((err = unzGetCurrentFileInfo64(zFile, &fileInfo, file, sizeof(file), NULL, 0, NULL, 0)) != UNZ_OK) {
-            _cc_logger_error(_T("unzGetCurrentFileInfo failed... error:%d\n"), err);
+            _cc_logger_error("unzGetCurrentFileInfo failed... error:%d\n", err);
             result = 0;
             break;
         }
@@ -275,14 +275,14 @@ int MiniUnzip(const char *zipFile, const char *savePath, const char *pass) {
         } else {
             FILE *wfp = _tfopen(path, _T("wb"));
             if (wfp == NULL) {
-                _cc_logger_error(_T("don't create file:%s"), path);
+                _cc_logger_error("don't create file:%s", path);
                 result = 0;
                 break;
             }
             
             err = unzOpenCurrentFilePassword(zFile,pass);
             if (err != UNZ_OK) {
-                _cc_logger_error(_T("error %d with zipfile in unzOpenCurrentFilePassword"),err);
+                _cc_logger_error("error %d with zipfile in unzOpenCurrentFilePassword",err);
                 unzCloseCurrentFile(zFile);
                 result = 0;
                 break;

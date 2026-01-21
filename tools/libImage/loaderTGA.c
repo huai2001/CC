@@ -136,7 +136,7 @@ _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
         // Runlength encoded RGB images
         tgaData = loadCompressedTGA(&tgaHeader, data_ptr);
     } else {
-        _cc_logger_error(_T("loadTGA: Unsupported TGA file type"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"loadTGA: Unsupported TGA file type");
         _cc_free(PaletteData);
         return NULL;
     }
@@ -195,7 +195,7 @@ _cc_image_t* _cc_load_TGA(const byte_t *data, uint32_t size) {
                                  false, (bool_t)(tgaHeader.ImageDescriptor & 0x20) == 0);
         break;
     default:
-        _cc_logger_error(_T("loadTGA: Unsupported TGA format"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"loadTGA: Unsupported TGA format");
         break;
     }
 

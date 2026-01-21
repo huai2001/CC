@@ -61,7 +61,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
     @autoreleasepool {
         NSString *folderPath = nil;
 #ifdef __CC_APPLE_TVOS__
-        _cc_logger_error(_T("tvOS does not have persistent storage"));
+        _cc_logger_error("tvOS does not have persistent storage");
         return 0;
 #else
         NSSearchPathDirectory dir;
@@ -101,7 +101,7 @@ _CC_API_PUBLIC(size_t) _cc_get_folder(_cc_folder_t folder, tchar_t *path, size_t
             dir = NSMoviesDirectory;
             break;
         default:
-            _cc_logger_error(_T("Invalid _cc_folder_: %d"), (int) folder);
+            _cc_logger_error("Invalid _cc_folder_: %d", (int) folder);
             return 0;
         };
 

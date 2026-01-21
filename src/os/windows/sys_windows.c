@@ -37,7 +37,7 @@ static _cc_dumper_callback_t _dumper_callback = NULL;
 static void init_get_version(void) {
     HMODULE ntdll_module = GetModuleHandleW(L"ntdll.dll");
     if (ntdll_module == NULL) {
-        _cc_logger_error(_T("GetModuleHandle(ntdll.dll) Error Code:%d."), _cc_last_errno());
+        _cc_logger_error("GetModuleHandle(ntdll.dll) Error Code:%d.", _cc_last_errno());
     }
 	_call_get_version = (RTLGETVERSION_PTR)GetProcAddress(ntdll_module, "RtlGetVersion");
 }
@@ -79,7 +79,7 @@ _CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32() {
     if (_kernel32_handle == NULL) {
         _kernel32_handle = GetModuleHandleW(L"KERNEL32.dll");
         if (_kernel32_handle == NULL) {
-            _cc_logger_error(_T("GetModuleHandle(KERNEL32.dll) Error Code:%d."), _cc_last_errno());
+            _cc_logger_error("GetModuleHandle(KERNEL32.dll) Error Code:%d.", _cc_last_errno());
             return NULL;
         }
     }
@@ -101,7 +101,7 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
     }
 
     if (!SymInitialize(_current_process, NULL, TRUE)) {
-        _cc_logger_error(_T("SymInitialize failed with error code: %d"), _cc_last_errno());
+        _cc_logger_error("SymInitialize failed with error code: %d", _cc_last_errno());
         return 0;
     }
 
@@ -433,7 +433,7 @@ _CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url) {
     // MSDN says for safety's sake, make sure COM is initialized.
     const HRESULT hr = _CC_CoInitialize();
     if (FAILED(hr)) {
-        _cc_logger_error(_T("CoInitialize failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "CoInitialize failed");
         return false;
     }
 
@@ -442,7 +442,7 @@ _CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url) {
 
     CoUninitialize();
     if (rc <= ((HINSTANCE)32)) {
-        _cc_logger_error(_T("Couldn't open given URL."));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't open given URL.");
         return false;
     }
 

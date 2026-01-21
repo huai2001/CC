@@ -92,12 +92,12 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_async_event_t* async,
 
         fd = _cc_event_accept(async, e, &remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
-            _cc_logger_error(_T("thread %d accept fail.\n"), _cc_get_thread_id(nullptr));
+            _cc_logger_error("thread %d accept fail.\n", _cc_get_thread_id(nullptr));
             return true;
         }
         e2 = _cc_event_alloc(async2, _CC_EVENT_TIMEOUT_ | _CC_EVENT_READABLE_ | _CC_EVENT_BUFFER_);
         if (!e2) {
-            _cc_logger_error(_T("thread %d alloc event fail.\n"), _cc_get_thread_id(nullptr));
+            _cc_logger_error("thread %d alloc event fail.\n", _cc_get_thread_id(nullptr));
             _cc_close_socket(fd);
             return true;
         }
@@ -107,7 +107,7 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_async_event_t* async,
         e2->timeout = 30000;
 
         if (!async2->attach(async2, e2)) {
-            _cc_logger_error(_T("thread %d attach socket (%d) event fial.\n"), _cc_get_thread_id(nullptr), fd);
+            _cc_logger_error("thread %d attach socket (%d) event fial.\n", _cc_get_thread_id(nullptr), fd);
             _cc_event_free(async2, e2);
             return true;
         }
@@ -115,7 +115,7 @@ _CC_API_PRIVATE(bool_t) network_event_port_callback(_cc_async_event_t* async,
         {
             struct sockaddr_in* remote_ip = (struct sockaddr_in*)&remote_addr;
             byte_t* ip_addr = (byte_t*)&remote_ip->sin_addr.s_addr;
-            _cc_logger_debug(_T("TCP accept [%d,%d,%d,%d] fd:%d\n"), ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
+            _cc_logger_debug("TCP accept [%d,%d,%d,%d] fd:%d\n", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
         }
 
         return _cc_ftp_bind_accept(ftp, async2, e2);
@@ -266,14 +266,14 @@ bool_t _cc_ftp_tcp_listen(_cc_ftp_t* ftp) {
 
     if (bind(fd, (struct sockaddr*)&ftp->sa, sizeof(ftp->sa)) < 0) {
         int32_t err = _cc_last_errno();
-        _cc_logger_error(_T("socket bind port(%d) error(%d) %s"), 0, err, _cc_last_error(err));
+        _cc_logger_error("socket bind port(%d) error(%d) %s", 0, err, _cc_last_error(err));
         _cc_close_socket(fd);
         return false;
     }
 
     if (listen(fd, SOMAXCONN) < 0) {
         int32_t err = _cc_last_errno();
-        _cc_logger_error(_T("socket listen port(%d) error(%d) %s"), 0, err, _cc_last_error(err));
+        _cc_logger_error("socket listen port(%d) error(%d) %s", 0, err, _cc_last_error(err));
         _cc_close_socket(fd);
         return false;
     }

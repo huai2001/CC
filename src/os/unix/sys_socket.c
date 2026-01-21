@@ -53,7 +53,7 @@ _CC_API_PUBLIC(int) _cc_close_socket(_cc_socket_t fd) {
 
     if (_cc_unlikely(result == _CC_SOCKET_ERROR_)) {
         int32_t last_errno = _cc_last_errno();
-        _cc_logger_error(_T(" closesocket(%d) failed with error:%d, %s "), fd, last_errno, _cc_last_error(last_errno));
+        _cc_logger_error(" closesocket(%d) failed with error:%d, %s ", fd, last_errno, _cc_last_error(last_errno));
     }
     return result;
 #else
@@ -71,7 +71,7 @@ _CC_API_PUBLIC(int) __cc_get_fcntl(_cc_socket_t fd, int cmd) {
 
 #ifdef _CC_DEBUG_
     if (r == -1) {
-        _cc_logger_error(_T("fcntl(%d, %d) failed with error:%s "), fd, cmd, _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("fcntl(%d, %d) failed with error:%s ", fd, cmd, _cc_last_error(_cc_last_errno()));
     }
 #endif
 
@@ -85,7 +85,7 @@ _CC_API_PUBLIC(int) __cc_set_fcntl(_cc_socket_t fd, int cmd, int flags) {
     } while (r == -1 && errno == EINTR);
 #ifdef _CC_DEBUG_
     if (r == -1) {
-        _cc_logger_error(_T("fcntl(%d, %d, %d) failed with error: %s "), fd, cmd, flags, _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("fcntl(%d, %d, %d) failed with error: %s ", fd, cmd, flags, _cc_last_error(_cc_last_errno()));
     }
 #endif
     return r;

@@ -29,7 +29,7 @@ bool_t _cc_ftp_cwd(_cc_ftp_t* ftp, const char_t* path) {
         return false;
 
     if (ftp->ctrl.e == NULL) {
-        _cc_logger_error(_T("Not connected to FTP server"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"Not connected to FTP server");
         return false;
     }
 

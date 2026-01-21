@@ -336,7 +336,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
             e->timeout = 60000;
             e->data = (uintptr_t)dns;
             if (!async->attach(async, e)) {
-                _cc_logger_error(_T("thread %d attach socket (%d) event fial."), _cc_get_thread_id(NULL), dns_sock);
+                _cc_logger_error("thread %d attach socket (%d) event fial.", _cc_get_thread_id(NULL), dns_sock);
                 return _CC_DNS_ERR_SEE_ERRNO_;
             }
             return 0;

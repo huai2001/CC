@@ -10,7 +10,7 @@ _CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url) {
         OSStatus status = LSOpenCFURLRef(cfurl, NULL);
         CFRelease(cfurl);
         if (status != noErr) {
-            _cc_logger_error(_T("LSOpenCFURLRef() failed: %d"), status);
+            _cc_logger_error("LSOpenCFURLRef() failed: %d", status);
             return false;
         }
         return true;

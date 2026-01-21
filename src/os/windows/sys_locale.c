@@ -47,7 +47,7 @@ _CC_API_PRIVATE(void) SYS_GetUserPreferredUILanguages_winxp(tchar_t *buf, size_t
 
     /* Win95 systems will fail, because they don't have LOCALE_SISO*NAME ... */
     if (langrc == 0) {
-        _cc_logger_error(_T("Couldn't obtain language info"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"Couldn't obtain language info");
     } else {
         _sntprintf(buf, buflen, _T("%s%s%s"), lang, ctryrc ? _T("_") : _T(""), ctryrc ? country : _T(""));
     }

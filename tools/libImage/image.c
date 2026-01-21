@@ -438,7 +438,7 @@ _cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
     
     if (filetype == _CC_IMAGE_FILETYPE_UNKNOWN_) {
         _cc_free_buf(&buf);
-        _cc_logger_error(_T("Image file type(%d) unknown :%s"), filetype, file_name);
+        _cc_logger_error("Image file type(%d) unknown :%s", filetype, file_name);
 
         return NULL;
     }
@@ -465,7 +465,7 @@ _cc_image_t * _cc_image_from_file(const tchar_t *file_name) {
             img = _cc_load_TGA( buf.bytes, (int32_t)buf.length );
             break;
         default:
-            _cc_logger_error(_T("Unable to load image file:%s"), file_name);
+            _cc_logger_error("Unable to load image file:%s", file_name);
             break;
     }
 

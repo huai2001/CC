@@ -28,7 +28,7 @@ struct _cc_OpenSSL {
 /*
 _CC_API_PRIVATE(void) _SSL_clear_error() {
     while (ERR_peek_error()) {
-        _cc_logger_error(_T("ignoring stale global SSL error"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"ignoring stale global SSL error");
     }
     ERR_clear_error();
 }*/
@@ -91,7 +91,7 @@ _CC_API_PRIVATE(bool_t) _SSL_only_init(void) {
 #endif
 
     // if (!RAND_poll()) {
-    //     _cc_logger_warin(_T("OpenSSL: Failed to seed random number generator."));
+    //     _cc_logger_warin("OpenSSL: Failed to seed random number generator.");
     // }
 
     // while (RAND_status() == 0) {
@@ -105,7 +105,7 @@ static int verify_callback(int preverify_ok, X509_STORE_CTX *ctx) {
     if (!preverify_ok) {
         //X509 *cert = X509_STORE_CTX_get_current_cert(ctx);
         int err = X509_STORE_CTX_get_error(ctx);
-        _cc_logger_warin(_T("Verify error: %s"), X509_verify_cert_error_string(err));
+        _cc_logger_warin("Verify error: %s", X509_verify_cert_error_string(err));
     }
     return preverify_ok;
 }
@@ -321,7 +321,7 @@ _CC_API_PRIVATE(int) _ssl_pkey_password_callback(char *buf, int size, int rwflag
     const char *password = (const char *)userdata;
     int password_length;
     if (rwflag) {
-        _cc_logger_alert(_T("_ssl_pkey_password_callback() is called for encryption,rwflag:%d"), rwflag);
+        _cc_logger_alert("_ssl_pkey_password_callback() is called for encryption,rwflag:%d", rwflag);
         return 0;
     }
     if (password == NULL) {
@@ -329,7 +329,7 @@ _CC_API_PRIVATE(int) _ssl_pkey_password_callback(char *buf, int size, int rwflag
     }
     password_length = (int)_tcslen(password);
     if (password_length > size) {
-        _cc_logger_warin(_T("password is truncated to %d bytes, password_length:%d > size:%d"), size, password_length, size);
+        _cc_logger_warin("password is truncated to %d bytes, password_length:%d > size:%d", size, password_length, size);
         password_length = size;
     }
     memcpy(buf, password, password_length);
@@ -347,17 +347,17 @@ _CC_API_PUBLIC(bool_t) _SSL_setup(_cc_OpenSSL_t *ctx,
     }
     
     if (SSL_CTX_use_certificate_chain_file(ctx->handle, cert_file) <= 0) {
-        _cc_logger_error(_T("Failed to load certificate file: %s SSL_CTX_use_certificate_file failed: %s"), cert_file, ERR_reason_error_string(ERR_get_error()));
+        _cc_logger_error("Failed to load certificate file: %s SSL_CTX_use_certificate_file failed: %s", cert_file, ERR_reason_error_string(ERR_get_error()));
         return false;
     }
 
     if (SSL_CTX_use_PrivateKey_file(ctx->handle, key_file, SSL_FILETYPE_PEM) <= 0) {
-        _cc_logger_error(_T("Failed to load private key file: %s SSL_CTX_use_PrivateKey_file failed: %s"), key_file,ERR_reason_error_string(ERR_get_error()));
+        _cc_logger_error("Failed to load private key file: %s SSL_CTX_use_PrivateKey_file failed: %s", key_file,ERR_reason_error_string(ERR_get_error()));
         return false;
     }
 
     if (!SSL_CTX_check_private_key(ctx->handle)) {
-        _cc_logger_error(_T("SSL_CTX_check_private_key failed: %s\n"), ERR_reason_error_string(ERR_get_error()));
+        _cc_logger_error("SSL_CTX_check_private_key failed: %s\n", ERR_reason_error_string(ERR_get_error()));
         return false;
     }
 
@@ -390,7 +390,7 @@ _CC_API_PUBLIC(bool_t) _SSL_setup_pkcs12(_cc_OpenSSL_t *ctx,
 
     FILE *fp = _tfopen(pkcs12_file, _T("rb"));
     if (fp == NULL) {
-        _cc_logger_error(_T("Failed to open PKCS12 file: %s"), pkcs12_file);
+        _cc_logger_error("Failed to open PKCS12 file: %s", pkcs12_file);
         return false;
     }
     
@@ -398,25 +398,25 @@ _CC_API_PUBLIC(bool_t) _SSL_setup_pkcs12(_cc_OpenSSL_t *ctx,
     fclose(fp);
 
     if (p12 == NULL) {
-        _cc_logger_error(_T("Failed to read PKCS12 file: %s"), pkcs12_file);
+        _cc_logger_error("Failed to read PKCS12 file: %s", pkcs12_file);
         return false;
     } 
 
     if (PKCS12_parse(p12, password, &key, &cert, &ca) <= 0) {
-        _cc_logger_error(_T("Failed to parse PKCS12 file: %s, %s"), pkcs12_file,ERR_reason_error_string(ERR_get_error()));
+        _cc_logger_error("Failed to parse PKCS12 file: %s, %s", pkcs12_file,ERR_reason_error_string(ERR_get_error()));
         PKCS12_free(p12);
         return false;
     }
 
     if (SSL_CTX_use_certificate(ctx->handle, cert) <= 0) {
-        _cc_logger_error(_T("SSL_CTX_use_certificate failed:%s"),ERR_reason_error_string(ERR_get_error()));
+        _cc_logger_error("SSL_CTX_use_certificate failed:%s",ERR_reason_error_string(ERR_get_error()));
         sk_X509_pop_free(ca, X509_free);
         PKCS12_free(p12);
         return false;
     }
 
     if (SSL_CTX_use_PrivateKey(ctx->handle, key) <= 0) {
-        _cc_logger_error(_T("SSL_CTX_use_PrivateKey failed: %s"),ERR_reason_error_string(ERR_get_error()));
+        _cc_logger_error("SSL_CTX_use_PrivateKey failed: %s",ERR_reason_error_string(ERR_get_error()));
         X509_free(cert);
         sk_X509_pop_free(ca, X509_free);
         PKCS12_free(p12);
@@ -466,7 +466,7 @@ _CC_API_PRIVATE(uint8_t) _SSL_Error(SSL *handle,const char *fn) {
             if ((err == _CC_EINTR_ || err == _CC_EAGAIN_)) {
                 return _CC_SSL_HS_SYSCALL_WOULDBLOCK_;
             }
-			_cc_logger_error(_T("SSL_get_error failed:%s."), _cc_last_error(_cc_last_errno()));
+			_cc_logger_error("SSL_get_error failed:%s.", _cc_last_error(_cc_last_errno()));
 			return _CC_SSL_HS_ERROR_;
 		}
 	}

@@ -16,7 +16,7 @@ typedef struct __ImageSource {
 
 /* PNG function for error handling*/
 static void png_cpexcept_error(png_structp png_ptr, png_const_charp msg) {
-    _cc_logger_error(_T("PNG FATAL ERROR %s"), msg);
+    _cc_logger(_CC_LOG_LEVEL_ERROR_, "PNG FATAL ERROR %s", msg);
     longjmp(png_jmpbuf(png_ptr), 1);
 }
 
@@ -25,7 +25,7 @@ void PNGAPI user_read_data_fcn(png_structp png_ptr, png_bytep data, png_size_t l
     /* changed by zola {*/
     __ImageSource* ImageSource = (__ImageSource*)png_get_io_ptr(png_ptr);
     if (ImageSource == NULL) {
-        _cc_logger_error(_T("Read Error Get IO Ptr failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Read Error Get IO Ptr failed");
         return ;
     }
 
@@ -33,7 +33,7 @@ void PNGAPI user_read_data_fcn(png_structp png_ptr, png_bytep data, png_size_t l
         memcpy(data, ImageSource->data + ImageSource->offset, length);
         ImageSource->offset += (uint32_t)length;
     } else {
-        _cc_logger_error(_T("Read Error offset:%d, size: %d"), ImageSource->offset, ImageSource->size);
+        _cc_logger_error("Read Error offset:%d, size: %d", ImageSource->offset, ImageSource->size);
     }
     /* }*/
 }
@@ -62,21 +62,21 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
     }
     /* check if it really is a PNG file */
     if ( png_sig_cmp((png_bytep)image_data, 0, 8) ) {
-        _cc_logger_error(_T("LOAD PNG: not really a png"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_,"LOAD PNG: not really a png");
         return NULL;
     }
 
     /* allocate the png read struct */
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, (png_error_ptr)png_cpexcept_error, NULL);
     if (!png_ptr) {
-        _cc_logger_error(_T("LOAD PNG: Internal PNG create read struct failure"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "LOAD PNG: Internal PNG create read struct failure");
         return NULL;
     }
 
     /* Allocate the png info struct */
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
-        _cc_logger_error(_T("LOAD PNG: Internal PNG create info struct failure"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "LOAD PNG: Internal PNG create info struct failure");
         png_destroy_read_struct(&png_ptr, NULL, NULL);
         return 0;
     }
@@ -167,7 +167,7 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
         image = _cc_init_image(CF_R8G8B8, width, height);
 
     if (!image) {
-        _cc_logger_error(_T("LOAD PNG: Internal PNG create image struct failure"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "LOAD PNG: Internal PNG create image struct failure");
         png_destroy_read_struct(&png_ptr, NULL, NULL);
         return NULL;
     }
@@ -176,7 +176,7 @@ _cc_image_t* _cc_load_PNG(const byte_t *image_data, uint32_t image_size) {
     row_pointers = (byte_t**)_cc_malloc(sizeof(png_bytep) * height);
 
     if (!row_pointers) {
-        _cc_logger_error(_T("LOAD PNG: Internal PNG create row pointers failure"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "LOAD PNG: Internal PNG create row pointers failure");
         png_destroy_read_struct(&png_ptr, NULL, NULL);
         _cc_free_image(image);
         return NULL;

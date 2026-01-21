@@ -17,7 +17,7 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
 #endif
 
     if (pthread_mutex_init(&mutex->ident, &attr) != 0) {
-        _cc_logger_error(_T("Couldn't create mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Couldn't create mutex");
         _cc_free(mutex);
         mutex = NULL;
     }
@@ -39,7 +39,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
     pthread_t self;
 #endif
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return false;
     }
 
@@ -56,13 +56,13 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
             mutex->owner = self;
             mutex->recursive = 0;
         } else {
-            _cc_logger_error(_T("pthread_mutex_lock() failed"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_mutex_lock() failed");
             return false;
         }
     }
 #else
     if (pthread_mutex_lock(&mutex->ident) < 0) {
-        _cc_logger_error(_T("pthread_mutex_lock() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_mutex_lock() failed");
         return false;
     }
 #endif
@@ -75,7 +75,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     pthread_t self;
 #endif
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return -1;
     }
 #if _CC_FAKE_RECURSIVE_MUTEX_
@@ -93,7 +93,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
         } else if (errno == EBUSY) {
             return 1;
         } else {
-            _cc_logger_error(_T("pthread_mutex_trylock() failed"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_mutex_trylock() failed");
             return -1;
         }
     }
@@ -102,7 +102,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
         if (errno == EBUSY) {
             return _CC_MUTEX_TIMEDOUT_;
         } else {
-            _cc_logger_error(_T("pthread_mutex_trylock() failed"));
+            _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_mutex_trylock() failed");
             return -1;
         }
     }
@@ -113,7 +113,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 /* Unlock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     if (_cc_unlikely(!mutex)) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return false;
     }
 #if _CC_FAKE_RECURSIVE_MUTEX_
@@ -131,13 +131,13 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
             pthread_mutex_unlock(&mutex->ident);
         }
     } else {
-        _cc_logger_error(_T("mutex not owned by this thread"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "mutex not owned by this thread");
         return false;
     }
 
 #else
     if (pthread_mutex_unlock(&mutex->ident) < 0) {
-        _cc_logger_error(_T("pthread_mutex_unlock() failed"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_mutex_unlock() failed");
         return false;
     }
 #endif

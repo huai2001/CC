@@ -51,7 +51,7 @@ _CC_API_PUBLIC(bool_t) _cc_install_socket(void) {
         WSADATA wsaData;
         /* Start up the windows networking */
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-            _cc_logger_error(_T("Winsock 2.2 initialization failed: %s."), _cc_last_error(_cc_last_errno()));
+            _cc_logger_error("Winsock 2.2 initialization failed: %s.", _cc_last_error(_cc_last_errno()));
             return false;
         }
 
@@ -101,7 +101,7 @@ _CC_API_PUBLIC(int) _cc_close_socket(_cc_socket_t fd) {
 #ifdef _CC_DEBUG_
     if (_cc_unlikely(request == SOCKET_ERROR)) {
         int32_t err = _cc_last_errno();
-        _cc_logger_error(_T(" closesocket() failed with error:%d, %s"), err, _cc_last_error(err));
+        _cc_logger_error(" closesocket() failed with error:%d, %s", err, _cc_last_error(err));
     }
 #endif
 
@@ -122,7 +122,7 @@ _CC_API_PUBLIC(int) _cc_set_socket_nonblock(_cc_socket_t fd, int nonblocking) {
     int flags = ioctlsocket(fd, FIONBIO, (unsigned long *)&nonblocking);
     if (_cc_unlikely(flags == SOCKET_ERROR)) {
         flags = _cc_last_errno();
-        _cc_logger_error(_T("FIONBIO socket_nonblock(%d) failed with error:%d, %s "), fd, flags, _cc_last_error(flags));
+        _cc_logger_error("FIONBIO socket_nonblock(%d) failed with error:%d, %s ", fd, flags, _cc_last_error(flags));
     }
     return flags;
 }
@@ -204,7 +204,7 @@ void *get_extension_func_ptr(SOCKET sock, GUID guid) {
 
     if (SOCKET_ERROR == WSAIoctl(sock, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &pfn, sizeof(pfn),
                                  &dwBytes, NULL, NULL)) {
-        _cc_logger_error(_T("fd:%d, WSAIoctl Error:%s"), sock, _cc_last_error(_cc_last_errno()));
+        _cc_logger_error("fd:%d, WSAIoctl Error:%s", sock, _cc_last_error(_cc_last_errno()));
         return NULL;
     }
 

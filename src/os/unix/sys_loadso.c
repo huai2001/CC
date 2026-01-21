@@ -13,13 +13,13 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
     pvoid_t handle = NULL;
 #ifdef __CC_IPHONEOS__
     if (!_cc_is_system_version_at_least(8.0)) {
-        _cc_logger_error(_T("_cc_load_object requires iOS 8+"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "_cc_load_object requires iOS 8+");
         return NULL;
     }
 #endif
     handle = dlopen(sofile, RTLD_NOW | RTLD_LOCAL);
     if (handle == NULL) {
-        _cc_logger_error(_T("Failed dlopen %s : %s"), sofile, (tchar_t *)dlerror());
+        _cc_logger_error("Failed dlopen %s : %s", sofile, (tchar_t *)dlerror());
     }
 
     return (handle);
@@ -36,7 +36,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
 
         symbol = dlsym(handle, _func_name);
         if (symbol == NULL) {
-            _cc_logger_error(_T("Failed dlsym(%s): %s"), name, (tchar_t *)dlerror());
+            _cc_logger_error("Failed dlsym(%s): %s", name, (tchar_t *)dlerror());
         }
     }
     return (symbol);

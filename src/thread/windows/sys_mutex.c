@@ -99,7 +99,7 @@ _CC_API_PRIVATE(int) _cc_mutex_try_lock_srw(_cc_mutex_t *mutex_srw) {
     DWORD self;
 
     if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return -1;
     }
 
@@ -134,7 +134,7 @@ _CC_API_PRIVATE(bool_t) _cc_mutex_unlock_srw(_cc_mutex_t *mutex_srw) {
             pReleaseSRWLockExclusive(&mutex->srw);
         }
     } else {
-        _cc_logger_error(_T("mutex not owned by this thread"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "mutex not owned by this thread");
         return false;
     }
 
@@ -182,7 +182,7 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
 /* Lock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return false;
     }
     return _cc_mutex_impl_active.Lock(mutex);
@@ -191,7 +191,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
 /* try lock the mutex */
 _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return false;
     }
     return _cc_mutex_impl_active.TryLock(mutex);
@@ -200,7 +200,7 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
 /**/
 _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return false;
     }
     return _cc_mutex_impl_active.Unlock(mutex);
@@ -208,7 +208,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_unlock(_cc_mutex_t *mutex) {
 
 _CC_API_PUBLIC(void) _cc_free_mutex(_cc_mutex_t *mutex) {
     if (mutex == NULL) {
-        _cc_logger_error(_T("Passed a NULL mutex"));
+        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Passed a NULL mutex");
         return;
     }
     _cc_mutex_impl_active.Destroy(mutex);

@@ -60,7 +60,7 @@ static void _output_message(struct jpeg_common_struct * cinfo) {
     /* display the error message. */
     char_t temp1[JMSG_LENGTH_MAX];
     (*cinfo->err->format_message)(cinfo, temp1);
-    _cc_logger_error(_T("JPEG LOAD FATAL ERROR %s"), temp1);
+    _cc_logger_error("JPEG LOAD FATAL ERROR %s", temp1);
 }
 
 _cc_image_t* _cc_load_JPG(const byte_t *image_data, uint32_t image_size) {
