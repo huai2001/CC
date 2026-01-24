@@ -23,23 +23,17 @@ _CC_API_PUBLIC(bool_t) _cc_http_header_push(_cc_rbtree_t *ctx, _cc_http_header_t
     while (*node) {
         _cc_http_header_t *m = _cc_upcast(*node, _cc_http_header_t, lnk);
         int32_t result = _tcsicmp(data->keyword, m->keyword);
-
-        parent = *node;
-
-        if (result < 0) {
-            node = &((*node)->left);
-        } else if (result > 0) {
-            node = &((*node)->right);
-        } else {
+        if (result == 0) {
             if (m->value) {
                 _cc_sds_free(m->value);
             }
             m->value = data->value;
-            
             data->value = NULL;
             _cc_http_header_free(data);
             return true;
         }
+        parent = *node;
+        node = (result < 0) ? &(parent->left) : &(parent->right);
     }
     _cc_rbtree_insert(ctx, &data->lnk, parent, node);
     return true;
@@ -51,13 +45,10 @@ _CC_API_PUBLIC(const _cc_http_header_t*) _cc_http_header_find(_cc_rbtree_t *ctx,
     while (node) {
         _cc_http_header_t *m = _cc_upcast(node, _cc_http_header_t, lnk);
         int32_t result = _tcsicmp(keyword, m->keyword);
-        if (result < 0) {
-            node = node->left;
-        } else if (result > 0) {
-            node = node->right;
-        } else {
+        if (result == 0) {
             return m;
         }
+        node = (result < 0) ? node->left : node->right;
     }
     return NULL;
 }

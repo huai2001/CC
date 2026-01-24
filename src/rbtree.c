@@ -588,44 +588,32 @@ _CC_API_PUBLIC(void) _cc_rbtree_replace_node(_cc_rbtree_t *root, _cc_rbtree_iter
 
 _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_get(const _cc_rbtree_t *root, uintptr_t keyword,
                                       int32_t (*cb)(_cc_rbtree_iterator_t *, uintptr_t)) {
-    int32_t result = 0;
     _cc_rbtree_iterator_t *node = root->rb_node;
 
     while (node) {
-        result = cb(node, keyword);
-        if (result < 0) {
-            node = node->left;
-        } else if (result > 0) {
-            node = node->right;
-        } else {
+        int32_t result = cb(node, keyword);
+        if (result == 0) {
             return node;
         }
+        node = (result < 0) ? node->left : node->right;
     }
-
     return NULL;
 }
 
 _CC_API_PUBLIC(bool_t) _cc_rbtree_push(_cc_rbtree_t *root, _cc_rbtree_iterator_t *data,
                        int32_t (*cb)(_cc_rbtree_iterator_t *, _cc_rbtree_iterator_t *)) {
-    int32_t result = 0;
     _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = NULL;
 
     while (*node) {
-        result = cb(*node, data);
-
-        parent = *node;
-
-        if (result < 0) {
-            node = &((*node)->left);
-        } else if (result > 0) {
-            node = &((*node)->right);
-        } else {
+        int32_t result = cb(*node, data);
+        if (result == 0) {
             return false;
         }
+        parent = *node;
+        node = (result < 0) ? &(parent->left) : &(parent->right);
     }
 
     _cc_rbtree_insert(root, data, parent, node);
-
     return true;
 }
 
