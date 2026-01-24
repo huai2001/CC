@@ -93,6 +93,7 @@ _CC_FORCE_INLINE_ void _cc_buf_reset(_cc_buf_t *buf) {
     buf->length = 0;
 }
 
+/** {@ */
 /**/
 _CC_API_PUBLIC(bool_t) _cc_buf_from_file(_cc_buf_t* buf,const tchar_t* file_name);
 /**/
@@ -137,6 +138,7 @@ _CC_API_PUBLIC(bool_t) _cc_buf_utf16_to_utf8(_cc_buf_t *ctx, size_t offset);
 #endif
 
 /** @} */
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

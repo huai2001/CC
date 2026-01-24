@@ -271,7 +271,7 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_pop(_cc_hmap_t *ctx, const uintptr_t keyword)
  */
 _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *ctx) {
     /* Rehash the cells */
-    _cc_list_iterator_for_each_next(it, &ctx->list, {
+    _cc_list_iterator_for_each(it, &ctx->list, {
         _cc_hmap_cell_t *n = _cc_upcast(it, _cc_hmap_cell_t, lnk);
         n->data = 0;
     });

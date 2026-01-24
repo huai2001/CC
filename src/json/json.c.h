@@ -33,8 +33,8 @@ void _json_array_alloc(_cc_json_t* ctx, size_t size);
 size_t _json_array_push(_cc_json_t *ctx, _cc_json_t *item);
 bool_t _json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement);
 
-void _destroy_json_array(_cc_json_t*);
-void _destroy_json_object(_cc_json_t*);
+void _free_json_array(_cc_json_t*);
+void _free_json_object(_cc_json_t*);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

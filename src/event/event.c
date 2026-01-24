@@ -432,7 +432,7 @@ void _reset_event_pending(_cc_async_event_t *async, void (*_reset)(_cc_async_eve
             e = ((_cc_event_t*)*((uintptr_t*)(async->changes) + i));
             _cc_list_iterator_swap(&async->pending, &e->lnk);
         }
-        _cc_array_cleanup(async->changes);
+        _cc_array_clear(async->changes);
         _event_unlock(async);
     }
 

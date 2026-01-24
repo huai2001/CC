@@ -20,15 +20,15 @@ extern "C" {
     } while (0)
 
 /**/
-#define _cc_rbtree_for_prev(__CURR, __FIRST)                \
+#define _cc_rbtree_for_backward(__CURR, __FIRST)                \
     for (__CURR = _cc_rbtree_last(__FIRST); __CURR != NULL; \
          __CURR = _cc_rbtree_prev(__CURR))
 
-#define _cc_rbtree_for_next(__CURR, __FIRST)                 \
+#define _cc_rbtree_for_forward(__CURR, __FIRST)                 \
     for (__CURR = _cc_rbtree_first(__FIRST); __CURR != NULL; \
          __CURR = _cc_rbtree_next(__CURR))
 
-#define _cc_rbtree_for _cc_rbtree_for_next
+#define _cc_rbtree_for _cc_rbtree_for_forward
 
 enum { _CC_RB_RED_ = 0, _CC_RB_BLACK_ };
 
@@ -55,8 +55,8 @@ typedef struct _cc_rbtree _cc_rbtree_t;
 #define _CC_RB_EMPTY_ROOT(root) ((root)->rb_node == NULL)
 
 _CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
-_CC_API_PUBLIC(void) _cc_rbtree_erase(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
-_CC_API_PUBLIC(void) _cc_rbtree_destroy(_cc_rbtree_t *, void (*cb)(_cc_rbtree_iterator_t *));
+_CC_API_PUBLIC(void) _cc_rbtree_remove(_cc_rbtree_t *, _cc_rbtree_iterator_t *);
+_CC_API_PUBLIC(void) _cc_rbtree_free_all(_cc_rbtree_t *, void (*cb)(_cc_rbtree_iterator_t *));
 _CC_API_PUBLIC(void) _cc_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rbtree_iterator_t *, pvoid_t), pvoid_t args);
 
 /* Find logical next and previous nodes in a tree */

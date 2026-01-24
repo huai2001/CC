@@ -208,7 +208,7 @@ _CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *root, _cc_rbtree_iter
     }
 }
 
-_CC_API_PRIVATE(void) _rb_erase_color(_cc_rbtree_iterator_t *parent, _cc_rbtree_t *root) {
+_CC_API_PRIVATE(void) _rb_remove_color(_cc_rbtree_iterator_t *parent, _cc_rbtree_t *root) {
     _cc_rbtree_iterator_t *node = NULL, *sibling, *tmp1, *tmp2;
 
     while (true) {
@@ -379,7 +379,7 @@ _CC_API_PRIVATE(void) _rb_erase_color(_cc_rbtree_iterator_t *parent, _cc_rbtree_
     }
 }
 
-_CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_erase(_cc_rbtree_iterator_t *node, _cc_rbtree_t *root) {
+_CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_remove(_cc_rbtree_iterator_t *node, _cc_rbtree_t *root) {
     _cc_rbtree_iterator_t *child = node->right;
     _cc_rbtree_iterator_t *tmp = node->left;
     _cc_rbtree_iterator_t *parent, *rebalance;
@@ -390,7 +390,7 @@ _CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_erase(_cc_rbtree_iterator_t *node, _
          *
          * Note that if there is one child it must be red due to 5)
          * and node must be black due to 4). We adjust colors locally
-         * so as to bypass _rb_erase_color() later on.
+         * so as to bypass _rb_remove_color() later on.
          */
         parent = _rb_parent(node);
         _rb_change_child(node, child, parent, root);
@@ -468,11 +468,11 @@ _CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_erase(_cc_rbtree_iterator_t *node, _
     return rebalance;
 }
 
-_CC_API_PUBLIC(void) _cc_rbtree_erase(_cc_rbtree_t *root, _cc_rbtree_iterator_t *node) {
+_CC_API_PUBLIC(void) _cc_rbtree_remove(_cc_rbtree_t *root, _cc_rbtree_iterator_t *node) {
     _cc_rbtree_iterator_t *rebalance;
-    rebalance = _rb_erase(node, root);
+    rebalance = _rb_remove(node, root);
     if (rebalance) {
-        _rb_erase_color(rebalance, root);
+        _rb_remove_color(rebalance, root);
     }
 }
 
@@ -641,7 +641,7 @@ static void _free_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rb
     cb(node);
 }
 
-_CC_API_PUBLIC(void) _cc_rbtree_destroy(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterator_t *)) {
+_CC_API_PUBLIC(void) _cc_rbtree_free_all(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterator_t *)) {
     _cc_assert(cb != NULL);
     if (!cb || !root->rb_node) {
         return;

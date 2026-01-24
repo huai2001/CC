@@ -82,7 +82,7 @@ _CC_API_PUBLIC(void) _cc_http_free_request_header(_cc_http_request_header_t **ht
         _cc_sds_free(res->protocol);
     }
 
-    _cc_http_header_destroy(&res->headers);
+    _cc_http_header_free_all(&res->headers);
 
     _cc_free(res);
 }

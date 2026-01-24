@@ -139,7 +139,7 @@ void test_array_cleanup() {
     assert(_cc_array_available(array) == 0);
     assert(_cc_array_length(array) == 10);
 
-    _cc_array_cleanup(array);
+    _cc_array_clear(array);
 
     assert(_cc_array_available(array) == 10);
     assert(_cc_array_length(array) == 0);

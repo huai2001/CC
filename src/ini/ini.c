@@ -19,7 +19,7 @@ void _INI_free(_cc_ini_t* p) {
     }
     switch(p->type) {
     case _CC_INI_SECTION_:
-        _cc_rbtree_destroy(&p->element.uni_object, _ini_free_rb_node);
+        _cc_rbtree_free_all(&p->element.uni_object, _ini_free_rb_node);
         break;
     case _CC_INI_STRING_:
         if (p->element.uni_string) {
@@ -94,7 +94,7 @@ _CC_API_PUBLIC(void) _cc_free_ini(_cc_ini_t* ctx) {
     }
 
     if (ctx->type == _CC_INI_SECTION_) {
-        _cc_rbtree_destroy(&ctx->element.uni_object, _ini_free_rb_node);
+        _cc_rbtree_free_all(&ctx->element.uni_object, _ini_free_rb_node);
     }
 
     _cc_free(ctx);

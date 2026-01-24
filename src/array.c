@@ -165,7 +165,7 @@ _CC_API_PUBLIC(uintptr_t) _cc_array_remove(_cc_array_t ctx, const size_t index) 
     return data;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_array_cleanup(_cc_array_t ctx) {
+_CC_API_PUBLIC(bool_t) _cc_array_clear(_cc_array_t ctx) {
     __array_hdr_t *hdr;
     _cc_assert(ctx != 0);
     hdr = (__array_hdr_t *)((byte_t *)ctx - sizeof(__array_hdr_t));

@@ -93,7 +93,7 @@ _CC_API_PUBLIC(bool_t) _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *ke
         return false;
     }
 
-    _cc_rbtree_erase(&ctx->element.uni_object, node);
+    _cc_rbtree_remove(&ctx->element.uni_object, node);
     _json_free_object_rb_node(node);
     return true;
 }

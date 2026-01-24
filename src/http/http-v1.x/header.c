@@ -57,9 +57,9 @@ static void _http_header_free(_cc_rbtree_iterator_t *node) {
     _cc_http_header_free(_cc_upcast(node, _cc_http_header_t, lnk));
 }
 
-_CC_API_PUBLIC(void) _cc_http_header_destroy(_cc_rbtree_t *ctx) {
+_CC_API_PUBLIC(void) _cc_http_header_free_all(_cc_rbtree_t *ctx) {
     _cc_assert(ctx != NULL);
-    _cc_rbtree_destroy(ctx, _http_header_free);
+    _cc_rbtree_free_all(ctx, _http_header_free);
 }
 
 _CC_API_PUBLIC(bool_t) _cc_http_header_line(_cc_rbtree_t *headers, tchar_t *line, int length) {

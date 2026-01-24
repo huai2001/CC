@@ -82,7 +82,7 @@ void _json_free_node(_cc_json_t *item) {
     _cc_assert(item != NULL);
     switch (item->type) {
     case _CC_JSON_OBJECT_:
-        _cc_rbtree_destroy(&item->element.uni_object, _json_free_object_rb_node);
+        _cc_rbtree_free_all(&item->element.uni_object, _json_free_object_rb_node);
         break;
     case _CC_JSON_STRING_:
         if (item->element.uni_string) {
@@ -90,7 +90,7 @@ void _json_free_node(_cc_json_t *item) {
         }
         break;
     case _CC_JSON_ARRAY_:
-        _destroy_json_array(item);
+        _free_json_array(item);
         break;
     }
 
@@ -100,8 +100,8 @@ void _json_free_node(_cc_json_t *item) {
     _cc_free(item);
 }
 
-void _destroy_json_object(_cc_json_t *root) {
-    _cc_rbtree_destroy(&root->element.uni_object, _json_free_object_rb_node);
+void _free_json_object(_cc_json_t *root) {
+    _cc_rbtree_free_all(&root->element.uni_object, _json_free_object_rb_node);
 }
 
 _CC_API_PUBLIC(void) _cc_free_json(_cc_json_t *item) {

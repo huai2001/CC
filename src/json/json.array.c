@@ -8,7 +8,7 @@ void _json_array_alloc(_cc_json_t* ctx, size_t capacity) {
     ctx->element.uni_array = _cc_alloc_array(capacity);
 }
 
-void _destroy_json_array(_cc_json_t* ctx) {
+void _free_json_array(_cc_json_t* ctx) {
     uintptr_t arr = (uintptr_t)ctx->element.uni_array;
     size_t i;
     size_t length = _cc_array_length(arr);

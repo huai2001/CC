@@ -12,7 +12,7 @@ extern "C" {
     do {                                                    \
         _cc_queue_iterator_t* __NEXT = (__FIRST)->next;     \
         _cc_queue_iterator_t* __CURR;                       \
-        while (__NEXT != (__FIRST)) {           \
+        while (__NEXT != (__FIRST)) {                       \
             __CURR = __NEXT;                                \
             __NEXT = __NEXT->next;                          \
             __OP                                            \

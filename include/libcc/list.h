@@ -14,13 +14,12 @@ extern "C" {
 #define _cc_list_iterator_for(__NEXT, __FIRST) \
     for (__NEXT = (__FIRST)->next; __NEXT != (__FIRST); __NEXT = __NEXT->next)
 
-#define _cc_list_iterator_for_each _cc_list_iterator_for_each_next
 /**/
-#define _cc_list_iterator_for_each_next(__CURR, __FIRST, __OP)   \
+#define _cc_list_iterator_for_each(__CURR, __FIRST, __OP)        \
     do {                                                         \
         _cc_list_iterator_t* __NEXT = (__FIRST)->next;           \
         _cc_list_iterator_t* __CURR;                             \
-        while (__NEXT != (__FIRST)) {                \
+        while (__NEXT != (__FIRST)) {                            \
             __CURR = __NEXT;                                     \
             __NEXT = __NEXT->next;                               \
             __OP                                                 \
@@ -32,7 +31,7 @@ extern "C" {
     do {                                                         \
         _cc_list_iterator_t* __PREV = (__FIRST)->prev;           \
         _cc_list_iterator_t* __CURR;                             \
-        while (__PREV != (__FIRST)) {                \
+        while (__PREV != (__FIRST)) {                            \
             __CURR = __PREV;                                     \
             __PREV = __PREV->prev;                               \
             __OP                                                 \

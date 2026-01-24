@@ -3,6 +3,7 @@
 
 #include "libcc/endian.h"
 #include "libcc/rand.h"
+#include "libcc/rwbuf.h"
 #include "libcc/buf.h"
 #include "libcc/power.h"
 #include "libcc/thread.h"

@@ -67,6 +67,7 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/string.c \
 	$(SRCROOT)/src/sds.c \
 	$(SRCROOT)/src/buf.c \
+	$(SRCROOT)/src/rwbuf.c \
 	$(SRCROOT)/src/uuid.c \
 	$(SRCROOT)/src/url.c \
 	$(SRCROOT)/src/rand.c \

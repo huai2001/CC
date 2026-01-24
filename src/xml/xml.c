@@ -200,7 +200,7 @@ static void _xml_free(_cc_xml_t *ctx) {
         _cc_sds_free(ctx->name);
     }
 
-    _cc_rbtree_destroy(&ctx->attr, _xml_free_attr_rb_node);
+    _cc_rbtree_free_all(&ctx->attr, _xml_free_attr_rb_node);
 
     switch (ctx->type) {
     case _CC_XML_COMMENT_:

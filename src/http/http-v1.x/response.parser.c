@@ -77,7 +77,7 @@ _CC_API_PUBLIC(void) _cc_http_free_response_header(_cc_http_response_header_t **
         _cc_sds_free(res->location);
     }
 
-    _cc_http_header_destroy(&res->headers);
+    _cc_http_header_free_all(&res->headers);
 
     _cc_free(res);
 }

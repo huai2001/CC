@@ -31,7 +31,7 @@ _CC_API_PUBLIC(_cc_array_t) _cc_realloc_array(_cc_array_t, size_t);
 /**/
 _CC_API_PUBLIC(void) _cc_free_array(_cc_array_t);
 /**/
-_CC_API_PUBLIC(bool_t) _cc_array_cleanup(_cc_array_t);
+_CC_API_PUBLIC(bool_t) _cc_array_clear(_cc_array_t);
 /**/
 _CC_API_PUBLIC(uintptr_t) _cc_array_get(const _cc_array_t, const size_t);
 /**/
