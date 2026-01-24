@@ -280,7 +280,7 @@ _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item) {
     return false;
 }
 
-_CC_API_PUBLIC(_cc_json_t*) _cc_josn_parser(_cc_sbuf_t *const buffer) {
+_CC_API_PUBLIC(_cc_json_t*) _cc_json_parser(_cc_sbuf_t *const buffer) {
     _cc_json_t *curr_item;
     _cc_syntax_error_t local_error;
 
@@ -328,7 +328,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_from_file(const tchar_t *file_name) {
     buffer.line = 1;
     buffer.depth = 0;
     
-    item = _cc_josn_parser(&buffer);
+    item = _cc_json_parser(&buffer);
 
     _cc_free_buf(&buf);
 
@@ -346,7 +346,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_parse(const tchar_t *src, size_t length) {
     buffer.line = 1;
     buffer.depth = 0;
 
-    return _cc_josn_parser(&buffer);
+    return _cc_json_parser(&buffer);
 }
 
 _CC_API_PUBLIC(const tchar_t*) _cc_json_error(void) {

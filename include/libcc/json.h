@@ -23,12 +23,8 @@ enum _CC_JSON_TYPES_ {
     _CC_JSON_STRING_
 };
 
-#define _CC_JSON_NUMBER_ _CC_JSON_INT_
-
-typedef struct _cc_json _cc_json_t;
-
 /* The JSON structre */
-struct _cc_json {
+typedef struct _cc_json {
     /* The type of the ctx, as above. */
     byte_t type;
     _cc_sds_t name;
@@ -40,8 +36,9 @@ struct _cc_json {
         _cc_array_t uni_array;
         _cc_sds_t uni_string;
     } element;
+    /* Red-black tree iterator for object members */
     _cc_rbtree_iterator_t lnk;
-};
+} _cc_json_t;
 
 /**/
 _CC_API_PUBLIC(_cc_json_t *) _cc_json_alloc_object(byte_t type, const tchar_t *keyword);
@@ -77,7 +74,7 @@ _CC_API_PUBLIC(_cc_json_t *) _cc_json_from_file(const tchar_t *file);
 /**/
 _CC_API_PUBLIC(_cc_json_t *) _cc_json_parse(const tchar_t *src, size_t length);
 /**/
-_CC_API_PUBLIC(_cc_json_t *) _cc_josn_parser(_cc_sbuf_t *const buffer);
+_CC_API_PUBLIC(_cc_json_t *) _cc_json_parser(_cc_sbuf_t *const buffer);
 
 /**/
 _CC_API_PUBLIC(void) _cc_free_json(_cc_json_t *ctx);
@@ -91,7 +88,7 @@ _CC_API_PUBLIC(_cc_json_t *) _cc_json_object_find(const _cc_json_t *ctx, const t
 _CC_API_PUBLIC(_cc_json_t *) _cc_json_array_find(const _cc_json_t *ctx, uint32_t index);
 
 /**/
-_CC_FORCE_INLINE_ int64_t _cc_json_number(const _cc_json_t *ctx) {
+_CC_FORCE_INLINE_ int64_t _cc_json_integer(const _cc_json_t *ctx) {
     if (!ctx) {
         return 0;
     }
@@ -160,8 +157,8 @@ _CC_FORCE_INLINE_ bool_t _cc_json_boolean(const _cc_json_t *ctx) {
 }
 
 /**/
-_CC_FORCE_INLINE_ int64_t _cc_json_object_find_number(const _cc_json_t *ctx, const tchar_t *keyword) {
-    return _cc_json_number(_cc_json_object_find(ctx, keyword));
+_CC_FORCE_INLINE_ int64_t _cc_json_object_find_integer(const _cc_json_t *ctx, const tchar_t *keyword) {
+    return _cc_json_integer(_cc_json_object_find(ctx, keyword));
 }
 
 /**/
@@ -190,8 +187,8 @@ _CC_FORCE_INLINE_ bool_t _cc_json_object_find_boolean(const _cc_json_t *ctx, con
 }
 
 /**/
-_CC_FORCE_INLINE_ int64_t _cc_json_array_find_number(const _cc_json_t *ctx, const uint32_t index) {
-    return _cc_json_number(_cc_json_array_find(ctx, index));
+_CC_FORCE_INLINE_ int64_t _cc_json_array_find_integer(const _cc_json_t *ctx, const uint32_t index) {
+    return _cc_json_integer(_cc_json_array_find(ctx, index));
 }
 
 /**/
