@@ -36,9 +36,10 @@ CURRENT_DIR="${VERSIONS_DIR}/A"
 # 创建Frameworks子目录用于存放依赖库
 mkdir -p "${CURRENT_DIR}/Frameworks"
 
-# 使用关联数组记录依赖关系（避免重复）
-declare -A PROC_LIBS
-declare -A LIB_DEPS
+# 使用临时目录记录依赖关系（性能更优）
+TEMP_DIR=$(mktemp -d)
+PROC_LIBS_FILE="${TEMP_DIR}/proc_libs"
+LIB_DEPS_FILE="${TEMP_DIR}/lib_deps"
 
 # 递归获取所有依赖库（包括依赖的依赖）
 echo "分析依赖库..."
@@ -48,27 +49,30 @@ get_all_dependencies() {
     local DEPS=$(otool -L "$DYLIB_PATH" 2>/dev/null | tail -n +2 | awk '{print $1}')
 
     for DEP in $DEPS; do
-        # 跳过系统库
-        if [[ "$DEP" == /usr/lib/* ]] || [[ "$DEP" == /System/* ]]; then
-            continue
-        fi
-
-        local LIB_NAME=$(basename "$DEP")
-
-        # 跳过已处理的库
-        if [[ -v "PROC_LIBS[$LIB_NAME]" ]]; then
-            continue
-        fi
-
         # 检查文件是否存在
         if [ ! -f "$DEP" ]; then
             echo "  警告: 依赖库不存在: $DEP"
             continue
         fi
 
-        # 标记为已处理
-        PROC_LIBS["$LIB_NAME"]=1
-        LIB_DEPS["$LIB_NAME"]="$DEP"
+        # 跳过特殊路径（系统库、@rpath、@loader_path、@executable_path）
+        if [[ "$DEP" == /usr/lib/* ]] || [[ "$DEP" == /System/* ]] || 
+           [[ "$DEP" == @rpath/* ]] || [[ "$DEP" == @loader_path/* ]] || 
+           [[ "$DEP" == @executable_path/* ]]; then
+            continue
+        fi
+
+        local LIB_NAME=$(basename "$DEP")
+
+        # 跳过已处理的库
+        # 使用 grep -Fq 提升匹配性能（固定字符串）
+        if grep -Fqx "$LIB_NAME" "$PROC_LIBS_FILE" 2>/dev/null; then
+            continue
+        fi
+
+        # 标记为已处理（使用制表符分隔，支持路径含空格）
+        echo "$LIB_NAME" >> "$PROC_LIBS_FILE"
+        printf '%s\t%s\n' "$LIB_NAME" "$DEP" >> "$LIB_DEPS_FILE"
 
         echo "  发现依赖: $LIB_NAME"
         # 递归获取该依赖的依赖
@@ -80,9 +84,9 @@ get_all_dependencies() {
 get_all_dependencies "${CURRENT_DIR}/${FRAMEWORK_NAME}"
 
 # 第一步：拷贝所有依赖库
-echo "拷贝依赖库 (${#PROC_LIBS[@]} 个)..."
-for LIB_NAME in "${!LIB_DEPS[@]}"; do
-    DEP="${LIB_DEPS[$LIB_NAME]}"
+LIB_COUNT=$(wc -l < "$LIB_DEPS_FILE" 2>/dev/null | tr -d ' ' || echo 0)
+echo "拷贝依赖库 ($LIB_COUNT 个)..."
+while IFS=$'\t' read -r LIB_NAME DEP; do
     DEST_PATH="${CURRENT_DIR}/Frameworks/$LIB_NAME"
 
     # 拷贝库文件
@@ -91,21 +95,19 @@ for LIB_NAME in "${!LIB_DEPS[@]}"; do
 
     # 设置依赖库自身的 install_name id
     install_name_tool -id "@loader_path/Frameworks/$LIB_NAME" "$DEST_PATH"
-done
+done < "$LIB_DEPS_FILE"
 
 # 第二步：修复主 Framework 中对依赖库的引用
 echo "修复主 Framework 的依赖引用..."
-for LIB_NAME in "${!LIB_DEPS[@]}"; do
-    DEP="${LIB_DEPS[$LIB_NAME]}"
-
+while IFS=$'\t' read -r LIB_NAME DEP; do
     # 修改主 Framework 中对该依赖库的引用路径
     echo "  修复: $LIB_NAME"
     install_name_tool -change "$DEP" "@loader_path/Frameworks/$LIB_NAME" "${CURRENT_DIR}/${FRAMEWORK_NAME}"
-done
+done < "$LIB_DEPS_FILE"
 
 # 第三步：修复依赖库之间的相互引用
 echo "修复依赖库之间的相互引用..."
-for LIB_NAME in "${!LIB_DEPS[@]}"; do
+while IFS=$'\t' read -r LIB_NAME DEP; do
     DEST_PATH="${CURRENT_DIR}/Frameworks/$LIB_NAME"
 
     # 获取该依赖库的依赖
@@ -120,7 +122,8 @@ for LIB_NAME in "${!LIB_DEPS[@]}"; do
         fi
 
         # 跳过不在我们 Frameworks 目录中的子依赖
-        if [[ ! -v "PROC_LIBS[$SUB_NAME]" ]]; then
+        # 使用 grep -Fq 提升匹配性能
+        if ! grep -Fqx "$SUB_NAME" "$PROC_LIBS_FILE" 2>/dev/null; then
             continue
         fi
 
@@ -128,7 +131,7 @@ for LIB_NAME in "${!LIB_DEPS[@]}"; do
         install_name_tool -change "$SUB_DEP" "@loader_path/$SUB_NAME" "$DEST_PATH"
         echo "  修复: $LIB_NAME -> $SUB_NAME"
     done
-done
+done < "$LIB_DEPS_FILE"
 
 # 第四步：对整个 Framework 进行深度重新签名，确保所有内部库使用相同的签名
 echo "重新签名整个 Framework..."
@@ -141,4 +144,10 @@ else
     /usr/bin/codesign --force --deep --sign - "${WORK_DIR}"
 fi
 
-echo "打包完成! 共处理 ${#PROC_LIBS[@]} 个依赖库"
+# 保存处理统计（清理前）
+PROCESSED_COUNT=$(wc -l < "$PROC_LIBS_FILE" 2>/dev/null || echo 0)
+
+# 清理临时目录
+rm -rf "$TEMP_DIR"
+
+echo "打包完成! 共处理 $PROCESSED_COUNT 个依赖库"
