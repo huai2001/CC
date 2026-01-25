@@ -238,7 +238,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
         /**/
         if (http->state == _CC_HTTP_STATE_HEADER_) {
             return true;
-        } else if (http->state != _CC_HTTP_STATE_PAYLOAD_) {
+        } else if (http->state != _CC_HTTP_STATE_PAYLOAD_ || http->request == NULL) {
             response_bad_request(e, io);
             return false;
         }
