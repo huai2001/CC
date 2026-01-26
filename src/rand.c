@@ -271,7 +271,7 @@ _CC_API_PUBLIC(int32_t) _cc_get_probability(_cc_prd_t *prd, int T) {
         return 1;
     }
 
-    if (T == prd->NMax) {
+    if (T == prd->nmax) {
         return 1;
     }
     return 0;
