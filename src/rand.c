@@ -206,41 +206,41 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 
 _CC_API_PRIVATE(float64_t) C2P(_cc_prd_t *prd) {
     int32_t i;
-    float64_t dCurP = 0.0;
-    float64_t dPreSuccessP = 0.0;
-    float64_t dPE = 0.0;
-    for (i = 1; i <= prd->NMax; ++i) {
-        dCurP = _cc_min_float64(1.0, i * prd->C) * (1.0 - dPreSuccessP);
-        dPreSuccessP += dCurP;
-        dPE += i * dCurP;
+    float64_t curr = 0.0;
+    float64_t upper = 0.0;
+    float64_t ptested = 0.0;
+    for (i = 1; i <= prd->nmax; ++i) {
+        curr = _cc_min_float64(1.0, i * prd->c) * (1.0 - upper);
+        upper += curr;
+        ptested += i * curr;
     }
-    return 1.0 / dPE;
+    return 1.0 / ptested;
 }
 
 /**/
 _CC_API_PUBLIC(void) _cc_calculate_prd(_cc_prd_t *prd, float64_t p) {
-    float64_t P = p * 1.0 / 100.0;
-    float64_t dUp = P;
-    float64_t dLow = 0.0;
-    float64_t dPLast = 1.0;
-    float64_t dPtested;
+    float64_t percent = p * 1.0 / 100.0;
+    float64_t upper_bound = percent;
+    float64_t lower_bound = 0.0;
+    float64_t last = 1.0;
+    float64_t ptested;
 
     while (1) {
-        prd->C = (dUp + dLow) / 2.0;
-        prd->NMax = (int32_t)ceil(1.0 / prd->C);
-        dPtested = C2P(prd);
+        prd->c = (upper_bound + lower_bound) / 2.0;
+        prd->nmax = (int32_t)ceil(1.0 / prd->c);
+        ptested = C2P(prd);
 
-        if (fabs(dPtested - dPLast) <= 0.000005) {
+        if (fabs(ptested - last) <= 0.000005) {
             break;
         }
 
-        if (dPtested > P) {
-            dUp = prd->C;
+        if (ptested > percent) {
+            upper_bound = prd->c;
         } else {
-            dLow = prd->C;
+            lower_bound = prd->c;
         }
 
-        dPLast = dPtested;
+        last = ptested;
     }
 }
 /*
