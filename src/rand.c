@@ -265,7 +265,7 @@ dataCount);
 _CC_API_PUBLIC(int32_t) _cc_get_probability(_cc_prd_t *prd, int T) {
     float64_t P, R;
 
-    P = prd->C * T;
+    P = prd->c * T;
     R = rand() * 1.0 / RAND_MAX;
     if (R <= P) {
         return 1;
