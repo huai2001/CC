@@ -69,8 +69,7 @@ _CC_FORCE_INLINE_ bool_t _cc_list_empty(_cc_list_t *lnk) {
 }
 
 /**/
-_CC_FORCE_INLINE_ void _cc_list_insert(_cc_list_t *lnk, _cc_list_t *prev,
-        _cc_list_t *next) {
+_CC_FORCE_INLINE_ void _cc_list_insert(_cc_list_t *lnk, _cc_list_t *prev, _cc_list_t *next) {
     lnk->next = next;
     lnk->prev = prev;
     next->prev = lnk;
