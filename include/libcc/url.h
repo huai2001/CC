@@ -66,7 +66,7 @@ enum _CC_SCHEME_TYPES_ {
 typedef struct _cc_fields {
     _cc_sds_t name;
     _cc_sds_t value;
-    _cc_rbtree_iterator_t lnk;
+    _cc_rb_t lnk;
 } _cc_fields_t;
 
 /*:

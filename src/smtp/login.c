@@ -40,7 +40,7 @@ _CC_API_PRIVATE(bool_t) libsmtp_login_password(_cc_smtp_t* smtp, const byte_t* b
 
     if (buf[0] == '2' && buf[1] == '3' && buf[2] == '5') {
         smtp->is_logined = true;
-        if (!_cc_list_iterator_empty(&smtp->emails)) {
+        if (!_cc_list_empty(&smtp->emails)) {
             return libsmtp_from_to(smtp);
         }
     }

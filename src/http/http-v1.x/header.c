@@ -19,7 +19,7 @@ _CC_API_PUBLIC(void) _cc_http_header_free(_cc_http_header_t *m) {
 }
 
 _CC_API_PUBLIC(bool_t) _cc_http_header_push(_cc_rbtree_t *ctx, _cc_http_header_t *data) {
-    _cc_rbtree_iterator_t **node = &(ctx->rb_node), *parent = NULL;
+    _cc_rb_t **node = &(ctx->rb_node), *parent = NULL;
     while (*node) {
         _cc_http_header_t *m = _cc_upcast(*node, _cc_http_header_t, lnk);
         int32_t result = _tcsicmp(data->keyword, m->keyword);
@@ -40,7 +40,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_header_push(_cc_rbtree_t *ctx, _cc_http_header_t
 }
 
 _CC_API_PUBLIC(const _cc_http_header_t*) _cc_http_header_find(_cc_rbtree_t *ctx, const tchar_t *keyword) {
-    _cc_rbtree_iterator_t *node = ctx->rb_node;
+    _cc_rb_t *node = ctx->rb_node;
 
     while (node) {
         _cc_http_header_t *m = _cc_upcast(node, _cc_http_header_t, lnk);
@@ -53,7 +53,7 @@ _CC_API_PUBLIC(const _cc_http_header_t*) _cc_http_header_find(_cc_rbtree_t *ctx,
     return NULL;
 }
 
-static void _http_header_free(_cc_rbtree_iterator_t *node) {
+static void _http_header_free(_cc_rb_t *node) {
     _cc_http_header_free(_cc_upcast(node, _cc_http_header_t, lnk));
 }
 

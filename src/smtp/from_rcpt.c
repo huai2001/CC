@@ -64,7 +64,7 @@ _CC_API_PUBLIC(bool_t) libsmtp_from_to(_cc_smtp_t* smtp) {
 
     if (smtp->email == NULL) {
         _cc_spin_lock(&smtp->lock);
-        _cc_list_iterator_t *lnk =  _cc_list_iterator_pop(&smtp->emails);
+        _cc_list_t *lnk =  _cc_list_pop(&smtp->emails);
         _cc_unlock(&smtp->lock);
         if (lnk == &smtp->emails) {
             return false;

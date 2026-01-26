@@ -19,7 +19,7 @@ typedef struct _cc_debug_alloc {
     uint32_t line;
     size_t size;
     tchar_t *file;
-    _cc_list_iterator_t lnk;
+    _cc_list_t lnk;
 } _cc_debug_alloc_t;
 
 /**/

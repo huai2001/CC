@@ -1,6 +1,6 @@
 #include "json.c.h"
 
-int32_t _json_get_object(_cc_rbtree_iterator_t *left, uintptr_t keyword) {
+int32_t _json_get_object(_cc_rb_t *left, uintptr_t keyword) {
     _cc_json_t *_left = _cc_upcast(left, _cc_json_t, lnk);
 
     return _tcscmp(_left->name, (const tchar_t *)keyword);
@@ -22,8 +22,8 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *ke
 
 bool_t _json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) {
     _cc_rbtree_t *root;
-    _cc_rbtree_iterator_t **node;
-    _cc_rbtree_iterator_t *parent = NULL;
+    _cc_rb_t **node;
+    _cc_rb_t *parent = NULL;
     _cc_json_t *curr;
     int32_t result;
 
@@ -83,7 +83,7 @@ _CC_API_PUBLIC(bool_t) _cc_json_object_push(_cc_json_t *ctx, _cc_json_t *item, b
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *keyword) {
-    _cc_rbtree_iterator_t *node;
+    _cc_rb_t *node;
     if (ctx->type != _CC_JSON_OBJECT_) {
         return false;
     }

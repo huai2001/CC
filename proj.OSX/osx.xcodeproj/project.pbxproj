@@ -98,6 +98,8 @@
 		4217A5622EEC1FA8006262EC /* sha256.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4052EEC1FA8006262EC /* sha256.c */; };
 		4217A5662EEC1FA8006262EC /* strptime.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4472EEC1FA8006262EC /* strptime.c */; };
 		421DEAB02F149DDC005678DE /* base32.c in Sources */ = {isa = PBXBuildFile; fileRef = 421DEAAF2F149DDC005678DE /* base32.c */; };
+		4245A4E42F20B7DA00C24096 /* osx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4217A3E42EEC1F76006262EC /* osx.framework */; };
+		4245A4E62F20B7EB00C24096 /* osx.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4217A3E42EEC1F76006262EC /* osx.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		425720D02F0A04A50060EE45 /* request.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720CE2F0A04A50060EE45 /* request.c */; };
 		425720D12F0A04A50060EE45 /* request.response.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720CF2F0A04A50060EE45 /* request.response.c */; };
 		425720D42F0A07060060EE45 /* libodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 425720D32F0A07060060EE45 /* libodbc.a */; };
@@ -111,6 +113,19 @@
 		42907D422F177621008AE8C9 /* OpenSSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 42907D412F177621008AE8C9 /* OpenSSL.c */; };
 		42907D442F17763E008AE8C9 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 42907D432F17763E008AE8C9 /* libsqlite3.tbd */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4245A4E52F20B7E100C24096 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4245A4E62F20B7EB00C24096 /* osx.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4217A3E42EEC1F76006262EC /* osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -205,6 +220,7 @@
 		4217A4B92EEC1FA8006262EC /* UTF.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = UTF.c; sourceTree = "<group>"; };
 		4217A4BA2EEC1FA8006262EC /* uuid.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = uuid.c; sourceTree = "<group>"; };
 		421DEAAF2F149DDC005678DE /* base32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base32.c; sourceTree = "<group>"; };
+		4245A4D52F20B7C800C24096 /* tools.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tools.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		425720CE2F0A04A50060EE45 /* request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.c; sourceTree = "<group>"; };
 		425720CF2F0A04A50060EE45 /* request.response.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.response.c; sourceTree = "<group>"; };
 		425720D32F0A07060060EE45 /* libodbc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libodbc.a; path = ../../homebrew/Cellar/unixodbc/2.3.12/lib/libodbc.a; sourceTree = "<group>"; };
@@ -219,6 +235,14 @@
 		42907D432F17763E008AE8C9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4245A4D62F20B7C800C24096 /* tools */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = tools;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		4217A3E12EEC1F76006262EC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -230,6 +254,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4245A4D22F20B7C800C24096 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4245A4E42F20B7DA00C24096 /* osx.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -237,6 +269,7 @@
 			isa = PBXGroup;
 			children = (
 				4217A4BB2EEC1FA8006262EC /* src */,
+				4245A4D62F20B7C800C24096 /* tools */,
 				425720D22F0A07060060EE45 /* Frameworks */,
 				4217A3E52EEC1F76006262EC /* Products */,
 			);
@@ -246,6 +279,7 @@
 			isa = PBXGroup;
 			children = (
 				4217A3E42EEC1F76006262EC /* osx.framework */,
+				4245A4D52F20B7C800C24096 /* tools.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -549,6 +583,7 @@
 				4217A3E02EEC1F76006262EC /* Sources */,
 				4217A3E12EEC1F76006262EC /* Frameworks */,
 				4217A3E22EEC1F76006262EC /* Resources */,
+				42E0A7952F1F3247005DC1E2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -560,6 +595,29 @@
 			productName = osx;
 			productReference = 4217A3E42EEC1F76006262EC /* osx.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		4245A4D42F20B7C800C24096 /* tools */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4245A4E12F20B7C900C24096 /* Build configuration list for PBXNativeTarget "tools" */;
+			buildPhases = (
+				4245A4D12F20B7C800C24096 /* Sources */,
+				4245A4D22F20B7C800C24096 /* Frameworks */,
+				4245A4D32F20B7C800C24096 /* Resources */,
+				4245A4E52F20B7E100C24096 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4245A4D62F20B7C800C24096 /* tools */,
+			);
+			name = tools;
+			packageProductDependencies = (
+			);
+			productName = tools;
+			productReference = 4245A4D52F20B7C800C24096 /* tools.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -573,6 +631,10 @@
 				TargetAttributes = {
 					4217A3E32EEC1F76006262EC = {
 						CreatedOnToolsVersion = 16.3;
+					};
+					4245A4D42F20B7C800C24096 = {
+						CreatedOnToolsVersion = 16.3;
+						LastSwiftMigration = 1630;
 					};
 				};
 			};
@@ -591,6 +653,7 @@
 			projectRoot = "";
 			targets = (
 				4217A3E32EEC1F76006262EC /* osx */,
+				4245A4D42F20B7C800C24096 /* tools */,
 			);
 		};
 /* End PBXProject section */
@@ -603,7 +666,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4245A4D32F20B7C800C24096 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		42E0A7952F1F3247005DC1E2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n${SRCROOT}/Scripts/XCode.sh\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4217A3E02EEC1F76006262EC /* Sources */ = {
@@ -702,6 +792,13 @@
 				4217A5612EEC1FA8006262EC /* crc.c in Sources */,
 				4217A5622EEC1FA8006262EC /* sha256.c in Sources */,
 				4217A5662EEC1FA8006262EC /* strptime.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4245A4D12F20B7C800C24096 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -838,6 +935,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -846,6 +944,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					../lib,
 					"/opt/homebrew/opt/mysql-client/lib",
@@ -891,6 +990,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -899,6 +999,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					../lib,
 					"/opt/homebrew/opt/mysql-client/lib",
@@ -936,6 +1037,67 @@
 			};
 			name = Release;
 		};
+		4245A4E22F20B7C900C24096 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = tools/tools.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8X9J3P3289;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = ../include;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.libcc.tools;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		4245A4E32F20B7C900C24096 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = tools/tools.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8X9J3P3289;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = ../include;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.libcc.tools;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -953,6 +1115,15 @@
 			buildConfigurations = (
 				4217A3EC2EEC1F76006262EC /* Debug */,
 				4217A3ED2EEC1F76006262EC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4245A4E12F20B7C900C24096 /* Build configuration list for PBXNativeTarget "tools" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4245A4E22F20B7C900C24096 /* Debug */,
+				4245A4E32F20B7C900C24096 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

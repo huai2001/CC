@@ -6,11 +6,11 @@
 
 /**/
 _CC_API_PRIVATE(void) _timeout_move_slot(_cc_async_event_t *async, int level, int n) {
-    _cc_list_iterator_t *head = &async->level[level][n];
-    _cc_list_iterator_for_each(it, head, { 
+    _cc_list_t *head = &async->level[level][n];
+    _cc_list_for_each(it, head, { 
         _add_event_timeout(async, _cc_upcast(it, _cc_event_t, lnk)); 
     });
-    _cc_list_iterator_cleanup(head);
+    _cc_list_cleanup(head);
 }
 
 /**/
@@ -38,8 +38,8 @@ _CC_API_PRIVATE(void) _timeout_shift(_cc_async_event_t *async) {
 void _timeout_execute(_cc_async_event_t *async) {
     int i = async->timer & _CC_TIMEOUT_NEAR_MASK_;
 
-    if (!_cc_list_iterator_empty(&async->nears[i])) {
-        _cc_list_iterator_for_each(it, &async->nears[i], {
+    if (!_cc_list_empty(&async->nears[i])) {
+        _cc_list_for_each(it, &async->nears[i], {
             _cc_event_t *e = _cc_upcast(it, _cc_event_t, lnk);
             /**/
             if ((e->flags & _CC_EVENT_CLOSED_) == 0) {
@@ -48,7 +48,7 @@ void _timeout_execute(_cc_async_event_t *async) {
                 _cc_free_event(async, e);
             }
         });
-        _cc_list_iterator_cleanup(&async->nears[i]);
+        _cc_list_cleanup(&async->nears[i]);
     }
 }
 
@@ -60,7 +60,7 @@ void _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
     int i;
 
     if ((expire | _CC_TIMEOUT_NEAR_MASK_) == (elapsed | _CC_TIMEOUT_NEAR_MASK_)) {
-        _cc_list_iterator_swap(&async->nears[expire & _CC_TIMEOUT_NEAR_MASK_], &e->lnk);
+        _cc_list_swap(&async->nears[expire & _CC_TIMEOUT_NEAR_MASK_], &e->lnk);
         return;
     }
 
@@ -73,7 +73,7 @@ void _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
     }
 
     mask = ((expire >> (_CC_TIMEOUT_NEAR_SHIFT_ + i * _CC_TIMEOUT_LEVEL_SHIFT_))) & _CC_TIMEOUT_LEVEL_MASK_;
-    _cc_list_iterator_swap(&async->level[i][mask], &e->lnk);
+    _cc_list_swap(&async->level[i][mask], &e->lnk);
 }
 
 /**/

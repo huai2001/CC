@@ -14,7 +14,7 @@ typedef struct _cc_XML_attr {
     _cc_sds_t name;
     _cc_sds_t value;
 
-    _cc_rbtree_iterator_t lnk;
+    _cc_rb_t lnk;
 } _cc_xml_attr_t;
 
 /**
@@ -43,10 +43,10 @@ typedef struct _cc_xml {
         _cc_sds_t uni_comment;
         _cc_sds_t uni_doctype;
         _cc_xml_context_t uni_context;
-        _cc_list_iterator_t uni_child;
+        _cc_list_t uni_child;
     } element;
 
-    _cc_list_iterator_t lnk;
+    _cc_list_t lnk;
     _cc_rbtree_t attr;
 } _cc_xml_t;
 

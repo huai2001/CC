@@ -218,7 +218,7 @@ _CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
             _io_uring_event_update(async, e, true);
         }
 
-        _cc_list_iterator_swap(&async->pending, &e->lnk);
+        _cc_list_swap(&async->pending, &e->lnk);
         return;
     }
 

@@ -36,7 +36,7 @@ _CC_API_PRIVATE(bool_t) libsmtp_send_email_cb(_cc_smtp_t* smtp, const byte_t* bu
             smtp->email = NULL;
         }
 
-        if (!_cc_list_iterator_empty(&smtp->emails)) {
+        if (!_cc_list_empty(&smtp->emails)) {
             return libsmtp_from_to(smtp);
         }
         return _cc_smtp_logout(smtp);
@@ -122,7 +122,7 @@ _CC_API_PUBLIC(_cc_smtp_t *) _cc_alloc_smtp(const char_t *from_name, const char_
 
     smtp->lock = 0;
     smtp->email = NULL;
-    _cc_list_iterator_cleanup(&smtp->emails);
+    _cc_list_cleanup(&smtp->emails);
 
     return smtp;
 }
@@ -204,7 +204,7 @@ _CC_API_PUBLIC(bool_t) _cc_set_email(_cc_email_t *email, const char_t *subject, 
 /**/
 _CC_API_PUBLIC(void) _cc_smtp_set_email(_cc_smtp_t *smtp, _cc_email_t *email) {
     _cc_spin_lock(&smtp->lock);
-    _cc_list_iterator_push(&smtp->emails, &email->lnk);
+    _cc_list_push(&smtp->emails, &email->lnk);
     _cc_unlock(&smtp->lock);
 }
 
@@ -252,7 +252,7 @@ _CC_API_PUBLIC(void) _cc_free_smtp(_cc_smtp_t *smtp) {
         _cc_free_email(smtp->email);
     }
 
-    _cc_list_iterator_for_each(it, &smtp->emails,{
+    _cc_list_for_each(it, &smtp->emails,{
         _cc_free_email(_cc_upcast(it,_cc_email_t, lnk));
     });
 

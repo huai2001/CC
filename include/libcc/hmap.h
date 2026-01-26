@@ -11,8 +11,8 @@ extern "C" {
 /**/
 #define _cc_hmap_for_each(__TYPE, __VAL, __FIRST, __OP)                 \
     do {                                                                \
-        _cc_list_iterator_t* __NEXT = _cc_list_iterator_first(          \
-            (_cc_list_iterator_t*)&(__FIRST)->list);                    \
+        _cc_list_t* __NEXT = _cc_list_first(          \
+            (_cc_list_t*)&(__FIRST)->list);                    \
         __TYPE* __VAL = NULL;                                        \
         while (NULL != __NEXT) {                                     \
             __VAL = (__TYPE*)_cc_hmap_value(__NEXT);                    \
@@ -34,14 +34,14 @@ typedef struct _cc_hmap {
     uint32_t limit;
     uint32_t count;
     _cc_hmap_cell_t *cells;
-    _cc_list_iterator_t list;
+    _cc_list_t list;
 
     _cc_hmap_keyword_equals_func_t equals_func;
     _cc_hmap_keyword_hash_func_t hash_func;
 } _cc_hmap_t;
 
 /**/
-_CC_FORCE_INLINE_ _cc_list_iterator_t *_cc_hmap_link(_cc_hmap_t *ctx) {
+_CC_FORCE_INLINE_ _cc_list_t *_cc_hmap_link(_cc_hmap_t *ctx) {
     _cc_assert(ctx != NULL);
     return &ctx->list;
 }
@@ -60,7 +60,7 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity, _cc_hm
 /**/
 _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx);
 /**/
-_CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_iterator_t*);
+_CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_t*);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *);
 /**/

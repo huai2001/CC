@@ -43,7 +43,7 @@ typedef struct {
     _cc_sds_t to;
     _cc_sds_t subject;
     _cc_sds_t content;
-    _cc_list_iterator_t lnk;
+    _cc_list_t lnk;
 } _cc_email_t;
 
 /**/
@@ -64,7 +64,7 @@ struct _cc_smtp {
 
     _cc_email_t *email;
     _cc_atomic_lock_t lock;
-    _cc_list_iterator_t emails;
+    _cc_list_t emails;
 };
 
 /**/

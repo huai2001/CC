@@ -16,7 +16,7 @@
 struct _cc_hmap_cell {
     intptr_t hash;
     uintptr_t data;
-    _cc_list_iterator_t lnk;
+    _cc_list_t lnk;
 };
 #if 0
 /* from kyotocabinet-1.2.76/kchashdb.h */
@@ -110,18 +110,18 @@ _CC_API_PRIVATE(_cc_hmap_cell_t*) _hmap_empty_cell(_cc_hmap_cell_t *cells, uint3
  * Doubles the size of the hmap, and rehashes all the cells
  */
 _CC_API_PRIVATE(int) _hmap_rehash(_cc_hmap_t *ctx, float32_t factor) {
-    _cc_list_iterator_t list;
-    _cc_list_iterator_t *it;
+    _cc_list_t list;
+    _cc_list_t *it;
     _cc_hmap_cell_t *cells_bak = ctx->cells;
     uint32_t limit = (uint32_t)(ctx->limit * factor);
 
     /* Setup the new cells */
     _cc_hmap_cell_t *cells = (_cc_hmap_cell_t *)_cc_calloc(limit, sizeof(_cc_hmap_cell_t));
 
-    _cc_list_iterator_cleanup(&list);
+    _cc_list_cleanup(&list);
 
     /* Rehash the cells */
-    _cc_list_iterator_for(it, &ctx->list) {
+    _cc_list_for(it, &ctx->list) {
         /**/
         _cc_hmap_cell_t *n = _cc_upcast(it, _cc_hmap_cell_t, lnk);
         /* Set the data */
@@ -134,7 +134,7 @@ _CC_API_PRIVATE(int) _hmap_rehash(_cc_hmap_t *ctx, float32_t factor) {
         cell->hash = n->hash;
         cell->data = n->data;
 
-        _cc_list_iterator_push(&list, &cell->lnk);
+        _cc_list_push(&list, &cell->lnk);
         ctx->count++;
     };
 
@@ -162,7 +162,7 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity,
     bzero(ctx->cells, sizeof(_cc_hmap_cell_t) * ctx->limit);
 
     /*clear link*/
-    _cc_list_iterator_cleanup(&ctx->list);
+    _cc_list_cleanup(&ctx->list);
 
     ctx->equals_func = equals_func;
     ctx->hash_func = hash_func;
@@ -201,7 +201,7 @@ _CC_API_PUBLIC(bool_t) _cc_hmap_push(_cc_hmap_t *ctx, const uintptr_t keyword, c
     cell->data = data;
 
     /*push link*/
-    _cc_list_iterator_push_back(&ctx->list, &(cell->lnk));
+    _cc_list_push_back(&ctx->list, &(cell->lnk));
     ctx->count++;
     return true;
 }
@@ -254,7 +254,7 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_pop(_cc_hmap_t *ctx, const uintptr_t keyword)
         any = cell->data;
         if (any && cell->hash == hash && (ctx->equals_func(any, keyword))) {
             /*remove link*/
-            _cc_list_iterator_remove(&cell->lnk);
+            _cc_list_remove(&cell->lnk);
             ctx->count--;
             /* Blank out the fields */
             cell->data = 0;
@@ -271,11 +271,11 @@ _CC_API_PUBLIC(uintptr_t) _cc_hmap_pop(_cc_hmap_t *ctx, const uintptr_t keyword)
  */
 _CC_API_PUBLIC(bool_t) _cc_hmap_cleanup(_cc_hmap_t *ctx) {
     /* Rehash the cells */
-    _cc_list_iterator_for_each(it, &ctx->list, {
+    _cc_list_for_each(it, &ctx->list, {
         _cc_hmap_cell_t *n = _cc_upcast(it, _cc_hmap_cell_t, lnk);
         n->data = 0;
     });
-    _cc_list_iterator_cleanup(&ctx->list);
+    _cc_list_cleanup(&ctx->list);
     ctx->count = 0;
 
     return true;
@@ -291,7 +291,7 @@ _CC_API_PUBLIC(bool_t) _cc_free_hmap(_cc_hmap_t *ctx) {
 }
 
 /**/
-_CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_iterator_t *v) {
+_CC_API_PUBLIC(uintptr_t) _cc_hmap_value(_cc_list_t *v) {
     _cc_hmap_cell_t *n = _cc_upcast(v, _cc_hmap_cell_t, lnk);
     _cc_assert(n != NULL);
     return n->data;

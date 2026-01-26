@@ -34,7 +34,7 @@ typedef struct _cc_ini {
         _cc_sds_t uni_string;
         _cc_rbtree_t uni_object;
     } element;
-    _cc_rbtree_iterator_t lnk;
+    _cc_rb_t lnk;
 } _cc_ini_t;
 
 /**/

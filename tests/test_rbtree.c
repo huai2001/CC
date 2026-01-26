@@ -6,27 +6,27 @@
 
 // 数据节点结构
 struct data_node {
-    _cc_rbtree_iterator_t node;
+    _cc_rb_t node;
     int key;
 };
 
 // 递归遍历
-void rbtree_traverse_recursive(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rbtree_iterator_t *)) {
+void rbtree_traverse_recursive(_cc_rb_t *node, void (*cb)(_cc_rb_t *)) {
     if (node->left) rbtree_traverse_recursive(node->left, cb);
     cb(node);
     if (node->right) rbtree_traverse_recursive(node->right, cb);
 }
 
 // 迭代遍历
-void rbtree_traverse_iterative(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterator_t *)) {
-    _cc_rbtree_iterator_t *node;
-    for (node = _cc_rbtree_first(root); node; node = _cc_rbtree_next(node)) {
+void rbtree_traverse_iterative(_cc_rbtree_t *root, void (*cb)(_cc_rb_t *)) {
+    _cc_rb_t *node;
+    for (node = _cc_rbtree_first(root); node; node = _cc_rb_next(node)) {
         cb(node);
     }
 }
 // 优化迭代遍历函数
-void rbtree_iterative_traverse(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterator_t *)) {
-    _cc_rbtree_iterator_t *stack[1000], *node = root->rb_node;
+void rbtree_iterative_traverse(_cc_rbtree_t *root, void (*cb)(_cc_rb_t *)) {
+    _cc_rb_t *stack[1000], *node = root->rb_node;
     int top = -1;
     while (node || top >= 0) {
         if (node) {
@@ -40,7 +40,7 @@ void rbtree_iterative_traverse(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterato
     }
 }
 // 回调函数
-void print_node(_cc_rbtree_iterator_t *node) {
+void print_node(_cc_rb_t *node) {
     struct data_node *data = _cc_upcast(node, struct data_node, node);
     //printf("%d ", data->key);
     if (data == 0) {
@@ -51,7 +51,7 @@ void print_node(_cc_rbtree_iterator_t *node) {
 _CC_API_PUBLIC(bool_t) rbtree_push(_cc_rbtree_t *root, struct data_node *data) {
     int32_t result = 0;
     struct data_node *self;
-    _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = NULL;
+    _cc_rb_t **node = &(root->rb_node), *parent = NULL;
 
     while (*node) {
         self = _cc_upcast(*node, struct data_node, node);

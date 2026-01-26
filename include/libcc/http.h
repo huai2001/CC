@@ -158,7 +158,7 @@ enum {
 typedef struct _cc_http_header {
     _cc_sds_t keyword;
     _cc_sds_t value;
-    _cc_rbtree_iterator_t lnk;
+    _cc_rb_t lnk;
 } _cc_http_header_t;
 
 /**/

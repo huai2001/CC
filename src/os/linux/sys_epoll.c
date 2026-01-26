@@ -129,7 +129,7 @@ _CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
             _emit_epoll_event(async->priv->fd, e, true);
         }
         if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, e->flags) == 0) {
-            _cc_list_iterator_swap(&async->pending, &e->lnk);
+            _cc_list_swap(&async->pending, &e->lnk);
             return;
         }
     } else {

@@ -14,8 +14,8 @@ extern "C" {
         (_NODE)->type = _TYPE;                                          \
         (_NODE)->name = NULL;                                        \
         _cc_rbtree_cleanup(&(_NODE)->attr);                             \
-        _cc_list_iterator_cleanup(&(_NODE)->lnk);                       \
-        _cc_list_iterator_cleanup(&(_NODE)->element.uni_child);         \
+        _cc_list_cleanup(&(_NODE)->lnk);                       \
+        _cc_list_cleanup(&(_NODE)->element.uni_child);         \
     } while (0)
 
 /* Utility to jump whitespace and cr/lf,comments */

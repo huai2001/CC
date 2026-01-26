@@ -337,7 +337,7 @@ static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer, int32_t 
 
         item = (_cc_xml_t *)_cc_malloc(sizeof(_cc_xml_t));
         _XML_NODE_INIT(item, _CC_XML_NULL_);
-        _cc_list_iterator_push(&ctx->element.uni_child, &item->lnk);
+        _cc_list_push(&ctx->element.uni_child, &item->lnk);
 
         if (*p == _XML_ELEMENT_START_) {
             /* */
@@ -386,13 +386,13 @@ static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer, int32_t 
                 }
 
                 item->type = _CC_XML_CHILD_;
-                _cc_list_iterator_cleanup(&item->element.uni_child);
+                _cc_list_cleanup(&item->element.uni_child);
 
                 if (!_XML_child_read(item, buffer, depth + 1)) {
                     return false;
                 }
 
-                if (_cc_list_iterator_empty(&item->element.uni_child)) {
+                if (_cc_list_empty(&item->element.uni_child)) {
                     item->type = _CC_XML_NULL_;
                 }
 

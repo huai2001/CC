@@ -45,7 +45,7 @@ static bool_t url_request_header(_cc_http_request_t *request, _cc_event_t *e) {
 
 static bool_t url_request_success(_cc_http_request_t *request) {
     _cc_http_response_header_t *response = request->response;
-    _cc_rbtree_iterator_t *node;
+    _cc_rb_t *node;
 
     _cc_rbtree_for_next(node, &response->headers) {
         _cc_http_header_t *header = _cc_upcast(node, _cc_http_header_t, lnk);

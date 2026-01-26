@@ -78,7 +78,7 @@ struct _cc_event {
     _cc_socket_t fd;
 
     /* Linked list node */
-    _cc_list_iterator_t lnk;
+    _cc_list_t lnk;
 
     /* A callback function for an event. */
     _cc_event_callback_t callback;
@@ -115,10 +115,10 @@ struct _cc_async_event {
     │  ├─ level[2][64]      // 17min-18h (2^26) 
     │  └─ level[3][64]      // 18h-47d (2^32)
     */
-    _cc_list_iterator_t nears[_CC_TIMEOUT_NEAR_];
-    _cc_list_iterator_t level[_CC_TIMEOUT_MAX_LEVEL_][_CC_TIMEOUT_LEVEL_];
-    _cc_list_iterator_t pending;
-    _cc_list_iterator_t no_timer;
+    _cc_list_t nears[_CC_TIMEOUT_NEAR_];
+    _cc_list_t level[_CC_TIMEOUT_MAX_LEVEL_][_CC_TIMEOUT_LEVEL_];
+    _cc_list_t pending;
+    _cc_list_t no_timer;
 
     /*thread lock*/
 #ifdef _CC_EVENT_USE_MUTEX_

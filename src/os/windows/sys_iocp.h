@@ -19,8 +19,8 @@ extern "C" {
 
 struct _cc_async_event_priv {
 	HANDLE port;
-    _cc_list_iterator_t io_active;
-    _cc_list_iterator_t io_idle;
+    _cc_list_t io_active;
+    _cc_list_t io_idle;
     int32_t frees;
 };
 
@@ -30,7 +30,7 @@ typedef struct _io_context {
 	_cc_socket_t fd;
     OVERLAPPED overlapped;
 	DWORD number_of_bytes;
-    _cc_list_iterator_t lnk;
+    _cc_list_t lnk;
     _cc_event_t *e;
 } _io_context_t;
 

@@ -1,6 +1,6 @@
 #include "ini.c.h"
 
-static void _ini_free_rb_node(_cc_rbtree_iterator_t* node) {
+static void _ini_free_rb_node(_cc_rb_t* node) {
     _INI_free(_cc_upcast(node, _cc_ini_t, lnk));
 }
 
@@ -31,8 +31,8 @@ void _INI_free(_cc_ini_t* p) {
 }
 
 _cc_ini_t* _INI_push(_cc_rbtree_t* root, _cc_sds_t name, int type) {
-    _cc_rbtree_iterator_t **node;
-    _cc_rbtree_iterator_t *parent = NULL;
+    _cc_rb_t **node;
+    _cc_rb_t *parent = NULL;
     _cc_ini_t* item;
     int32_t result;
 
@@ -62,7 +62,7 @@ _cc_ini_t* _INI_push(_cc_rbtree_t* root, _cc_sds_t name, int type) {
 /**/
 _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_find(_cc_ini_t* item, const tchar_t* name) {
     int32_t result = 0;
-    _cc_rbtree_iterator_t *node = item->element.uni_object.rb_node;
+    _cc_rb_t *node = item->element.uni_object.rb_node;
 
     while (node) {    
         _cc_ini_t* element = _cc_upcast(node, _cc_ini_t, lnk);

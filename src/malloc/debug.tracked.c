@@ -9,7 +9,7 @@
 
 #ifdef _CC_USE_DEBUG_MALLOC_
 
-static _cc_list_iterator_t tracked_list;
+static _cc_list_t tracked_list;
 static _cc_atomic_lock_t debug_lock = 0;
 static int32_t number_of_alloc = 0;
 static int32_t number_of_freed = 0;
@@ -29,7 +29,7 @@ pvoid_t _debug_alloc_link(const pvoid_t data, size_t n, const tchar_t *file_name
 
     _cc_spin_lock(&debug_lock);
     number_of_alloc++;
-    _cc_list_iterator_push(&tracked_list, &debug->lnk);
+    _cc_list_push(&tracked_list, &debug->lnk);
     _cc_unlock(&debug_lock);
 
     return (debug + 1);
@@ -45,7 +45,7 @@ pvoid_t _debug_alloc_unlink(const pvoid_t data) {
 
     _cc_spin_lock(&debug_lock);
     number_of_freed++;
-    _cc_list_iterator_remove(&debug->lnk);
+    _cc_list_remove(&debug->lnk);
     _cc_unlock(&debug_lock);
 
     return debug;
@@ -54,7 +54,7 @@ pvoid_t _debug_alloc_unlink(const pvoid_t data) {
 /**/
 void _attach_debug_taracked(void) {
     number_of_alloc = number_of_freed = 0;
-    _cc_list_iterator_cleanup(&tracked_list);
+    _cc_list_cleanup(&tracked_list);
     _cc_lock_init(&debug_lock);
 }
 
@@ -69,7 +69,7 @@ void _detach_debug_taracked(void) {
 
 #ifdef __CC_ANDROID__
     __android_log_print(ANDROID_LOG_DEBUG, _CC_ANDROID_TAG_, _T("%d memory allocations, of which %d freed\r\n"), number_of_alloc, number_of_freed);
-    _cc_list_iterator_for_each(v, &tracked_list, {
+    _cc_list_for_each(v, &tracked_list, {
         _cc_debug_alloc_t *debug = _cc_upcast(v, _cc_debug_alloc_t, lnk);
         __android_log_print(ANDROID_LOG_DEBUG, _CC_ANDROID_TAG_, _T("%s (base: $%p, size: %ld) located at:%s(%d)\r\n"), mem_types[debug->type], debug, debug->size, debug->file,
                   debug->line);
@@ -86,7 +86,7 @@ void _detach_debug_taracked(void) {
     number_of_alloc = number_of_freed = 0;
 #else
     _tprintf(_T("%d memory allocations, of which %d freed\r\n"), number_of_alloc, number_of_freed);
-    _cc_list_iterator_for_each(v, &tracked_list, {
+    _cc_list_for_each(v, &tracked_list, {
         _cc_debug_alloc_t *debug = _cc_upcast(v, _cc_debug_alloc_t, lnk);
         _tprintf(_T("%s (base: $%p, size: %ld) located at:%s(%d)\r\n"), mem_types[debug->type], debug, debug->size, debug->file, debug->line);
 

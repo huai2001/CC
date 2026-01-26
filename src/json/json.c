@@ -65,7 +65,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_object_find(const _cc_json_t *ctx, const tc
     _cc_assert(ctx != NULL);
 
     if (ctx->type == _CC_JSON_OBJECT_) {
-        _cc_rbtree_iterator_t *node = _cc_rbtree_get(&ctx->element.uni_object, (uintptr_t)keyword, _json_get_object);
+        _cc_rb_t *node = _cc_rbtree_get(&ctx->element.uni_object, (uintptr_t)keyword, _json_get_object);
         if (node) {
             return _cc_upcast(node, _cc_json_t, lnk);
         }
@@ -74,7 +74,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_object_find(const _cc_json_t *ctx, const tc
     return NULL;
 }
 
-void _json_free_object_rb_node(_cc_rbtree_iterator_t *node) {
+void _json_free_object_rb_node(_cc_rb_t *node) {
     _json_free_node(_cc_upcast(node, _cc_json_t, lnk));
 }
 
@@ -289,7 +289,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_array(const _cc_json_t *root, _cc_buf_t *buf
     /**/
 _CC_API_PRIVATE(void) _cc_json_dump_object(const _cc_json_t *root, _cc_buf_t *buf) {
     _cc_json_t *item = NULL;
-    _cc_rbtree_iterator_t *next, *head;
+    _cc_rb_t *next, *head;
 
     _cc_buf_putchar(buf, _JSON_OBJECT_START_);
     head = next = _cc_rbtree_first(&root->element.uni_object);
@@ -301,7 +301,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_object(const _cc_json_t *root, _cc_buf_t *bu
         _cc_json_dump_value(item, buf);
         _cc_buf_putchar(buf, _JSON_NEXT_TOKEN_);
 
-        next = _cc_rbtree_next(next);
+        next = _cc_rb_next(next);
     }
 
     if (head) {

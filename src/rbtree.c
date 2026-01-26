@@ -23,13 +23,13 @@
 #define _rb_color(r) ((r)->parent_color & 1)
 #define _rb_is_red(r) (!_rb_color(r))
 #define _rb_is_black(r) (_rb_color(r))
-#define _rb_parent(r) ((_cc_rbtree_iterator_t *)((r)->parent_color & ~3))
+#define _rb_parent(r) ((_cc_rb_t *)((r)->parent_color & ~3))
 #define _rb_write_once(x, v) (x) = (v)
 
 /* 'empty' nodes are nodes that are known not to be inserted in an rbtree */
 #define RB_EMPTY_NODE(node) ((node)->parent_color == (uintptr_t)(node))
 
-_CC_FORCE_INLINE_ void _rb_change_child(_cc_rbtree_iterator_t *old_iter, _cc_rbtree_iterator_t *new_iter, _cc_rbtree_iterator_t *parent, _cc_rbtree_t *root) {
+_CC_FORCE_INLINE_ void _rb_change_child(_cc_rb_t *old_iter, _cc_rb_t *new_iter, _cc_rb_t *parent, _cc_rbtree_t *root) {
     if (parent) {
         if (parent->left == old_iter) {
             _rb_write_once(parent->left, new_iter);
@@ -41,19 +41,19 @@ _CC_FORCE_INLINE_ void _rb_change_child(_cc_rbtree_iterator_t *old_iter, _cc_rbt
     }
 }
 
-_CC_FORCE_INLINE_ void _rb_set_black(_cc_rbtree_iterator_t *rb) {
+_CC_FORCE_INLINE_ void _rb_set_black(_cc_rb_t *rb) {
     rb->parent_color |= _CC_RB_BLACK_;
 }
 
-_CC_FORCE_INLINE_ _cc_rbtree_iterator_t* _rb_red_parent(_cc_rbtree_iterator_t *red) {
-    return (_cc_rbtree_iterator_t *)red->parent_color;
+_CC_FORCE_INLINE_ _cc_rb_t* _rb_red_parent(_cc_rb_t *red) {
+    return (_cc_rb_t *)red->parent_color;
 }
 
-_CC_FORCE_INLINE_ void _rb_set_parent(_cc_rbtree_iterator_t *rb, _cc_rbtree_iterator_t *p) {
+_CC_FORCE_INLINE_ void _rb_set_parent(_cc_rb_t *rb, _cc_rb_t *p) {
     rb->parent_color = _rb_color(rb) | (uintptr_t)p;
 }
 
-_CC_FORCE_INLINE_ void _rb_set_parent_color(_cc_rbtree_iterator_t *rb, _cc_rbtree_iterator_t *p, int color) {
+_CC_FORCE_INLINE_ void _rb_set_parent_color(_cc_rb_t *rb, _cc_rb_t *p, int color) {
     rb->parent_color = (uintptr_t)p | color;
 }
 
@@ -62,17 +62,17 @@ _CC_FORCE_INLINE_ void _rb_set_parent_color(_cc_rbtree_iterator_t *rb, _cc_rbtre
  * - old's parent and color get assigned to new
  * - old gets assigned new as a parent and 'color' as a color.
  */
-_CC_API_PRIVATE(void) _rb_rotate_set_parents(_cc_rbtree_iterator_t *old, _cc_rbtree_iterator_t *new,
+_CC_API_PRIVATE(void) _rb_rotate_set_parents(_cc_rb_t *old, _cc_rb_t *new,
                                               _cc_rbtree_t *root, int color) {
-    _cc_rbtree_iterator_t *parent = _rb_parent(old);
+    _cc_rb_t *parent = _rb_parent(old);
     new->parent_color = old->parent_color;
     _rb_set_parent_color(old, new, color);
     _rb_change_child(old, new, parent, root);
 }
 
 // insert a node into the tree at the right place, rejig ptrs as needed
-_CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *root, _cc_rbtree_iterator_t *node) {
-    _cc_rbtree_iterator_t *parent = _rb_red_parent(node), *gparent, *tmp;
+_CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *root, _cc_rb_t *node) {
+    _cc_rb_t *parent = _rb_red_parent(node), *gparent, *tmp;
 
     while (true) {
         /*
@@ -208,8 +208,8 @@ _CC_API_PUBLIC(void) _cc_rbtree_insert_color(_cc_rbtree_t *root, _cc_rbtree_iter
     }
 }
 
-_CC_API_PRIVATE(void) _rb_remove_color(_cc_rbtree_iterator_t *parent, _cc_rbtree_t *root) {
-    _cc_rbtree_iterator_t *node = NULL, *sibling, *tmp1, *tmp2;
+_CC_API_PRIVATE(void) _rb_remove_color(_cc_rb_t *parent, _cc_rbtree_t *root) {
+    _cc_rb_t *node = NULL, *sibling, *tmp1, *tmp2;
 
     while (true) {
         /*
@@ -379,10 +379,10 @@ _CC_API_PRIVATE(void) _rb_remove_color(_cc_rbtree_iterator_t *parent, _cc_rbtree
     }
 }
 
-_CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_remove(_cc_rbtree_iterator_t *node, _cc_rbtree_t *root) {
-    _cc_rbtree_iterator_t *child = node->right;
-    _cc_rbtree_iterator_t *tmp = node->left;
-    _cc_rbtree_iterator_t *parent, *rebalance;
+_CC_API_PRIVATE(_cc_rb_t*) _rb_remove(_cc_rb_t *node, _cc_rbtree_t *root) {
+    _cc_rb_t *child = node->right;
+    _cc_rb_t *tmp = node->left;
+    _cc_rb_t *parent, *rebalance;
 
     if (!tmp) {
         /*
@@ -407,7 +407,7 @@ _CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_remove(_cc_rbtree_iterator_t *node, 
         _rb_change_child(node, tmp, parent, root);
         rebalance = NULL;
     } else {
-        _cc_rbtree_iterator_t *successor = child, *child2;
+        _cc_rb_t *successor = child, *child2;
 
         tmp = child->left;
         if (!tmp) {
@@ -468,8 +468,8 @@ _CC_API_PRIVATE(_cc_rbtree_iterator_t*) _rb_remove(_cc_rbtree_iterator_t *node, 
     return rebalance;
 }
 
-_CC_API_PUBLIC(void) _cc_rbtree_remove(_cc_rbtree_t *root, _cc_rbtree_iterator_t *node) {
-    _cc_rbtree_iterator_t *rebalance;
+_CC_API_PUBLIC(void) _cc_rbtree_remove(_cc_rbtree_t *root, _cc_rb_t *node) {
+    _cc_rb_t *rebalance;
     rebalance = _rb_remove(node, root);
     if (rebalance) {
         _rb_remove_color(rebalance, root);
@@ -479,8 +479,8 @@ _CC_API_PUBLIC(void) _cc_rbtree_remove(_cc_rbtree_t *root, _cc_rbtree_iterator_t
 /*
  * This function returns the first node (in sort order) of the tree.
  */
-_CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_first(const _cc_rbtree_t *root) {
-    _cc_rbtree_iterator_t *n;
+_CC_API_PUBLIC(_cc_rb_t*) _cc_rbtree_first(const _cc_rbtree_t *root) {
+    _cc_rb_t *n;
 
     n = root->rb_node;
     if (!n) {
@@ -493,8 +493,8 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_first(const _cc_rbtree_t *root
     return n;
 }
 
-_CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_last(const _cc_rbtree_t *root) {
-    _cc_rbtree_iterator_t *n;
+_CC_API_PUBLIC(_cc_rb_t*) _cc_rbtree_last(const _cc_rbtree_t *root) {
+    _cc_rb_t *n;
 
     n = root->rb_node;
     if (!n) {
@@ -507,8 +507,8 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_last(const _cc_rbtree_t *root)
     return n;
 }
 
-_CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_next(const _cc_rbtree_iterator_t *node) {
-    _cc_rbtree_iterator_t *parent;
+_CC_API_PUBLIC(_cc_rb_t*) _cc_rb_next(const _cc_rb_t *node) {
+    _cc_rb_t *parent;
 
     if (RB_EMPTY_NODE(node)) {
         return NULL;
@@ -523,7 +523,7 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_next(const _cc_rbtree_iterator
         while (node->left) {
             node = node->left;
         }
-        return (_cc_rbtree_iterator_t *)node;
+        return (_cc_rb_t *)node;
     }
 
     /*
@@ -539,8 +539,8 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_next(const _cc_rbtree_iterator
     return parent;
 }
 
-_CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_prev(const _cc_rbtree_iterator_t *node) {
-    _cc_rbtree_iterator_t *parent;
+_CC_API_PUBLIC(_cc_rb_t*) _cc_rb_prev(const _cc_rb_t *node) {
+    _cc_rb_t *parent;
 
     if (RB_EMPTY_NODE(node))
         return NULL;
@@ -554,7 +554,7 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_prev(const _cc_rbtree_iterator
         while (node->right) {
             node = node->right;
         }
-        return (_cc_rbtree_iterator_t *)node;
+        return (_cc_rb_t *)node;
     }
 
     /*
@@ -568,8 +568,8 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_prev(const _cc_rbtree_iterator
     return parent;
 }
 
-_CC_API_PUBLIC(void) _cc_rbtree_replace_node(_cc_rbtree_t *root, _cc_rbtree_iterator_t *victim, _cc_rbtree_iterator_t *new_iter) {
-    _cc_rbtree_iterator_t *parent = _rb_parent(victim);
+_CC_API_PUBLIC(void) _cc_rbtree_replace_node(_cc_rbtree_t *root, _cc_rb_t *victim, _cc_rb_t *new_iter) {
+    _cc_rb_t *parent = _rb_parent(victim);
 
     /* Copy the pointers/colour from the victim to the replacement */
     *new_iter = *victim;
@@ -586,9 +586,9 @@ _CC_API_PUBLIC(void) _cc_rbtree_replace_node(_cc_rbtree_t *root, _cc_rbtree_iter
     _rb_change_child(victim, new_iter, parent, root);
 }
 
-_CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_get(const _cc_rbtree_t *root, uintptr_t keyword,
-                                      int32_t (*cb)(_cc_rbtree_iterator_t *, uintptr_t)) {
-    _cc_rbtree_iterator_t *node = root->rb_node;
+_CC_API_PUBLIC(_cc_rb_t*) _cc_rbtree_get(const _cc_rbtree_t *root, uintptr_t keyword,
+                                      int32_t (*cb)(_cc_rb_t *, uintptr_t)) {
+    _cc_rb_t *node = root->rb_node;
 
     while (node) {
         int32_t result = cb(node, keyword);
@@ -600,9 +600,9 @@ _CC_API_PUBLIC(_cc_rbtree_iterator_t*) _cc_rbtree_get(const _cc_rbtree_t *root, 
     return NULL;
 }
 
-_CC_API_PUBLIC(bool_t) _cc_rbtree_push(_cc_rbtree_t *root, _cc_rbtree_iterator_t *data,
-                       int32_t (*cb)(_cc_rbtree_iterator_t *, _cc_rbtree_iterator_t *)) {
-    _cc_rbtree_iterator_t **node = &(root->rb_node), *parent = NULL;
+_CC_API_PUBLIC(bool_t) _cc_rbtree_push(_cc_rbtree_t *root, _cc_rb_t *data,
+                       int32_t (*cb)(_cc_rb_t *, _cc_rb_t *)) {
+    _cc_rb_t **node = &(root->rb_node), *parent = NULL;
 
     while (*node) {
         int32_t result = cb(*node, data);
@@ -617,7 +617,7 @@ _CC_API_PUBLIC(bool_t) _cc_rbtree_push(_cc_rbtree_t *root, _cc_rbtree_iterator_t
     return true;
 }
 
-_CC_API_PUBLIC(void) _cc_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rbtree_iterator_t *, pvoid_t), pvoid_t args) {
+_CC_API_PUBLIC(void) _cc_rbtree_traverse(_cc_rb_t *node, void (*cb)(_cc_rb_t *, pvoid_t), pvoid_t args) {
     if (node->left) {
         _cc_rbtree_traverse(node->left, cb, args);
     }
@@ -629,7 +629,7 @@ _CC_API_PUBLIC(void) _cc_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)
     cb(node, args);
 }
 
-static void _free_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rbtree_iterator_t *)) {
+static void _free_rbtree_traverse(_cc_rb_t *node, void (*cb)(_cc_rb_t *)) {
     if (node->left) {
         _free_rbtree_traverse(node->left, cb);
     }
@@ -641,7 +641,7 @@ static void _free_rbtree_traverse(_cc_rbtree_iterator_t *node, void (*cb)(_cc_rb
     cb(node);
 }
 
-_CC_API_PUBLIC(void) _cc_rbtree_free_all(_cc_rbtree_t *root, void (*cb)(_cc_rbtree_iterator_t *)) {
+_CC_API_PUBLIC(void) _cc_rbtree_free_all(_cc_rbtree_t *root, void (*cb)(_cc_rb_t *)) {
     _cc_assert(cb != NULL);
     if (!cb || !root->rb_node) {
         return;

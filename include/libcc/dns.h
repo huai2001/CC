@@ -43,7 +43,7 @@ typedef struct _cc_dns {
     _cc_dns_record_t **authorities;
     _cc_dns_record_t **additional;
 
-    _cc_rbtree_iterator_t lnk;
+    _cc_rb_t lnk;
 } _cc_dns_t;
 
 /* DNS Query types */

@@ -37,7 +37,7 @@ typedef struct _cc_json {
         _cc_sds_t uni_string;
     } element;
     /* Red-black tree iterator for object members */
-    _cc_rbtree_iterator_t lnk;
+    _cc_rb_t lnk;
 } _cc_json_t;
 
 /**/

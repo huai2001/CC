@@ -15,7 +15,7 @@ static struct {
     _cc_atomic32_t slot_refcount;
     int32_t slot_length;
     int32_t slot_limit;
-    _cc_queue_iterator_t idles;
+    _cc_queue_t idles;
 
     _cc_async_event_t **async;
     _cc_event_t **slots;
@@ -34,7 +34,7 @@ _CC_API_PRIVATE(int32_t) _get_max_limit(void) {
 }
 
 _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
-    _cc_queue_iterator_t *lnk;
+    _cc_queue_t *lnk;
     _cc_event_t *e;
     do {
         lnk = _cc_queue_sync_pop(&g.idles);
@@ -62,7 +62,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
                 _cc_event_t *e = data + j;
                 g.slots[i] = e;
                 e->ident = i;
-                _cc_queue_sync_push(&g.idles, (_cc_queue_iterator_t*)(&e->lnk));
+                _cc_queue_sync_push(&g.idles, (_cc_queue_t*)(&e->lnk));
             }
             g.slot_length = expand_length;
             //g.slot_refcount = 0;
@@ -161,15 +161,15 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_alloc_event(_cc_async_event_t *async, const uin
         e->flags |= _CC_EVENT_SOCKET_;
     }
     
-    _cc_list_iterator_cleanup(&e->lnk);
+    _cc_list_cleanup(&e->lnk);
     return e;
 }
 /**/
 _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_socket_t fd;
     
-    if (!_cc_list_iterator_empty(&e->lnk)) {
-        _cc_list_iterator_remove(&e->lnk);
+    if (!_cc_list_empty(&e->lnk)) {
+        _cc_list_remove(&e->lnk);
     }
 
     fd = e->fd;
@@ -184,7 +184,7 @@ _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e) {
     if (fd != _CC_INVALID_SOCKET_ && fd != 0) {
         _cc_close_socket(fd);
     }
-    _cc_queue_sync_push(&g.idles, (_cc_queue_iterator_t*)(&e->lnk));
+    _cc_queue_sync_push(&g.idles, (_cc_queue_t*)(&e->lnk));
 }
 
 /*
@@ -207,7 +207,7 @@ bool_t _register_async_event(_cc_async_event_t *async) {
 
     if (_cc_atomic32_inc_ref(&g.refcount)) {
         _cc_event_t *data;
-        _cc_queue_iterator_cleanup(&g.idles);
+        _cc_queue_cleanup(&g.idles);
         /*If the allocation fails, it directly aborts, so there is no need to check whether the application is successful, which is meaningless.*/
         g.slots = (_cc_event_t **)_cc_calloc(sizeof(_cc_event_t*), _CC_MAX_STEP_);
         data = (_cc_event_t *)_cc_calloc(sizeof(_cc_event_t), _CC_MAX_STEP_);
@@ -216,7 +216,7 @@ bool_t _register_async_event(_cc_async_event_t *async) {
             _cc_event_t *e = (data + i);
             g.slots[i] = e;
             e->ident = i;
-            _cc_queue_iterator_push(&g.idles, (_cc_queue_iterator_t*)(&e->lnk));
+            _cc_queue_push(&g.idles, (_cc_queue_t*)(&e->lnk));
         }
         
         g.slot_limit = _get_max_limit();
@@ -261,25 +261,25 @@ bool_t _register_async_event(_cc_async_event_t *async) {
 #endif
 
     for (i = 0; i < _CC_TIMEOUT_NEAR_; i++) {
-        _cc_list_iterator_cleanup(&async->nears[i]);
+        _cc_list_cleanup(&async->nears[i]);
     }
 
     for (i = 0; i < _CC_TIMEOUT_MAX_LEVEL_; i++) {
         for (j = 0; j < _CC_TIMEOUT_LEVEL_; j++) {
-            _cc_list_iterator_cleanup(&async->level[i][j]);
+            _cc_list_cleanup(&async->level[i][j]);
         }
     }
 
-    _cc_list_iterator_cleanup(&async->pending);
-    _cc_list_iterator_cleanup(&async->no_timer);
+    _cc_list_cleanup(&async->pending);
+    _cc_list_cleanup(&async->no_timer);
 
     async->running = 1;
     return true;
 }
 
-_CC_API_PRIVATE(void) _event_link_free(_cc_async_event_t *async, _cc_list_iterator_t *head) {
-    _cc_list_iterator_t *next;
-    _cc_list_iterator_t *curr;
+_CC_API_PRIVATE(void) _event_link_free(_cc_async_event_t *async, _cc_list_t *head) {
+    _cc_list_t *next;
+    _cc_list_t *curr;
     _cc_event_t *e;
 
     next = head->next;
@@ -294,7 +294,7 @@ _CC_API_PRIVATE(void) _event_link_free(_cc_async_event_t *async, _cc_list_iterat
         }
         _cc_free_event(async, e);
     }
-    _cc_list_iterator_cleanup(head);
+    _cc_list_cleanup(head);
 }
 
 /**/
@@ -306,7 +306,7 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
     async->running = 0;
 
     _cc_array_for_each(_cc_event_t, e, i, async->changes, {
-        _cc_list_iterator_swap(&async->pending, &e->lnk);
+        _cc_list_swap(&async->pending, &e->lnk);
     });
 
     _cc_free_array(async->changes);
@@ -332,7 +332,7 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
 
         _cc_free(g.slots);
         _cc_free(g.async);
-        _cc_queue_iterator_cleanup(&g.idles);
+        _cc_queue_cleanup(&g.idles);
         g.slot_length = 0;
         g.slots = NULL;
         g.async = NULL;
@@ -373,7 +373,7 @@ bool_t _valid_fd(_cc_socket_t fd) {
 bool_t _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which) {
     /**/
     async->processed++;
-    _cc_list_iterator_swap(&async->pending, &e->lnk);
+    _cc_list_swap(&async->pending, &e->lnk);
     /**/
     _cc_assert(e->callback != NULL);
 
@@ -413,15 +413,15 @@ void _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
         e->expire = async->timer + e->timeout;
         _add_event_timeout(async, e);
     } else {
-        _cc_list_iterator_swap(&async->no_timer, &e->lnk);
+        _cc_list_swap(&async->no_timer, &e->lnk);
     }
 }
 
 /**/
 void _reset_event_pending(_cc_async_event_t *async, void (*_reset)(_cc_async_event_t *, _cc_event_t *)) {
-    _cc_list_iterator_t *head;
-    _cc_list_iterator_t *next;
-    _cc_list_iterator_t *curr;
+    _cc_list_t *head;
+    _cc_list_t *next;
+    _cc_list_t *curr;
     size_t length = _cc_array_length(async->changes);
 
     if (length > 0) {
@@ -430,7 +430,7 @@ void _reset_event_pending(_cc_async_event_t *async, void (*_reset)(_cc_async_eve
         _event_lock(async);
         for (i = 0; i < length; i++) {
             e = ((_cc_event_t*)*((uintptr_t*)(async->changes) + i));
-            _cc_list_iterator_swap(&async->pending, &e->lnk);
+            _cc_list_swap(&async->pending, &e->lnk);
         }
         _cc_array_clear(async->changes);
         _event_unlock(async);
@@ -438,7 +438,7 @@ void _reset_event_pending(_cc_async_event_t *async, void (*_reset)(_cc_async_eve
 
     head = &async->pending;
     next = head->next;
-    _cc_list_iterator_cleanup(&async->pending);
+    _cc_list_cleanup(&async->pending);
 
     while (_cc_likely(next != head)) {
         curr = next;
