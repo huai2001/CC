@@ -110,6 +110,9 @@
 		425720E62F0A071C0060EE45 /* sys_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720DD2F0A071C0060EE45 /* sys_unix.c */; };
 		425720E72F0A071C0060EE45 /* sys_loadso.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720D82F0A071C0060EE45 /* sys_loadso.c */; };
 		425720E92F0A075C0060EE45 /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 425720E82F0A075C0060EE45 /* libmysqlclient.a */; };
+		4284D28D2F288CC600B15BD6 /* google.auth.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28A2F288CC600B15BD6 /* google.auth.c */; };
+		4284D28E2F288CC600B15BD6 /* rwbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28B2F288CC600B15BD6 /* rwbuf.c */; };
+		4284D28F2F288CC600B15BD6 /* snowflake.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28C2F288CC600B15BD6 /* snowflake.c */; };
 		42907D422F177621008AE8C9 /* OpenSSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 42907D412F177621008AE8C9 /* OpenSSL.c */; };
 		42907D442F17763E008AE8C9 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 42907D432F17763E008AE8C9 /* libsqlite3.tbd */; };
 /* End PBXBuildFile section */
@@ -231,6 +234,9 @@
 		425720DC2F0A071C0060EE45 /* sys_time.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_time.c; sourceTree = "<group>"; };
 		425720DD2F0A071C0060EE45 /* sys_unix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_unix.c; sourceTree = "<group>"; };
 		425720E82F0A075C0060EE45 /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = "../../homebrew/Cellar/mysql-client/9.5.0/lib/libmysqlclient.a"; sourceTree = "<group>"; };
+		4284D28A2F288CC600B15BD6 /* google.auth.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = google.auth.c; sourceTree = "<group>"; };
+		4284D28B2F288CC600B15BD6 /* rwbuf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rwbuf.c; sourceTree = "<group>"; };
+		4284D28C2F288CC600B15BD6 /* snowflake.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = snowflake.c; sourceTree = "<group>"; };
 		42907D412F177621008AE8C9 /* OpenSSL.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = OpenSSL.c; sourceTree = "<group>"; };
 		42907D432F17763E008AE8C9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -508,10 +514,12 @@
 				4217A4A62EEC1FA8006262EC /* xml */,
 				4217A4A72EEC1FA8006262EC /* array.c */,
 				4217A4A82EEC1FA8006262EC /* buf.c */,
+				4284D28B2F288CC600B15BD6 /* rwbuf.c */,
 				4217A4A92EEC1FA8006262EC /* cpu.c */,
 				4217A4AA2EEC1FA8006262EC /* crc.c */,
 				4217A4AB2EEC1FA8006262EC /* file.c */,
 				4217A4AC2EEC1FA8006262EC /* GBK.c */,
+				4284D28A2F288CC600B15BD6 /* google.auth.c */,
 				4217A4AD2EEC1FA8006262EC /* hmap.c */,
 				4217A4AE2EEC1FA8006262EC /* list.c */,
 				4217A4AF2EEC1FA8006262EC /* logger.c */,
@@ -521,6 +529,7 @@
 				4217A4B32EEC1FA8006262EC /* rbtree.c */,
 				4217A4B42EEC1FA8006262EC /* ring.c */,
 				4217A4B52EEC1FA8006262EC /* sds.c */,
+				4284D28C2F288CC600B15BD6 /* snowflake.c */,
 				4217A4B62EEC1FA8006262EC /* string.c */,
 				4217A4B72EEC1FA8006262EC /* syslog.c */,
 				4217A4B82EEC1FA8006262EC /* url.c */,
@@ -792,6 +801,9 @@
 				4217A5612EEC1FA8006262EC /* crc.c in Sources */,
 				4217A5622EEC1FA8006262EC /* sha256.c in Sources */,
 				4217A5662EEC1FA8006262EC /* strptime.c in Sources */,
+				4284D28D2F288CC600B15BD6 /* google.auth.c in Sources */,
+				4284D28E2F288CC600B15BD6 /* rwbuf.c in Sources */,
+				4284D28F2F288CC600B15BD6 /* snowflake.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

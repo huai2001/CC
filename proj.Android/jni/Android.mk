@@ -54,6 +54,8 @@ LOCAL_SRC_FILES := \
     ../../src/syslog.c \
     ../../src/cpu.c \
     ../../src/file.c \
+	../../src/snowflake.c \
+	../../src/google.auth.c \
     ../../src/malloc/alloc.c \
     ../../src/thread/thread.c \
     ../../src/atomic/atomic.c \
@@ -72,7 +74,6 @@ LOCAL_SRC_FILES := \
     ../../src/ini/ini.parser.c\
     ../../src/xml/xml.c \
     ../../src/xml/xml.parser.c \
-    ../../src/misc/google.auth.c \
     ../../src/misc/strptime.c \
     ../../src/misc/tick.c \
     ../../src/misc/time.c \

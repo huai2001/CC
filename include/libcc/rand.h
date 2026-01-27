@@ -28,7 +28,7 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes);
 
 /*probability distribution*/
 _CC_API_PUBLIC(void) _cc_prd(_cc_prd_t* prd, float64_t p);
-/**/
+/*probability distribution*/
 _CC_API_PUBLIC(int32_t) _cc_get_probability(_cc_prd_t* prd, int T);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

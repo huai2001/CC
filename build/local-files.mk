@@ -76,6 +76,8 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/syslog.c \
 	$(SRCROOT)/src/cpu.c \
 	$(SRCROOT)/src/file.c \
+	$(SRCROOT)/src/snowflake.c \
+	$(SRCROOT)/src/google.auth.c \
 	$(SRCROOT)/src/malloc/alloc.c \
 	$(SRCROOT)/src/thread/thread.c \
 	$(SRCROOT)/src/atomic/atomic.c \
@@ -95,7 +97,6 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/ini/ini.parser.c\
 	$(SRCROOT)/src/xml/xml.c \
 	$(SRCROOT)/src/xml/xml.parser.c \
-	$(SRCROOT)/src/misc/google.auth.c \
 	$(SRCROOT)/src/misc/strptime.c \
 	$(SRCROOT)/src/misc/tick.c \
 	$(SRCROOT)/src/misc/time.c \

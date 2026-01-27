@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-/* kFreeBSD */
+/* FreeBSD kernel */
 #if defined(__FreeBSD_kernel__) && defined(__GLIBC__)
     #define GNU_KFREEBSD
 #endif
@@ -216,9 +216,8 @@ _CC_API_PRIVATE(float64_t) C2P(_cc_prd_t *prd) {
     }
     return 1.0 / ptested;
 }
-
-/**/
-_CC_API_PUBLIC(void) _cc_calculate_prd(_cc_prd_t *prd, float64_t p) {
+/*probability distribution*/
+_CC_API_PUBLIC(void) _cc_prd(_cc_prd_t *prd, float64_t p) {
     float64_t percent = p * 1.0 / 100.0;
     float64_t upper_bound = percent;
     float64_t lower_bound = 0.0;
@@ -243,25 +242,8 @@ _CC_API_PUBLIC(void) _cc_calculate_prd(_cc_prd_t *prd, float64_t p) {
         last = ptested;
     }
 }
-/*
-_CC_API_PRIVATE(void) PRD_Table() {
-    PRD *prd;
-    int32_t i;
-    // 1% - 100%
-    for (i = 1; i <= 100; ++i) {
-        prd = &probability[i - 1];
-        prd->P = i * 1.0 / 100.0;
-        P2C(prd);
-    }
-}
 
-_CC_API_PRIVATE(void) randCurrentCard(byte_t cardData[], byte_t dataCount,
-byte_t cardBuffer[]) { byte_t randCount = 0, position = 0, r = 0; do { r =
-dataCount - randCount; position = rand() % r; cardBuffer[randCount++] =
-cardData[position]; cardData[position] = cardData[r]; } while (randCount <
-dataCount);
-}
-*/
+/*probability distribution*/
 _CC_API_PUBLIC(int32_t) _cc_get_probability(_cc_prd_t *prd, int T) {
     float64_t P, R;
 
