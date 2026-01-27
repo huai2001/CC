@@ -104,6 +104,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_request_response_header(_cc_http_request_t *requ
 
     io = request->io;
     request->state = _cc_http_header_parser((_cc_http_header_fn_t)_cc_http_alloc_response_header, (pvoid_t *)&request->response, io->r.bytes, (int32_t *)&io->r.off);
+    
     /**/
     if (request->state != _CC_HTTP_STATE_PAYLOAD_) {
         return request->state == _CC_HTTP_STATE_HEADER_;
