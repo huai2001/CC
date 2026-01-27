@@ -37,7 +37,7 @@ bool_t _cc_wbuf_string(_cc_wbuf_t *buffer, const tchar_t* value, int32_t length)
 bool_t _cc_wbuf_bytes(_cc_wbuf_t *buffer, const byte_t* value, int32_t length);
 
 /**/
-void _cc_rbuf_init(_cc_rbuf_t *buffer, byte_t *bytes, uint32_t length);
+void _cc_rbuf_init(_cc_rbuf_t *buffer, const byte_t *bytes, uint32_t length);
 /**/
 int8_t _cc_rbuf_int8(_cc_rbuf_t *buffer);
 /**/
