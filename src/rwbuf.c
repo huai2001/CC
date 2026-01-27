@@ -90,7 +90,7 @@ bool_t _cc_wbuf_bytes(_cc_wbuf_t *buffer, const byte_t* value, int32_t length) {
 }
 
 /**/
-void _cc_rbuf_init(_cc_rbuf_t *buffer, byte_t*bytes, uint32_t length) {
+void _cc_rbuf_init(_cc_rbuf_t *buffer, const byte_t*bytes, uint32_t length) {
     buffer->off = 0;
     buffer->limit = length;
     buffer->bytes = bytes;
