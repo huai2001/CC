@@ -148,7 +148,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, c
 
 _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t level, const char_t *fmt, va_list arg) {
     char_t buf[_CC_LOG_BUFFER_SIZE_];
-    int fmt_length, remaining;
+    int fmt_length, remaining, cnt = 0;
     char_t *ptr = buf;
     char_t *tmp_ptr = NULL;
 
@@ -177,16 +177,17 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
         if (fmt_length <= 0) {
             break;
         }
-
+        
         /* SUCCESS */
         if (fmt_length < remaining) {
             _cc_loggerA(file, line, level, ptr, fmt_length);
             break;
         }
+
         remaining = fmt_length;
         ptr = (char_t *)_cc_realloc(tmp_ptr, sizeof(char_t) * remaining);
         tmp_ptr = ptr;
-    } while (true);
+    } while (cnt++ <= 3);
 
     if (tmp_ptr) {
         _cc_free(tmp_ptr);
@@ -195,7 +196,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t 
 
 _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t level, const wchar_t *fmt, va_list arg) {
     wchar_t buf[_CC_LOG_BUFFER_SIZE_];
-    int fmt_length, remaining;
+    int fmt_length, remaining, cnt = 0;
 
     wchar_t *ptr = buf;
     wchar_t *tmp_ptr = NULL;
@@ -233,7 +234,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t 
         remaining = fmt_length;
         ptr = (wchar_t *)_cc_realloc(tmp_ptr, sizeof(wchar_t) * remaining);
         tmp_ptr = ptr;
-    } while (true);
+    } while (cnt++ <= 3);
 
     if (tmp_ptr) {
         _cc_free(tmp_ptr);
