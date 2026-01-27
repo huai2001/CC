@@ -107,6 +107,8 @@ _CC_API_PUBLIC(bool_t) _cc_http_request_response_header(_cc_http_request_t *requ
     /**/
     if (request->state != _CC_HTTP_STATE_PAYLOAD_) {
         return request->state == _CC_HTTP_STATE_HEADER_;
+    } else if (request->response == NULL) {
+        return false;
     }
 
     response = request->response;
