@@ -23,6 +23,7 @@ extern "C" {
 typedef uintptr_t _cc_array_t;
 
 #define _cc_array_value(CTX,INDEX)  (*((uintptr_t*)(CTX) + (INDEX)));
+#define _cc_array_at(CTX,INDEX)  (*((uintptr_t*)(CTX) + (INDEX)));
 
 /**/
 _CC_API_PUBLIC(_cc_array_t) _cc_alloc_array(size_t);
