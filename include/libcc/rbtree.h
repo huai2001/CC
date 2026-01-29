@@ -9,23 +9,23 @@ extern "C" {
 #endif
 
 /**/
-#define _cc_rbtree_for_each(__VAL, __FIRST, __OP)                          \
-    do {                                                                   \
-        _cc_rb_t *__VAL, *__NEXT = _cc_rbtree_first(__FIRST); \
-        while (NULL != __NEXT) {                                           \
-            __VAL = __NEXT;                                                \
-            __NEXT = _cc_rb_next(__NEXT);                              \
-            __OP                                                           \
-        }                                                                  \
+#define _cc_rbtree_for_each(__VAL, __FIRST, __OP)                           \
+    do {                                                                    \
+        _cc_rb_t *__VAL, *__NEXT = _cc_rbtree_first(__FIRST);               \
+        while (NULL != __NEXT) {                                            \
+            __VAL = __NEXT;                                                 \
+            __NEXT = _cc_rb_next(__NEXT);                                   \
+            __OP                                                            \
+        }                                                                   \
     } while (0)
 
 /**/
-#define _cc_rbtree_for_backward(__CURR, __FIRST)                \
-    for (__CURR = _cc_rbtree_last(__FIRST); __CURR != NULL; \
+#define _cc_rbtree_for_backward(__CURR, __FIRST)                            \
+    for (__CURR = _cc_rbtree_last(__FIRST); __CURR != NULL;                 \
          __CURR = _cc_rb_prev(__CURR))
 
-#define _cc_rbtree_for_forward(__CURR, __FIRST)                 \
-    for (__CURR = _cc_rbtree_first(__FIRST); __CURR != NULL; \
+#define _cc_rbtree_for_forward(__CURR, __FIRST)                             \
+    for (__CURR = _cc_rbtree_first(__FIRST); __CURR != NULL;                \
          __CURR = _cc_rb_next(__CURR))
 
 #define _cc_rbtree_for _cc_rbtree_for_forward
