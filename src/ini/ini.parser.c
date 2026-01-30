@@ -162,8 +162,7 @@ _CC_API_PRIVATE(bool_t) _INI_read_string(_cc_sbuf_t* const buffer, _cc_ini_t *it
     alloc_length = (size_t)(endpos - start);
 
     item->element.uni_string = (_cc_sds_t)_cc_sds_alloc(NULL, (alloc_length - skipped_bytes + 1));
-    endpos = _convert_text(item->element.uni_string, start, endpos);
-    if (endpos) {
+    if (_unescape_text(item->element.uni_string, start, endpos)) {
         buffer->offset = (size_t)(p - buffer->content) + endflag;
         return true;
     }

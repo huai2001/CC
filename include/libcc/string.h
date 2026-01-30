@@ -130,6 +130,7 @@ _cc_trimW_copy(wchar_t *dst, size_t dst_capacity,  const wchar_t *src, size_t sr
 _CC_API_PUBLIC(size_t)
 _cc_trimA_copy(char_t *dst, size_t dst_capacity,  const char_t *src, size_t src_len);
 
+_CC_API_PUBLIC(size_t) _cc_utf8_unescape_text(tchar_t *dst, tchar_t *dst_endptr, const tchar_t *ptr, const tchar_t *endptr);
 typedef enum _CC_NUMBER_TYPES_ {
     _CC_NUMBER_INT_ = 1,
     _CC_NUMBER_FLOAT_

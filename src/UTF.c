@@ -9,7 +9,7 @@ _cc_convert_utf16_literal_to_utf8(const tchar_t **input, const tchar_t *input_en
     uint32_t second_code;
     uint32_t codepoint = 0;
 
-    first_code = _cc_hex4(*input);
+    first_code = _cc_hex4((*input + 2));
     if (first_code == 0) {
         return 0;
     }
@@ -19,18 +19,20 @@ _cc_convert_utf16_literal_to_utf8(const tchar_t **input, const tchar_t *input_en
         return 0;
     }
 
-    *input += 4;
+    *input += 6;
     /* UTF16 surrogate pair */
-    //\ud83c\udf0a
     if ((first_code >= 0xD800) && (first_code <= 0xDBFF)) {
+        int ch = (*input)[0];
         if ((*input + 6) > input_end) {
             /* input ends unexpectedly */
             return 0;
         }
-        if (((*input)[0] != '\\') || ((*input)[1] != 'u')) {
+        
+        if ((ch != '\\' && ch != '%')  || ((*input)[1] != 'u')) {
             /* missing second half of the surrogate pair */
             return 0;
         }
+
         /* get the second utf16 sequence */
         second_code = _cc_hex4(*input + 2);
         /* check that the code is valid */

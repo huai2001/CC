@@ -39,7 +39,7 @@ typedef struct {
 } _cc_syntax_error_t;
 
 /**/
-tchar_t* _convert_text(_cc_sds_t sds, const tchar_t *src, const tchar_t *endpos);
+bool_t _unescape_text(_cc_sds_t sds, const tchar_t *src, const tchar_t *endpos);
 /**/
 void _cc_syntax_error(_cc_syntax_error_t *error);
 /**/

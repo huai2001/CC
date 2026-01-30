@@ -22,9 +22,19 @@ static bool_t url_response_header(_cc_http_request_t *request) {
 static bool_t url_request_header(_cc_http_request_t *request, _cc_event_t *e) {
     _cc_url_t *u = &request->url;
     _cc_buf_t *buf = &request->buffer;
+#if __POST__
+    tchar_t raw[1024];
+    size_t raw_length = 0;
+#endif
     _cc_buf_cleanup(buf);
 
+#if __POST__
+    raw_length = _sntprintf(raw, _cc_countof(raw), _T("{\"message\": \"%s\"}"), _T("test"));
+    _cc_buf_appendf(buf, _T("POST %s HTTP/1.1\r\n\r\nContent-Length: %d"), u->request, (int)raw_length);
+#else
     _cc_buf_appendf(buf, _T("GET %s HTTP/1.1\r\n"), u->request);
+#endif
+
     if ((u->scheme.ident == _CC_SCHEME_HTTPS_ && u->port == _CC_PORT_HTTPS_) ||
         (u->scheme.ident == _CC_SCHEME_HTTP_ && u->port == _CC_PORT_HTTP_)) {
         /* if(HTTPS on port 443) OR (HTTP on port 80) then don't include the port number in the host string */
@@ -37,9 +47,12 @@ static bool_t url_request_header(_cc_http_request_t *request, _cc_event_t *e) {
         _cc_buf_appendf(buf, _T("Host: %s:%d\r\n"), u->host, u->port);
     }
     //
-    _cc_buf_puts(buf, _T("Connection: Keep-Alive\r\nAccept-Encoding: gzip\r\n"));
+    _cc_buf_puts(buf, _T("Connection: Keep-Alive\r\nAccept-Encoding: gzip\r\nContent-Type: application/json\r\n"));
     _cc_buf_appendf(buf, _T("User-Agent: %s\r\nAccept: */*\r\n\r\n"),
                    _user_agent[rand() % _cc_countof(_user_agent)]);
+#if __POST__
+    _cc_buf_append(buf, raw, raw_length);
+#endif
     return _cc_http_request_header(request, e);
 }
 
@@ -47,7 +60,7 @@ static bool_t url_request_success(_cc_http_request_t *request) {
     _cc_http_response_header_t *response = request->response;
     _cc_rb_t *node;
 
-    _cc_rbtree_for_next(node, &response->headers) {
+    _cc_rbtree_for(node, &response->headers) {
         _cc_http_header_t *header = _cc_upcast(node, _cc_http_header_t, lnk);
         _cc_logger_debug("header:%s=%s", header->keyword, header->value);
     }
@@ -260,7 +273,6 @@ int main(int argc, char *const argv[]) {
     _cc_alloc_async_event(0, NULL);
 
     url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
-    //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
     //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
     //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
     //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);

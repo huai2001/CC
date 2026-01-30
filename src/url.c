@@ -393,10 +393,7 @@ _CC_API_PUBLIC(int32_t) _cc_url_decode(const tchar_t *src, int32_t src_len, tcha
 
         if (*s == _T('%')) {
             if (*(s + 1) == 'u' && e >= (s + 6)) {
-                int32_t convert_bytes;
-                /*skip %u*/
-                s += 2;
-                convert_bytes = _cc_convert_utf16_literal_to_utf8(&s, e, dst + i, dst_len - i);
+                int32_t convert_bytes = _cc_convert_utf16_literal_to_utf8(&s, e, dst + i, dst_len - i);
                 if (_cc_unlikely(convert_bytes == 0)) {
                     return 0;
                 }
@@ -460,10 +457,7 @@ _CC_API_PUBLIC(int32_t) _cc_raw_url_decode(const tchar_t *src, int32_t src_len, 
     while (s < e && dst_len > i) {
         if (*s == _T('%')) {
             if (*(s + 1) == 'u' && e >= (s + 6)) {
-                /*skip %u*/
-                int32_t convert_bytes;
-                s += 2;
-                convert_bytes = _cc_convert_utf16_literal_to_utf8(&s, e, dst + i, dst_len - i);
+                int32_t convert_bytes = _cc_convert_utf16_literal_to_utf8(&s, e, dst + i, dst_len - i);
                 if (_cc_unlikely(convert_bytes == 0)) {
                     return 0;
                 }

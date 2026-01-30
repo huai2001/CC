@@ -100,7 +100,7 @@ _CC_API_PRIVATE(bool_t) _XML_parser_comments(_cc_sbuf_t *const buffer, _cc_sds_t
     /* This is at most how much we need for the output */
     alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
     *output = _cc_sds_alloc(NULL, alloc_length);
-    if (_convert_text(*output, start, p)) {
+    if (_unescape_text(*output, start, p)) {
         buffer->offset = (size_t)(p - buffer->content) + 3;
         return true;
     }
@@ -165,7 +165,7 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
     /* This is at most how much we need for the output */
     start = _cc_buf_stringify(&buf,&alloc_length);
     context->text = _cc_sds_alloc(NULL, alloc_length);
-    if (_convert_text(context->text, (const tchar_t *)buf.bytes, (const tchar_t *)start + alloc_length)) {
+    if (_unescape_text(context->text, (const tchar_t *)buf.bytes, (const tchar_t *)start + alloc_length)) {
         _cc_free_buf(&buf);
         return true;
     }
@@ -246,7 +246,7 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_attr_value(_cc_sbuf_t *const buffer) {
     alloc_length = ((size_t)(endpos - start) - skipped_bytes + 1);
     output = _cc_sds_alloc(NULL, alloc_length);
 
-    if (_convert_text(output, start, endpos)) {
+    if (_unescape_text(output, start, endpos)) {
         buffer->offset = (size_t)(p - buffer->content) + endflag;
         return output;
     }
