@@ -46,12 +46,12 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
     self = pthread_self();
     if (mutex->owner == self) {
         ++mutex->recursive;
-        return 1;
     } else {
         if (os_unfair_lock_trylock(&(mutex->unfair_lock))) {
             mutex->owner = self;
             mutex->recursive = 0;
-            return 1;
+        } else {
+            return _CC_MUTEX_TIMEDOUT_;
         }
     }
     return 0;
