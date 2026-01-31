@@ -101,6 +101,12 @@ extern const char_t _a_upper_xdigits[];
 _CC_FORCE_INLINE_ int _cc_char2hex(int ch) {
     return (ch <= _T('9')) ? (ch & 0x0F) : ((ch & 0x0F) + 0x09);
 }
+/* Convert an ASCII hex digit to the corresponding number between 0
+   and 15.  c should be a hexadecimal digit that satisfies c_isxdigit;
+   otherwise, the result is undefined.  */
+_CC_FORCE_INLINE_ unsigned char _cc_unhex(unsigned char c) {
+	return c <= '9' ? c - '0' : (c <= 'F' ? c - 'A' + 10 : c - 'a' + 10);
+}
 
 /* parse hexadecimal number */
 _CC_API_PUBLIC(uint8_t) _cc_hex2(const tchar_t *);

@@ -3,6 +3,7 @@
 #include <libcc/string.h>
 #include <libcc/atomic.h>
 #include <libcc/OpenSSL.h>
+#include <libcc/socket.h>
 
 #ifdef _CC_USE_OPENSSL_
 
@@ -430,11 +431,45 @@ _CC_API_PUBLIC(bool_t) _SSL_setup_pkcs12(_cc_OpenSSL_t *ctx,
     return true;
 }
 
+_CC_API_PRIVATE(bool_t) is_ip_address(const tchar_t *host, size_t length) {
+#if 0
+    struct in_addr addr4;
+    struct in6_addr addr6;
+
+    /* Try IPv4 first */
+    if (inet_pton(AF_INET, host, &addr4) == 1) {
+        return true;
+    }
+#if defined(IPV6_V6ONLY)
+    /* Try IPv6 */
+    if (inet_pton(AF_INET6, host, &addr6) == 1) {
+        return true;
+    }
+#endif
+#else
+    if (_cc_is_valid_ipv4_addr(host, host + length)) {
+        return true;
+    }
+#if defined(IPV6_V6ONLY)
+    if (_cc_is_valid_ipv6_addr(host, host + length)) {
+        return true;
+    }
+#endif
+#endif
+    return false;
+}
+
 
 _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, const tchar_t *host, size_t length) {
 #ifdef _CC_UNICODE_
     char host_utf8[256];
 #endif
+#if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)
+  /* If the SSL library was built with support for ServerNameIndication
+     then use it whenever we have a hostname.  If not, don't, ever. */
+     if (is_ip_address(host, length)) {
+        return;
+     }
 #ifdef _CC_UNICODE_
     _cc_utf16_to_utf8((uint16_t *)host, (uint16_t *)(host + length), (uint8_t *)host_utf8,
                       (uint8_t *)host_utf8 + _cc_countof(host_utf8));
@@ -442,6 +477,7 @@ _CC_API_PUBLIC(void) _SSL_set_host_name(_cc_SSL_t *ssl, const tchar_t *host, siz
 #else
     SSL_set_tlsext_host_name((SSL*)ssl->handle, host);
     _CC_UNUSED(length);
+#endif
 #endif
 }
 

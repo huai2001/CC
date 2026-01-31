@@ -97,3 +97,98 @@ _CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t
         addr->sin6_port = htons(port);
     }
 }
+
+/**/
+_CC_API_PUBLIC(bool_t) _cc_is_valid_ipv4_addr(const tchar_t *str, const tchar_t *endptr) {
+    bool_t is_digit = false;
+    int octets = 0;
+    int v = 0;
+
+    if (!str || !endptr || str >= endptr) {
+        return false;
+    }
+
+    while (str < endptr) {
+        int ch = *str++;
+        if (_CC_ISDIGIT(ch)) {
+            v = v * 10 + (ch - '0');
+            if (v > 255) {
+                return false;
+            }
+            is_digit = true;
+        } else if (ch == '.' && is_digit) {
+            if (++octets > 3) {
+                return false;
+            }
+            v = 0;
+            is_digit = false;
+        } else {
+            return false;
+        }
+    }
+    return (octets == 3 && is_digit);
+}
+
+/**/
+_CC_API_PUBLIC(bool_t) _cc_is_valid_ipv6_addr(const tchar_t *str, const tchar_t *endptr) {
+    const tchar_t *double_colon = NULL;
+    int segments = 0;
+    int hex_count = 0;
+    bool_t has_ipv4 = false;
+
+    if (!str || !endptr || str == endptr) {
+        return false;
+    }
+    
+    // Handle leading ::
+    if (*str == ':') {
+        ++str;
+        if (str >= endptr || *str != ':') {
+            return false;
+        }
+        double_colon = str - 1;
+        ++str;
+    }
+    
+    while (str < endptr) {
+        tchar_t ch;
+        // Count hex digits in segment
+        hex_count = 0;
+        while (str < endptr && _CC_ISXDIGIT(*str) && hex_count < 4) {
+            ++hex_count;
+            ++str;
+        }
+        
+        if (str >= endptr) {
+            segments++;
+            break;
+        }
+
+        ch = *str;
+        if (ch == ':') {
+            if (hex_count == 0) {
+                if (double_colon) {
+                    return false;
+                }
+                double_colon = str;
+            } else {
+                segments++;
+            }
+            str++;
+        } else if (ch == '.' && hex_count > 0 && hex_count <= 3 && !has_ipv4) {
+            // Validate embedded IPv4
+            if (!_cc_is_valid_ipv4_addr(str - hex_count, endptr)) {
+                return false;
+            }
+            has_ipv4 = true;
+            break;
+        } else {
+            return false;
+        }
+    }
+    
+    if (double_colon) {
+        return segments < 8 && !has_ipv4;
+    }
+    return segments == 8 || (has_ipv4 && segments == 6);
+}

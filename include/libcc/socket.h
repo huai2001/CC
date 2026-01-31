@@ -90,7 +90,10 @@ _CC_API_PUBLIC(int32_t) _cc_sendto(_cc_socket_t fd, const byte_t* buf, int32_t l
 _CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *sa, const tchar_t *ip, int port);
 /**/
 _CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *sa, const tchar_t *ip, int port);
-
+/**/
+_CC_API_PUBLIC(bool_t) _cc_is_valid_ipv4_addr(const tchar_t *str, const tchar_t *endptr);
+/**/
+_CC_API_PUBLIC(bool_t) _cc_is_valid_ipv6_addr(const tchar_t *str, const tchar_t *endptr);
 /**/
 _CC_FORCE_INLINE_ int _cc_shutdown_socket(_cc_socket_t fd, byte_t how) {
     return shutdown(fd, how);
