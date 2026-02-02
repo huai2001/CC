@@ -30,7 +30,7 @@ static bool_t url_request_header(_cc_http_request_t *request, _cc_event_t *e) {
 
 #if __POST__
     raw_length = _sntprintf(raw, _cc_countof(raw), _T("{\"message\": \"%s\"}"), _T("test"));
-    _cc_buf_appendf(buf, _T("POST %s HTTP/1.1\r\n\r\nContent-Length: %d"), u->request, (int)raw_length);
+    _cc_buf_appendf(buf, _T("POST %s HTTP/1.1\r\nContent-Length: %d\r\n"), u->request, (int)raw_length);
 #else
     _cc_buf_appendf(buf, _T("GET %s HTTP/1.1\r\n"), u->request);
 #endif
