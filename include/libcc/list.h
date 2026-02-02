@@ -16,26 +16,26 @@ extern "C" {
 
 /**/
 #define _cc_list_for_each(__CURR, __FIRST, __OP)        \
-    do {                                                         \
+    do {                                                \
         _cc_list_t* __NEXT = (__FIRST)->next;           \
         _cc_list_t* __CURR;                             \
-        while (__NEXT != (__FIRST)) {                            \
-            __CURR = __NEXT;                                     \
-            __NEXT = __NEXT->next;                               \
-            __OP                                                 \
-        }                                                        \
+        while (__NEXT != (__FIRST)) {                   \
+            __CURR = __NEXT;                            \
+            __NEXT = __NEXT->next;                      \
+            __OP                                        \
+        }                                               \
     } while (0)
 
 /**/
 #define _cc_list_for_each_prev(__CURR, __FIRST, __OP)   \
-    do {                                                         \
+    do {                                                \
         _cc_list_t* __PREV = (__FIRST)->prev;           \
         _cc_list_t* __CURR;                             \
-        while (__PREV != (__FIRST)) {                            \
-            __CURR = __PREV;                                     \
-            __PREV = __PREV->prev;                               \
-            __OP                                                 \
-        }                                                        \
+        while (__PREV != (__FIRST)) {                   \
+            __CURR = __PREV;                            \
+            __PREV = __PREV->prev;                      \
+            __OP                                        \
+        }                                               \
     } while (0)
 /**/
 typedef struct _cc_list _cc_list_t;
