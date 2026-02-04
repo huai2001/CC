@@ -203,7 +203,7 @@ _CC_API_PRIVATE(void) _cc_json_dump_string(const tchar_t *output, _cc_buf_t *buf
     size_t escape_characters = 0;
 
     /* empty string */
-    if (output == NULL) {
+    if (output == NULL || output[0] == '\0') {
         _cc_buf_puts(buf, _T("\"\""));
         return;
     }
@@ -286,7 +286,8 @@ _CC_API_PRIVATE(void) _cc_json_dump_array(const _cc_json_t *root, _cc_buf_t *buf
 
     _cc_buf_putchar(buf, _JSON_ARRAY_END_);
 }
-    /**/
+
+/**/
 _CC_API_PRIVATE(void) _cc_json_dump_object(const _cc_json_t *root, _cc_buf_t *buf) {
     _cc_json_t *item = NULL;
     _cc_rb_t *next, *head;

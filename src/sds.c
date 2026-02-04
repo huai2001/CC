@@ -5,6 +5,8 @@
 /* Get SDS header size for a given type */
 _CC_FORCE_INLINE_ byte_t sds_hdr(byte_t type) {
     switch(type & _SDS_MASK_) {
+        case _SDS_MASK_5_:
+            return (byte_t)sizeof(struct _sds_hdr5);
         case _SDS_MASK_8_:
             return (byte_t)sizeof(struct _sds_hdr8);
         case _SDS_MASK_16_:
@@ -19,6 +21,9 @@ _CC_FORCE_INLINE_ byte_t sds_hdr(byte_t type) {
 
 /* Select the appropriate SDS type based on string length */
 _CC_FORCE_INLINE_ byte_t sds_rtype(size_t length) {
+    if (length < (1 << 5)) {
+        return _SDS_MASK_5_;
+    }
     if (length < (1 << 8)) {
         return _SDS_MASK_8_;
     }
@@ -70,6 +75,11 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_alloc(const tchar_t *s, size_t length) {
     *(byte_t*)(ptr - sizeof(byte_t)) = type;
 
     switch (type) {
+        case _SDS_MASK_5_: {
+            struct _sds_hdr5 *h = (struct _sds_hdr5 *)hdr;
+            h->flags |= (length << _SDS_BITS_);
+            break;
+        }
         case _SDS_MASK_8_: {
             struct _sds_hdr8 *h = (struct _sds_hdr8 *)hdr;
             h->length = (uint8_t)ptr_length;
@@ -192,7 +202,7 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_sds_cat(_cc_sds_t s, const tchar_t *t, size_t leng
 
     flags = *(((byte_t*)s) - sizeof(byte_t));
     curlen = _cc_sds_length(s);
-    if (_cc_sds_available(s) < length) {
+    if ((flags & _SDS_MASK_) == _SDS_MASK_5_ || _cc_sds_available(s) < length) {
         _cc_sds_t ss = _cc_sds_alloc(NULL, curlen + length);
         memcpy(ss, s, sizeof(tchar_t) * curlen);
         _cc_sds_free(s);
