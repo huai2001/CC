@@ -38,14 +38,15 @@ _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
     /* This is at most how much we need for the output */
     alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
     output = _cc_sds_alloc(NULL, alloc_length);
-    if (_unescape_text(output, start, p)) {
-        /* +1 skip \" or \' */
-        buffer->offset = (size_t)(p - buffer->content) + 1;
-        return output;
+    /* empty string */
+    if (alloc_length > 1 && !_unescape_text(output, start, p)) {
+        _cc_sds_free(output);
+        return NULL;
     }
 
-    _cc_sds_free(output);
-    return NULL;
+    /* +1 skip \" or \' */
+    buffer->offset = (size_t)(p - buffer->content) + 1;
+    return output;
 }
 
 _CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_t *const buffer, _cc_json_t *const item) {
