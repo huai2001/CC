@@ -39,7 +39,7 @@ static void init_get_version(void) {
     if (ntdll_module == NULL) {
         _cc_logger_error("GetModuleHandle(ntdll.dll) Error Code:%d.", _cc_last_errno());
     }
-	_call_get_version = (RTLGETVERSION_PTR)GetProcAddress(ntdll_module, "RtlGetVersion");
+    _call_get_version = (RTLGETVERSION_PTR)GetProcAddress(ntdll_module, "RtlGetVersion");
 }
 
 /**/
@@ -332,7 +332,7 @@ _CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
                   _errno, MAKELANGID(LANG_NEUTRAL, SUBLANG_ENGLISH_US), (LPSTR)sys_error_info, sizeof(sys_error_info), NULL);
     
     if (!res && (GetLastError() == ERROR_MUI_FILE_NOT_FOUND || GetLastError() == ERROR_RESOURCE_TYPE_NOT_FOUND)) {
-		res = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, _errno, 0, (LPSTR)sys_error_info, sizeof(sys_error_info), NULL);
+        res = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, _errno, 0, (LPSTR)sys_error_info, sizeof(sys_error_info), NULL);
     }
     sys_error_info[res] = 0;
     

@@ -95,7 +95,7 @@ extern "C" {
 * of st_mode from a stat structure.  The macro shall evaluate to a non-zero
 * value if the test is true; 0 if the test is false.
 */
-#ifndef	S_ISDIR
+#ifndef S_ISDIR
 #define S_ISBLK(m)       (((m) & S_IFMT) == S_IFBLK)     /* block special */
 #define S_ISCHR(m)       (((m) & S_IFMT) == _S_IFCHR)    /* char special */
 #define S_ISDIR(m)       (((m) & S_IFMT) == _S_IFDIR)    /* directory */

@@ -18,7 +18,7 @@ extern "C" {
 #define _CC_IOCP_EXIT_                    0xFFFFFFFF
 
 struct _cc_async_event_priv {
-	HANDLE port;
+    HANDLE port;
     _cc_list_t io_active;
     _cc_list_t io_idle;
     int32_t frees;
@@ -26,10 +26,10 @@ struct _cc_async_event_priv {
 
 typedef struct _io_context {
     uint32_t ident;
-	uint32_t flag;
-	_cc_socket_t fd;
+    uint32_t flag;
+    _cc_socket_t fd;
     OVERLAPPED overlapped;
-	DWORD number_of_bytes;
+    DWORD number_of_bytes;
     _cc_list_t lnk;
     _cc_event_t *e;
 } _io_context_t;

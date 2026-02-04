@@ -4,23 +4,23 @@
 
 #include "event.h"
 
-#define _CC_SOCKS5_AUTH_NONE_           		0x00
-#define _CC_SOCKS5_AUTH_GSSAPI_         		0x01
-#define _CC_SOCKS5_AUTH_ID_KEY_         		0x02
-#define _CC_SOCKS5_AUTH_IANA_           		0x03
-#define _CC_SOCKS5_AUTH_RESERVE_        		0x04
-#define _CC_SOCKS5_AUTH_NOT_SUPPORT_    		0xFF
+#define _CC_SOCKS5_AUTH_NONE_                   0x00
+#define _CC_SOCKS5_AUTH_GSSAPI_                 0x01
+#define _CC_SOCKS5_AUTH_ID_KEY_                 0x02
+#define _CC_SOCKS5_AUTH_IANA_                   0x03
+#define _CC_SOCKS5_AUTH_RESERVE_                0x04
+#define _CC_SOCKS5_AUTH_NOT_SUPPORT_            0xFF
 
-#define _CC_SOCKS5_AUTH_RESULT_OK_      		0x00
-#define _CC_SOCKS5_AUTH_RESULT_ERR_     		0x0F
+#define _CC_SOCKS5_AUTH_RESULT_OK_              0x00
+#define _CC_SOCKS5_AUTH_RESULT_ERR_             0x0F
 
-#define _CC_SOCKS5_CMD_CONNECT_   				0x01
-#define _CC_SOCKS5_CMD_BIND_      				0x02
-#define _CC_SOCKS5_CMD_UDPASS_    				0x03
+#define _CC_SOCKS5_CMD_CONNECT_                 0x01
+#define _CC_SOCKS5_CMD_BIND_                    0x02
+#define _CC_SOCKS5_CMD_UDPASS_                  0x03
 
-#define _CC_SOCKS5_ADDRESS_TYPE_IPV4_   		0x01
-#define _CC_SOCKS5_ADDRESS_TYPE_DOMAIN_ 		0x03
-#define _CC_SOCKS5_ADDRESS_TYPE_IPV6_   		0x04
+#define _CC_SOCKS5_ADDRESS_TYPE_IPV4_           0x01
+#define _CC_SOCKS5_ADDRESS_TYPE_DOMAIN_         0x03
+#define _CC_SOCKS5_ADDRESS_TYPE_IPV6_           0x04
 
 #define _CC_SOCKS5_CMD_RESPONSE_OK_             0x00
 #define _CC_SOCKS5_CMD_RESPONSE_AGENT_ERR_      0x01

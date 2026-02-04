@@ -56,9 +56,9 @@
 
 /* Define operating platform*/
 #if defined(WIN32) || defined(_WIN32) || \
-	defined(WIN64) || defined(_WIN64) || \
+    defined(WIN64) || defined(_WIN64) || \
     defined(__NT__)|| \
-	defined(_WIN32_WCE) || defined(__CC_MINGW__)
+    defined(_WIN32_WCE) || defined(__CC_MINGW__)
 
 #define __CC_WINDOWS__ 1
 
@@ -87,11 +87,11 @@
     #define __CC_WINRT__ 1
     #define __CC_OS_NAME__ "Windows RT"
 #elif defined(WIN64) || defined(_WIN64)
-	#define __CC_WIN64__    1
-	#define __CC_OS_NAME__ "Windows 64-bit"
+    #define __CC_WIN64__    1
+    #define __CC_OS_NAME__ "Windows 64-bit"
 #elif defined(_WIN32_WCE)
-	#define __CC_WIN32_CE__ 1
-	#define __CC_OS_NAME__ "Windows CE"
+    #define __CC_WIN32_CE__ 1
+    #define __CC_OS_NAME__ "Windows CE"
 #else
     #define __CC_WIN32__    1
     #define __CC_OS_NAME__ "Windows 32-bit"

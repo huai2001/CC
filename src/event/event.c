@@ -110,7 +110,7 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
 
 /**/
 _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
-	int32_t index = (int32_t)(ident & 0x0FFFFF);
+    int32_t index = (int32_t)(ident & 0x0FFFFF);
     if (g.slot_length <= index) {
         return NULL;
     }
@@ -155,7 +155,7 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_alloc_event(_cc_async_event_t *async, const uin
     e->timeout = 0;
     e->data = 0;
 #ifdef _CC_EVENT_USE_IOCP_
-	e->accept_fd = _CC_INVALID_SOCKET_;
+    e->accept_fd = _CC_INVALID_SOCKET_;
 #endif
     if (_CC_EVENT_IS_SOCKET(flags)) {
         e->flags |= _CC_EVENT_SOCKET_;
@@ -179,7 +179,7 @@ _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e) {
     e->flags = _CC_EVENT_UNKNOWN_;
     e->filter = _CC_EVENT_UNKNOWN_;
 #ifdef _CC_EVENT_USE_IOCP_
-	e->accept_fd = _CC_INVALID_SOCKET_;
+    e->accept_fd = _CC_INVALID_SOCKET_;
 #endif
     if (fd != _CC_INVALID_SOCKET_ && fd != 0) {
         _cc_close_socket(fd);

@@ -492,21 +492,21 @@ _CC_API_PUBLIC(int) _SSL_set_cipher_list(_cc_OpenSSL_t *ctx, const char *ciphers
 }
 
 _CC_API_PRIVATE(uint8_t) _SSL_Error(SSL *handle,const char *fn) {
-	switch (SSL_get_error(handle, 0)) {
+    switch (SSL_get_error(handle, 0)) {
         case SSL_ERROR_WANT_READ:
             return _CC_SSL_HS_WANT_READ_;
         case SSL_ERROR_WANT_WRITE:
             return _CC_SSL_HS_WANT_WRITE_;
-		case SSL_ERROR_SYSCALL:{
+        case SSL_ERROR_SYSCALL:{
             int err = _cc_last_errno();
             if ((err == _CC_EINTR_ || err == _CC_EAGAIN_)) {
                 return _CC_SSL_HS_SYSCALL_WOULDBLOCK_;
             }
-			_cc_logger_error("SSL_get_error failed:%s.", _cc_last_error(_cc_last_errno()));
-			return _CC_SSL_HS_ERROR_;
-		}
-	}
-	_SSL_error(fn);
+            _cc_logger_error("SSL_get_error failed:%s.", _cc_last_error(_cc_last_errno()));
+            return _CC_SSL_HS_ERROR_;
+        }
+    }
+    _SSL_error(fn);
     return _CC_SSL_HS_ERROR_;
 }
 
@@ -516,10 +516,10 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_accept(_cc_OpenSSL_t *ctx, _cc_socket_t fd) {
 
     if (ssl) {
         SSL *handle = (SSL*)ssl->handle;
-		SSL_set_fd(handle, (int)fd);
-		SSL_set_accept_state(handle);
+        SSL_set_fd(handle, (int)fd);
+        SSL_set_accept_state(handle);
     }
-	return ssl;
+    return ssl;
 }
 
 /**/
@@ -527,10 +527,10 @@ _CC_API_PUBLIC(_cc_SSL_t*) _SSL_connect(_cc_OpenSSL_t *ctx, _cc_socket_t fd) {
     _cc_SSL_t *ssl = _SSL_alloc(ctx);
     if (ssl) {
         SSL *handle = (SSL*)ssl->handle;
-		SSL_set_fd(handle, (int)fd);
-		SSL_set_connect_state(handle);
-	}
-	return ssl;
+        SSL_set_fd(handle, (int)fd);
+        SSL_set_connect_state(handle);
+    }
+    return ssl;
 }
 
 /**/
@@ -538,7 +538,7 @@ _CC_API_PUBLIC(uint8_t) _SSL_do_handshake(_cc_SSL_t* ssl) {
     ERR_clear_error();
     if (SSL_do_handshake((SSL*)ssl->handle) == 1) {
         ssl->is_handshaked = true;
-		return _CC_SSL_HS_ESTABLISHED_;
+        return _CC_SSL_HS_ESTABLISHED_;
     }
     ssl->is_handshaked = false;
     return _SSL_Error((SSL*)ssl->handle, _CC_FUNC_);
@@ -547,15 +547,15 @@ _CC_API_PUBLIC(uint8_t) _SSL_do_handshake(_cc_SSL_t* ssl) {
 /**/
 _CC_API_PUBLIC(int32_t) _SSL_send(_cc_SSL_t *ssl, const byte_t *buf, int32_t length) {
     int32_t rc = 0;
-	_cc_assert(buf != NULL);
-	_cc_assert(length > 0);
+    _cc_assert(buf != NULL);
+    _cc_assert(length > 0);
 
     ERR_clear_error();
     rc = (int32_t)SSL_write((SSL*)ssl->handle, (char *)buf, length);
     if (rc <= 0) {
-		if (_SSL_Error((SSL*)ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
-			return 0;
-		}
+        if (_SSL_Error((SSL*)ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
+            return 0;
+        }
     }
     return rc;
 }
@@ -571,9 +571,9 @@ _CC_API_PUBLIC(int32_t) _SSL_read(_cc_SSL_t *ssl, byte_t *buf, int32_t length) {
     } else if (rc == 0) {
         return -1;
     }
-	if (_SSL_Error((SSL*)ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
-		return 0;
-	}
+    if (_SSL_Error((SSL*)ssl->handle, _CC_FUNC_) != _CC_SSL_HS_ERROR_) {
+        return 0;
+    }
     return rc;
 }
 

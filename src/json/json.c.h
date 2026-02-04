@@ -12,16 +12,16 @@ extern "C" {
 
 /* Limits how deeply nested arrays/objects can be before JSON rejects to parse
  * them. This is to prevent stack overflows. */
-#define _JSON_NESTING_LIMIT_ 	1000
+#define _JSON_NESTING_LIMIT_    1000
 
-#define _JSON_ARRAY_START_		_T('[')
-#define _JSON_ARRAY_END_		_T(']')
+#define _JSON_ARRAY_START_      _T('[')
+#define _JSON_ARRAY_END_        _T(']')
 
-#define _JSON_OBJECT_START_ 	_T('{')
-#define _JSON_OBJECT_END_ 		_T('}')
+#define _JSON_OBJECT_START_     _T('{')
+#define _JSON_OBJECT_END_       _T('}')
 
-#define _JSON_NEXT_TOKEN_ 		_T(',')
-#define _JSON_OBJECT_TOKEN_ 	_T(':')
+#define _JSON_NEXT_TOKEN_       _T(',')
+#define _JSON_OBJECT_TOKEN_     _T(':')
 
 int32_t _json_get_object(_cc_rb_t*, uintptr_t);
 

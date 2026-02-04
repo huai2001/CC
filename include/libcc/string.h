@@ -105,7 +105,7 @@ _CC_FORCE_INLINE_ int _cc_char2hex(int ch) {
    and 15.  c should be a hexadecimal digit that satisfies c_isxdigit;
    otherwise, the result is undefined.  */
 _CC_FORCE_INLINE_ unsigned char _cc_unhex(unsigned char c) {
-	return c <= '9' ? c - '0' : (c <= 'F' ? c - 'A' + 10 : c - 'a' + 10);
+    return c <= '9' ? c - '0' : (c <= 'F' ? c - 'A' + 10 : c - 'a' + 10);
 }
 
 /* parse hexadecimal number */

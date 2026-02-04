@@ -47,7 +47,7 @@ extern "C" {
  * Windows run on happen to be two's-complement, which allows to
  * interchange INVALID_SOCKET and -1.
  */
-typedef int						_cc_socket_t;
+typedef int                     _cc_socket_t;
 typedef int                     _cc_socklen_t;
 typedef struct sockaddr         _cc_sockaddr_t;
 

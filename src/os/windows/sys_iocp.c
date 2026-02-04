@@ -17,7 +17,7 @@
 /*close socket*/
 /**/
 _CC_API_PRIVATE(void) _event_cleanup(_cc_async_event_t *async, _cc_event_t *e) {
-	SOCKET fd = (SOCKET)e->accept_fd;
+    SOCKET fd = (SOCKET)e->accept_fd;
     if (fd != INVALID_SOCKET) {
         /**/
         LINGER linger = {1, 0};
@@ -180,14 +180,14 @@ _CC_API_PRIVATE(bool_t) _iocp_bind(_cc_async_event_t *async, const _cc_event_t *
     }
 
     if (bind(e->fd, (struct sockaddr *)sockaddr_any, socklen) == SOCKET_ERROR) {
-		int err = _cc_last_errno();
-		_cc_logger_error("bind Error Code:%d. %s",err, _cc_last_error(err));
+        int err = _cc_last_errno();
+        _cc_logger_error("bind Error Code:%d. %s",err, _cc_last_error(err));
         return false;
     }
 
     if (CreateIoCompletionPort((HANDLE)(uintptr_t)e->fd, IOCPPort, _CC_IOCP_SOCKET_, 0) == NULL) {
-		int err = _cc_last_errno();
-		_cc_logger_error("CreateIoCompletionPort Error Code:%d. %s",err, _cc_last_error(err));
+        int err = _cc_last_errno();
+        _cc_logger_error("CreateIoCompletionPort Error Code:%d. %s",err, _cc_last_error(err));
         return false;
     }
     return true;
@@ -258,9 +258,9 @@ _CC_API_PRIVATE(bool_t) _iocp_event_disconnect(_cc_async_event_t *async, _cc_eve
 _CC_API_PRIVATE(_cc_socket_t) _iocp_event_accept(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len) {
     if (_cc_unlikely(e->accept_fd != _CC_INVALID_SOCKET_)) {
         SOCKET accept_fd = (SOCKET)e->accept_fd;
-		SOCKET fd = e->fd;
+        SOCKET fd = e->fd;
         /* SO_UPDATE_ACCEPT_CONTEXT is required for shutdown() to work fine*/
-		/* sizeof(SOCKET) is 8 */
+        /* sizeof(SOCKET) is 8 */
         setsockopt(accept_fd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&fd, sizeof(SOCKET));
 
         _cc_assert(sa != NULL);
@@ -271,7 +271,7 @@ _CC_API_PRIVATE(_cc_socket_t) _iocp_event_accept(_cc_async_event_t *async, _cc_e
             _cc_logger_warin("discovery client information failed, fd=%d, errno=%d(%#x).", accept_fd, err, err);
         }
 
-		e->accept_fd = _CC_INVALID_SOCKET_;
+        e->accept_fd = _CC_INVALID_SOCKET_;
         return (_cc_socket_t)accept_fd;
     } else {
         _cc_logger(_CC_LOG_LEVEL_ERROR_, "Listening object is null");
@@ -295,15 +295,15 @@ _CC_API_PRIVATE(void) _iocp_handle_entry(_cc_async_event_t *async, _io_context_t
 
     _CC_UNSET_BIT(io_context->flag, e->filter);
     if (io_context->flag == _CC_EVENT_ACCEPT_) {
-		e->accept_fd = io_context->fd;
-		io_context->fd = _CC_INVALID_SOCKET_;
+        e->accept_fd = io_context->fd;
+        io_context->fd = _CC_INVALID_SOCKET_;
     } else if (io_context->flag == _CC_EVENT_CONNECT_) {
         if (NT_SUCCESS(io_context->overlapped.Internal)) {
             _cc_setsockopt(e->fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0);
         } else {
             which = _CC_EVENT_CLOSED_;
         }
-		_CC_UNSET_BIT(_CC_EVENT_CONNECT_, e->flags);
+        _CC_UNSET_BIT(_CC_EVENT_CONNECT_, e->flags);
     }
     
     if (which) {

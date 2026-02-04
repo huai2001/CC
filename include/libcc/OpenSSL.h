@@ -14,15 +14,15 @@
 
 #define _CC_SSL_DEFAULT_PROTOCOLS_  (_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_)
 
-#define _CC_SSL_HS_ERROR_					0xff
-#define _CC_SSL_HS_ESTABLISHED_				0x01
-#define _CC_SSL_HS_WANT_READ_				0x02
-#define _CC_SSL_HS_WANT_WRITE_				0x03
+#define _CC_SSL_HS_ERROR_                   0xff
+#define _CC_SSL_HS_ESTABLISHED_             0x01
+#define _CC_SSL_HS_WANT_READ_               0x02
+#define _CC_SSL_HS_WANT_WRITE_              0x03
 #define _CC_SSL_HS_SYSCALL_WOULDBLOCK_      0x04
 
-#define OPENSSL_VERSION_1_0_2	0x10002000L
-#define OPENSSL_VERSION_1_1_0	0x10100000L
-#define OPENSSL_VERSION_3_0_0	0x30000000L
+#define OPENSSL_VERSION_1_0_2   0x10002000L
+#define OPENSSL_VERSION_1_1_0   0x10100000L
+#define OPENSSL_VERSION_3_0_0   0x30000000L
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -32,18 +32,18 @@ extern "C" {
 typedef struct _cc_OpenSSL _cc_OpenSSL_t;
 
 typedef struct _cc_SSL {
-	bool_t is_handshaked;
-	uintptr_t handle;
-	_cc_OpenSSL_t *ctx;
+    bool_t is_handshaked;
+    uintptr_t handle;
+    _cc_OpenSSL_t *ctx;
 } _cc_SSL_t;
 
 #ifdef _CC_USE_OPENSSL_
 #if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_3_0_0
-	#define _SSL_X509_NAME_HASH	X509_NAME_hash
+    #define _SSL_X509_NAME_HASH X509_NAME_hash
 #else
-	_CC_FORCE_INLINE_ unsigned long _SSL_X509_NAME_HASH(const X509_NAME *x) {
-		return X509_NAME_hash_ex(x, NULL, NULL, NULL);
-	}
+    _CC_FORCE_INLINE_ unsigned long _SSL_X509_NAME_HASH(const X509_NAME *x) {
+        return X509_NAME_hash_ex(x, NULL, NULL, NULL);
+    }
 #endif
 #endif
 _CC_API_PUBLIC(bool_t) _SSL_setup(_cc_OpenSSL_t *ssl,

@@ -90,8 +90,8 @@ _CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_PENDING_, e->flags) && _CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, e->flags) == 0) {
         _cc_list_swap(&async->pending, &e->lnk);
     } else {
-		_reset_event_timeout(async, e);
-	}
+        _reset_event_timeout(async, e);
+    }
 }
 
 /**/

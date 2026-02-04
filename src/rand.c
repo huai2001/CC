@@ -103,29 +103,29 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
         generic_random_bytes(buf,nbytes);
     }
 #else
-	HCRYPTPROV ctx;
-	BOOL tmp;
-	DWORD to_read = 0;
-	const size_t MAX_DWORD = 0xFFFFFFFF;
+    HCRYPTPROV ctx;
+    BOOL tmp;
+    DWORD to_read = 0;
+    const size_t MAX_DWORD = 0xFFFFFFFF;
 
-	tmp = CryptAcquireContext(&ctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
-	if (tmp == FALSE) {
+    tmp = CryptAcquireContext(&ctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+    if (tmp == FALSE) {
         generic_random_bytes(buf,nbytes);
         return;
     }
 
-	while (nbytes > 0) {
-		to_read = (DWORD)(nbytes < MAX_DWORD ? nbytes : MAX_DWORD);
-		tmp = CryptGenRandom(ctx, to_read, (BYTE*)buf);
-		if (tmp == FALSE) {
+    while (nbytes > 0) {
+        to_read = (DWORD)(nbytes < MAX_DWORD ? nbytes : MAX_DWORD);
+        tmp = CryptGenRandom(ctx, to_read, (BYTE*)buf);
+        if (tmp == FALSE) {
             break;
         }
-		buf = buf + to_read;
-		nbytes -= to_read;
-	}
+        buf = buf + to_read;
+        nbytes -= to_read;
+    }
 
-	tmp = CryptReleaseContext(ctx, 0);
-	if (tmp == FALSE) {
+    tmp = CryptReleaseContext(ctx, 0);
+    if (tmp == FALSE) {
         generic_random_bytes(buf,nbytes);
     }
 #endif
@@ -137,32 +137,32 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 // getrandom is declared in glibc.
 #elif defined(SYS_getrandom)
 _CC_API_PRIVATE(ssize_t) getrandom(void *buf, size_t nbytes, unsigned int flags) {
-	return syscall(SYS_getrandom, buf, buflen, flags);
+    return syscall(SYS_getrandom, buf, buflen, flags);
 }
 #endif
 
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
-	/* I have thought about using a separate PRF, seeded by getrandom, but
-	 * it turns out that the performance of getrandom is good enough
-	 * (250 MB/s on my laptop).
-	 */
-	size_t offset = 0, chunk;
-	int ret;
-	while (nbytes > 0) {
-		/* getrandom does not allow chunks larger than 33554431 */
-		chunk = nbytes <= 33554431 ? nbytes : 33554431;
-		do {
-			ret = getrandom((char *)buf + offset, chunk, 0);
-		} while (ret == -1 && errno == EINTR);
+    /* I have thought about using a separate PRF, seeded by getrandom, but
+     * it turns out that the performance of getrandom is good enough
+     * (250 MB/s on my laptop).
+     */
+    size_t offset = 0, chunk;
+    int ret;
+    while (nbytes > 0) {
+        /* getrandom does not allow chunks larger than 33554431 */
+        chunk = nbytes <= 33554431 ? nbytes : 33554431;
+        do {
+            ret = getrandom((char *)buf + offset, chunk, 0);
+        } while (ret == -1 && errno == EINTR);
 
-		if (ret < 0) {
+        if (ret < 0) {
             break;
         }
-		offset += ret;
-		nbytes -= ret;
-	}
+        offset += ret;
+        nbytes -= ret;
+    }
 
-	return;
+    return;
 }
 /* (defined(__linux__) || defined(__GNU__)) && (defined(USE_GLIBC) || defined(SYS_getrandom)) */
 #elif defined(__CC_LINUX__)
@@ -200,7 +200,7 @@ _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
 
 #ifdef ARC4RANDOM
 _CC_API_PUBLIC(void) _cc_random_bytes(byte_t *buf, size_t nbytes) {
-	arc4random_buf(buf, nbytes);
+    arc4random_buf(buf, nbytes);
 }
 #endif /* defined(ARC4RANDOM) */
 

@@ -49,7 +49,7 @@ static BOOL WINAPI _os_once_inner(INIT_ONCE *once, void* args, void** context) {
 
 _CC_API_PUBLIC(void) _cc_once(_cc_once_t* guard, _cc_once_callback_t callback) {
     _os_once_data_t data;
-	data.callback = callback;
+    data.callback = callback;
     InitOnceExecuteOnce(&guard->init_once, _os_once_inner, (void*)&data, NULL);
 }
 

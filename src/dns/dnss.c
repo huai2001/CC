@@ -4,7 +4,7 @@
 #include <libcc/event.h>
 
 _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
-	if (which & _CC_EVENT_READABLE_) {
+    if (which & _CC_EVENT_READABLE_) {
         struct sockaddr_in sa;
         int32_t n = 0;
 //        int32_t res = 0;

@@ -153,7 +153,7 @@ _CC_API_PRIVATE(bool_t) _cc_win_file_flush(_cc_file_t *context) {
 }
 
 _CC_API_PRIVATE(bool_t) _cc_win_file_eof(_cc_file_t *context) {
-	return context->is_eof;
+    return context->is_eof;
 }
 
 _CC_API_PRIVATE(bool_t) _cc_win_file_close(_cc_file_t *context) {

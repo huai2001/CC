@@ -62,9 +62,9 @@ _CC_API_PUBLIC(uint64_t) _cc_get_ticks(void) {
 
     value = _cc_query_performance_counter();
     starting_value = (value - tick_start);
-	_cc_assert(0 < tick_numerator_ms);
+    _cc_assert(0 < tick_numerator_ms);
     value = (starting_value * tick_numerator_ms);
-	_cc_assert(value >= starting_value);
+    _cc_assert(value >= starting_value);
     value /= tick_denominator_ms;
     return value;
 }
