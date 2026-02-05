@@ -111,7 +111,7 @@ _CC_FORCE_INLINE_ void _cc_sds_set_length(_cc_sds_t s, size_t length) {
         case _SDS_MASK_5_: {
             struct _sds_hdr5 *h = (struct _sds_hdr5 *)(hdr - sizeof(struct _sds_hdr5));
             _cc_assert(length <= 32);
-            if (length <= 32) {
+            if (length <= (h->flags >> _SDS_BITS_)) {
                 h->flags = _SDS_MASK_5_ | ((byte_t)length << _SDS_BITS_);
             }
         }

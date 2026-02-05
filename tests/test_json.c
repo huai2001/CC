@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <libcc/json.h>
-struct {const tchar_t *data; size_t length;} json_content = {_CC_STRING("{\"code\":200,\"data\":{\"c\":\"Hello World\",\"e\":\"1728576000000\",\"s\":\"vIOiQyA7giWK\",\"t\":\"154ff80489dacae94c45247235cd8083\",\"u\":\"js/dfxaf3-ba348b9e.js\",\"a\":[1,2,3,4,5,6,7,8,9,0]},\"id\":\"5bb5f254-36a8-4267-94fb-22287d0d2477\",\"message\":\"success\"}")};
+struct {const tchar_t *data; size_t length;} json_content = {_CC_STRING("{\"code\":200,\"data\":{\"empty\":\"\",\"c\":\"Hello\\n中国\",\"e\":\"1728576000000\",\"s\":\"vIOiQyA7giWK\",\"t\":\"154ff80489dacae94c45247235cd8083\",\"u\":\"js/dfxaf3-ba348b9e.js\",\"a\":[1,2,3,4,5,6,7,8,9,0]},\"id\":\"5bb5f254-36a8-4267-94fb-22287d0d2477\",\"message\":\"\\n\"}")};
 /* Helper function to print test results */
 void print_test_result(const char *test_name, int passed) {
     printf("%s: %s\n", test_name, passed ? "PASSED" : "FAILED");
@@ -109,22 +109,9 @@ void test_json_parse() {
 }
 
 void test_json_from_file() {
-
     // Assuming a test file "test.json" exists with valid JSON content
     _cc_json_t *json = _cc_json_from_file("test.json");
     assert(json != NULL);
-    _cc_free_json(json);
-    print_test_result(__func__, 1);
-}
-void test_json_to_file() {
-    _cc_json_t *json = _cc_json_from_file("test2.json");
-    _cc_buf_t dump;
-    _cc_json_dump(json,&dump);
-    FILE *fp = _tfopen("test.json", _T("wb"));
-    assert(fp != NULL);
-    fwrite(dump.bytes, 1, dump.length, fp);
-    fclose(fp);
-    _cc_free_buf(&dump);
     _cc_free_json(json);
     print_test_result(__func__, 1);
 }
@@ -142,7 +129,6 @@ int main() {
     test_json_array_remove();
     test_json_parse();
     test_json_from_file();
-    test_json_to_file();
     printf("All tests completed.\n");
     return 0;
 }

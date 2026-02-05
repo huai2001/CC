@@ -362,7 +362,9 @@ _CC_API_PUBLIC(int32_t) _cc_url_encode(const tchar_t *src, int32_t src_len, tcha
 #endif
         if (c == 0x20) {
             *(dst + y++) = _T('+');
-        } else if ((c < '0' && c != '-' && c != '.') || (c < 'A' && c > '9') || (c > 'Z' && c < 'a' && c != '_') ||
+        } else if ((c < '0' && c != '-' && c != '.') || 
+                   (c < 'A' && c > '9') || 
+                   (c > 'Z' && c < 'a' && c != '_') ||    
                    (c > 'z')) {
             *(dst + y++) = _T('%');
             *(dst + y++) = _lower_xdigits[(uchar_t)c >> 4];
@@ -401,7 +403,7 @@ _CC_API_PUBLIC(int32_t) _cc_url_decode(const tchar_t *src, int32_t src_len, tcha
                 continue;
             }
 
-            if (_istxdigit((int32_t) * (s + 1)) && _istxdigit((int)*(s + 2))) {
+            if (_cc_isxdigit((int)*(s + 1)) && _cc_isxdigit((int)*(s + 2))) {
                 *(dst + i++) = (tchar_t)_cc_hex2((s + 1));
                 s += 3;
                 continue;
@@ -433,8 +435,10 @@ _CC_API_PUBLIC(int32_t) _cc_raw_url_encode(const tchar_t *src, int32_t src_len, 
             y += _sntprintf(dst + y, dst_len - y, _T("%%u%04X"), c);
         } else
 #endif
-            if ((c < '0' && c != '-' && c != '.') || (c < 'A' && c > '9') || (c > 'Z' && c < 'a' && c != '_') ||
-                (c > 'z' && c != '~')) {
+        if ((c < '0' && c != '-' && c != '.') ||
+            (c < 'A' && c > '9') || 
+            (c > 'Z' && c < 'a' && c != '_') || 
+            (c > 'z' && c != '~')) {
             *(dst + y++) = _T('%');
             *(dst + y++) = _lower_xdigits[(uchar_t)c >> 4];
             *(dst + y++) = _lower_xdigits[(uchar_t)c & 15];
@@ -465,7 +469,7 @@ _CC_API_PUBLIC(int32_t) _cc_raw_url_decode(const tchar_t *src, int32_t src_len, 
                 continue;
             }
 
-            if (_istxdigit((int32_t) * (s + 1)) && _istxdigit((int)*(s + 2))) {
+            if (_cc_isxdigit((int)*(s + 1)) && _cc_isxdigit((int)*(s + 2))) {
                 *(dst + i++) = (tchar_t)_cc_hex2((s + 1));
                 s += 3;
                 continue;

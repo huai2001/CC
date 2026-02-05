@@ -4,44 +4,50 @@ _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item);
 
 _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
-    const tchar_t *start = NULL;
-    const tchar_t *endpos;
+    const tchar_t *ptr = NULL;
+    const tchar_t *endptr;
     size_t alloc_length = 0;
-    size_t skipped_bytes = 0;
+    size_t escape_characters = 0;
     _cc_sds_t output = NULL;
     tchar_t quotes = *p;
 
-    if (_cc_likely(quotes == _T('"') || quotes == _T('\''))) {
-        start = ++p;
-    } else {
+    if (quotes != _T('"') && quotes != _T('\'')) {
         return NULL;
     }
 
-    endpos = buffer->content + buffer->length;
+    ptr = ++p;
+    endptr = (buffer->content + buffer->length);
     /* calculate approximate size of the output (overestimate) */
-    while (p < endpos && (*p != quotes)) {
+    while (p < endptr && (*p != quotes)) {
         if (*p == _T('\\')) {
+            p++;
             /* prevent buffer overflow when last input character is a backslash */
-            if ((p + 1) >= endpos) {
+            if (p >= endptr) {
                 return NULL;
             }
-            skipped_bytes++;
-            p++;
+            escape_characters++;
         }
         p++;
     }
 
-    if (p >= endpos || *p != quotes) {
+    if (p >= endptr || *p != quotes) {
         return NULL;
     }
-
     /* This is at most how much we need for the output */
-    alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
-    output = _cc_sds_alloc(NULL, alloc_length);
-    /* empty string */
-    if (alloc_length > 1 && !_unescape_text(output, start, p)) {
-        _cc_sds_free(output);
-        return NULL;
+    alloc_length = (size_t)(p - ptr);
+    if (alloc_length > 0) { 
+        if (escape_characters == 0) {
+            output = _cc_sds_alloc(ptr, alloc_length);
+        } else {
+            output = _cc_sds_alloc(NULL, alloc_length + 1 - escape_characters);
+            if (!_unescape_text(output, ptr, p)) {
+                _cc_sds_free(output);
+                return NULL;
+            }
+        }
+    } else {
+        /* empty string */
+        output = _cc_sds_alloc(NULL, 1);
     }
 
     /* +1 skip \" or \' */
@@ -51,8 +57,8 @@ _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
 
 _CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_t *const buffer, _cc_json_t *const item) {
     _cc_number_t num;
-    const tchar_t *start = _cc_sbuf_offset(buffer);
-    const tchar_t *s = _cc_to_number(start, &num);
+    const tchar_t *ptr = _cc_sbuf_offset(buffer);
+    const tchar_t *s = _cc_to_number(ptr, &num);
 
     if (_cc_unlikely(s == NULL)) {
         return false;
@@ -66,7 +72,7 @@ _CC_API_PRIVATE(bool_t) _json_parser_number(_cc_sbuf_t *const buffer, _cc_json_t
         item->element.uni_float = (float64_t)num.v.uni_float;
     }
 
-    buffer->offset += (size_t)(s - start);
+    buffer->offset += (size_t)(s - ptr);
 
     return _cc_buf_jump_comment(buffer);
 }
@@ -300,10 +306,12 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_parser(_cc_sbuf_t *const buffer) {
     }
 
     local_error.content = buffer->content;
-    if (buffer->offset < buffer->length) {
-        local_error.position = buffer->offset - 1;
-    } else if (buffer->length > 0) {
-        local_error.position = buffer->length - 1;
+    if (buffer->offset > 0) {
+        if (buffer->offset < buffer->length) {
+            local_error.position = buffer->offset - 1;
+        } else if (buffer->length > 0) {
+            local_error.position = buffer->length - 1;
+        }
     }
 
     /*reset error position*/

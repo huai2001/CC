@@ -95,10 +95,7 @@ _CC_API_PUBLIC(size_t) _cc_utf8_unescape_text(tchar_t *dst, tchar_t *dst_endptr,
     }
 
     /* Zero terminate the output buffer */
-    if (dst_ptr < dst_endptr) {
-        *dst_ptr = '\0';
-    }
-
+    *dst_ptr = '\0';
     return (size_t)(dst_ptr - dst);
 }
 
