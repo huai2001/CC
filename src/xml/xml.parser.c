@@ -1,4 +1,54 @@
 #include "xml.c.h"
+#include <libcc/UTF.h>
+
+typedef struct {
+    const tchar_t *name;
+    byte_t length;
+    tchar_t value;
+} _xml_entity_t;
+
+static const _xml_entity_t _xml_entities[] = {
+    {_T("quot;"), 5, '\"'},
+    {_T("apos;"), 5, '\''},
+    {_T("amp;"),  4, '&'},
+    {_T("lt;"),   3, '<'},
+    {_T("gt;"),   3, '>'},
+};
+
+_CC_API_PRIVATE(_cc_sds_t) _unescape(const tchar_t *ptr, const tchar_t *endptr) {
+    _cc_sds_t output;
+    tchar_t *dst_ptr;
+    tchar_t *dst_endptr;
+
+    size_t alloc_length = (size_t)(endptr - ptr) + 1;
+
+    if (alloc_length == 1) {
+        return _cc_sds_alloc(NULL, 1);
+    }
+    dst_ptr = output = _cc_sds_alloc(NULL, alloc_length);
+    dst_endptr = (output + alloc_length);
+    
+    while (ptr < endptr && dst_ptr < dst_endptr) {
+        if (*ptr == _T('&')) {
+            const tchar_t *entity = ptr + 1;
+            size_t remaining = (size_t)(endptr - entity),i;
+            for (i = 0; i < _cc_countof(_xml_entities); i++) {
+                const _xml_entity_t *ent = &_xml_entities[i];
+                if (remaining >= ent->length && entity[0] == ent->name[0] && _tcsnicmp(entity, ent->name, ent->length) == 0) {
+                    *dst_ptr++ = ent->value;
+                    ptr += ent->length + 1;
+                    break;
+                }
+            }
+        } else {
+            *dst_ptr++ = *ptr++;
+        }
+    }
+
+    *dst_ptr = '\0';
+    _cc_sds_set_length(output, (size_t)(dst_ptr - output));
+    return output;
+}
 
 _CC_API_PRIVATE(bool_t) _XML_is_name_start_char(int ch) {
     if (ch >= 128) {
@@ -20,16 +70,16 @@ _CC_API_PRIVATE(bool_t) _XML_is_name_char(int ch) {
 
 _CC_API_PRIVATE(_cc_sds_t) _XML_parser_name(_cc_sbuf_t *const buffer) {
     _cc_sds_t output = NULL;
-    const tchar_t *start = _cc_sbuf_offset(buffer), *ended = NULL;
-    const tchar_t *p = start;
+    const tchar_t *ptr = _cc_sbuf_offset(buffer), *endptr = NULL;
+    const tchar_t *p = ptr;
 
     while (*p && ((size_t)(p - buffer->content) < buffer->length)) {
         if (*p == _XML_ELEMENT_END_ || *p == '=' || _cc_isspace(*p)) {
-            ended = p;
+            endptr = p;
             break;
         }
         if (*p == _XML_ELEMENT_SLASH_ && *(p + 1) == _XML_ELEMENT_END_) {
-            ended = p;
+            endptr = p;
             break;
         }
         if (!_XML_is_name_char(*p)) {
@@ -38,11 +88,11 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_name(_cc_sbuf_t *const buffer) {
         p++;
     }
 
-    if (!ended) {
+    if (!endptr) {
         return NULL;
     }
 
-    output = _cc_sds_alloc(start, (size_t)(ended - start));
+    output = _cc_sds_alloc(ptr, (size_t)(endptr - ptr));
     buffer->offset = (size_t)(p - buffer->content);
 
     return output;
@@ -50,7 +100,7 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_name(_cc_sbuf_t *const buffer) {
 
 _CC_API_PRIVATE(_cc_sds_t) _XML_parser_doctype(_cc_sbuf_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
-    const tchar_t *start = p;
+    const tchar_t *ptr = p;
 
     while (*p && ((size_t)(p - buffer->content) < buffer->length)) {
         if (*p == _XML_ELEMENT_END_) {
@@ -60,55 +110,33 @@ _CC_API_PRIVATE(_cc_sds_t) _XML_parser_doctype(_cc_sbuf_t *const buffer) {
     }
 
     buffer->offset = (size_t)(p - buffer->content) + 1;
-    return _cc_sds_alloc(start, (size_t)(p - start));
+    return _cc_sds_alloc(ptr, (size_t)(p - ptr));
 }
 
-_CC_API_PRIVATE(bool_t) _XML_parser_comments(_cc_sbuf_t *const buffer, _cc_sds_t *output) {
+_CC_API_PRIVATE(bool_t) _XML_parser_comments(_cc_sbuf_t *const buffer, _cc_xml_t *item) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
-    const tchar_t *start = p;
-    const tchar_t *endpos = NULL;
-    size_t alloc_length = 0;
-    size_t skipped_bytes = 0;
-
-    endpos = buffer->content + buffer->length;
+    const tchar_t *ptr = p;
+    const tchar_t *endptr = buffer->content + buffer->length;
     /* calculate approximate size of the output (overestimate) */
-    while (p < endpos) {
-        /* <![CDATA[Unparsed Character Data]]> */
+    while (p < endptr) {
+        /* <!-- comments --> */
         if (*p == '-' && *(p + 1) == '-' && *(p + 2) == '>') {
             break;
         }
-
         if (*p == _T(_CC_LF_)) {
             buffer->line++;
-        }
-
-        if (*p == _T('\\')) {
-            /* is escape sequence */
-            if ((p + 1) >= endpos) {
-                return false;
-            }
-            skipped_bytes++;
-            p++;
         }
         p++;
     }
 
-    if (p >= endpos) {
+    if (p >= endptr) {
         return false;
     }
 
-    /* This is at most how much we need for the output */
-    alloc_length = sizeof(tchar_t) * ((size_t)(p - start) - skipped_bytes + 1);
-    *output = _cc_sds_alloc(NULL, alloc_length);
-    if (_unescape_text(*output, start, p)) {
-        buffer->offset = (size_t)(p - buffer->content) + 3;
-        return true;
-    }
-
-    _cc_sds_free(*output);
-    *output = NULL;
-
-    return false;
+    item->element.uni_comment = _cc_sds_alloc(ptr, (size_t)(p - ptr));
+    /* +3 skip --> */
+    buffer->offset = (size_t)(p - buffer->content) + 3;
+    return true;
 }
 
 /**/
@@ -119,21 +147,21 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
     size_t alloc_length = 0;
     byte_t cdata = context->cdata;
 
-    const tchar_t *start = p;
-    const tchar_t *endpos = NULL;
+    const tchar_t *ptr = p;
+    const tchar_t *endptr = NULL;
 
     _cc_alloc_buf(&buf, 1024);
-    endpos = buffer->content + buffer->length;
+    endptr = buffer->content + buffer->length;
 
-    while (p < endpos) {
+    while (p < endptr) {
         if (cdata == 0 && *p == _XML_ELEMENT_START_) {
-            if (start != p) {
-                _cc_buf_append(&buf, (byte_t *)start, sizeof(tchar_t) * (p - start));
+            if (ptr != p) {
+                _cc_buf_append(&buf, (byte_t *)ptr, sizeof(tchar_t) * (p - ptr));
             }
 
             if (*(p + 1) == '!' && _tcsncmp(_T("[CDATA["), p + 2, 7) == 0) {
                 p += 9;
-                start = p;
+                ptr = p;
                 cdata = true;
                 context->cdata = true;
                 continue;
@@ -144,11 +172,11 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
 
         /* <![CDATA[ Unparsed Character Data]]> */
         if (cdata && *p == ']' && *(p + 1) == ']' && *(p + 2) == '>') {
-            if (start != (p - 1)) {
-                _cc_buf_append(&buf, (byte_t *)start, sizeof(tchar_t) * (p - start - 1));
+            if (ptr != (p - 1)) {
+                _cc_buf_append(&buf, (byte_t *)ptr, sizeof(tchar_t) * (p - ptr));
             }
             p += 3;
-            start = p;
+            ptr = p;
             cdata = 0;
             continue;
         }
@@ -158,23 +186,13 @@ _CC_API_PRIVATE(bool_t) _XML_text_parser(_cc_sbuf_t *const buffer, _cc_xml_conte
     buffer->offset = (size_t)(p - buffer->content);
 
     if (buf.length <= 0) {
-        _cc_free_buf(&buf);
-        return false;
+        context->text = _cc_sds_alloc(NULL, 1);
+    } else {
+        ptr = _cc_buf_stringify(&buf, &alloc_length);
+        context->text = _unescape(ptr, (const tchar_t *)ptr + alloc_length);
     }
-
-    /* This is at most how much we need for the output */
-    start = _cc_buf_stringify(&buf,&alloc_length);
-    context->text = _cc_sds_alloc(NULL, alloc_length);
-    if (_unescape_text(context->text, (const tchar_t *)buf.bytes, (const tchar_t *)start + alloc_length)) {
-        _cc_free_buf(&buf);
-        return true;
-    }
-
-    _cc_sds_free(context->text);
-    context->text = NULL;
-
     _cc_free_buf(&buf);
-    return false;
+    return context->text != NULL;
 }
 
 _CC_API_PRIVATE(int32_t) _XML_is_attr_value_end_tag(const tchar_t *p, const tchar_t quotes) {
@@ -199,59 +217,44 @@ _CC_API_PRIVATE(int32_t) _XML_is_attr_value_end_tag(const tchar_t *p, const tcha
 
 _CC_API_PRIVATE(_cc_sds_t) _XML_parser_attr_value(_cc_sbuf_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
-    const tchar_t *start = NULL;
-    const tchar_t *endpos = NULL;
+    const tchar_t *ptr = NULL;
+    const tchar_t *endptr = NULL;
     _cc_sds_t output = NULL;
-    size_t alloc_length = 0;
-    size_t skipped_bytes = 0;
     tchar_t quotes = *p;
     int32_t endflag = 0;
 
-    endpos = buffer->content + buffer->length;
+    endptr = buffer->content + buffer->length;
     if (_cc_likely(quotes == _T('"') || quotes == _T('\''))) {
-        start = ++p;
+        ptr = ++p;
     } else {
         quotes = 0;
-        while (p < endpos && _CC_ISSPACE(*p)) {
+        while (p < endptr && _CC_ISSPACE(*p)) {
             p++;
         }
-        start = p;
+        ptr = p;
     }
 
     /* calculate approximate size of the output (overestimate) */
-    while (p < endpos && (endflag = _XML_is_attr_value_end_tag(p, quotes)) == 0) {
-        if (*p == _T('\\')) {
-            /* is escape sequence */
-            if ((p + 1) >= endpos) {
-                return NULL;
-            }
-            skipped_bytes++;
-            p++;
-        }
+    while (p < endptr && (endflag = _XML_is_attr_value_end_tag(p, quotes)) == 0) {
         p++;
     }
 
-    if (p >= endpos || endflag == 0) {
+    if (p >= endptr || endflag == 0) {
         return NULL;
     }
 
-    endpos = p;
+    endptr = p;
     if (quotes) {
-        while (start < endpos && _CC_ISSPACE(*(endpos - 1))) {
-            endpos--;
+        while (ptr < endptr && _CC_ISSPACE(*(endptr - 1))) {
+            endptr--;
         }
     }
-    
-    /* This is at most how much we need for the output */
-    alloc_length = ((size_t)(endpos - start) - skipped_bytes + 1);
-    output = _cc_sds_alloc(NULL, alloc_length);
-
-    if (_unescape_text(output, start, endpos)) {
-        buffer->offset = (size_t)(p - buffer->content) + endflag;
-        return output;
+    output = _unescape(ptr, endptr);
+    if (!output) {
+        return NULL;
     }
-    _cc_sds_free(output);
-    return NULL;
+    buffer->offset = (size_t)(p - buffer->content) + endflag;
+    return output;
 }
 
 _CC_API_PRIVATE(int) _XML_attr_read(_cc_rbtree_t *ctx, _cc_sbuf_t *const buffer) {
@@ -347,7 +350,7 @@ static bool_t _XML_child_read(_cc_xml_t *ctx, _cc_sbuf_t *const buffer, int32_t 
                 */
                 if (*(p + 2) == '-' && *(p + 3) == '-') {
                     buffer->offset += 4;
-                    if (!_XML_parser_comments(buffer, &item->element.uni_comment)) {
+                    if (!_XML_parser_comments(buffer, item)) {
                         return false;
                     }
                     item->type = _CC_XML_COMMENT_;

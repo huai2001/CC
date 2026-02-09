@@ -24,7 +24,7 @@ void test_buf_stringify() {
     size_t length;
     const tchar_t *result = _cc_buf_stringify(&buf, &length);
     assert(result != NULL);
-    assert(length == strlen(str) + 1);
+    assert(length == strlen(str));
     assert(strcmp((const char *)result, str) == 0);
     assert(_cc_free_buf(&buf) == true);
     printf("buf stringify test passed!\n");

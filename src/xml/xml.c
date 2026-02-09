@@ -88,18 +88,16 @@ _CC_API_PUBLIC(const _cc_sds_t) _cc_xml_element_text(_cc_xml_t *ctx) {
 }
 
 /**/
-_CC_API_PRIVATE(int32_t) _XML_attr_find(_cc_rb_t *iter, uintptr_t args) {
-    _cc_xml_attr_t *item = _cc_upcast(iter, _cc_xml_attr_t, lnk);
-    return _tcscmp((const tchar_t *)args, item->name);
-}
-
-/**/
 _CC_API_PUBLIC(const _cc_sds_t) _cc_xml_element_attr(_cc_xml_t *ctx, const tchar_t *keyword) {
     if (ctx && ctx->attr.rb_node != NULL) {
-        _cc_rb_t *item = _cc_rbtree_get(&ctx->attr, (uintptr_t)keyword, _XML_attr_find);
-        if (item) {
-            _cc_xml_attr_t *attr = _cc_upcast(item, _cc_xml_attr_t, lnk);
-            return attr->value;
+        _cc_rb_t *node = ctx->attr.rb_node;
+        while (node) {
+            _cc_xml_attr_t *item = _cc_upcast(node, _cc_xml_attr_t, lnk);
+            int32_t result = (_tcscmp(keyword,item->name));
+            if (result == 0) {
+                return item->value;
+            }
+            node = (result < 0) ? node->left : node->right;
         }
     }
     return NULL;
@@ -199,9 +197,7 @@ static void _xml_free(_cc_xml_t *ctx) {
     if (ctx->name) {
         _cc_sds_free(ctx->name);
     }
-
     _cc_rbtree_free_all(&ctx->attr, _xml_free_attr_rb_node);
-
     switch (ctx->type) {
     case _CC_XML_COMMENT_:
         if (ctx->element.uni_comment) {
@@ -248,11 +244,11 @@ static void _dump_xml_buffer(const _cc_xml_t *XML, _cc_buf_t *buf) {
         if (XML->element.uni_context.cdata) {
             _cc_buf_appendf(buf, _T("<![CDATA[%s]]>"), XML->element.uni_context.text);
         } else {
-            _cc_buf_append(buf, XML->element.uni_context.text,_cc_sds_length(XML->element.uni_context.text) - 1 * sizeof(tchar_t));
+            _cc_buf_append(buf, XML->element.uni_context.text,_cc_sds_length(XML->element.uni_context.text) * sizeof(tchar_t));
         }
         return;
     } else if (XML->type == _CC_XML_DOCTYPE_) {
-        _cc_buf_appendf(buf, _T("<!DOCTYPE %s/>"), XML->element.uni_doctype);
+        _cc_buf_appendf(buf, _T("<!DOCTYPE %s />"), XML->element.uni_doctype);
         return;
     }
 

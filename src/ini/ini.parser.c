@@ -63,27 +63,80 @@ bool_t _INI_buf_jump_comments(_cc_sbuf_t* const buffer) {
 
     return _cc_sbuf_access(buffer);
 }
+_CC_API_PRIVATE(_cc_sds_t) _unescape(const tchar_t *ptr, const tchar_t *endptr, size_t escape_characters) {
+    _cc_sds_t output;
+    tchar_t *dst_ptr;
+    tchar_t *dst_endptr;
+
+    /* This is at most how much we need for the output */
+    size_t alloc_length = (size_t)(endptr - ptr);
+
+    /* empty string */
+    if (alloc_length == 0) {
+        return _cc_sds_alloc(NULL, 1);
+    } else if (escape_characters == 0) {
+        return _cc_sds_alloc(ptr, alloc_length);
+    }
+
+    alloc_length = alloc_length - escape_characters + 1;
+    dst_ptr = output = _cc_sds_alloc(NULL, alloc_length);
+    dst_endptr = (output + alloc_length);
+    /* Process each character in the input string */
+    while (ptr < endptr && dst_ptr < dst_endptr) {
+        if (*ptr != '\\') {
+            *dst_ptr++ = *ptr++;
+        } else {
+            /* Handle C-style escape sequences */
+            if (ptr + 1 >= endptr) {
+                *dst_ptr++ = *ptr++;
+                break;
+            }
+
+            ptr++; /* Skip backslash */
+
+            switch (*ptr++) {
+                case 'b':  *dst_ptr++ = '\b'; break;
+                case 'f':  *dst_ptr++ = '\f'; break;
+                case 'n':  *dst_ptr++ = '\n'; break;
+                case 'r':  *dst_ptr++ = '\r'; break;
+                case 't':  *dst_ptr++ = '\t'; break;
+                case '\"': case '\\': case '/':
+                    *dst_ptr++ = *(ptr - 1);
+                    break;
+                default:
+                    *dst_ptr++ = '\\';
+                    *dst_ptr++ = *(ptr - 1);
+                    break;
+            }
+        }
+    }
+
+    /* Zero terminate the output buffer */
+    *dst_ptr = '\0';
+    _cc_sds_set_length(output, (size_t)(dst_ptr - output));
+    return output;
+}
 
 _CC_API_PRIVATE(_cc_sds_t) _INI_read_name(_cc_sbuf_t* const buffer) {
     _cc_sds_t output = NULL;
-    const tchar_t *start = _cc_sbuf_offset(buffer);
-    const tchar_t *endpos = NULL;
-    const tchar_t* p = start;
+    const tchar_t *ptr = _cc_sbuf_offset(buffer);
+    const tchar_t *endptr = NULL;
+    const tchar_t* p = ptr;
 
-    endpos = buffer->content + buffer->length;
-    while (p < endpos) {
+    endptr = buffer->content + buffer->length;
+    while (p < endptr) {
         if (*p == ']' || *p == '=' || _CC_ISSPACE(*p)) {
             break;
         }
         p++;
     }
 
-    if (p >= endpos) {
+    if (p >= endptr) {
         return NULL;
     }
     /* -1 skip ']', '=', whitespace */
-    endpos = p - 1;
-    output = (_cc_sds_t)_cc_sds_alloc(start, (size_t)(endpos - start) + 1);
+    endptr = p - 1;
+    output = (_cc_sds_t)_cc_sds_alloc(ptr, (size_t)(endptr - ptr) + 1);
     buffer->offset = (size_t)(p - buffer->content);
 
     return output;
@@ -110,64 +163,61 @@ _CC_API_PRIVATE(bool_t) _INI_value_endflag(const tchar_t* p, const tchar_t quote
 
 _CC_API_PRIVATE(bool_t) _INI_read_string(_cc_sbuf_t* const buffer, _cc_ini_t *item) {
     const tchar_t* p = _cc_sbuf_offset(buffer);
-    const tchar_t* start;
-    const tchar_t *endpos = NULL;
+    const tchar_t* ptr;
+    const tchar_t *endptr = NULL;
 
-    size_t alloc_length = 0;
-    size_t skipped_bytes = 0;
+    size_t escape_characters = 0;
 
     tchar_t quotes = *p;
 
     int endflag = 0;
 
-    endpos = buffer->content + buffer->length;
+    endptr = buffer->content + buffer->length;
 
     if (quotes == _T('"') || quotes == _T('\'')) {
-        start = ++p;
+        ptr = ++p;
     } else {
         quotes = 0;
-        while (p < endpos && _CC_ISSPACE(*p)) {
+        while (p < endptr && _CC_ISSPACE(*p)) {
             p++;
         }
-        start = p;
+        ptr = p;
     }
 
     /* calculate approximate size of the output (overestimate) */
-    while (p < endpos && !_INI_value_endflag(p, quotes)) {
+    while (p < endptr && !_INI_value_endflag(p, quotes)) {
         if (*p == _T('\\')) {
             /* prevent buffer overflow when last input character is a backslash */
-            if ((p + 1) >= endpos) {
+            if ((p + 1) >= endptr) {
                 return false;
             }
-            skipped_bytes++;
+            escape_characters++;
             p++;
         }
         p++;
     }
 
-    if (p > endpos) {
+    if (p > endptr) {
         return false;
     }
 
     if (quotes) {
-        endpos = p - 1;
-        while (start < endpos && _CC_ISSPACE(*(endpos - 1))) {
-            endpos--;
+        endptr = p - 1;
+        while (ptr < endptr && _CC_ISSPACE(*(endptr - 1))) {
+            endptr--;
         }
         endflag = 1;
     } else {
-        endpos = p;
+        endptr = p;
     }
-    /* This is at most how much we need for the item->element.uni_string */
-    alloc_length = (size_t)(endpos - start);
-
-    item->element.uni_string = (_cc_sds_t)_cc_sds_alloc(NULL, (alloc_length - skipped_bytes + 1));
-    if (_unescape_text(item->element.uni_string, start, endpos)) {
-        buffer->offset = (size_t)(p - buffer->content) + endflag;
-        return true;
+    item->element.uni_string = _unescape(ptr, endptr, escape_characters);
+    if (!item->element.uni_string) {
+        return false;
     }
 
-    return false;
+    buffer->offset = (size_t)(p - buffer->content) + endflag;
+    
+    return true;
 }
 
 _CC_API_PRIVATE(bool_t) _INI_read(_cc_ini_t* root, _cc_sbuf_t* const buffer) {

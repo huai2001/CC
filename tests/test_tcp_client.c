@@ -28,7 +28,7 @@ static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const 
 
     if (which & _CC_EVENT_WRITABLE_) {
         _cc_logger_info("writable event %d", e->ident);
-        _CC_UNSET_BIT(e->which, _CC_EVENT_WRITABLE_);
+        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
 
     if (which & _CC_EVENT_TIMEOUT_) {

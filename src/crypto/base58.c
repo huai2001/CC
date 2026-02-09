@@ -31,6 +31,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tch
     size_t total = 0;
     size_t leading_zeros = 0;
     size_t i, j;
+	size_t max_output;
 
     if (_cc_unlikely(input == NULL || output == NULL || length == 0)) {
         return 0;
@@ -49,7 +50,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tch
     length -= leading_zeros;
 
     /* Maximum possible output length: ceil(length * log(256) / log(58)) */
-    size_t max_output = (length * 137 / 100) + leading_zeros;
+    max_output = (length * 137 / 100) + leading_zeros;
     if (output_length < max_output + 1) {
         return 0;
     }
@@ -98,6 +99,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, by
     size_t total = 0;
     size_t leading_ones = 0;
     size_t i, j;
+	size_t max_output;
 
     if (_cc_unlikely(input == NULL || output == NULL)) {
         return 0;
@@ -116,7 +118,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, by
     length -= leading_ones;
 
     /* Maximum possible output length: ceil(length * log(58) / log(256)) */
-    size_t max_output = (length * 733 / 1000) + leading_ones;
+    max_output = (length * 733 / 1000) + leading_ones;
     if (output_length < max_output) {
         return 0;
     }

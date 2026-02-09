@@ -85,7 +85,7 @@ _CC_API_PUBLIC(bool_t) _cc_free_buf(_cc_buf_t *ctx) {
 /**/
 _CC_API_PUBLIC(const tchar_t*) _cc_buf_stringify(_cc_buf_t *ctx, size_t *length) {
     if (length != NULL) {
-        *length = ctx->length + 1;
+        *length = ctx->length;
     }
     ctx->bytes[ctx->length] = 0;
     return (const tchar_t*)ctx->bytes;

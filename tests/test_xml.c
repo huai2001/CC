@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <libcc/xml.h>
 
-    struct {const tchar_t *data; size_t length;} xml_content = {_CC_STRING("<?xml version=\"1.0\" encoding=\"UTF-8\"?><root attr=\"value\"><code>200</code><data><c>Hello World</c><e>1728576000000</e><s>vIOiQyA7giWK</s><t>154ff80489dacae94c45247235cd8083</t><u>js/dfxaf3-ba348b9e.js</u><array><a>1</a><a>2</a><a>3</a><a>4</a><a>5</a><a>6</a><a>7</a><a>8</a><a>9</a><a>0</a></array></data><id>5bb5f254-36a8-4267-94fb-22287d0d2477</id><message><![CDATA[This is <b>bold</b> text & more!]]></message></root>")};
+    struct {const tchar_t *data; size_t length;} xml_content = {_CC_STRING("<?xml version=\"1.0\" encoding=\"UTF-8\"?><root attr=\"value\"><code>200</code><data><c>Hello\\nWorld</c><e>1728576000000</e><s>vIOiQyA7giWK</s><t>154ff80489dacae94c45247235cd8083</t><u>js/dfxaf3-ba348b9e.js</u><array><a>1</a><a>2</a><a>3</a><a>4</a><a>5</a><a>6</a><a>7</a><a>8</a><a>9</a><a>0</a></array></data><id>5bb5f254-36a8-4267-94fb-22287d0d2477</id><message><![CDATA[This is <b>bold</b> text & more!]]></message></root>")};
 /* Helper function to print test results */
 void print_test_result(const char *test_name, int passed) {
     printf("%s: %s\n", test_name, passed ? "PASSED" : "FAILED");

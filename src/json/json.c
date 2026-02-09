@@ -43,9 +43,14 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_object_find(const _cc_json_t *ctx, const tc
     _cc_assert(ctx != NULL);
 
     if (ctx->type == _CC_JSON_OBJECT_) {
-        _cc_rb_t *node = _cc_rbtree_get(&ctx->element.uni_object, (uintptr_t)keyword, _json_get_object);
-        if (node) {
-            return _cc_upcast(node, _cc_json_t, lnk);
+        _cc_rb_t *node = ctx->element.uni_object.rb_node;
+        while (node) {
+            _cc_json_t *item = _cc_upcast(node, _cc_json_t, lnk);
+            int32_t result = (_tcscmp(item->name,keyword));
+            if (result == 0) {
+                return item;
+            }
+            node = (result < 0) ? node->left : node->right;
         }
     }
 

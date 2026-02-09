@@ -1,11 +1,5 @@
 #include "json.c.h"
 
-int32_t _json_get_object(_cc_rb_t *left, uintptr_t keyword) {
-    _cc_json_t *_left = _cc_upcast(left, _cc_json_t, lnk);
-
-    return _tcscmp(_left->name, (const tchar_t *)keyword);
-}
-
 _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *keyword) {
     _cc_json_t *item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
     bzero(item, sizeof(_cc_json_t));
@@ -80,20 +74,22 @@ _CC_API_PUBLIC(bool_t) _cc_json_object_push(_cc_json_t *ctx, _cc_json_t *item, b
     return false;
 }
 
-
 /**/
 _CC_API_PUBLIC(bool_t) _cc_json_object_remove(_cc_json_t *ctx, const tchar_t *keyword) {
     _cc_rb_t *node;
     if (ctx->type != _CC_JSON_OBJECT_) {
         return false;
     }
-
-    node = _cc_rbtree_get(&ctx->element.uni_object, (uintptr_t)keyword, _json_get_object);
-    if (node == NULL) {
-        return false;
+    node = ctx->element.uni_object.rb_node;
+    while (node) {
+        _cc_json_t *item = _cc_upcast(node, _cc_json_t, lnk);
+        int32_t result = (_tcscmp(item->name,keyword));
+        if (result == 0) {
+            _cc_rbtree_remove(&ctx->element.uni_object, node);
+            _json_free_object_rb_node(node);
+            return true;
+        }
+        node = (result < 0) ? node->left : node->right;
     }
-
-    _cc_rbtree_remove(&ctx->element.uni_object, node);
-    _json_free_object_rb_node(node);
-    return true;
+    return false;
 }

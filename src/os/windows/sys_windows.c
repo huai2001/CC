@@ -324,7 +324,7 @@ _CC_API_PUBLIC(void) _cc_get_memory_usage(double* total, double* used) {
 }
 
 /**/
-_CC_API_PUBLIC(tchar_t *) _cc_last_error(int32_t _errno) {
+_CC_API_PUBLIC(const tchar_t *) _cc_last_error(int32_t _errno) {
     static tchar_t sys_error_info[4096];
     tchar_t *p = sys_error_info;
     //MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT),

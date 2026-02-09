@@ -1,12 +1,76 @@
 #include "json.c.h"
+#include <libcc/UTF.h>
 
 _CC_API_PRIVATE(bool_t) _json_read(_cc_sbuf_t *const buffer, _cc_json_t *item);
+
+_CC_API_PRIVATE(_cc_sds_t) _unescape(const tchar_t *ptr, const tchar_t *endptr, size_t escape_characters) {
+    _cc_sds_t output;
+    tchar_t *dst_ptr;
+    tchar_t *dst_endptr;
+
+    /* This is at most how much we need for the output */
+    size_t alloc_length = (size_t)(endptr - ptr);
+
+    /* empty string */
+    if (alloc_length == 0) {
+        return _cc_sds_alloc(NULL, 1);
+    } else if (escape_characters == 0) {
+        return _cc_sds_alloc(ptr, alloc_length);
+    }
+
+    alloc_length = alloc_length - escape_characters + 1;
+    dst_ptr = output = _cc_sds_alloc(NULL, alloc_length);
+    dst_endptr = (output + alloc_length);
+    /* Process each character in the input string */
+    while (ptr < endptr && dst_ptr < dst_endptr) {
+        if (*ptr != '\\') {
+            *dst_ptr++ = *ptr++;
+        } else {
+            const tchar_t *escape_start = ptr; /* Save backslash position */
+            /* Handle C-style escape sequences */
+            if (ptr + 1 >= endptr) {
+                *dst_ptr++ = *ptr++;
+                break;
+            }
+
+            ptr++; /* Skip backslash */
+
+            switch (*ptr++) {
+                case 'b':  *dst_ptr++ = '\b'; break;
+                case 'f':  *dst_ptr++ = '\f'; break;
+                case 'n':  *dst_ptr++ = '\n'; break;
+                case 'r':  *dst_ptr++ = '\r'; break;
+                case 't':  *dst_ptr++ = '\t'; break;
+                case '\"': case '\\': case '/':
+                    *dst_ptr++ = *(ptr - 1);
+                    break;
+                case 'u': {
+                    int32_t res = _cc_convert_utf16_literal_to_utf8(&escape_start, endptr, dst_ptr, (size_t)(dst_endptr - dst_ptr));
+                    if (res == 0) {
+                        return 0;
+                    }
+                    dst_ptr += res;
+                    ptr = escape_start;
+                    break;
+                }
+                default:
+                    *dst_ptr++ = '\\';
+                    *dst_ptr++ = *(ptr - 1);
+                    break;
+            }
+        }
+    }
+
+    /* Zero terminate the output buffer */
+    *dst_ptr = '\0';
+    _cc_sds_set_length(output, (size_t)(dst_ptr - output));
+    return output;
+}
 
 _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
     const tchar_t *p = _cc_sbuf_offset(buffer);
     const tchar_t *ptr = NULL;
     const tchar_t *endptr;
-    size_t alloc_length = 0;
     size_t escape_characters = 0;
     _cc_sds_t output = NULL;
     tchar_t quotes = *p;
@@ -33,23 +97,11 @@ _CC_API_PUBLIC(_cc_sds_t) _sbuf_parser_string(_cc_sbuf_t *const buffer) {
     if (p >= endptr || *p != quotes) {
         return NULL;
     }
-    /* This is at most how much we need for the output */
-    alloc_length = (size_t)(p - ptr);
-    if (alloc_length > 0) { 
-        if (escape_characters == 0) {
-            output = _cc_sds_alloc(ptr, alloc_length);
-        } else {
-            output = _cc_sds_alloc(NULL, alloc_length + 1 - escape_characters);
-            if (!_unescape_text(output, ptr, p)) {
-                _cc_sds_free(output);
-                return NULL;
-            }
-        }
-    } else {
-        /* empty string */
-        output = _cc_sds_alloc(NULL, 1);
-    }
 
+    output = _unescape(ptr, p, escape_characters);
+    if (!output) {
+        return NULL;
+    }
     /* +1 skip \" or \' */
     buffer->offset = (size_t)(p - buffer->content) + 1;
     return output;

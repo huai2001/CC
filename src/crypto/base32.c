@@ -35,13 +35,14 @@ _CC_API_PUBLIC(size_t) _cc_base32_encode(const byte_t *input, size_t length, tch
     uint32_t buffer = 0;
     uint32_t bits = 0;
     size_t pad_count;
+	size_t required_length;
 
     if (_cc_unlikely(input == NULL || output == NULL || length == 0)) {
         return 0;
     }
 
     /* Ensure output buffer is large enough: ceil(length/5) * 8 + 1 */
-    size_t required_length = ((length + 4) / 5) * 8 + 1;
+    required_length = ((length + 4) / 5) * 8 + 1;
     if (output_length < required_length) {
         return 0;
     }
@@ -80,6 +81,7 @@ _CC_API_PUBLIC(size_t) _cc_base32_decode(const tchar_t *input, size_t length, by
     byte_t *out_end = output + output_length;
     uint32_t buffer = 0;
     uint32_t bits = 0;
+	size_t required_length;
     int v;
 
     if (_cc_unlikely(output == NULL || input == NULL)) {
@@ -87,7 +89,7 @@ _CC_API_PUBLIC(size_t) _cc_base32_decode(const tchar_t *input, size_t length, by
     }
 
     /* Calculate required output length: ceil(length/8) * 5 */
-    size_t required_length = _CC_BASE32_DE_LEN(length);
+    required_length = _CC_BASE32_DE_LEN(length);
     if (output_length < required_length) {
         return 0;
     }

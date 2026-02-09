@@ -23,8 +23,6 @@ extern "C" {
 #define _JSON_NEXT_TOKEN_       _T(',')
 #define _JSON_OBJECT_TOKEN_     _T(':')
 
-int32_t _json_get_object(_cc_rb_t*, uintptr_t);
-
 void _json_free_object_rb_node(_cc_rb_t *node);
 void _json_free_node(_cc_json_t *item);
 
