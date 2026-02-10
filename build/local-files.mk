@@ -97,7 +97,6 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/ini/ini.parser.c\
 	$(SRCROOT)/src/xml/xml.c \
 	$(SRCROOT)/src/xml/xml.parser.c \
-	$(SRCROOT)/src/misc/strptime.c \
 	$(SRCROOT)/src/misc/tick.c \
 	$(SRCROOT)/src/misc/time.c \
 	$(SRCROOT)/src/misc/inet.c \
@@ -183,6 +182,7 @@ ifeq ($(PLATFORM), windows)
 	LIBS += bcrypt
 	LOCAL_SRC_FILES += \
 		$(SRCROOT)/src/os/windows/sys_time.c \
+		$(SRCROOT)/src/os/windows/sys_strptime.c \
 		$(SRCROOT)/src/os/windows/sys_windows.c \
 		$(SRCROOT)/src/os/windows/sys_mmap.c \
 		$(SRCROOT)/src/os/windows/sys_dirent.c \

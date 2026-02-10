@@ -74,7 +74,6 @@ LOCAL_SRC_FILES := \
     ../../src/ini/ini.parser.c\
     ../../src/xml/xml.c \
     ../../src/xml/xml.parser.c \
-    ../../src/misc/strptime.c \
     ../../src/misc/tick.c \
     ../../src/misc/time.c \
     ../../src/misc/inet.c \

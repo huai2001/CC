@@ -192,15 +192,17 @@ struct timespec {
 #endif /* __CC_MSVC__ */
 
 _CC_API_PUBLIC(int) gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info);
+/**/
+_CC_API_PUBLIC(const tchar_t *) _cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *tm);
 
 #define _cc_gmtime(t, result) gmtime_s((result), (t))
 #define _cc_localtime(t, result) localtime_s((result), (t))
 #else
 #define _cc_gmtime(t, result) gmtime_r((t), (result))
 #define _cc_localtime(t, result) localtime_r((t), (result))
-#endif /* __CC_WINDOWS__ */
-/**/
-_CC_API_PUBLIC(const tchar_t *) _cc_strptime(const tchar_t *buf, const tchar_t *fmt, struct tm *tm);
+#define _cc_strptime strptime
+#endif
+
 /**/
 /**
  * Convert a broken-down date/time to a time_t value.

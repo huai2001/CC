@@ -6,19 +6,20 @@
 #include <stdlib.h>
 
 #define TM_YEAR_BASE 1900
-
 /*
  * We do not implement alternate representations. However, we always
  * check whether a given modifier is allowed for a certain conversion.
  */
 #define ALT_E 0x01
 #define ALT_O 0x02
-#define LEGAL_ALT(x)                                                                                                   \
-    {                                                                                                                  \
-        if (alt_format & ~(x)) {                                                                                       \
-            return NULL;                                                                                            \
-        }                                                                                                              \
-    }
+
+#define _SPT_ABDAY_LEN_ 3
+
+#define LEGAL_ALT(x) {                                                                                             \
+    if (alt_format & ~(x)) {                                                                                       \
+        return NULL;                                                                                               \
+    }                                                                                                              \
+}
 
 static struct {
     const tchar_t *text;
@@ -26,7 +27,6 @@ static struct {
 } day[7] = {{_T("Sunday"), 6},   {_T("Monday"), 6}, {_T("Tuesday"), 7}, {_T("Wednesday"), 9},
             {_T("Thursday"), 8}, {_T("Friday"), 6}, {_T("Saturday"), 8}};
 
-#define _SPT_ABDAY_LEN_ 3
 
 static const tchar_t *abday[7] = {_T("Sun"), _T("Mon"), _T("Tue"), _T("Wed"), _T("Thu"), _T("Fri"), _T("Sat")};
 

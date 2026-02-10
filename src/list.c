@@ -46,8 +46,7 @@ _CC_API_PUBLIC(void) _cc_list_append(_cc_list_t *head, _cc_list_t *add) {
 
 /* the stable insertion sort */
 _CC_API_PUBLIC(void)
-_cc_list_sort(_cc_list_t *lnk,
-                       int32_t (*_cmp)(const _cc_list_t *, const _cc_list_t *)) {
+_cc_list_sort(_cc_list_t *lnk, int32_t (*_cmp)(const _cc_list_t *, const _cc_list_t *)) {
     _cc_list_t *q, *prev, *next;
     q = lnk->next;
 
