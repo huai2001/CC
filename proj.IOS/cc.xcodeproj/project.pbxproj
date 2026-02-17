@@ -11,7 +11,6 @@
 		4217A35A2EEC1E22006262EC /* tick.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3542EEC1E22006262EC /* tick.c */; };
 		4217A35B2EEC1E22006262EC /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A34E2EEC1E22006262EC /* misc.c */; };
 		4217A35C2EEC1E22006262EC /* power.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3512EEC1E22006262EC /* power.c */; };
-		4217A35D2EEC1E22006262EC /* strptime.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3532EEC1E22006262EC /* strptime.c */; };
 		4217A35E2EEC1E22006262EC /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3522EEC1E22006262EC /* socket.c */; };
 		4217A35F2EEC1E22006262EC /* WS.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3562EEC1E22006262EC /* WS.c */; };
 		4217A3602EEC1E22006262EC /* inet.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A34D2EEC1E22006262EC /* inet.c */; };
@@ -120,7 +119,6 @@
 		4217A34F2EEC1E22006262EC /* misc.c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = misc.c.h; sourceTree = "<group>"; };
 		4217A3512EEC1E22006262EC /* power.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = power.c; sourceTree = "<group>"; };
 		4217A3522EEC1E22006262EC /* socket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = socket.c; sourceTree = "<group>"; };
-		4217A3532EEC1E22006262EC /* strptime.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = strptime.c; sourceTree = "<group>"; };
 		4217A3542EEC1E22006262EC /* tick.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tick.c; sourceTree = "<group>"; };
 		4217A3552EEC1E22006262EC /* time.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = time.c; sourceTree = "<group>"; };
 		4217A3562EEC1E22006262EC /* WS.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = WS.c; sourceTree = "<group>"; };
@@ -268,7 +266,6 @@
 				4217A34F2EEC1E22006262EC /* misc.c.h */,
 				4217A3512EEC1E22006262EC /* power.c */,
 				4217A3522EEC1E22006262EC /* socket.c */,
-				4217A3532EEC1E22006262EC /* strptime.c */,
 				4217A3542EEC1E22006262EC /* tick.c */,
 				4217A3552EEC1E22006262EC /* time.c */,
 				4217A3562EEC1E22006262EC /* WS.c */,
@@ -696,7 +693,6 @@
 				4217A3C12EEC1E31006262EC /* sys_power.m in Sources */,
 				4217A3C32EEC1E31006262EC /* sys_dirent.m in Sources */,
 				4217A3C42EEC1E31006262EC /* sys_file.m in Sources */,
-				4217A35D2EEC1E22006262EC /* strptime.c in Sources */,
 				4217A35E2EEC1E22006262EC /* socket.c in Sources */,
 				4217A35F2EEC1E22006262EC /* WS.c in Sources */,
 				4217A3602EEC1E22006262EC /* inet.c in Sources */,
