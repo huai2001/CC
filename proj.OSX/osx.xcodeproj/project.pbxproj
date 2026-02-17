@@ -96,7 +96,6 @@
 		4217A55F2EEC1FA8006262EC /* sys_dirent.m in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4612EEC1FA8006262EC /* sys_dirent.m */; };
 		4217A5612EEC1FA8006262EC /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4AA2EEC1FA8006262EC /* crc.c */; };
 		4217A5622EEC1FA8006262EC /* sha256.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4052EEC1FA8006262EC /* sha256.c */; };
-		4217A5662EEC1FA8006262EC /* strptime.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4472EEC1FA8006262EC /* strptime.c */; };
 		421DEAB02F149DDC005678DE /* base32.c in Sources */ = {isa = PBXBuildFile; fileRef = 421DEAAF2F149DDC005678DE /* base32.c */; };
 		4245A4E42F20B7DA00C24096 /* osx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4217A3E42EEC1F76006262EC /* osx.framework */; };
 		4245A4E62F20B7EB00C24096 /* osx.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4217A3E42EEC1F76006262EC /* osx.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -177,7 +176,6 @@
 		4217A4432EEC1FA8006262EC /* misc.c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = misc.c.h; sourceTree = "<group>"; };
 		4217A4452EEC1FA8006262EC /* power.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = power.c; sourceTree = "<group>"; };
 		4217A4462EEC1FA8006262EC /* socket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = socket.c; sourceTree = "<group>"; };
-		4217A4472EEC1FA8006262EC /* strptime.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = strptime.c; sourceTree = "<group>"; };
 		4217A4482EEC1FA8006262EC /* tick.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tick.c; sourceTree = "<group>"; };
 		4217A4492EEC1FA8006262EC /* time.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = time.c; sourceTree = "<group>"; };
 		4217A44A2EEC1FA8006262EC /* WS.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = WS.c; sourceTree = "<group>"; };
@@ -414,7 +412,6 @@
 				4217A4432EEC1FA8006262EC /* misc.c.h */,
 				4217A4452EEC1FA8006262EC /* power.c */,
 				4217A4462EEC1FA8006262EC /* socket.c */,
-				4217A4472EEC1FA8006262EC /* strptime.c */,
 				4217A4482EEC1FA8006262EC /* tick.c */,
 				4217A4492EEC1FA8006262EC /* time.c */,
 				4217A44A2EEC1FA8006262EC /* WS.c */,
@@ -800,7 +797,6 @@
 				4217A55F2EEC1FA8006262EC /* sys_dirent.m in Sources */,
 				4217A5612EEC1FA8006262EC /* crc.c in Sources */,
 				4217A5622EEC1FA8006262EC /* sha256.c in Sources */,
-				4217A5662EEC1FA8006262EC /* strptime.c in Sources */,
 				4284D28D2F288CC600B15BD6 /* google.auth.c in Sources */,
 				4284D28E2F288CC600B15BD6 /* rwbuf.c in Sources */,
 				4284D28F2F288CC600B15BD6 /* snowflake.c in Sources */,
