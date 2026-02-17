@@ -57,7 +57,7 @@ bool_t _cc_wbuf_int64(_cc_wbuf_t *buffer, int64_t x) {
 /**/
 bool_t _cc_wbuf_string(_cc_wbuf_t *buffer, const tchar_t* value, int32_t length) {
     if (length == -1) {
-        length = _tcslen(value);
+        length = (int32_t)_tcslen(value);
     }
     return _cc_wbuf_bytes(buffer, (byte_t*)value, length * sizeof(tchar_t));
 }
