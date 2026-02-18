@@ -5,6 +5,7 @@
 #include "buf.h"
 #include "rbtree.h"
 #include "array.h"
+#include "time.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -124,6 +125,15 @@ _CC_FORCE_INLINE_ float64_t _cc_json_float(const _cc_json_t *ctx) {
     return 0;
 }
 
+_CC_FORCE_INLINE_ time_t _cc_json_timestamp(const _cc_json_t *date, const tchar_t *date_format) {
+    struct tm json_date;
+    if (date) {
+        if (_cc_strptime(date->element.uni_string,date_format,&json_date) != NULL) {
+            return mktime(&json_date);
+        }
+    }
+    return -1;
+}
 /**/
 _CC_FORCE_INLINE_ const _cc_sds_t _cc_json_string(const _cc_json_t *ctx) {
     if (ctx && ctx->type == _CC_JSON_STRING_) {
@@ -157,6 +167,11 @@ _CC_FORCE_INLINE_ bool_t _cc_json_boolean(const _cc_json_t *ctx) {
 }
 
 /**/
+_CC_FORCE_INLINE_ time_t _cc_json_object_find_timestamp(const _cc_json_t *ctx, const tchar_t *keyword, const tchar_t *date_format) {
+    return _cc_json_timestamp(_cc_json_object_find(ctx, keyword), date_format);
+}
+
+/**/
 _CC_FORCE_INLINE_ int64_t _cc_json_object_find_integer(const _cc_json_t *ctx, const tchar_t *keyword) {
     return _cc_json_integer(_cc_json_object_find(ctx, keyword));
 }
@@ -184,6 +199,11 @@ _CC_FORCE_INLINE_ const _cc_rbtree_t *_cc_json_object_find_object(const _cc_json
 /**/
 _CC_FORCE_INLINE_ bool_t _cc_json_object_find_boolean(const _cc_json_t *ctx, const tchar_t *keyword) {
     return _cc_json_boolean(_cc_json_object_find(ctx, keyword));
+}
+
+/**/
+_CC_FORCE_INLINE_ time_t _cc_json_array_find_timestamp(const _cc_json_t *ctx, const uint32_t index, const tchar_t *date_format) {
+    return _cc_json_timestamp(_cc_json_array_find(ctx, index), date_format);
 }
 
 /**/
