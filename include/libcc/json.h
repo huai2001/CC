@@ -129,6 +129,7 @@ _CC_FORCE_INLINE_ time_t _cc_json_timestamp(const _cc_json_t *date, const tchar_
     struct tm json_date;
     if (date) {
         if (_cc_strptime(date->element.uni_string,date_format,&json_date) != NULL) {
+            json_date.tm_isdst = 0;
             return mktime(&json_date);
         }
     }
