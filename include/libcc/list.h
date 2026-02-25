@@ -91,15 +91,15 @@ _CC_FORCE_INLINE_ void _cc_list_remove(_cc_list_t *lnk) {
 /**/
 _CC_FORCE_INLINE_ void _cc_list_push_front(_cc_list_t *head, _cc_list_t *lnk) {
     _cc_assert(head != NULL);
-    _cc_assert(head->next != NULL);
-    _cc_list_insert(lnk, head, head->next);
+    _cc_assert(head->prev != NULL);
+    _cc_list_insert(lnk, head->prev, head);
 }
 
 /**/
 _CC_FORCE_INLINE_ void _cc_list_push_back(_cc_list_t *head, _cc_list_t *lnk) {
     _cc_assert(head != NULL);
-    _cc_assert(head->prev != NULL);
-    _cc_list_insert(lnk, head->prev, head);
+    _cc_assert(head->next != NULL);
+    _cc_list_insert(lnk, head, head->next);
 }
 
 /**/
