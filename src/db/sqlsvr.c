@@ -27,7 +27,6 @@ struct _cc_sql {
 struct _cc_sql_result {
     bool_t step;
     SQLHSTMT hSTMT;
-    _cc_buf_t buffer;
 };
 
 _CC_API_PRIVATE(int) is_odbc_error(SQLRETURN rc) {
@@ -206,9 +205,6 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_execute(_cc_sql_t *ctx, const tchar_t *sql, size
     } else {
         *result = (_cc_sql_result_t *)_cc_malloc(sizeof(_cc_sql_result_t));
         (*result)->hSTMT = hSTMT;
-        (*result)->buffer.bytes = NULL;
-        (*result)->buffer.limit = 0;
-        (*result)->buffer.length = 0;
     }
     return true;
 }
@@ -394,9 +390,6 @@ _CC_API_PRIVATE(bool_t) _sqlsvr_free_result(_cc_sql_result_t *result) {
         SQLFreeHandle(SQL_HANDLE_STMT, result->hSTMT);
     }
     result->hSTMT = SQL_NULL_HSTMT;
-    if (result->buffer.limit > 0) {
-        _cc_free_buf(&result->buffer);
-    }
     _cc_free(result);
     return true;
 }
@@ -526,31 +519,28 @@ _CC_API_PRIVATE(size_t) _sqlsvr_get_string(_cc_sql_result_t *result, int32_t ind
     return got;
 }
 
-_CC_API_PRIVATE(size_t) _sqlsvr_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **value) {
+_CC_API_PRIVATE(size_t) _sqlsvr_get_blob(_cc_sql_result_t *result, int32_t index, byte_t *buffer, size_t length) {
     SQLLEN got = 0;
+    SQLLEN r = 0;
     SQLRETURN rc;
-    if (result->buffer.limit == 0) {
-        _cc_alloc_buf(&result->buffer, _CC_1K_BUFFER_SIZE_);
-    }
-
-    do {
-        SQLLEN chunSize = (SQLLEN)(result->buffer.limit - result->buffer.length);
-        if (chunSize < _CC_1K_BUFFER_SIZE_) {
-            _cc_buf_expand(&result->buffer,_CC_1K_BUFFER_SIZE_);
-        }
-
-        rc = SQLGetData(result->hSTMT, index + 1, SQL_C_BINARY, (SQLPOINTER)(result->buffer.bytes + result->buffer.length), chunSize, &got);
-        if (got != SQL_NULL_DATA) {
-            result->buffer.length += got;
-        }
-
-    } while (rc == SQL_SUCCESS_WITH_INFO);
-    if (is_odbc_error(rc)) {
+    if (buffer == NULL || length == 0) {
         return 0;
     }
 
-    *value = result->buffer.bytes;
-    return result->buffer.length;
+    do {
+        rc = SQLGetData(result->hSTMT, index + 1, SQL_C_BINARY, (SQLPOINTER)buffer + r, length - r, &got);
+        if (got != SQL_NULL_DATA) {
+            r += got;
+            if (r >= length) {
+                break;
+            }
+        }
+    } while (rc == SQL_SUCCESS_WITH_INFO);
+    
+    if (is_odbc_error(rc)) {
+        return 0;
+    }
+    return r;
 }
 
 _CC_API_PRIVATE(bool_t) _sqlsvr_get_datetime(_cc_sql_result_t *result, int32_t index, struct tm* timeinfo) {

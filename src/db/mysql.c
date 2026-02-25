@@ -652,16 +652,18 @@ _CC_API_PRIVATE(size_t) _mysql_get_string(_cc_sql_result_t *result, int32_t inde
 }
 
 /**/
-_CC_API_PRIVATE(size_t) _mysql_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **buffer) {
+_CC_API_PRIVATE(size_t) _mysql_get_blob(_cc_sql_result_t *result, int32_t index, byte_t *buffer, size_t length) {
     MYSQL_BIND *b;
     _cc_assert(result != NULL);
     if (index >= result->num_of_dataset) {
-        return false;
+        return 0;
     }
 
     b = &result->dataset[index];
-    if (buffer) {
-        *buffer = (byte_t *)b->buffer;
+    if (buffer && length > 0) {
+        length = b->buffer_length > length ? length : b->buffer_length;
+        memcpy(buffer, b->buffer, length);
+        return length;
     }
 
     return b->buffer_length;

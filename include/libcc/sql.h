@@ -81,7 +81,7 @@ struct _cc_sql_delegate {
     /**/
     size_t (*get_string)(_cc_sql_result_t *, int32_t, tchar_t*, size_t);
     /**/
-    size_t (*get_blob)(_cc_sql_result_t *, int32_t, byte_t **);
+    size_t (*get_blob)(_cc_sql_result_t *, int32_t, byte_t*, size_t);
     /**/
     bool_t (*get_datetime)(_cc_sql_result_t *, int32_t, struct tm*);
 };

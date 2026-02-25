@@ -594,12 +594,16 @@ _CC_API_PRIVATE(size_t) _sqlite_get_string(_cc_sql_result_t *result, int32_t ind
     return bytes_length;
 }
 
-_CC_API_PRIVATE(size_t) _sqlite_get_blob(_cc_sql_result_t *result, int32_t index, byte_t **value) {
+_CC_API_PRIVATE(size_t) _sqlite_get_blob(_cc_sql_result_t *result, int32_t index, byte_t *buffer, size_t length) {
+    size_t bytes_length;
     _cc_assert(result->stmt != NULL);
-    if (value) {
-        *value = (byte_t*)_sqlite3_column_blob(result->stmt, index);
-    }
-    return _sqlite3_column_bytes(result->stmt, index);
+    bytes_length = _sqlite3_column_bytes(result->stmt, index);
+    if (buffer && length > 0) {
+        byte_t *value = (byte_t*)_sqlite3_column_blob(result->stmt, index);
+        bytes_length = bytes_length > length ? length : bytes_length;
+        memcpy(buffer, value, bytes_length);
+    }    
+    return bytes_length;
 }
 
 _CC_API_PRIVATE(bool_t) _sqlite_get_datetime(_cc_sql_result_t *result, int32_t index,struct tm* timeinfo) {
