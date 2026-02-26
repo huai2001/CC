@@ -430,12 +430,10 @@ _CC_API_PRIVATE(bool_t) _mysql_next_result(_cc_sql_result_t *result) {
 
     __free_dataset(result);
 
-    if (!mysql_stmt_next_result(result->stmt)) {
-        _cc_logger_error("mysql_stmt_next_result error %d: %s", mysql_stmt_errno(result->stmt), mysql_stmt_error(result->stmt));
-        return false;
+    if (mysql_stmt_next_result(result->stmt)) {
+        return __dataset(result);
     }
-
-    return __dataset(result);
+    return false;
 }
 
 _CC_API_PRIVATE(bool_t) _mysql_fetch(_cc_sql_result_t *result) {
