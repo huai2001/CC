@@ -62,17 +62,17 @@ _CC_API_PUBLIC(uint64_t) _cc_timestamp(void) {
  * Optionally returns the day of week [0-6, 0 is Sunday] and
  * day of year [0-365].
  *
- * @param _year       Year (e.g., 2024)
+ * @param year       Year (e.g., 2024)
  * @param month       Month (1-12)
  * @param day         Day of month (1-31)
  * @param day_of_week Output pointer for day of week (can be NULL)
  * @param day_of_year Output pointer for day of year (can be NULL)
  * @return int64_t Days since Unix epoch (1970-01-01)
  */
-_CC_API_PUBLIC(int64_t) _cc_civil_to_days(int _year, int month, int day, int *day_of_week, int *day_of_year) {
-    int year = _year - (month <= 2);
-    const int era = (year >= 0 ? year : year - 399) / 400;
-    const unsigned yoe = (unsigned)(year - era * 400);                                  // [0, 399]
+_CC_API_PUBLIC(int64_t) _cc_civil_to_days(int year, int month, int day, int *day_of_week, int *day_of_year) {
+    const int adjust_year = year - (month <= 2);
+    const int era = (adjust_year >= 0 ? adjust_year : adjust_year - 399) / 400;
+    const unsigned yoe = (unsigned)(adjust_year - era * 400);                                  // [0, 399]
     const unsigned doy = (153 * (month > 2 ? month - 3 : month + 9) + 2) / 5 + day - 1; // [0, 365]
     const unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;                         // [0, 146096]
     const int64_t z = (int64_t)(era) * 146097 + (int64_t)(doe) - 719468;
@@ -86,8 +86,8 @@ _CC_API_PUBLIC(int64_t) _cc_civil_to_days(int _year, int month, int day, int *da
             // Day 0 is the first day of the year.
             *day_of_year = doy - 306;
         } else {
-            const int doy_offset = 59 + (!(year % 4) && ((year % 100) || !(year % 400)));
-            *day_of_year = doy + doy_offset;
+            const int day_offset = 59 + (!(adjust_year % 4) && ((adjust_year % 100) || !(adjust_year % 400)));
+            *day_of_year = doy + day_offset;
         }
     }
     return z;
