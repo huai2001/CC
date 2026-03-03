@@ -5,6 +5,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#define __HAVE_NANOSLEEP__ 1
+
 #ifdef CLOCK_MONOTONIC_RAW
 #define CC_MONOTONIC_CLOCK CLOCK_MONOTONIC_RAW
 #else
@@ -12,7 +14,6 @@
 #endif
 
 #ifdef __CC_APPLE__
-#define _CC_HAVE_NANOSLEEP_ 1
 #include <mach/mach_time.h>
 
 #ifndef _CC_HAVE_CLOCK_GETTIME_
@@ -89,7 +90,7 @@ _CC_API_PUBLIC(void) _cc_sleep(uint32_t ms) {
 /**/
 _CC_API_PUBLIC(void) _cc_nsleep(uint64_t ns) {
     int was_error;
-#ifdef _CC_HAVE_NANOSLEEP_
+#ifdef __HAVE_NANOSLEEP__
     struct timespec tv, remaining;
 #else
     struct timeval tv;
@@ -102,16 +103,17 @@ _CC_API_PUBLIC(void) _cc_nsleep(uint64_t ns) {
     }
 
     // Set the timeout interval
-#ifdef _CC_HAVE_NANOSLEEP_
+#ifdef __HAVE_NANOSLEEP__
     remaining.tv_sec = (time_t)(ns / _CC_NS_PER_SECOND_);
     remaining.tv_nsec = (long)(ns % _CC_NS_PER_SECOND_);
 #else
     then = _cc_get_ticks_ns();
 #endif
+
     do {
         errno = 0;
 
-#ifdef _CC_HAVE_NANOSLEEP_
+#ifdef __HAVE_NANOSLEEP__
         tv.tv_sec = remaining.tv_sec;
         tv.tv_nsec = remaining.tv_nsec;
         was_error = nanosleep(&tv, &remaining);
@@ -128,6 +130,6 @@ _CC_API_PUBLIC(void) _cc_nsleep(uint64_t ns) {
         tv.tv_usec = _CC_NS_TO_US(ns % _CC_NS_PER_SECOND_);
 
         was_error = select(0, NULL, NULL, NULL, &tv);
-#endif // _CC_HAVE_NANOSLEEP_
+#endif // __HAVE_NANOSLEEP__
     } while (was_error && (errno == EINTR));
 }
