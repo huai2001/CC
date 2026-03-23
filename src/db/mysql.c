@@ -136,7 +136,7 @@ _CC_API_PRIVATE(_cc_sql_t *) _mysql_connect(const tchar_t *sql_connection_string
     }
 
     ctx = (_cc_sql_t *)_cc_malloc(sizeof(_cc_sql_t));
-    bzero(ctx, sizeof(_cc_sql_t));
+    memset(ctx, 0, sizeof(_cc_sql_t));
 #ifdef _CC_UNICODE_
     _cc_utf16_to_utf8((uint16_t *)(url.path + 1), (uint16_t *)((url.path + 1) + _tcslen((url.path + 1))),
                       (uint8_t *)ctx->db_name, (uint8_t *)&ctx->db_name[64]);
@@ -376,7 +376,7 @@ _CC_API_PRIVATE(bool_t) _mysql_execute(_cc_sql_t *ctx, const tchar_t *sql, size_
 
     num_of_bind = (int32_t)mysql_stmt_param_count(stmt);
     res = (_cc_sql_result_t *)_cc_malloc(sizeof(_cc_sql_result_t));
-    bzero(res, sizeof(_cc_sql_result_t));
+    memset(res, 0, sizeof(_cc_sql_result_t));
     res->stmt = stmt;
     res->binds = NULL;
     res->dataset = NULL;

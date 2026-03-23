@@ -181,7 +181,7 @@ _CC_API_PUBLIC(_cc_http_request_t*) _cc_http_request(const tchar_t *url, pvoid_t
     }
 
     request = (_cc_http_request_t *)_cc_malloc(sizeof(_cc_http_request_t));
-    bzero(request, sizeof(_cc_http_request_t));
+    memset(request, 0, sizeof(_cc_http_request_t));
 
     if (!_cc_parse_url(&request->url, url)) {
         _cc_free(request);

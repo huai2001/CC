@@ -6,7 +6,7 @@ static void _ini_free_rb_node(_cc_rb_t* node) {
 
 _cc_ini_t* _INI_alloc(int type) {
     _cc_ini_t *ctx = (_cc_ini_t*)_cc_malloc(sizeof(_cc_ini_t));
-    bzero(ctx, sizeof(_cc_ini_t));
+    memset(ctx, 0, sizeof(_cc_ini_t));
     ctx->type = type;
     ctx->element.uni_object.rb_node = NULL;
     

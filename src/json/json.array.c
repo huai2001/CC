@@ -23,7 +23,7 @@ void _free_json_array(_cc_json_t* ctx) {
 /**/
 _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_array(const tchar_t *keyword, size_t capacity) {
     _cc_json_t *item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-    bzero(item, sizeof(_cc_json_t));
+    memset(item, 0, sizeof(_cc_json_t));
     item->type = _CC_JSON_ARRAY_;
     item->element.uni_array = _cc_alloc_array(capacity);
     if (keyword) {

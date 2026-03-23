@@ -3,7 +3,7 @@
 #include <string.h>
 
 void _cc_aes_init(_cc_aes_t *ctx) {
-    bzero(ctx, sizeof(_cc_aes_t));
+    memset(ctx, 0, sizeof(_cc_aes_t));
 }
 
 _CC_API_PUBLIC(int) _cc_aes_setkey_enc(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {

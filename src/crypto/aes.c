@@ -329,7 +329,7 @@ _CC_API_PRIVATE(void) aes_gen_tables(void) {
 #endif /* _CC_AES_ROM_TABLES_ */
 
 _CC_API_PUBLIC(void) _cc_aes_init(_cc_aes_t *ctx) {
-    bzero(ctx, sizeof(_cc_aes_t));
+    memset(ctx, 0, sizeof(_cc_aes_t));
 }
 
 /*

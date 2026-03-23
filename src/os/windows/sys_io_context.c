@@ -32,7 +32,7 @@ _io_context_t* _io_context_alloc(_cc_async_event_priv_t *priv, _cc_event_t *e) {
         priv->frees--;
     }
 
-    bzero(io_context, sizeof(_io_context_t));
+    memset(io_context, 0, sizeof(_io_context_t));
     io_context->fd = _CC_INVALID_SOCKET_;
     io_context->e = e;
     io_context->number_of_bytes = 0;

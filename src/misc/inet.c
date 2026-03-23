@@ -58,7 +58,7 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
 _CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t *ip, int port) {
     _cc_assert(addr != NULL);
 
-    bzero(addr, sizeof(struct sockaddr_in));
+    memset(addr, 0, sizeof(struct sockaddr_in));
 
     addr->sin_family = AF_INET;
     addr->sin_port = htons(port);
@@ -80,7 +80,7 @@ _CC_API_PUBLIC(void) _cc_inet_ipv4_addr(struct sockaddr_in *addr, const tchar_t 
 _CC_API_PUBLIC(void) _cc_inet_ipv6_addr(struct sockaddr_in6 *addr, const tchar_t *ip, int port) {
     _cc_assert(addr != NULL);
 
-    bzero(addr, sizeof(struct sockaddr_in6));
+    memset(addr, 0, sizeof(struct sockaddr_in6));
 
     addr->sin6_family = AF_INET6;
     addr->sin6_port = htons(port);

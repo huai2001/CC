@@ -388,7 +388,7 @@ _CC_API_PRIVATE(bool_t) _io_uring_event_alloc(_cc_async_event_t *async) {
     }
 
     uring = &priv->uring;
-    bzero(uring, sizeof(struct io_uring));
+    memset(uring, 0, sizeof(struct io_uring));
     // SQ
     sq_ptr = mmap(NULL, 
                     params.sq_off.array + params.sq_entries * sizeof(__u32),

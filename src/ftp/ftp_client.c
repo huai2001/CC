@@ -389,7 +389,7 @@ bool_t ftp_client(_cc_ftp_t* ftp, tchar_t *host, uint16_t port) {
     e->callback = network_event_callback;
     e->timeout = 60000;
 
-    bzero(ftp, sizeof(_cc_ftp_t));
+    memset(ftp, 0, sizeof(_cc_ftp_t));
     ftp->callback = ftp_event_callback;
     ftp->cmode = _CC_LIBFTP_PORT;  //_CC_LIBFTP_PASSIVE;//_CC_LIBFTP_PORT;
     ftp->smode = _CC_LIBFTP_TEXT;

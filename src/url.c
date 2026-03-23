@@ -122,7 +122,7 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
     const tchar_t *endpos;
     _cc_assert(u && url);
     /*init url*/
-    bzero(u, sizeof(_cc_url_t));
+    memset(u, 0, sizeof(_cc_url_t));
     cursor = url;
 
     if (*cursor == _T('/')) {

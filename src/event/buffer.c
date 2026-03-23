@@ -96,7 +96,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data
         data->w.bytes = (byte_t*)_cc_realloc(data->w.bytes, data->w.limit);
     }
 
-    memcpy(data->w.bytes + data->w.off, bytes + off, length);
+    memcpy(data->w.bytes + data->w.off, bytes, length);
     data->w.off += length;
 
     _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
@@ -116,13 +116,23 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *dat
 
     _cc_mutex_lock(data->lock_of_writable);
     off = _send(e, data, data->w.bytes, data->w.off);
-    if (off == data->w.off || off < 0) {
+    if (off == data->w.off) {
         data->w.off = 0;
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     } else if (off > 0) {
         data->w.off -= off;
         memmove(data->w.bytes, data->w.bytes + off, data->w.off);
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+    } else if (off < 0) {
+        int er = _cc_last_errno();
+        if (er == _CC_EAGAIN_ || er == _CC_EINTR_) {
+            /* transient, keep buffer and mark writable */
+            _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+            off = 0;
+        } else {
+            /* fatal error: drop buffer to avoid memory leak and clear flag */
+            _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
+        }
     }
     _cc_mutex_unlock(data->lock_of_writable);
     return off;

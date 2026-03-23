@@ -214,11 +214,11 @@ static const uint32_t RHs[16] = {
     }
 
 _CC_API_PUBLIC(void) _cc_des_init(_cc_des_t* ctx) {
-    bzero(ctx, sizeof(_cc_des_t));
+    memset(ctx, 0, sizeof(_cc_des_t));
 }
 
 _CC_API_PUBLIC(void) _cc_des3_init(_cc_des3_t* ctx) {
-    bzero(ctx, sizeof(_cc_des3_t));
+    memset(ctx, 0, sizeof(_cc_des3_t));
 }
 
 static const byte_t odd_parity_table[128] = {

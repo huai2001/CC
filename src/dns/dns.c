@@ -310,7 +310,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
 
     // Set the DNS structure to standard queries
     header = (_cc_dns_header_t *)&buf;
-    bzero(header, sizeof(_cc_dns_header_t));
+    memset(header, 0, sizeof(_cc_dns_header_t));
     header->ident = (uint16_t)htons(_cc_getpid());
 
     // Set standard codes and flags
@@ -389,7 +389,7 @@ void _cc_dns_free(_cc_dns_t *dns) {
 _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *addr) {
     _cc_assert(addr != NULL);
 
-    bzero(addr, sizeof(struct sockaddr_in));
+    memset(addr, 0, sizeof(struct sockaddr_in));
 
     addr->sin_family = AF_INET;
     addr->sin_port = 13568; // or htons(53);

@@ -29,7 +29,7 @@ _CC_API_PRIVATE(bool_t) _select_event_attach(_cc_async_event_t *async, _cc_event
     _cc_assert(async != NULL);
     fset = async->priv;
 
-    if (e->fd && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= FD_SETSIZE) {
+    if (e->fd != _CC_INVALID_SOCKET_ && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= FD_SETSIZE) {
         _cc_logger_error("The maximum number of descriptors supported by the select() is %d", FD_SETSIZE);
         return false;
     }
@@ -153,7 +153,9 @@ _CC_API_PRIVATE(bool_t) _select_event_wait(_cc_async_event_t *async, uint32_t ti
     FD_ZERO(&fds.wfds);
 
     for (i = 0; i < priv->nfds; i++) {
-        _set_fd_event(priv->list[i], &fds);
+        _cc_event_t *e = priv->list[i];
+        e->filter = 0;
+        _set_fd_event(e, &fds);
     }
 
     tv.tv_sec = timeout / 1000;
@@ -222,7 +224,7 @@ _CC_API_PRIVATE(bool_t) _select_event_alloc(_cc_async_event_t *async) {
     }
     
     priv = (_cc_async_event_priv_t *)_cc_malloc(sizeof(_cc_async_event_priv_t));
-    bzero(priv, sizeof(_cc_async_event_priv_t));
+    memset(priv, 0, sizeof(_cc_async_event_priv_t));
 
     async->priv = priv;
     return true;

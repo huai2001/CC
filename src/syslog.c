@@ -170,7 +170,7 @@ _CC_API_PUBLIC(void) _cc_open_syslog(byte_t facility, const tchar_t *app, const 
         struct sockaddr_un *addr = &syslog.sockaddr.addr_un;
         syslog.fd = socket(AF_UNIX, SOCK_DGRAM, 0);
         syslog.socklen = sizeof(struct sockaddr_un);
-        bzero(addr, syslog.socklen);
+        memset(addr, 0, syslog.socklen);
         addr->sun_family = AF_UNIX;
         _tcsncpy(addr->sun_path, _T("/dev/log"), _cc_countof(addr->sun_path));
         addr->sun_path[_cc_countof(addr->sun_path) - 1] = 0;

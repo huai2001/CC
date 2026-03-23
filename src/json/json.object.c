@@ -2,7 +2,7 @@
 
 _CC_API_PUBLIC(_cc_json_t*) _cc_json_alloc_object(byte_t type, const tchar_t *keyword) {
     _cc_json_t *item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-    bzero(item, sizeof(_cc_json_t));
+    memset(item, 0, sizeof(_cc_json_t));
     item->type = type;
     item->element.uni_object.rb_node = NULL;
     if (keyword) {

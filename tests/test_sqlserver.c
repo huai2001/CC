@@ -84,7 +84,7 @@ int main(int argc, char *const arvg[]) {
 #if 0
     WORD res = 0;
     tchar_t delegates[4096];
-    bzero(delegates, sizeof(delegates));
+    memset(delegates, 0, sizeof(delegates));
     if (SQLGetInstalledDrivers(delegates, _cc_countof(delegates), &res)) {
         tchar_t *p = delegates;
         int i = 0;

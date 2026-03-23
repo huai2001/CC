@@ -4,7 +4,7 @@
 _CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
     /* Allocate mutex memory */
     _cc_mutex_t *mutex = (_cc_mutex_t *)_cc_malloc(sizeof(_cc_mutex_t));
-    bzero(mutex, sizeof(_cc_mutex_t));
+    memset(mutex, 0, sizeof(_cc_mutex_t));
     mutex->unfair_lock = OS_UNFAIR_LOCK_INIT;
     
     return mutex;

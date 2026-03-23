@@ -61,7 +61,7 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
         tempPalette = (byte_t *)_cc_malloc(sizeof(byte_t) * 768);
         PaletteSize = 256;
         PaletteData = (uint32_t *)_cc_malloc(sizeof(uint32_t) * PaletteSize);
-        bzero(PaletteData, PaletteSize * sizeof(int32_t));
+        memset(PaletteData, 0, PaletteSize * sizeof(int32_t));
         memcpy(tempPalette, data + ((size - 768)), 768);
         for ( i = 0; i < 256;  i++ ) {
             PaletteData[i] = ((tempPalette[i * 3 + 0] << 16) |
@@ -73,7 +73,7 @@ _cc_image_t* _cc_load_PCX(const byte_t *data, uint32_t size) {
     } else if ( pcxHeader.BitsPerPixel == 4 ) {
         PaletteSize = 16;
         PaletteData = (uint32_t *)_cc_malloc(sizeof(uint32_t) * PaletteSize);
-        bzero(PaletteData, PaletteSize * sizeof(int32_t));
+        memset(PaletteData, 0, PaletteSize * sizeof(int32_t));
         for ( i = 0;  i < 16; i++ ) {
             PaletteData[i] = ((pcxHeader.Palette[i * 3 + 0] << 16) |
                               (pcxHeader.Palette[i * 3 + 1] << 8) |

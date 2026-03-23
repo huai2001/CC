@@ -7,7 +7,7 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
 
     /* Allocate mutex memory */
     mutex = (_cc_mutex_t *)_cc_malloc(sizeof(_cc_mutex_t));
-    bzero(mutex, sizeof(_cc_mutex_t));
+    memset(mutex, 0, sizeof(_cc_mutex_t));
     /* Create the mutex, with initial value signaled */
     pthread_mutexattr_init(&attr);
 #if _CC_THREAD_PTHREAD_RECURSIVE_MUTEX_

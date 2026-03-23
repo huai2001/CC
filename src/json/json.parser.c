@@ -160,7 +160,7 @@ _CC_API_PRIVATE(bool_t) _json_parser_key_and_value(_cc_sbuf_t *const buffer, _cc
     }
 
     curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-    bzero(curr_item, sizeof(_cc_json_t));
+    memset(curr_item, 0, sizeof(_cc_json_t));
     curr_item->type = _CC_JSON_NULL_;
     curr_item->name = name;
 
@@ -262,7 +262,7 @@ static bool_t _json_parser_array(_cc_sbuf_t *const buffer, _cc_json_t *root) {
         }
 
         curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-        bzero(curr_item, sizeof(_cc_json_t));
+        memset(curr_item, 0, sizeof(_cc_json_t));
         curr_item->type = _CC_JSON_NULL_;
         curr_item->name = NULL;
         curr_item->element.uni_object.rb_node = NULL;
@@ -350,7 +350,7 @@ _CC_API_PUBLIC(_cc_json_t*) _cc_json_parser(_cc_sbuf_t *const buffer) {
     }
 
     curr_item = (_cc_json_t *)_cc_malloc(sizeof(_cc_json_t));
-    bzero(curr_item, sizeof(_cc_json_t));
+    memset(curr_item, 0, sizeof(_cc_json_t));
     curr_item->type = _CC_JSON_NULL_;
 
     if (_json_read(buffer, curr_item)) {

@@ -27,7 +27,7 @@ _CC_API_PUBLIC(pvoid_t) _cc_debug_calloc(size_t c, size_t n, const tchar_t *file
     pvoid_t ptr;
     n = c * n;
     ptr = _out_of_memory_abort(malloc(n + sizeof(_cc_debug_alloc_t)), n, _CC_DEBUG_CALLOC_, file, line);
-    bzero(ptr, n);
+    memset(ptr, 0, n);
     return ptr;
 }
 
