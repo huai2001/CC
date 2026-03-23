@@ -101,6 +101,14 @@
 */
 #endif
 
+/*
+ * msvc and icc7 compile memset() to the inline "rep stos"
+ * while ZeroMemory() and bzero() are the calls.
+ * icc7 may also inline several mov's of a zeroed register for small blocks.
+ */
+#undef bzero
+#define bzero(_a, _s) memset((_a), 0, (_s))
+
 /**/
 #define _CC_CHECKING_BIT(_number, _x) ((((_number) >> (_x)) & 1) == 1)
 /**/
