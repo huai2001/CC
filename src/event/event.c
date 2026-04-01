@@ -303,7 +303,7 @@ bool_t _register_async_event(_cc_async_event_t *async) {
     async->timer = 0;
     async->diff = 0;
     async->tick = _cc_get_ticks();
-    async->ident = (uint16_t)async_limit & 0xFFF;\
+    async->ident = (uint16_t)async_limit & 0xFFF;
     
 #ifdef _CC_EVENT_USE_MUTEX_
     async->lock = _cc_alloc_mutex();
