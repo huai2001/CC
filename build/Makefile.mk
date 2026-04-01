@@ -28,7 +28,7 @@ help:
 	@echo
 	@echo "=============== A common Makefile for c programs =============="
 	@echo "Copyright (C) 2011 - 2025 libcc.cn@gmail.com"
-	@echo "The following targets aresupport:" 
+	@echo "The following targets are support:" 
 	@echo 
 	@echo "clean            - clean all target"
 	@echo "clean-debug      - clean debug target"
@@ -38,7 +38,7 @@ help:
 	@echo  -e "X1 = (\033[36m.dylib、.so、.dll、.a、.bin\033[0m)"
 	@echo  -e "X2 = (\033[36mwindows、linux、freebsd、unix、osx、ios\033[0m)"
 	@echo  -e "X3 = (\033[36mx64 = Compile 64-bit, x32 = Compile 32-bit\033[0m"
-	@echo "See REANDME.Makefile for complete instructions."
+	@echo "See REANDME.md for complete instructions."
 	@echo
 	@echo "System is : $(PLATFORM)"
 	@echo "====================== Version2.6 ============================"
