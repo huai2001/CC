@@ -10,14 +10,14 @@ _CC_API_PUBLIC(int) _cc_aes_setkey_enc(_cc_aes_t *ctx, const byte_t *key, uint32
     AES_KEY *aes_key = (AES_KEY *)ctx->buf;
     // OpenSSL rounds: 10 for 128, 12 for 192, 14 for 256
     ctx->nr = keybits / 32 + 6;
-    return AES_set_encrypt_key(key, 256, &aes_key);
+    return AES_set_encrypt_key(key, keybits, &aes_key);
 }
 
 _CC_API_PUBLIC(int) _cc_aes_setkey_dec(_cc_aes_t *ctx, const byte_t *key, uint32_t keybits) {
     AES_KEY *aes_key = (AES_KEY *)ctx->buf;
     // OpenSSL rounds: 10 for 128, 12 for 192, 14 for 256
     ctx->nr = keybits / 32 + 6;
-    return AES_set_decrypt_key(key, 256, &aes_key);
+    return AES_set_decrypt_key(key, keybits, &aes_key);
 }
 
 _CC_API_PUBLIC(int) _cc_aes_setkey(_cc_aes_t *ctx, int mode, const byte_t *key, uint32_t keybits) {
