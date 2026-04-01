@@ -113,12 +113,17 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
 /**/
 _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
     _cc_async_event_t *async = NULL;
-    static uint16_t index = 0;
+    static _cc_atomic32_t index = 0;
     int32_t i;
+    int32_t limit = (int32_t)_cc_atomic32_load(&g_mgr.async_limit);
 
-    int32_t limit = (int32_t)g_mgr.async_limit;
-    for (i = 0; i < limit; i++,index++) {
-        async = g_mgr.async[index % limit];
+    if (limit <= 0) {
+        return NULL;
+    }
+
+    for (i = 0; i < limit; i++) {
+        int32_t started = (int32_t)_cc_atomic32_inc(&index);
+        async = g_mgr.async[started % limit];
         if (async && async->running != 0) {
             break;
         }

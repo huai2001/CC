@@ -62,7 +62,7 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
 #endif
     // assume we're in a lot of trouble if this assert fails.
     _cc_assert(rc == 0);
-    return true;
+    return (rc == 0);
 }
 
 /* Try Lock the mutex */

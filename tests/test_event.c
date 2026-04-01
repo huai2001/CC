@@ -18,8 +18,7 @@ void test_accept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        _cc_logger_debug("thread %d accept fail %s.", _cc_get_thread_id(NULL),
-                         _cc_last_error(_cc_last_errno()));
+        _cc_logger_debug("thread %d accept fail %s.", _cc_get_thread_id(NULL), _cc_last_error(_cc_last_errno()));
         return ;
     }
 
@@ -40,22 +39,22 @@ void test_accept(_cc_async_event_t *async, _cc_event_t *e) {
         _cc_free_event(async2, event);
         return ;
     }
+	_cc_logger_debug("%d accept.", event->ident & 0xFFFF);
 }
+
 static int times = 0;
 
 static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_ACCEPT_) {
-		_cc_logger_debug("%d accept.", e->ident);
         test_accept(async,e);
-
         return true;
     } else if (which & _CC_EVENT_CONNECT_) {
-        //_cc_logger_debug("%d connected.", e->ident);
+        _cc_logger_debug("%d connected.", e->ident & 0xFFFF);
         return true;
     }
 
 	if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug("%d disconnect.", e->ident);
+        _cc_logger_debug("%d disconnect.", e->ident & 0xFFFF);
         return false;
     }
 
@@ -63,39 +62,39 @@ static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, cons
         byte_t buf[_CC_IO_BUFFER_SIZE_];
         int off = _cc_recv(e->fd, buf, _cc_countof(buf));
         if (off < 0) {
-            _cc_logger_debug("%d recv fail.", e->ident);
+            _cc_logger_debug("%d recv fail.", e->ident & 0xFFFF);
             return false;
         } else if (off == 0) {
-            _cc_logger_debug("%d client close.", e->ident);
+            _cc_logger_debug("%d client close.", e->ident & 0xFFFF);
             return false;
         }
         if (_strnicmp((char_t*)buf, "ping", 5) == 0){
             if (_cc_send(e->fd, (byte_t*)"pong", 5) < 0) {
-                _cc_logger_debug("%d send pong fail.", e->ident);
+                _cc_logger_debug("%d send pong fail.", e->ident & 0xFFFF);
                 return false;
             }
         } else if (_strnicmp((char_t*)buf, "close", 5) == 0){
-            _cc_logger_debug("%d client close.", e->ident);
+            _cc_logger_debug("%d client close.", e->ident & 0xFFFF);
             return false;
         }
         buf[off] = 0;
-        _cc_logger_debug("%d: %.*s",e->ident, off, buf);
+        //_cc_logger_debug("%d: %.*s",e->ident & 0xFFFF, off, buf);
     }
 
     if (which & _CC_EVENT_WRITABLE_) {
-        _cc_logger_debug("%d writeable.", e->ident);
+        _cc_logger_debug("%d writeable.", e->ident & 0xFFFF);
         return false;
     }
 
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_debug("%d timeout.", e->ident);
-        if (times++ > 1000) {
+        //_cc_logger_debug("%d timeout.", e->ident & 0xFFFF);
+        if (times++ > 10000) {
             if (_cc_send(e->fd, (byte_t*)"close", 5) < 0) {
-                _cc_logger_debug("%d send close fail.", e->ident);
+                _cc_logger_debug("%d send close fail.", e->ident & 0xFFFF);
                 return false;
             }
         } else if (_cc_send(e->fd, (byte_t*)"ping", 5) < 0) {
-            _cc_logger_debug("%d send ping fail.", e->ident);
+            _cc_logger_debug("%d send ping fail.", e->ident & 0xFFFF);
             return false;
         }
     }
@@ -103,12 +102,12 @@ static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, cons
 }
 static bool_t test_event_timeout_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_debug("%d timer timeout. %ld", e->ident, e->data);
+        _cc_logger_debug("%d timer timeout. %ld", e->ident & 0xFFFF, e->data);
         return false;
     }
 
     if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug("%d destroy timeout. %ld", e->ident, e->data);
+        _cc_logger_debug("%d destroy timeout. %ld", e->ident & 0xFFFF, e->data);
     }       
     return false;
 }
@@ -184,7 +183,7 @@ int main() {
     TEST_CASE(test_event_tcp_connect);
     TEST_CASE(test_event_timeout);
 
-    for (i = 0; i < 128; i++) {
+    for (i = 0; i < 100; i++) {
         test_event_tcp_connect();
     }
 

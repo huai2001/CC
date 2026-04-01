@@ -15,17 +15,17 @@ extern "C" {
 #endif
 
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA_vformat(const tchar_t *file, int line, uint8_t level, const char_t* fmt, va_list arg);
+_CC_API_PUBLIC(void) _cc_loggerA_vformat(const char_t *file, int line, uint8_t level, const char_t* fmt, va_list arg);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA_format(const tchar_t *file, int line, uint8_t level, const char_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerA_format(const char_t *file, int line, uint8_t level, const char_t* fmt, ...);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t* msg, size_t length);
+_CC_API_PUBLIC(void) _cc_loggerA(const char_t *file, int line, uint8_t level, const char_t* msg, size_t length);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerW_vformat(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, va_list arg);
+_CC_API_PUBLIC(void) _cc_loggerW_vformat(const wchar_t *file, int line, uint8_t level, const wchar_t* fmt, va_list arg);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerW_format(const wchar_t *file, int line, uint8_t level, const wchar_t* fmt, ...);
 /**/
-_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t* msg, size_t length);
+_CC_API_PUBLIC(void) _cc_loggerW(const wchar_t *file, int line, uint8_t level, const wchar_t* msg, size_t length);
 
 #ifdef __CC_MSVC__
     #define _cc_loggerW_alert(FMT, ...) \
