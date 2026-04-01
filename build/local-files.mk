@@ -138,7 +138,7 @@ ifneq ($(filter $(PLATFORM), osx),)
 		$(SRCROOT)/src/os/unix/sys_kqueue.c \
 		$(SRCROOT)/src/thread/pthread/sys_thread.c \
 		$(SRCROOT)/src/thread/pthread/sys_cond.c \
-		$(SRCROOT)/src/thread/apple/sys_mutex.c \
+		$(SRCROOT)/src/thread/pthread/sys_mutex.c \
 		$(SRCROOT)/src/thread/apple/sys_sem.c
 endif
 

@@ -29,7 +29,7 @@ _CC_API_PRIVATE(bool_t) libftp_opts(_cc_ftp_t* ftp,
                 if (cp && cp++) {
                     sscanf(cp, "%u,%u,%u,%u,%u,%u", &addr[0], &addr[1],
                            &addr[2], &addr[3], &addr[4], &addr[5]);
-                    bzero(&ftp->sa, sizeof(ftp->sa));
+                    memset(&ftp->sa, 0, sizeof(ftp->sa));
                     ftp->sa.sa_family = AF_INET;
                     ftp->sa.sa_data[2] = addr[0];
                     ftp->sa.sa_data[3] = addr[1];

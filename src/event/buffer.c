@@ -81,7 +81,6 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data
             _cc_mutex_unlock(data->lock_of_writable);
             return off;
         }
-        bytes += off;
         length -= off;
     }
 
@@ -96,7 +95,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *data
         data->w.bytes = (byte_t*)_cc_realloc(data->w.bytes, data->w.limit);
     }
 
-    memcpy(data->w.bytes + data->w.off, bytes, length);
+    memcpy(data->w.bytes + data->w.off, bytes + off, length);
     data->w.off += length;
 
     _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);

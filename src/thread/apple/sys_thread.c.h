@@ -15,12 +15,6 @@
 extern "C" {
 #endif
 
-struct _cc_mutex {
-    os_unfair_lock unfair_lock;
-    int32_t recursive;
-    pthread_t owner;
-};
-
 struct _cc_semaphore {
     dispatch_semaphore_t sem;
 };

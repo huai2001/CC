@@ -399,7 +399,7 @@ _CC_API_PRIVATE(bool_t) _mysql_reset(_cc_sql_result_t *result) {
     }
 
     mysql_stmt_reset(result->stmt);
-    bzero(result->binds, sizeof(MYSQL_BIND) * result->num_of_bind);
+    memset(result->binds, 0, sizeof(MYSQL_BIND) * result->num_of_bind);
     return true;
 }
 

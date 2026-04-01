@@ -282,7 +282,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
 
 #ifdef __CC_MACOSX__
     /* Check for Mac OS X kqueue bug. */
-    bzero(&changes, sizeof(changes));
+    memset(&changes, 0, sizeof(changes));
 
     changes[0].ident = -1;
     changes[0].filter = EVFILT_READ;

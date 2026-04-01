@@ -8,7 +8,7 @@ bool_t _cc_write_PCX(const tchar_t *file_name, _cc_image_t *image) {
 
     _cc_file_t *wfp = NULL;
 
-    bzero(&imageHeader, sizeof(PCXHeader_t));
+    memset(&imageHeader, 0, sizeof(PCXHeader_t));
 
     imageHeader.Manufacturer = 10;
     imageHeader.Version = 5;

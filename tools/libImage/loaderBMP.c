@@ -163,7 +163,7 @@ _cc_image_t* _cc_load_BMP(const byte_t *data, uint32_t size) {
         return NULL;
     }
 
-    bzero(&bmpHeader, sizeof(bmpHeader));
+    memset(&bmpHeader, 0, sizeof(bmpHeader));
     __BYTE_SWAP_16(bmpHeader.Id, dataPtr);
     __BYTE_SWAP_32(bmpHeader.FileSize, dataPtr);
     __BYTE_SWAP_32(bmpHeader.Reserved, dataPtr);

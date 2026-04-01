@@ -104,7 +104,7 @@ _CC_API_PRIVATE(bool_t) parse(char_t *buf, size_t length) {
     if (*log != '<') {
         return false;
     }
-    bzero(&syslog, sizeof(_syslog_t));
+    memset(&syslog, 0, sizeof(_syslog_t));
     _cc_gmtime(&now, &timestamp);
 
     // RFC3164

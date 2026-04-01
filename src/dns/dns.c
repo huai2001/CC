@@ -530,7 +530,7 @@ int main(int argc, char *argv[]) {
     tchar_t *dns_servers_list[2] = {"114.114.114.114", "223.5.5.5"};
 
     _cc_dns_t dns;
-    bzero(&dns, sizeof(_cc_dns_t));
+    memset(&dns, 0, sizeof(_cc_dns_t));
     _cc_install_socket();
 
     /*Get the DNS servers from the resolv.conf file*/

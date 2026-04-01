@@ -35,6 +35,7 @@ _CC_API_PUBLIC(void) _cc_free_mutex(_cc_mutex_t *mutex) {
 
 /* Lock the mutex */
 _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
+    int rc = 1;
 #if _CC_FAKE_RECURSIVE_MUTEX_
     pthread_t self;
 #endif
@@ -49,23 +50,18 @@ _CC_API_PUBLIC(bool_t) _cc_mutex_lock(_cc_mutex_t *mutex) {
         ++mutex->recursive;
     } else {
         /* The order of operations is important.
-           We set the locking thread id after we obtain the lock
-           so unlocks from other threads will fail.
-         */
-        if (pthread_mutex_lock(&mutex->ident) == 0) {
-            mutex->owner = self;
-            mutex->recursive = 0;
-        } else {
-            _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_mutex_lock() failed");
-            return false;
-        }
+            We set the locking thread id after we obtain the lock
+            so unlocks from other threads will fail.
+            */
+        rc = pthread_mutex_lock(&mutex->ident);
+        mutex->owner = self;
+        mutex->recursive = 0;
     }
 #else
-    if (pthread_mutex_lock(&mutex->ident) < 0) {
-        _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_mutex_lock() failed");
-        return false;
-    }
+    rc = pthread_mutex_lock(&mutex->ident);
 #endif
+    // assume we're in a lot of trouble if this assert fails.
+    _cc_assert(rc == 0);
     return true;
 }
 
@@ -84,9 +80,9 @@ _CC_API_PUBLIC(int) _cc_mutex_try_lock(_cc_mutex_t *mutex) {
         ++mutex->recursive;
     } else {
         /* The order of operations is important.
-         We set the locking thread id after we obtain the lock
-         so unlocks from other threads will fail.
-         */
+            We set the locking thread id after we obtain the lock
+            so unlocks from other threads will fail.
+            */
         if (pthread_mutex_trylock(&mutex->ident) == 0) {
             mutex->owner = self;
             mutex->recursive = 0;

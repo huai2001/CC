@@ -19,7 +19,10 @@ static struct {
 
     _cc_async_event_t **async;
     _cc_event_t **slots;
-} g = {0};
+    _cc_mutex_t *slot_lock;
+    _cc_condition_t *slot_cond;
+    _cc_atomic32_t slot_wait_ms;
+} g_mgr = {0};
 
 _CC_API_PRIVATE(int32_t) _get_max_limit(void) {
 #if defined(__CC_LINUX__) || defined(__CC_APPLE__)
@@ -36,41 +39,72 @@ _CC_API_PRIVATE(int32_t) _get_max_limit(void) {
 _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
     _cc_queue_t *lnk;
     _cc_event_t *e;
-    do {
-        lnk = _cc_queue_sync_pop(&g.idles);
+    for (;;) {
+        lnk = _cc_queue_sync_pop(&g_mgr.idles);
 
-        if (lnk != &g.idles && lnk != NULL) {
+        if (lnk != &g_mgr.idles && lnk != NULL) {
             e = _cc_upcast(lnk, _cc_event_t, lnk);
             break;
         }
 
-        if (_cc_atomic32_cas(&g.slot_refcount, 0, 1)) {
+        /* try to become the thread that expands slots */
+        if (_cc_atomic32_cas(&g_mgr.slot_refcount, 0, 1)) {
             int32_t i,j;
-            int32_t expand_length = g.slot_length + _CC_MAX_STEP_;
+            int32_t expand_length = g_mgr.slot_length + _CC_MAX_STEP_;
             _cc_event_t *data;
 
-            if (g.slot_limit <= g.slot_length) {
-                _cc_logger_error("The maximum number of event supported by the RLIMIT_NOFILE is %d", g.slot_limit);
+            if (g_mgr.slot_limit <= g_mgr.slot_length) {
+                _cc_logger_error("The maximum number of event supported by the RLIMIT_NOFILE is %d", g_mgr.slot_limit);
+                /* reset flag so others won't deadlock */
+                _cc_atomic32_set(&g_mgr.slot_refcount, 0);
+                /* wake any waiters */
+                if (g_mgr.slot_cond && g_mgr.slot_lock) {
+                    _cc_mutex_lock(g_mgr.slot_lock);
+                    _cc_condition_broadcast(g_mgr.slot_cond);
+                    _cc_mutex_unlock(g_mgr.slot_lock);
+                }
                 return NULL;
             }
 
-            /*If the allocation fails, it directly aborts, so there is no need to check whether the application is successful, which is meaningless.*/
-            g.slots = (_cc_event_t **)_cc_realloc(g.slots, sizeof(_cc_event_t*) * expand_length);
+            /* allocate/expand slots */
+            g_mgr.slots = (_cc_event_t **)_cc_realloc(g_mgr.slots, sizeof(_cc_event_t*) * expand_length);
             data = (_cc_event_t *)_cc_calloc(sizeof(_cc_event_t), _CC_MAX_STEP_);
 
-            for (i = g.slot_length, j = 0; j < _CC_MAX_STEP_; ++i,++j) {
-                _cc_event_t *e = data + j;
-                g.slots[i] = e;
-                e->ident = i;
-                _cc_queue_sync_push(&g.idles, (_cc_queue_t*)(&e->lnk));
+            for (i = g_mgr.slot_length, j = 0; j < _CC_MAX_STEP_; ++i,++j) {
+                _cc_event_t *event = data + j;
+                g_mgr.slots[i] = event;
+                event->ident = i;
+                _cc_queue_sync_push(&g_mgr.idles, (_cc_queue_t*)(&event->lnk));
             }
-            g.slot_length = expand_length;
-            //g.slot_refcount = 0;
-            _cc_atomic32_set(&g.slot_refcount, 0);
+            g_mgr.slot_length = expand_length;
+            _cc_atomic32_set(&g_mgr.slot_refcount, 0);
+
+            /* notify waiters that slots are available */
+            if (g_mgr.slot_cond && g_mgr.slot_lock) {
+                _cc_mutex_lock(g_mgr.slot_lock);
+                _cc_condition_broadcast(g_mgr.slot_cond);
+                _cc_mutex_unlock(g_mgr.slot_lock);
+            }
+            continue;
+        }
+
+        /* wait until someone expands slots or idles become available */
+        if (g_mgr.slot_lock && g_mgr.slot_cond) {
+            _cc_mutex_lock(g_mgr.slot_lock);
+            /* re-check quickly before waiting */
+            lnk = _cc_queue_sync_pop(&g_mgr.idles);
+            if (lnk != &g_mgr.idles && lnk != NULL) {
+                _cc_mutex_unlock(g_mgr.slot_lock);
+                e = _cc_upcast(lnk, _cc_event_t, lnk);
+                break;
+            }
+            /* wait with timeout to avoid lost wakeups */
+            _cc_condition_wait_timeout(g_mgr.slot_cond, g_mgr.slot_lock, (uint32_t)_cc_atomic32_load(&g_mgr.slot_wait_ms));
+            _cc_mutex_unlock(g_mgr.slot_lock);
         } else {
             _cc_sleep(0);
         }
-    } while(1);
+    }
 
     e->ident = (uint32_t)(baseid << 20) | (e->ident & 0x0FFFFF);
     return e;
@@ -82,9 +116,9 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
     static uint16_t index = 0;
     int32_t i;
 
-    int32_t limit = (int32_t)g.async_limit;
+    int32_t limit = (int32_t)g_mgr.async_limit;
     for (i = 0; i < limit; i++,index++) {
-        async = g.async[index % limit];
+        async = g_mgr.async[index % limit];
         if (async && async->running != 0) {
             break;
         }
@@ -94,7 +128,7 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
     _cc_async_event_t *n;
 
     for (; i < count; i++) {
-        n = (_cc_async_event_t *)g.async[i % g.async_limit];
+        n = (_cc_async_event_t *)g_mgr.async[i % g_mgr.async_limit];
         if (n == NULL || n->running == 0) {
             continue;
         }
@@ -111,12 +145,12 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
 /**/
 _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
     int32_t index = (int32_t)(ident & 0x0FFFFF);
-    if (g.slot_length <= index) {
+    if (g_mgr.slot_length <= index) {
         return NULL;
     }
 #ifdef _CC_DEBUG_
     {
-        _cc_event_t *e = g.slots[index];
+        _cc_event_t *e = g_mgr.slots[index];
         _cc_assert(e != NULL);
         if (e->ident != ident) {
             _cc_logger_error("event id:%d is deleted", ident);
@@ -125,7 +159,7 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
         return e;
     }
 #else
-    return g.slots[index];
+    return g_mgr.slots[index];
 #endif
     
 }
@@ -133,11 +167,11 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
 /**/
 _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event_by_id(uint32_t ident) {
     int16_t i = (ident >> 20) & 0x0FFF;
-    if (g.async_limit <= i) {
+    if (g_mgr.async_limit <= i) {
         _cc_logger_error("async_event id:%d is unregistered!", ident);
         return NULL;
     }
-    return (_cc_async_event_t *)g.async[i];
+    return (_cc_async_event_t *)g_mgr.async[i];
 }
 
 /**/
@@ -184,14 +218,14 @@ _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e) {
     if (fd != _CC_INVALID_SOCKET_ && fd != 0) {
         _cc_close_socket(fd);
     }
-    _cc_queue_sync_push(&g.idles, (_cc_queue_t*)(&e->lnk));
+    _cc_queue_sync_push(&g_mgr.idles, (_cc_queue_t*)(&e->lnk));
 }
 
 /*
 _CC_API_PUBLIC(void) _cc_print_cycle_processed(void) {
     uint32_t i;
-    for (i = 0; i < g.cycles.length; i++) {
-        _cc_async_event_t *async = (_cc_async_event_t*)g.async[i];
+    for (i = 0; i < g_mgr.cycles.length; i++) {
+        _cc_async_event_t *async = (_cc_async_event_t*)g_mgr.async[i];
         if (async) {
             printf("%d: %d, ", i, async->processed);
         }
@@ -205,46 +239,57 @@ bool_t _register_async_event(_cc_async_event_t *async) {
     int32_t async_limit;
     _cc_assert(async != NULL);
 
-    if (_cc_atomic32_inc_ref(&g.refcount)) {
+    if (_cc_atomic32_inc_ref(&g_mgr.refcount)) {
         _cc_event_t *data;
-        _cc_queue_cleanup(&g.idles);
+        _cc_queue_cleanup(&g_mgr.idles);
         /*If the allocation fails, it directly aborts, so there is no need to check whether the application is successful, which is meaningless.*/
-        g.slots = (_cc_event_t **)_cc_calloc(sizeof(_cc_event_t*), _CC_MAX_STEP_);
+        g_mgr.slots = (_cc_event_t **)_cc_calloc(sizeof(_cc_event_t*), _CC_MAX_STEP_);
         data = (_cc_event_t *)_cc_calloc(sizeof(_cc_event_t), _CC_MAX_STEP_);
 
         for (i = 0; i < _CC_MAX_STEP_; i++) {
             _cc_event_t *e = (data + i);
-            g.slots[i] = e;
+            g_mgr.slots[i] = e;
             e->ident = i;
-            _cc_queue_push(&g.idles, (_cc_queue_t*)(&e->lnk));
+            _cc_queue_push(&g_mgr.idles, (_cc_queue_t*)(&e->lnk));
         }
         
-        g.slot_limit = _get_max_limit();
-        g.slot_length = _CC_MAX_STEP_;
-        g.slot_refcount = 0;
-        g.async_limit = 0;
-        g.async = _cc_calloc(0xFFF, sizeof(_cc_async_event_t*));
+        g_mgr.slot_limit = _get_max_limit();
+        g_mgr.slot_length = _CC_MAX_STEP_;
+        g_mgr.slot_refcount = 0;
+        g_mgr.async_limit = 0;
+        g_mgr.async = _cc_calloc(0xFFF, sizeof(_cc_async_event_t*));
+        /* initialize slot expansion synchronization */
+        g_mgr.slot_lock = _cc_alloc_mutex();
+        if (g_mgr.slot_lock == NULL) {
+            _cc_logger_warin("failed to allocate slot_lock mutex");
+        }
+        g_mgr.slot_cond = _cc_alloc_condition();
+        if (g_mgr.slot_cond == NULL) {
+            _cc_logger_warin("failed to allocate slot_cond condition variable");
+        }
+        /* default wait timeout (ms) for slot expansion wait */
+        _cc_atomic32_set(&g_mgr.slot_wait_ms, 10);
     }
 
-    while (g.async == NULL) {
+    while (g_mgr.async == NULL) {
         _cc_sleep(10);
     }
 
-    if (g.async_limit >= 0xFFF) {
+    if (g_mgr.async_limit >= 0xFFF) {
         async_limit = 0xFFFF;
-        for (i = 0; i < g.async_limit; i++) {
-            if (_cc_atomic_cas((_cc_atomic_t*)&g.async[i], 0, (intptr_t)async)) {
+        for (i = 0; i < g_mgr.async_limit; i++) {
+            if (_cc_atomic_cas((_cc_atomic_t*)&g_mgr.async[i], 0, (intptr_t)async)) {
                 async_limit = i;
                 break;
             }
         }
         if (async_limit == 0xFFFF) {
-            _cc_logger_error("The maximum number of events supported by asynchronous events is %d", g.async_limit);
+            _cc_logger_error("The maximum number of events supported by asynchronous events is %d", g_mgr.async_limit);
             return false;
         }
     } else {
-        async_limit = _cc_atomic32_inc(&g.async_limit);
-        g.async[async_limit] = async;
+        async_limit = _cc_atomic32_inc(&g_mgr.async_limit);
+        g_mgr.async[async_limit] = async;
     }
 
     async->changes = _cc_alloc_array(_CC_MAX_CHANGE_EVENTS_);
@@ -253,7 +298,8 @@ bool_t _register_async_event(_cc_async_event_t *async) {
     async->timer = 0;
     async->diff = 0;
     async->tick = _cc_get_ticks();
-    async->ident = (uint16_t)async_limit & 0xFFF;
+    async->ident = (uint16_t)async_limit & 0xFFF;\
+    
 #ifdef _CC_EVENT_USE_MUTEX_
     async->lock = _cc_alloc_mutex();
 #else
@@ -324,20 +370,28 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
     _event_link_free(async, &async->no_timer);
     _event_link_free(async, &async->pending);
 
-    if (_cc_atomic32_dec_ref(&g.refcount)) {;
+    if (_cc_atomic32_dec_ref(&g_mgr.refcount)) {;
         //
-        for (i = 0; i < g.slot_length; i += _CC_MAX_STEP_) {
-            _cc_free(g.slots[i]);
+        for (i = 0; i < g_mgr.slot_length; i += _CC_MAX_STEP_) {
+            _cc_free(g_mgr.slots[i]);
         }
 
-        _cc_free(g.slots);
-        _cc_free(g.async);
-        _cc_queue_cleanup(&g.idles);
-        g.slot_length = 0;
-        g.slots = NULL;
-        g.async = NULL;
+        _cc_free(g_mgr.slots);
+        _cc_free(g_mgr.async);
+        if (g_mgr.slot_lock) {
+            _cc_free_mutex(g_mgr.slot_lock);
+            g_mgr.slot_lock = NULL;
+        }
+        if (g_mgr.slot_cond) {
+            _cc_free_condition(g_mgr.slot_cond);
+            g_mgr.slot_cond = NULL;
+        }
+        _cc_queue_cleanup(&g_mgr.idles);
+        g_mgr.slot_length = 0;
+        g_mgr.slots = NULL;
+        g_mgr.async = NULL;
     } else {
-        g.async[async->ident] = 0;
+        g_mgr.async[async->ident] = 0;
     }
     return true;
 }
@@ -345,6 +399,11 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
 /**/
 bool_t _valid_event(_cc_async_event_t *async, _cc_event_t *e) {
     return (((e->ident >> 20) & 0xFFF) == async->ident);
+}
+
+_CC_API_PUBLIC(void) _cc_event_set_slot_wait(uint32_t ms) {
+    if (ms == 0) ms = 1; /* minimum 1ms */
+    _cc_atomic32_set(&g_mgr.slot_wait_ms, (int32_t)ms);
 }
 
 /**/

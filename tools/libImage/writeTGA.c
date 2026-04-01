@@ -19,7 +19,7 @@ bool_t _cc_write_TGA(const tchar_t *file_name, _cc_image_t *image) {
         return false;
     }
 
-    bzero(&imageHeader, sizeof(TGAHeader_t));
+    memset(&imageHeader, 0, sizeof(TGAHeader_t));
     // top left of image is the top. the image loader needs to
     // be fixed to only swap/flip
     imageHeader.ImageDescriptor = (1 << 5);

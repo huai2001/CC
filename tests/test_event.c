@@ -178,15 +178,16 @@ int main() {
     int i;
     _cc_alloc_async_event(0, NULL);
 	
-    printf("sizeof(_cc_event_t) == %ld Running tests...\n", sizeof(_cc_event_t));
+    printf("sizeof(_cc_event_t) == %ld\nRunning tests...\n", sizeof(_cc_event_t));
     TEST_CASE(test_buffer_allocation);
     TEST_CASE(test_event_tcp_listen);
     TEST_CASE(test_event_tcp_connect);
     TEST_CASE(test_event_timeout);
 
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 128; i++) {
         test_event_tcp_connect();
     }
+
     while((c = getchar()) != 'q') {
         _cc_sleep(100);
     }

@@ -18,6 +18,15 @@ extern "C" {
 
 #define _CC_EVENT_UNKNOWN_                      0x0000
 
+/*
+ * Event flag definitions
+ * These flags are used to describe event interests and state. They are
+ * combined in the `flags` field of `_cc_event_t` to indicate what the
+ * caller is interested in (read/write/accept/connect) and the type of the
+ * registration (socket/file/timeout). The poller sets `filter` to report
+ * which events have actually occurred.
+ */
+
 #define _CC_EVENT_ACCEPT_                       0x0001
 #define _CC_EVENT_WRITABLE_                     0x0002
 #define _CC_EVENT_READABLE_                     0x0004
@@ -53,12 +62,25 @@ typedef struct _cc_async_event _cc_async_event_t;
 
 typedef bool_t (*_cc_event_callback_t)(_cc_async_event_t*, _cc_event_t*, const uint32_t);
 
+/*
+ * Simple byte buffer descriptor
+ * - `limit` is the capacity of the buffer
+ * - `off` is the number of bytes currently stored in `bytes`
+ * - `bytes` points to the raw memory region
+ */
 typedef struct _cc_io_data {
     int32_t limit;  // !< capacity of 'bytes'
     int32_t off;    // !< number of bytes in 'bytes'
     byte_t* bytes;  // !< pointer to internal memory
 } _cc_io_data_t;
 
+/*
+ * I/O buffer
+ * Wraps a read and write buffer with an optional mutex used to serialize
+ * concurrent writes and an SSL object when using TLS. The API offers
+ * allocation, reallocation and simple read/flush helpers implemented in
+ * `src/event/buffer.c`.
+ */
 struct _cc_io_buffer {
     _cc_io_data_t r;
     _cc_io_data_t w;
@@ -66,6 +88,16 @@ struct _cc_io_buffer {
     _cc_SSL_t *ssl;
 };
 
+/*
+ * _cc_event
+ * Represents a single registration with the poller. Important fields:
+ * - `flags`: requested interests and type
+ * - `filter`: events reported by the kernel/poller
+ * - `ident`: a composite identifier encoding async index and slot index
+ * - `fd`: the underlying file descriptor (socket/file)
+ * - `callback`: invoked when the event is triggered
+ * - `timeout`/`expire`: used by the timer wheel when this event has a timeout
+ */
 struct _cc_event {
     /* One or more _CC_EVENT_* flags */
     uint32_t flags;
@@ -96,6 +128,15 @@ struct _cc_event {
 #endif
 };
 
+/*
+ * _cc_async_event
+ * Represents an asynchronous event loop / poller instance. The structure
+ * stores the timer wheel (`nears`, `level`) used for efficient timeout
+ * scheduling, a list of pending changes (`changes`) that will be applied
+ * by the poller, and backend-specific `priv` state. The function pointers
+ * implement a polymorphic interface allowing different poller backends
+ * to be plugged in (select, epoll, kqueue, iocp, ...).
+ */
 struct _cc_async_event {
     byte_t running;
     /**/
@@ -151,45 +192,116 @@ struct _cc_async_event {
 };
 
 /* {{{ event */
-/**/
+/**
+ * Allocate a new event slot tied to the given async instance.
+ * `flags` indicates the event type/interests (combination of _CC_EVENT_*).
+ * Returns a pointer to a fresh `_cc_event_t` or NULL on failure.
+ */
 _CC_API_PUBLIC(_cc_event_t*) _cc_alloc_event(_cc_async_event_t *async, const uint32_t flags);
-/**/
+
+/**
+ * Free an event previously obtained via `_cc_alloc_event`.
+ * This closes any associated fd and returns the slot to the global pool.
+ */
 _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e);
-/**/
+
+/**
+ * Select and return an active async event instance.
+ * Typically used by internal helpers to get the current poller instance.
+ */
 _CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event(void);
-/**/
+
+/**
+ * Lookup an event by its composite identifier (`ident`). Returns NULL if
+ * the id is invalid or the slot has been recycled.
+ */
 _CC_API_PUBLIC(_cc_event_t *) _cc_get_event_by_id(uint32_t ident);
-/**/
+
+/**
+ * Return the async event instance associated with `ident` (high bits).
+ * Returns NULL if the async id is out of range or unregistered.
+ */
 _CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event_by_id(uint32_t ident);
+
 /* }}} */
 
 /* {{{ io buffer */
-/**/
+/**
+ * Allocate an I/O buffer pair (read/write) with an initial capacity of
+ * `limit` bytes. Returns the allocated `_cc_io_buffer_t*` or NULL.
+ * The write buffer is protected by an internal mutex for concurrent use.
+ */
 _CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit);
-/**/
+
+/**
+ * Free an `_cc_io_buffer_t` and its internal memory. Caller must ensure
+ * no concurrent users remain.
+ */
 _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io);
-/**/
+
+/**
+ * Resize the read buffer to `limit` bytes. If `off` exceeds `limit`, the
+ * read offset is reset to 0.
+ */
 _CC_API_PUBLIC(void) _cc_realloc_read_buffer(_cc_io_buffer_t *io,int32_t limit);
-/**/
+
+/**
+ * Resize the write buffer to `limit` bytes. If `off` exceeds `limit`, the
+ * write offset is reset to 0. Caller must hold no locks; function handles
+ * internal memory reallocation.
+ */
 _CC_API_PUBLIC(void) _cc_realloc_write_buffer(_cc_io_buffer_t *io,int32_t limit);
-/**/
+
+/**
+ * Attempt to flush pending write bytes to the event's `fd`.
+ * Returns number of bytes sent (>0) on success, 0 if nothing sent,
+ * or -1 on fatal error (errno set). For EAGAIN/EINTR the function will
+ * preserve the buffer and return 0.
+ */
 _CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *io);
-/**/
+
+/**
+ * Queue data for sending. If the write queue is empty this tries a direct
+ * send first. Returns number of bytes directly written (>=0) or -1 on
+ * error (errno set). The remainder is appended to the write queue.
+ * This function serializes writers using the internal mutex.
+ */
 _CC_API_PUBLIC(int32_t) _cc_io_buffer_send(_cc_event_t *e, _cc_io_buffer_t *io, const byte_t *bytes, int32_t length);
-/**/
+
+/**
+ * Read from `e->fd` into the read buffer. Returns number of bytes read (>0),
+ * 0 for EAGAIN/EINTR, -1 for EOF, or -1 on fatal error (errno set).
+ */
 _CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *io);
+
 /* }}} */
 
 
 /* @{ */
 /**/
 _CC_API_PUBLIC(bool_t) _cc_tcp_listen(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen);
+/**
+ * Create a non-blocking listen socket, bind to `sockaddr` and register the
+ * listening event with the provided async instance. Returns true on
+ * success and false on failure.
+ */
 /**/
 _CC_API_PUBLIC(bool_t) _cc_tcp_connect(_cc_async_event_t *async, _cc_event_t *e, _cc_sockaddr_t *sockaddr, _cc_socklen_t socklen);
+/**
+ * Create a non-blocking socket and initiate a connect to `sockaddr`.
+ * The event is attached to `async` to complete the connection in the
+ * background. Returns true if the connect was started successfully.
+ */
 /* }}} */
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_register_select(_cc_async_event_t*);
+
+/**
+ * Set the wait timeout (in milliseconds) used by internal slot expansion
+ * logic when waiting for idle slots. Minimum is 1 ms.
+ */
+_CC_API_PUBLIC(void) _cc_event_set_slot_wait(uint32_t ms);
 
 #ifdef __CC_WINDOWS__
     #ifdef _CC_EVENT_USE_IOCP_

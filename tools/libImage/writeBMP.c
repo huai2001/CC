@@ -17,7 +17,7 @@ bool_t _cc_write_BMP(const tchar_t *file_name, _cc_image_t *image) {
         return false;
     }
 
-    bzero(&imageHeader, sizeof(BMPHeader_t));
+    memset(&imageHeader, 0, sizeof(BMPHeader_t));
     switch (image->format) {
     case CF_R8G8B8:
         color_convert_format = _cc_convert_R8G8B8_to_R8G8B8;

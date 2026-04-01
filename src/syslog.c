@@ -163,7 +163,7 @@ _CC_API_PUBLIC(void) _cc_open_syslog(byte_t facility, const tchar_t *app, const 
     if (ip) {
         syslog.fd = (_cc_socket_t)socket(AF_INET, SOCK_DGRAM, 0);
         syslog.socklen = sizeof(struct sockaddr_in);
-        bzero(&syslog.sockaddr, syslog.socklen);
+        memset(&syslog.sockaddr, 0, syslog.socklen);
         _cc_inet_ipv4_addr((struct sockaddr_in*) &syslog.sockaddr.addr_in, ip, port);
 #ifndef __CC_WINDOWS__
     } else {

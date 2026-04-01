@@ -26,7 +26,7 @@ _CC_API_PRIVATE(bool_t) _get_remote_host(int family, const tchar_t *host, _cc_so
     int rc;
     bool_t result = false;
     _cc_addrinfo_t hints, *addr_list, *cur;
-    bzero(&hints, sizeof(hints));
+    memset(&hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_family = family;
     rc = _cc_getaddrinfo(host, NULL, &hints, &addr_list);

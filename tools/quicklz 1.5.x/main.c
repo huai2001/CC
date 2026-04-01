@@ -18,9 +18,9 @@ int testes_compress() {
 
     testes.a = 100;
     testes.b = 200;
-    bzero(testes.c, sizeof(testes.c));
-    bzero(&state_compress, sizeof(qlz_state_compress));
-    bzero(&state_decompress, sizeof(qlz_state_decompress));
+    memset(testes.c, 0, sizeof(testes.c));
+    memset(&state_compress, 0, sizeof(qlz_state_compress));
+    memset(&state_decompress, 0, sizeof(qlz_state_decompress));
     strcpy(testes.c, "testes");
     
     d = qlz_compress(&testes, (char*)&compressed, sizeof(struct _testes), &state_compress);

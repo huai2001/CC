@@ -149,7 +149,7 @@ void _cc_setup_sys_thread(const tchar_t* name) {
     if (exceptionHandlerHandle) {
         THREADNAME_INFO inf;
         // This magic tells the debugger to name a thread if it's listening.
-        bzero(&inf, sizeof(THREADNAME_INFO));
+        memset(&inf, 0, sizeof(THREADNAME_INFO));
         inf.dwType = 0x1000;
         inf.szName = (LPCSTR)name;
         inf.dwThreadID = (DWORD)-1;

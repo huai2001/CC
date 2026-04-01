@@ -159,7 +159,7 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_hmap(_cc_hmap_t *ctx, uint32_t capacity,
     ctx->limit = (int32_t)_cc_aligned_alloc_opt(capacity, INITIAL_SIZE);
 
     ctx->cells = (_cc_hmap_cell_t *)_cc_malloc(ctx->limit * sizeof(_cc_hmap_cell_t));
-    bzero(ctx->cells, sizeof(_cc_hmap_cell_t) * ctx->limit);
+    memset(ctx->cells, 0, sizeof(_cc_hmap_cell_t) * ctx->limit);
 
     /*clear link*/
     _cc_list_cleanup(&ctx->list);

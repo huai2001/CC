@@ -10,7 +10,7 @@ extern "C" {
 
 #define _XML_NODE_INIT(_NODE, _TYPE)                                    \
     do {                                                                \
-        bzero((_NODE), sizeof(_cc_xml_t));                              \
+        memset((_NODE), 0, sizeof(_cc_xml_t));                              \
         (_NODE)->type = _TYPE;                                          \
         (_NODE)->name = NULL;                                        \
         _cc_rbtree_cleanup(&(_NODE)->attr);                             \

@@ -6,6 +6,7 @@ _CC_API_PUBLIC(_cc_condition_t*) _cc_alloc_condition(void) {
     if (pthread_cond_init(&cond->cond_var, NULL) < 0) {
         _cc_logger(_CC_LOG_LEVEL_ERROR_, "pthread_cond_init() failed");
         _cc_free(cond);
+        cond = NULL;
     }
     return (cond);
 }
