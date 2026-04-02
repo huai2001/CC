@@ -2,7 +2,7 @@
 #include <libcc/event.h>
 #include <libcc/http_request.h>
 
-#define ENABLE_SSL 1
+#define ENABLE_SSL 0
 
 #if ENABLE_SSL
 _cc_OpenSSL_t *httpSSL = NULL;
@@ -345,7 +345,7 @@ static bool_t _http_listener(const tchar_t *host, uint16_t port) {
     return true;
 }
 
-int main() {
+int main(int argc, char *const argv[]) {
     int c;
     _cc_alloc_async_event(0, NULL);
 #if ENABLE_SSL
