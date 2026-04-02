@@ -10,8 +10,8 @@ static int dns_server_count = 0;
 _CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int type);
 _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *);
 
-_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *, uint8_t *, int *);
-_CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *, uint8_t *, _cc_dns_record_t *);
+_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *, uint8_t *, uint8_t *, int *);
+_CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *, uint8_t *, uint8_t *, _cc_dns_record_t *);
 
 _CC_API_PRIVATE(void) dns_cleanup_records(_cc_dns_record_t *records, uint16_t count) {
     uint16_t i;
@@ -48,24 +48,40 @@ _CC_API_PRIVATE(int) _domain(char_t *buf, int dest_length) {
 
 _CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int type) {
     int offset;
+    int label_len = 0;
     struct QUESTION *q;
     char_t *p;
     char_t *dot;
+    char_t *end;
     /*
      * This will convert www.google.com to 3www6google3com
      * got it :)
      * */
     p = (char_t *)buf;
     dot = p++;
+    end = (char_t *)buf + 512;
 
     while (*host) {
+        if (p >= end) {
+            return -1;
+        }
+
         if (*host == '.') {
+            if (label_len <= 0 || label_len > 63) {
+                return -1;
+            }
             *dot = (p - dot) - 1;
             dot = p++;
+            label_len = 0;
             host++;
             continue;
         }
         *p++ = *host++;
+        label_len++;
+    }
+
+    if (label_len <= 0 || label_len > 63 || p >= end) {
+        return -1;
     }
 
     // set the last dot
@@ -73,6 +89,10 @@ _CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int ty
     *p++ = 0;
 
     offset = (int)(p - (char_t *)buf);
+
+    if ((offset + (int)sizeof(struct QUESTION)) > 512) {
+        return -1;
+    }
 
     // fill it
     q = (struct QUESTION *)p;
@@ -138,7 +158,9 @@ _CC_API_PRIVATE(void) dump(const _cc_dns_t *dns) {
 _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which) {
     if (which & _CC_EVENT_READABLE_) {
         uint16_t i;
+        int recv_len;
         uint8_t *reader;
+        uint8_t *buffer_end;
         int offset;
         byte_t buffer[_CC_IO_BUFFER_SIZE_];
         struct sockaddr_in dest;
@@ -146,14 +168,16 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         _cc_dns_header_t *header;
         _cc_dns_record_t *record;
         _cc_dns_t *dns = (_cc_dns_t *)e->data;
+        uint16_t header_flags;
         int16_t error_code = 0;
 
         printf("Receiving answer...\n");
-        i = recvfrom(e->fd, (char *)buffer, _cc_countof(buffer), 0, (struct sockaddr *)&dest, (socklen_t *)&sa_len);
+        recv_len = recvfrom(e->fd, (char *)buffer, _cc_countof(buffer), 0, (struct sockaddr *)&dest, (socklen_t *)&sa_len);
         /* Check for valid DNS header */
-        if (i < 12) {
+        if (recv_len < 12) {
             return false;
         }
+        buffer_end = buffer + recv_len;
 
         header = (_cc_dns_header_t *)buffer;
         /*
@@ -167,12 +191,14 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         type = (header->flags >> 15) & 1;
         */
 
+        header_flags = _cc_swap16(header->flags);
+
         /* Check the truncated response flag first */
-        if (header->flags & 0x0200) {
+        if (header_flags & 0x0200) {
             return false;
         }
 
-        printf("Now check the reply code:%d,%x\n", header->flags & 0x000F, header->flags);
+        printf("Now check the reply code:%d,%x\n", header_flags & 0x000F, header_flags);
         /* Now check the reply code */
 
         // switch (header->flags & 0x000F) {
@@ -211,14 +237,14 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
 
         /* Note that a root server will most likely ignore queries that
          * request recursive resolution. */
-        dns->header.ident = header->ident;
-        dns->header.flags = header->flags;
+        dns->header.ident = _cc_swap16(header->ident);
+        dns->header.flags = header_flags;
         dns->header.quests = _cc_swap16(header->quests);
         dns->header.answer = _cc_swap16(header->answer);
         dns->header.author = _cc_swap16(header->author);
         dns->header.addition = _cc_swap16(header->addition);
 
-        printf("\nThe response contains : %d", i);
+        printf("\nThe response contains : %d", recv_len);
         printf("\n %d Questions.", dns->header.quests);
         printf("\n %d Answers.", dns->header.answer);
         printf("\n %d Authoritative Servers.", dns->header.author);
@@ -247,12 +273,27 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
             name_length = _domain(name, name_length);
             printf("question name:%s\n", name);
 #else
-            offset += strlen((char *)(buffer + offset)) + 1;
+            while (offset < recv_len && buffer[offset] != 0) {
+                offset++;
+            }
+            if (offset >= recv_len) {
+                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
+                goto DNS_PARSE_FAILED;
+            }
+            offset++;
 #endif
             /* Read the QTYPE and QCLASS */
+            if ((offset + (int)sizeof(struct QUESTION)) > recv_len) {
+                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
+                goto DNS_PARSE_FAILED;
+            }
             offset += sizeof(struct QUESTION);
         }
 
+        if (offset >= recv_len) {
+            dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
+            goto DNS_PARSE_FAILED;
+        }
         reader = &buffer[offset];
 
         record = (_cc_dns_record_t *)_cc_calloc(dns->header.answer,sizeof(_cc_dns_record_t));
@@ -260,9 +301,9 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         // Start reading answers
         for (i = 0; i < dns->header.answer; i++) {
             _cc_dns_record_t *r = record + i;
-            reader = dns_read_rdata(reader, buffer, r);
+            reader = dns_read_rdata(reader, buffer, buffer_end, r);
             if (reader == NULL) {
-                dns->error_code = _CC_DNS_ERR_ENOMEM_;
+                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
                 goto DNS_PARSE_FAILED;
             }
         }
@@ -272,9 +313,9 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         // read authorities
         for (i = 0; i < dns->header.author; i++) {
             _cc_dns_record_t *r = record + i;
-            reader = dns_read_rdata(reader, buffer, r);
+            reader = dns_read_rdata(reader, buffer, buffer_end, r);
             if (reader == NULL) {
-                dns->error_code = _CC_DNS_ERR_ENOMEM_;
+                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
                 goto DNS_PARSE_FAILED;
             }
         }
@@ -284,9 +325,9 @@ _CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_eve
         // read additional
         for (i = 0; i < dns->header.addition; i++) {
             _cc_dns_record_t *r = record + i;
-            reader = dns_read_rdata(reader, buffer, r);
+            reader = dns_read_rdata(reader, buffer, buffer_end, r);
             if (reader == NULL) {
-                dns->error_code = _CC_DNS_ERR_ENOMEM_;
+                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
                 goto DNS_PARSE_FAILED;
             }
         }
@@ -337,7 +378,12 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
     offset = sizeof(_cc_dns_header_t);
 
     // point to the query portion
-    offset += dns_build_question(&buf[offset], host, type);
+    offset = dns_build_question(&buf[offset], host, type);
+    if (offset < 0) {
+        _cc_close_socket(dns_sock);
+        return _CC_DNS_ERR_FORMAT_ERROR_;
+    }
+    offset += sizeof(_cc_dns_header_t);
 
     // Set the DNS structure to standard queries
     header = (_cc_dns_header_t *)&buf;
@@ -345,7 +391,7 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
     header->ident = (uint16_t)htons(_cc_getpid());
 
     // Set standard codes and flags
-    header->flags = htons(0x0100 & 0x300); // recursion & query specmask
+    header->flags = htons(0x0100); // recursion desired (RD)
     header->quests = htons(1);
 
     if (offset > 512) {
@@ -362,6 +408,11 @@ int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
 
     {
         _cc_async_event_t *async = _cc_get_async_event();
+        if (async == NULL) {
+            _cc_close_socket(dns_sock);
+            return _CC_DNS_ERR_SEE_ERRNO_;
+        }
+
         _cc_event_t *e = _cc_alloc_event(async, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_);
         if (e) {
             e->fd = dns_sock;
@@ -419,12 +470,27 @@ _CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *addr) {
 /*
  *
  * */
-_CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, _cc_dns_record_t *rescord) {
+_CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, uint8_t *buffer_end, _cc_dns_record_t *rescord) {
     int stop;
     struct R_DATA *r;
 
-    rescord->name = (char_t *)dns_read_name(reader, buffer, &stop);
+    if (reader == NULL || buffer_end == NULL || reader >= buffer_end) {
+        return NULL;
+    }
+
+    rescord->name = (char_t *)dns_read_name(reader, buffer, buffer_end, &stop);
+    if (rescord->name == NULL) {
+        return NULL;
+    }
+
+    if ((buffer_end - reader) < stop) {
+        return NULL;
+    }
     reader += stop;
+
+    if ((buffer_end - reader) < (int32_t)sizeof(struct R_DATA)) {
+        return NULL;
+    }
 
     r = (struct R_DATA *)(reader);
     // Read the TYPE, CLASS and TTL
@@ -438,10 +504,21 @@ _CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, _cc_d
 
     switch (rescord->type) {
     case _CC_DNS_T_CNAME_: {
-        rescord->rdata = dns_read_name(reader, buffer, &stop);
+        rescord->rdata = dns_read_name(reader, buffer, buffer_end, &stop);
+        if (rescord->rdata == NULL) {
+            return NULL;
+        }
+
+        if ((buffer_end - reader) < stop) {
+            return NULL;
+        }
         reader += stop;
     } break;
     default: {
+        if ((buffer_end - reader) < rescord->length) {
+            return NULL;
+        }
+
         rescord->rdata = (uint8_t *)_cc_malloc(rescord->length);
         memcpy(rescord->rdata, (reader), rescord->length);
         reader += rescord->length;
@@ -453,20 +530,36 @@ _CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, _cc_d
 /*
  *
  * */
-_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *reader, uint8_t *buffer, int *count) {
+_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *reader, uint8_t *buffer, uint8_t *buffer_end, int *count) {
     int offset;
     bool_t jumped = false;
     char_t name[256];
     int name_length = _cc_countof(name);
+    int max_steps;
 
     int i = 0;
+
+    if (reader == NULL || buffer == NULL || buffer_end == NULL || count == NULL) {
+        return NULL;
+    }
+
+    max_steps = (int)(buffer_end - buffer);
+    if (max_steps <= 0) {
+        return NULL;
+    }
 
     *count = 1;
 
     // read the names in 3www6google3com format
-    while (*reader != 0) {
+    while (reader < buffer_end && *reader != 0 && max_steps-- > 0) {
         if (*reader >= 192) {
+            if ((reader + 1) >= buffer_end) {
+                return NULL;
+            }
             offset = (*reader) * 256 + *(reader + 1) - 49152; // 49152 = 11000000 00000000 ;)
+            if (offset <= 0 || (buffer + offset) >= buffer_end) {
+                return NULL;
+            }
             reader = buffer + offset - 1;
             // we have jumped to another location so counting wont go up!
             jumped = true;
@@ -480,6 +573,10 @@ _CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *reader, uint8_t *buffer, int *c
             // if we havent jumped to another location then we can count up
             *count += 1;
         }
+    }
+
+    if (reader >= buffer_end || max_steps <= 0) {
+        return NULL;
     }
 
     // string complete
