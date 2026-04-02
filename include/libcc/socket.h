@@ -109,7 +109,7 @@ _CC_FORCE_INLINE_ bool_t _cc_inet_pton(int af, const tchar_t *src, pvoid_t dst) 
 }
 
 /**/
-_CC_FORCE_INLINE_ bool_t _cc_inet_ntop(int af,  pvoid_t src, tchar_t *dst, int32_t size) {
+_CC_FORCE_INLINE_ bool_t _cc_inet_ntop(int af,  const pvoid_t src, tchar_t *dst, int32_t size) {
 #ifdef __CC_WINDOWS__
     return InetNtop(af, (PVOID)src, dst, size) != NULL;
 #else

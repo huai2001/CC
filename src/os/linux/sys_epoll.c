@@ -247,6 +247,7 @@ _CC_API_PRIVATE(bool_t) _epoll_event_alloc(_cc_async_event_t *async) {
             if (_cc_last_errno() != ENOSYS) {
                 _cc_logger_error("cannot create epoll!");
             }
+            _unregister_async_event(async);
             return false;
         }
         _cc_set_socket_closeonexec(fd);

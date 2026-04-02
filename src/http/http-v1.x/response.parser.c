@@ -42,7 +42,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
         if (first == last) {
             return false;
         }
-        line[last - first] = 0;
+        line[last] = 0;
         response->status = _ttoi(&line[first]);
 
         /*LOG: HTTP Description*/

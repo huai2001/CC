@@ -54,7 +54,7 @@ _CC_API_PUBLIC(void) _cc_loggerA(const char_t *file, int line, uint8_t level, co
     struct tm tm_now;
     time_t now = time(NULL);
 #endif
-    const char_t ch = *(msg + length - 1);
+    char_t ch;
     const char_t *fname = strrchr(file, _CC_SLASH_C_);
     if (fname == NULL) {
         fname = file;
@@ -70,6 +70,7 @@ _CC_API_PUBLIC(void) _cc_loggerA(const char_t *file, int line, uint8_t level, co
 #ifdef __CC_ANDROID__
     _output_android(fname, line, level, msg);
 #else
+    ch = *(msg + length - 1);
     _cc_localtime(&now, &tm_now);
     snprintf(buffer, _cc_countof(buffer), "<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d %s(%d) ",
                                 SYSLOG_LEVEL_CODE[level], 
@@ -111,7 +112,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const wchar_t *file, int line, uint8_t level, c
     struct tm tm_now;
     time_t now = time(NULL);
 #endif
-    const wchar_t ch = *(msg + length - sizeof(wchar_t));
+    wchar_t ch;
     const wchar_t *fname = wcsrchr(file, _CC_SLASH_C_);
     if (fname == NULL) {
         fname = file;
@@ -127,8 +128,9 @@ _CC_API_PUBLIC(void) _cc_loggerW(const wchar_t *file, int line, uint8_t level, c
 #ifdef __CC_ANDROID__
     //_output_android(fname, line, level, msg);
 #else
+    ch = *(msg + length - 1);
     _cc_localtime(&now, &tm_now);
-    swprintf(buffer, _cc_countof(buffer), L"<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d %s(%d) ",
+    swprintf(buffer, _cc_countof(buffer), L"<%c>%04d-%02d-%02dT%02d:%02d:%02dZ %d %ls(%d) ",
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec,
                                 _cc_getpid(), fname, line);

@@ -273,6 +273,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
     priv->number_of_changes = 0;
     priv->fd = kqueue();
     if (_cc_unlikely(priv->fd == -1)) {
+        _unregister_async_event(async);
         _cc_free(priv);
         _cc_logger(_CC_LOG_LEVEL_ERROR_, "cannot create kqueue!");
         return false;
@@ -295,6 +296,7 @@ _CC_API_PRIVATE(bool_t) _kqueue_event_alloc(_cc_async_event_t *async) {
      */
     if (kevent(priv->fd, changes, 1, changes, 2, NULL) != 1 ||
         (int)changes[0].ident != -1 || !(changes[0].flags & EV_ERROR)) {
+        _unregister_async_event(async);
         _cc_logger(_CC_LOG_LEVEL_ERROR_, "detected broken kqueue; not using.");
         _cc_close_socket(priv->fd);
         _cc_free(priv);

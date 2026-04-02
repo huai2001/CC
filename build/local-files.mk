@@ -251,7 +251,7 @@ ifdef USE_LIB_FTP
 endif # --end USE_LIB_FTP --
 
 ifdef USE_LIB_DNS
-	#LOCAL_SRC_FILES += \
+	LOCAL_SRC_FILES += \
 		$(SRCROOT)/src/dns/dns.c \
 		$(SRCROOT)/src/dns/dnss.c
 endif # --end USE_LIB_DNS --

@@ -92,7 +92,7 @@ extern const char_t _a_upper_xdigits[];
 
 #define _cc_find_last_of(FIRST, LAST, FN) do {\
     (LAST)--;\
-    while(FIRST > (LAST) && (FN)) {\
+    while((FIRST) < (LAST) && (FN)) {\
         (LAST)--;\
     }\
     (LAST)++;\

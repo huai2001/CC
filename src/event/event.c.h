@@ -9,7 +9,15 @@
 extern "C" {
 #endif
 
+/*
+ * Max number of pending change events processed in one poller cycle.
+ * Default 64 is suitable for client/small-concurrency workloads.
+ * For high-concurrency servers, override at compile time, e.g.:
+ *   -D_CC_MAX_CHANGE_EVENTS_=512
+ */
+#ifndef _CC_MAX_CHANGE_EVENTS_
 #define _CC_MAX_CHANGE_EVENTS_                64
+#endif
 
 #define _CC_EVENT_IS_SOCKET(flags)                                                                                     \
     _CC_ISSET_BIT(_CC_EVENT_READABLE_ | _CC_EVENT_WRITABLE_ | _CC_EVENT_ACCEPT_ | _CC_EVENT_CONNECT_, (flags))

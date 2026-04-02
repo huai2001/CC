@@ -2,7 +2,7 @@
 #ifndef _C_CC_LIBDNS_H_INCLUDED_
 #define _C_CC_LIBDNS_H_INCLUDED_
 
-#include "dylib.h"
+#include "rbtree.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -39,9 +39,9 @@ typedef struct _cc_dns_record {
 typedef struct _cc_dns {
     uint16_t error_code;
     _cc_dns_header_t header;
-    _cc_dns_record_t **answers;
-    _cc_dns_record_t **authorities;
-    _cc_dns_record_t **additional;
+    _cc_dns_record_t *answers;
+    _cc_dns_record_t *authorities;
+    _cc_dns_record_t *additional;
 
     _cc_rb_t lnk;
 } _cc_dns_t;
