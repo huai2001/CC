@@ -2,7 +2,7 @@
 #include <libcc/http.h>
 #include <libcc/event.h>
 #include <stdio.h>
-#define ENABLE_SSL 1
+#define ENABLE_SSL 0
 
 #if ENABLE_SSL
 _cc_OpenSSL_t *openSSL;
@@ -245,6 +245,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
     _cc_ws_t *ws = (_cc_ws_t*)e->data;
     if (which & _CC_EVENT_ACCEPT_) {
         _cc_event_t *event;
+        _cc_async_event_t *async2 = _cc_get_async_event();
         _cc_socket_t fd;
         struct sockaddr_in remote_addr = {0};
         _cc_socklen_t remote_addr_len = sizeof(struct sockaddr_in);
@@ -257,7 +258,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
 
         _cc_set_socket_nonblock(fd, 1);
 
-        event = _cc_alloc_event(async, _CC_EVENT_TIMEOUT_);
+        event = _cc_alloc_event(async2, _CC_EVENT_TIMEOUT_);
         if (event == NULL) {
             _cc_close_socket(fd);
             _ws_free(ws);
@@ -274,9 +275,9 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
     #endif
         event->data = (uintptr_t)_ws_alloc(fd);
 
-        if (async->attach(async, event) == false) {
+        if (async2->attach(async2, event) == false) {
             _cc_logger_debug("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
-            _cc_free_event(async, event);
+            _cc_free_event(async2, event);
             _ws_free(ws);
             return true;
         }
@@ -284,7 +285,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         {
             struct sockaddr_in *remote_ip = (struct sockaddr_in *)&remote_addr;
             byte_t *ip_addr = (byte_t *)&remote_ip->sin_addr.s_addr;
-            _cc_logger_debug("TCP accept [%d,%d,%d,%d] fd:%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
+            _cc_logger_debug("TCP accept [%d,%d,%d,%d] %d,%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], event->ident >> 20 ,event->ident % 0x0FFFF);
         }
 
         return true;
@@ -304,13 +305,13 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         }
     }
 #endif
-        _cc_logger_debug("TCP timeout %d", e->fd);
+        _cc_logger_debug("TCP timeout %d:%d", e->ident >> 20 ,e->ident % 0x0FFFF);
         if (_ws_heartbeat(e, WS_OP_PONG)) {
             return true;
         }
         return false;
     } else if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug("%d disconnect to client.", e->fd);
+        _cc_logger_debug("%d:%d disconnect to client.", e->ident >> 20 ,e->ident % 0x0FFFF);
         if (e->data) {
             _ws_free((_cc_ws_t*)e->data);
         }
@@ -349,42 +350,44 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
     return true;
 }
 
-int main(int argc, char *const argv[]) {
-    // char c = 0;
+static bool_t _http_listener(const tchar_t *host, uint16_t port) {
     struct sockaddr_in sa;
-    _cc_async_event_t async;
-    _cc_event_t *e;
-    uint16_t port = 5500;
+    _cc_async_event_t *async = _cc_get_async_event();
+    _cc_event_t *event = _cc_alloc_event(async, _CC_EVENT_ACCEPT_);
+    _cc_assert(async != NULL);
+    _cc_assert(event != NULL);
+    if (event == NULL) {
+        return false;
+    }
 
-    _cc_install_socket();
+    event->timeout = 60000;
+    event->callback = _ws_handler;
+
+    _cc_inet_ipv4_addr(&sa, host, port);
+    if (!_cc_tcp_listen(async, event, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
+        _cc_free_event(async, event);    
+        _cc_assert(false);
+        return false;
+    }
+    return true;
+}
+
+int main(int argc, char *const argv[]) {
+    int c;
+    _cc_alloc_async_event(0, NULL);
 #if ENABLE_SSL
-    openSSL = _SSL_init(_CC_SSL_TLSv1_1_|_CC_SSL_TLSv1_2_|_CC_SSL_TLSv1_3_|_CC_SSL_TLSv1_);
-    if (openSSL == NULL) {
+    httpSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
+    if (httpSSL == NULL) {
         return 1;
     }
-
-    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
+    _SSL_setup(httpSSL, "/var/ssl/m.libcc.cn_bundle.crt", "/var/ssl/m.libcc.cn.key",NULL);
 #endif
-    if (_cc_register_poller(&async) == false) {
-        return 1;
-    }
-    e = _cc_alloc_event(&async, _CC_EVENT_ACCEPT_);
-    if (e == NULL) {
-        async.free(&async);
-        return -1;
-    }
-    e->callback = _ws_handler;
-    e->timeout = 60000;
 
-    _cc_inet_ipv4_addr(&sa, NULL, port);
-    _cc_tcp_listen(&async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in));
-    _cc_logger_debug("listen port: %d", port);
+    _http_listener(NULL, 5500);
 
-    while (1) {
-        // while((c = getchar()) != 'q') {
-        async.wait(&async, 100);
+    while((c = getchar()) != 'q') {
+        _cc_sleep(100);
     }
-
-    async.free(&async);
+    _cc_free_async_event();
     return 0;
 }
