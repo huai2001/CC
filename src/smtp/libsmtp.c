@@ -67,6 +67,10 @@ _CC_API_PUBLIC(bool_t) libsmtp_send_email(_cc_smtp_t* smtp) {
         return false;
     }
 
+    if (smtp->from == NULL || email->to == NULL || email->subject == NULL || email->content == NULL) {
+        return false;
+    }
+
     if (smtp->state != _CC_LIBSMTP_RESP_PENDING_) {
         return false;
     }
@@ -129,6 +133,9 @@ _CC_API_PUBLIC(_cc_smtp_t *) _cc_alloc_smtp(const char_t *from_name, const char_
 
 /**/
 _CC_API_PUBLIC(bool_t) _cc_smtp_set_login(_cc_smtp_t *smtp, byte_t login_mode, const char_t *user, const char_t *password) {
+    if (smtp == NULL) {
+        return false;
+    }
 
     if (smtp->user) {
         _cc_sds_free(smtp->user);
@@ -160,12 +167,16 @@ _CC_API_PUBLIC(bool_t) _cc_smtp_set_login(_cc_smtp_t *smtp, byte_t login_mode, c
         smtp->login_mode =  _CC_SMTP_LOGIN_MODE_PLAIN_;
         return true;
     } else {
+        if (user == NULL || password == NULL) {
+            return false;
+        }
+
         char_t auth[1024 * 4];
         size_t length = snprintf(auth,_cc_countof(auth), "user=%s%cauth=Bearer %s%c%c", user, 0x01, password, 0x01, 0x01);
         size_t base64_length = sizeof(char_t) * _CC_BASE64_EN_LEN(length);
         smtp->user = _cc_sds_alloc(NULL, base64_length);
-        length = _cc_base64_encode((byte_t*)auth, length, smtp->password, base64_length);
-        _cc_sds_set_length(smtp->user, base64_length);
+        length = _cc_base64_encode((byte_t*)auth, length, smtp->user, base64_length);
+        _cc_sds_set_length(smtp->user, length);
         smtp->password = NULL;
         smtp->login_mode =  _CC_SMTP_LOGIN_MODE_XOAUTH2;
         return true;
