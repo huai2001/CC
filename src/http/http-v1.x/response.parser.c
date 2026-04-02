@@ -29,7 +29,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
         _cc_find_first_of(first, length, _CC_ISSPACE(line[first]));
         last = first;
         _cc_find_first_of(last, length, !_CC_ISSPACE(line[last]));
-        if (first == last) {
+        if (first == last || last >= length) {
             return false;
         }
         response->protocol = _cc_sds_alloc(&line[first], last - first);
@@ -39,7 +39,7 @@ _CC_API_PUBLIC(bool_t) _cc_http_alloc_response_header(_cc_http_response_header_t
         _cc_find_first_of(first, length, _CC_ISSPACE(line[first]));
         last = first;
         _cc_find_first_of(last, length, !_CC_ISSPACE(line[last]));
-        if (first == last) {
+        if (first == last || last >= length) {
             return false;
         }
         line[last] = 0;
