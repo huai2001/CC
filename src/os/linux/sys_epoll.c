@@ -87,6 +87,9 @@ _CC_API_PRIVATE(bool_t) _emit_epoll_event(int efd, _cc_event_t *e, bool_t clean)
 /**/
 _CC_API_PRIVATE(bool_t) _epoll_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_assert(async != NULL && e != NULL);
+    if (async->ident != _event_async_ident(e->ident)) {
+        return false;
+    }
     return _reset_event(async, e);
 }
 

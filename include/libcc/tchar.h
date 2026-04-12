@@ -333,9 +333,6 @@ extern "C" {
 /* End-of-file constant */
 #define _TEOF EOF
 
-/* Helper macro for _T() and _TEXT() */
-#define __TEXT(q) q
-
 /* ------------------------------------------------------------
  * Input/Output Functions
  * ------------------------------------------------------------ */
@@ -624,8 +621,9 @@ extern "C" {
  *   - In ANSI mode:   becomes const char* str = "Hello World";
  *   - In Unicode mode: becomes const wchar_t* str = L"Hello World";
  * ================================================================ */
-#define _TEXT(x)    __TEXT(x)
-#define _T(x)       __TEXT(x)
+#ifndef _T
+#define _T(x) x
+#endif /*_T*/
 
 #endif /* !_TCHAR_H_ */
 

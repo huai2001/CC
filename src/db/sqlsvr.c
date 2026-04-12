@@ -528,10 +528,10 @@ _CC_API_PRIVATE(size_t) _sqlsvr_get_blob(_cc_sql_result_t *result, int32_t index
     }
 
     do {
-        rc = SQLGetData(result->hSTMT, index + 1, SQL_C_BINARY, (SQLPOINTER)buffer + r, length - r, &got);
+        rc = SQLGetData(result->hSTMT, index + 1, SQL_C_BINARY, (SQLPOINTER)(buffer + r), length - r, &got);
         if (got != SQL_NULL_DATA) {
             r += got;
-            if (r >= length) {
+            if (r >= (SQLLEN)length) {
                 break;
             }
         }

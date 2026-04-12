@@ -77,7 +77,7 @@ uint64_t _cc_snowflake_id(_cc_snowflake_t *snowflake) {
     } else {
         snowflake->seq = 0;
     }
-    snowflake->last = timestamp;
+    snowflake->last = (long)timestamp;
     /**
      * Return result:
      * (timestamp - twepoch) << _TIMESTAMP_SHIFT_) means subtract initial timestamp from current timestamp, then shift left by corresponding bits
@@ -86,5 +86,5 @@ uint64_t _cc_snowflake_id(_cc_snowflake_t *snowflake) {
      * Since each part only has meaningful values on corresponding bits, and other bits are 0,
      * performing | operation on each part yields the final concatenated ID
      */
-    return (timestamp << _TIMESTAMP_SHIFT_) | (snowflake->worker_id << _WORKERID_SHIFT_) | snowflake->seq;
+    return (timestamp << _TIMESTAMP_SHIFT_) | ((uint64_t)snowflake->worker_id << _WORKERID_SHIFT_) | snowflake->seq;
 }

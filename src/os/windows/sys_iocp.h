@@ -25,24 +25,24 @@ struct _cc_async_event_priv {
 };
 
 typedef struct _io_context {
-    uint32_t ident;
+    /* Snapshot of the event handle at submission time. */
+    uint64_t ident;
     uint32_t flag;
     _cc_socket_t fd;
     OVERLAPPED overlapped;
     DWORD number_of_bytes;
     _cc_list_t lnk;
-    _cc_event_t *e;
 } _io_context_t;
 
 /**
  * @brief IOCP Socket TCP Accept
  *
+ * @param e event structure
  * @param io_context IOCP OVERLAPPED structure
- * @param fd Socket handle
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_accept(_io_context_t* io_context);
+int _WSA_socket_accept(const _cc_event_t *e, _io_context_t* io_context);
 /**
  * @brief IOCP Socket TCP Send
  *
@@ -51,25 +51,27 @@ int _WSA_socket_accept(_io_context_t* io_context);
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_send(_io_context_t *io_context);
+int _WSA_socket_send(const _cc_event_t *e, _io_context_t *io_context);
 /**
  * @brief IOCP Socket TCP Read
  *
+ * @param e event structure
  * @param io_context IOCP OVERLAPPED structure
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_receive(_io_context_t *io_context);
+int _WSA_socket_receive(const _cc_event_t *e, _io_context_t *io_context);
 /**
  * @brief IOCP Socket UDP Send
  *
+ * @param e event structure
  * @param io_context IOCP OVERLAPPED structure
  * @param sa _cc_sockaddr_t structure
  * @param sa_len Length of send byte buffer
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_sendto(_io_context_t *io_context, _cc_sockaddr_t *sa, _cc_socklen_t sa_len);
+int _WSA_socket_sendto(const _cc_event_t *e, _io_context_t *io_context, _cc_sockaddr_t *sa, _cc_socklen_t sa_len);
 /**
  * @brief IOCP Socket UDP Read
  *
@@ -80,7 +82,7 @@ int _WSA_socket_sendto(_io_context_t *io_context, _cc_sockaddr_t *sa, _cc_sockle
  *
  * @return 0 if successful or socket on error.
  */
-int _WSA_socket_receivefrom(_io_context_t *io_context, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len);
+int _WSA_socket_receivefrom(const _cc_event_t *e, _io_context_t *io_context, _cc_sockaddr_t *sa, _cc_socklen_t *sa_len);
 
 /**
  * @brief IOCP Initialize Overlapped 
@@ -103,7 +105,7 @@ void _io_context_quit(_cc_async_event_priv_t *priv);
  *
  * @return 
  */
-_io_context_t* _io_context_alloc(_cc_async_event_priv_t *priv, _cc_event_t *e);
+_io_context_t* _io_context_alloc(_cc_async_event_priv_t *priv, const _cc_event_t *e);
 /**
  * @brief IOCP Free Overlapped
  *

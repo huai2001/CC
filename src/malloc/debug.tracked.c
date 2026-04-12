@@ -88,14 +88,14 @@ void _detach_debug_taracked(void) {
     _tprintf(_T("%d memory allocations, of which %d freed\r\n"), number_of_alloc, number_of_freed);
     _cc_list_for_each(v, &tracked_list, {
         _cc_debug_alloc_t *debug = _cc_upcast(v, _cc_debug_alloc_t, lnk);
-        _tprintf(_T("%s (base: $%p, size: %ld) located at:%s(%d)\r\n"), mem_types[debug->type], debug, debug->size, debug->file, debug->line);
+        _tprintf(_T("%s (base: $%p, size: %ld) located at:%s(%d)\r\n"), mem_types[debug->type], debug, (long)debug->size, debug->file, debug->line);
 
         num_leaked++;
         tot_leaked += debug->size;
     });
 
     if (num_leaked > 0) {
-        _tprintf(_T("There are %d leaked memory blocks, totalizing %ld bytes\r\n"), num_leaked, tot_leaked);
+        _tprintf(_T("There are %d leaked memory blocks, totalizing %ld bytes\r\n"), num_leaked, (long)tot_leaked);
     } else {
         _tprintf(_T("No memory leaks !\r\n"));
     }

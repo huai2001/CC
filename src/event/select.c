@@ -28,6 +28,10 @@ _CC_API_PRIVATE(bool_t) _select_event_attach(_cc_async_event_t *async, _cc_event
     _cc_async_event_priv_t *fset;
     _cc_assert(async != NULL);
     fset = async->priv;
+    
+    if (async->ident != _event_async_ident(e->ident)) {
+        return false;
+    }
 
     if (e->fd != _CC_INVALID_SOCKET_ && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= FD_SETSIZE) {
         _cc_logger_error("The maximum number of descriptors supported by the select() is %d", FD_SETSIZE);

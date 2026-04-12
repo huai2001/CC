@@ -20,7 +20,7 @@ void _io_context_quit(_cc_async_event_priv_t *priv) {
     _cc_list_cleanup(&priv->io_idle);
 }
 
-_io_context_t* _io_context_alloc(_cc_async_event_priv_t *priv, _cc_event_t *e) {
+_io_context_t* _io_context_alloc(_cc_async_event_priv_t *priv, const _cc_event_t *e) {
     _io_context_t *io_context;
     _cc_list_t *lnk = _cc_list_pop(&priv->io_idle);
 
@@ -34,7 +34,6 @@ _io_context_t* _io_context_alloc(_cc_async_event_priv_t *priv, _cc_event_t *e) {
 
     memset(io_context, 0, sizeof(_io_context_t));
     io_context->fd = _CC_INVALID_SOCKET_;
-    io_context->e = e;
     io_context->number_of_bytes = 0;
     io_context->ident = e->ident;
 

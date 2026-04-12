@@ -16,3 +16,4 @@ _CC_API_PUBLIC(int32_t) _cc_http2_frame_header(byte_t *hdr, uint8_t type, uint8_
 
     return _CC_HTTP2_FRAME_HEADER_SIZE_;
 }
+

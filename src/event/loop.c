@@ -61,18 +61,38 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_async_event(int32_t cores, void (*cb)(_cc_async
     }
 
     g.keep_active = true;
+    g.count = 0;
     g.async_events = async_events;
     g.threads = threads;
     g.callback = cb;
 
     for (i = 0; i < cores; ++i) {
+        _cc_thread_t *thread;
         _cc_async_event_t *n = (_cc_async_event_t *)(async_events + i);
+
         if (_cc_register_poller(n) == false) {
             continue;
         }
+
         n->args = NULL;
-        *(threads + i) = _cc_thread(_running, _T("async event"), n);
+        thread = _cc_thread(_running, _T("async event"), n);
+        if (thread == NULL) {
+            n->free(n);
+            continue;
+        }
+
+        *(threads + g.count) = thread;
         g.count++;
+    }
+
+    if (g.count == 0) {
+        g.keep_active = false;
+        g.async_events = NULL;
+        g.threads = NULL;
+        g.callback = NULL;
+        _cc_free(threads);
+        _cc_free(async_events);
+        return false;
     }
     
     return true;
@@ -100,6 +120,9 @@ _CC_API_PUBLIC(bool_t) _cc_free_async_event(void) {
         _cc_free(g.async_events);
         g.async_events = NULL;
     }
+
+    g.count = 0;
+    g.callback = NULL;
     return true;
 }
 

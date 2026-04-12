@@ -2,7 +2,7 @@
 #include <libcc/http.h>
 #include <libcc/event.h>
 #include <stdio.h>
-#define ENABLE_SSL 0
+#define ENABLE_SSL 1
 
 #if ENABLE_SSL
 _cc_OpenSSL_t *openSSL;
@@ -376,11 +376,11 @@ int main(int argc, char *const argv[]) {
     int c;
     _cc_alloc_async_event(0, NULL);
 #if ENABLE_SSL
-    httpSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
-    if (httpSSL == NULL) {
+    openSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
+    if (openSSL == NULL) {
         return 1;
     }
-    _SSL_setup(httpSSL, "/var/ssl/m.libcc.cn_bundle.crt", "/var/ssl/m.libcc.cn.key",NULL);
+    _SSL_setup(openSSL, "/var/ssl/server.crt", "/var/ssl/server.key",NULL);
 #endif
 
     _http_listener(NULL, 5500);

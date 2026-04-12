@@ -21,6 +21,10 @@ _CC_API_PRIVATE(bool_t) _poll_event_attach(_cc_async_event_t *async, _cc_event_t
     _cc_async_event_priv_t *fset;
     _cc_assert(async != NULL);
     fset = async->priv;
+    
+    if (async->ident != _event_async_ident(e->ident)) {
+        return false;
+    }
 
     if (e->fd && _CC_EVENT_IS_SOCKET(e->flags) && fset->nfds >= _CC_POLL_EVENTS_) {
         _cc_logger_error("The maximum number of descriptors supported by the poll() is %d", _CC_POLL_EVENTS_);

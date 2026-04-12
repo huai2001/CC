@@ -255,16 +255,16 @@ _CC_API_PUBLIC(_cc_OpenSSL_t*) _SSL_init(uint32_t protocols) {
 
 _CC_API_PUBLIC(void) _SSL_quit(_cc_OpenSSL_t *ctx) {
     if (_cc_atomic32_dec_ref(&_SSL_init_refcount)) {
-    #if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_1_1_0
+#if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_1_1_0
         CONF_modules_free();
         ENGINE_cleanup();
         EVP_cleanup();
         CRYPTO_cleanup_all_ex_data();
         ERR_free_strings();
-    #if OPENSSL_VERSION_NUMBER >= OPENSSL_VERSION_1_0_2
+#if OPENSSL_VERSION_NUMBER >= OPENSSL_VERSION_1_0_2
         SSL_COMP_free_compression_methods();
-    #endif
-    #endif
+#endif
+#endif
     }
 
     SSL_CTX_free(ctx->handle);

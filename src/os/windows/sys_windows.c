@@ -360,7 +360,7 @@ _CC_API_PUBLIC(size_t) _cc_get_module_file_name(pvoid_t func, tchar_t *module, s
     }
 
     GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)(func?func:_cc_get_module_file_name), &hModule);
-    path_length = GetModuleFileName(hModule, module, length);
+    path_length = GetModuleFileName(hModule, module, (DWORD)length);
     if (path_length == 0 || path_length >= (DWORD)length) {
         return 0;
     }

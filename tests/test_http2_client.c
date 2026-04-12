@@ -9,230 +9,245 @@ typedef struct _cc_http2_client {
     uint32_t connection_window_size;
     uint32_t stream_window_size;
     uint32_t stream_id;
-
     uint8_t enable_push;
     uint32_t header_table_size;
-    
     uint32_t max_frame_size;
     uint32_t max_concurrent_streams;
     uint32_t max_header_list_size;
-
+    bool_t settings_acked;
+    bool_t request_sent;
 } _cc_http2_client_t;
 
-_cc_http2_client_t http_clients[128];
+static _cc_http2_client_t http_clients[128];
 
-/**
- * 解析 HPACK 可变长度整数
- * @param data 输入数据指针（解析后指针会更新）
- * @param end 输入数据结束指针
- * @param prefix_bits 前缀位数（如 5、6、7 或 8）
- * @param value 输出参数，存储解析后的整数值
- * @return 成功返回 0，失败返回 -1
- */
-int32_t hpack_decode_integer(
-    const byte_t **data,
-    const byte_t *end,
-    uint8_t prefix_bits,
-    uint32_t *value
-) {
-    const byte_t *ptr = *data;
-    uint32_t shift = 0;
-    // 提取前缀掩码（如 prefix_bits=5 时，掩码为 0x1F）
-    uint8_t mask = (1 << prefix_bits) - 1;
-    uint32_t result = (*ptr++) & mask;
-
-    // 检查前缀位数是否合法（1-8）
-    if (prefix_bits < 1 || prefix_bits > 8) {
-        _cc_logger_error("Invalid prefix bits: %u", prefix_bits);
-        return -1;
-    }
-
-    // 如果前缀位已包含完整整数，直接返回
-    if (result < mask) {
-        *value = result;
-        *data = ptr;
-        return 1;
-    }
-
-    // 解析多字节整数
-    while (ptr < end) {
-        byte_t byte = *ptr++;
-        if (shift > 28) { // 防止溢出（32 位整数最多左移 28 位）
-            _cc_logger(_CC_LOG_LEVEL_ERROR_, "Integer overflow");
-            return -1;
-        }
-
-        result += (byte & 0x7F) << shift;
-        shift += 7;
-
-        if ((byte & 0x80) == 0) {
-            *value = result;
-            *data = ptr;
-            return 0;
-        }
-    }
-
-    _cc_logger(_CC_LOG_LEVEL_ERROR_, "Incomplete integer encoding");
-    return -1;
+static _cc_http2_client_t* _cc_http2_get_client(void) {
+    return &http_clients[0];
 }
 
-/**
- * 解析单个 HPACK 字段
- * @param decoder HPACK 解码器上下文
- * @param data 输入数据指针（解析后指针会更新）
- * @param end 输入数据结束指针
- * @param header 输出参数，存储解析后的字段
- * @return 成功返回 0，失败返回 -1
- */
-/*
-int hpack_decode_field(
-    hpack_decoder_t *decoder,
-    const byte_t **data,
-    const byte_t *end,
-    _cc_http_header_t *header
-) {
-    const byte_t *name, *value;
-    const byte_t *ptr = *data;
-    // 解析字段前缀（前 2-4 位）
-    byte_t prefix = (*ptr) & 0xE0; // 取前 3 位
-    uint32_t index;
-    size_t name_length, value_length;
+static void _cc_http2_init_client(_cc_http2_client_t *client) {
+    memset(client, 0, sizeof(*client));
+    client->connection_window_size = _CC_HTTP2_INITIAL_WINDOW_SIZE_;
+    client->stream_window_size = _CC_HTTP2_INITIAL_WINDOW_SIZE_;
+    client->max_frame_size = 16384;
+    client->stream_id = 1;
+}
 
-    if (ptr >= end) {
-        _cc_logger_error("No data to decode");
+static int32_t _cc_hpack_encode_integer(byte_t *buffer, size_t size, uint32_t value, uint8_t prefix_bits, uint8_t prefix_mask) {
+    uint32_t prefix_max;
+    int32_t offset = 0;
+
+    if (size == 0 || prefix_bits == 0 || prefix_bits > 8) {
         return -1;
     }
 
-    // 根据前缀判断字段类型
-    if ((*ptr & 0x80) != 0) {
-        // 索引字段（Indexed Header Field）
-        if (hpack_decode_integer(&data, end, 7, &index) < 0) {
-            _cc_logger_error("Failed to decode indexed field index");
+    prefix_max = (1u << prefix_bits) - 1u;
+    if (value < prefix_max) {
+        buffer[offset++] = (byte_t)(prefix_mask | value);
+        return offset;
+    }
+
+    buffer[offset++] = (byte_t)(prefix_mask | prefix_max);
+    value -= prefix_max;
+
+    while (value >= 128) {
+        if ((size_t)offset >= size) {
             return -1;
         }
-        if (!hpack_get_indexed_field(decoder, index, &name, &name_length, &value, &value_length)) {
-            _cc_logger_error("Invalid indexed field index: %u", index);
-            return -1;
-        }
-    } else if ((*data & 0xC0) == 0x40) {
-        // 字面量字段（Literal Header Field with Indexed Name）
-        if (hpack_decode_integer(&data, end, 6, &index) < 0) {
-            _cc_logger_error("Failed to decode literal field index");
-            return -1;
-        }
-        if (!hpack_get_indexed_name(decoder, index, &name, &name_length)) {
-            _cc_logger_error("Invalid literal field name index: %u", index);
-            return -1;
-        }
-        if (hpack_decode_string(&data, end, &value, &value_length) < 0) {
-            _cc_logger_error("Failed to decode literal field value");
-            return -1;
-        }
-        // 可选：将字段添加到动态表
-        if ((*data & 0x20) != 0) {
-            hpack_add_dynamic_entry(decoder, name, name_length, value, value_length);
-        }
-    } else if ((*data & 0xF0) == 0x00) {
-        // 字面量字段（Literal Header Field without Indexed Name）
-        if (hpack_decode_string(&data, end, &name, &name_length) < 0) {
-            _cc_logger_error("Failed to decode literal field name");
-            return -1;
-        }
-        if (hpack_decode_string(&data, end, &value, &value_length) < 0) {
-            _cc_logger_error("Failed to decode literal field value");
-            return -1;
-        }
-        // 可选：将字段添加到动态表
-        if ((*data & 0x20) != 0) {
-            hpack_add_dynamic_entry(decoder, name, name_len, value, value_len);
-        }
-    } else if ((*data & 0xE0) == 0x20) {
-        // 动态表大小更新（Dynamic Table Size Update）
-        uint32_t max_size;
-        if (hpack_decode_integer(&data, end, 5, &max_size) < 0) {
-            _cc_logger_error("Failed to decode dynamic table size update");
-            return -1;
-        }
-        hpack_set_dynamic_table_size(decoder, max_size);
-        *ptr = data;
-        return 0; // 无字段输出
-    } else {
-        _cc_logger_error("Invalid HPACK field prefix: 0x%02X", *data);
+        buffer[offset++] = (byte_t)((value & 0x7f) | 0x80);
+        value >>= 7;
+    }
+
+    if ((size_t)offset >= size) {
         return -1;
     }
 
-    // 存储解析后的字段
-    header->name = (byte_t *)malloc(name_len + 1);
-    header->value = (byte_t *)malloc(value_len + 1);
-    if (header->name == NULL || header->value == NULL) {
-        _cc_logger_error("Failed to allocate memory for header field");
-        free(header->name);
-        free(header->value);
+    buffer[offset++] = (byte_t)value;
+    return offset;
+}
+
+static int32_t _cc_hpack_encode_string(byte_t *buffer, size_t size, const byte_t *value, size_t length) {
+    int32_t bytes = _cc_hpack_encode_integer(buffer, size, (uint32_t)length, 7, 0x00);
+    if (bytes < 0 || (size_t)(bytes + length) > size) {
         return -1;
     }
-    memcpy(header->name, name, name_len);
-    memcpy(header->value, value, value_len);
-    header->name[name_len] = '\0';
-    header->value[value_len] = '\0';
 
-    *ptr = data;
+    if (length > 0) {
+        memcpy(buffer + bytes, value, length);
+    }
+
+    return bytes + (int32_t)length;
+}
+
+static int32_t _cc_hpack_encode_indexed(byte_t *buffer, size_t size, uint32_t index) {
+    return _cc_hpack_encode_integer(buffer, size, index, 7, 0x80);
+}
+
+static int32_t _cc_hpack_encode_literal_indexed_name(byte_t *buffer, size_t size, uint32_t name_index, const byte_t *value, size_t length) {
+    int32_t bytes = _cc_hpack_encode_integer(buffer, size, name_index, 4, 0x00);
+    int32_t total;
+
+    if (bytes < 0) {
+        return -1;
+    }
+
+    total = _cc_hpack_encode_string(buffer + bytes, size - (size_t)bytes, value, length);
+    if (total < 0) {
+        return -1;
+    }
+
+    return bytes + total;
+}
+
+static int32_t _cc_http2_send_frame(_cc_event_t *e, _cc_io_buffer_t *io, uint8_t type, uint8_t flags, uint32_t stream_id, const byte_t *payload, uint32_t length) {
+    byte_t header[_CC_HTTP2_FRAME_HEADER_SIZE_];
+
+    if (_cc_http2_frame_header(header, type, flags, stream_id, length) != _CC_HTTP2_FRAME_HEADER_SIZE_) {
+        return -1;
+    }
+
+    if (_cc_io_buffer_send(e, io, header, _CC_HTTP2_FRAME_HEADER_SIZE_) < 0) {
+        return -1;
+    }
+
+    if (length > 0 && _cc_io_buffer_send(e, io, payload, (int32_t)length) < 0) {
+        return -1;
+    }
+
     return 0;
 }
-*/
-static int32_t _cc_http2_send_ping(uint32_t stream_id, byte_t *buffer, size_t size, uint64_t opaque_data) {
-    // PING frame size (9 bytes header + 8 bytes payload)
-    if (size < 17) {
-        return 0;
-    }
-    // Construct PING frame header
-    buffer[0] = 0x00; // Length (24 bits, high byte)
-    buffer[1] = 0x00; // Length (middle byte)
-    buffer[2] = 0x08; // Length (low byte, 8 bytes payload)
-    buffer[3] = _CC_HTTP2_FRAME_TYPE_PING_; // Frame type (0x06)
-    buffer[4] = 0x01; // Flags (ACK bit set)
-    buffer[5] = (stream_id >> 24) & 0xFF; // Stream ID (high byte)
-    buffer[6] = (stream_id >> 16) & 0xFF; // Stream ID (middle byte)
-    buffer[7] = (stream_id >> 8) & 0xFF; // Stream ID (low byte)
-    buffer[8] = stream_id & 0xFF; // Stream ID (lowest byte)
-    
-    // Fill payload (8 bytes, can be any opaque data)
-    memcpy(buffer + 9, &opaque_data, sizeof(uint64_t));
 
-    // Total bytes sent (9 bytes header + 8 bytes payload)
-    return 17;
+static int32_t _cc_http2_send_settings(_cc_event_t *e, _cc_io_buffer_t *io, bool_t ack) {
+    if (ack) {
+        return _cc_http2_send_frame(e, io, _CC_HTTP2_FRAME_TYPE_SETTINGS_, _CC_HTTP2_FRAME_FLAG_ACK_, 0, NULL, 0);
+    } else {
+        byte_t payload[6];
+        payload[0] = 0x00;
+        payload[1] = _CC_HTTP2_SETTINGS_ENABLE_PUSH_;
+        payload[2] = 0x00;
+        payload[3] = 0x00;
+        payload[4] = 0x00;
+        payload[5] = 0x00;
+        return _cc_http2_send_frame(e, io, _CC_HTTP2_FRAME_TYPE_SETTINGS_, _CC_HTTP2_FRAME_FLAG_NO_, 0, payload, sizeof(payload));
+    }
+}
+
+static int32_t _cc_http2_send_ping(_cc_event_t *e, _cc_io_buffer_t *io, uint8_t flags, const byte_t *opaque_data) {
+    return _cc_http2_send_frame(e, io, _CC_HTTP2_FRAME_TYPE_PING_, flags, 0, opaque_data, 8);
+}
+
+static int32_t _authority(const _cc_url_t *url, char *buffer, size_t size) {
+    bool_t include_port = false;
+    int32_t length = (int32_t)_cc_sds_length(url->host);
+
+    if (url->scheme.ident == _CC_SCHEME_HTTPS_ && url->port != _CC_PORT_HTTPS_) {
+        include_port = true;
+    } else if (url->scheme.ident == _CC_SCHEME_HTTP_ && url->port != _CC_PORT_HTTP_) {
+        include_port = true;
+    }
+
+    if (include_port) {
+        return snprintf(buffer, size, "%.*s:%u", length, url->host, url->port);
+    }
+
+    memcpy(buffer, url->host, length);
+    buffer[length] = '\0';
+    return length;
+}
+
+static int32_t _build_path(const _cc_url_t *url, char *buffer, size_t size) {
+    if (url->query && _cc_sds_length(url->query) > 0) {
+        return snprintf(buffer, size, "%s?%s", url->path, url->query);
+    }
+
+    if (url->path && _cc_sds_length(url->path) > 0) {
+        return snprintf(buffer, size, "%s", url->path);
+    }
+
+    buffer[0] = '/';
+    buffer[1] = '\0';
+    return 1;
 }
 
 static void _cc_http2_close_connection(_cc_http2_client_t *client, uint32_t stream_id) {
-
+    _CC_UNUSED(client);
+    _CC_UNUSED(stream_id);
 }
-
 
 static bool_t url_request_header(_cc_http_request_t *request, _cc_event_t *e) {
     _cc_url_t *u = &request->url;
-    _cc_buf_t *buf = &request->buffer;
     _cc_io_buffer_t *io = request->io;
-
-    _cc_buf_cleanup(buf);
-
-    /* send client connection preface */
+    _cc_http2_client_t *client = _cc_http2_get_client();
+    byte_t header_block[1024];
     const char preface[] = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
-    char headers[256];
+    char authority[512];
+    char path[1024];
+    int32_t length;
+    int32_t offset;
 
-    size_t length = snprintf(headers, sizeof(headers),
-             ":method: GET\r\n"
-             ":path: %s\r\n"
-             ":scheme: https\r\n"
-             ":authority: libcc.com\r\n"
-             "user-agent: c-http2-client\r\n",  u->request);
+    if (client->request_sent) {
+        return true;
+    }
 
-    io->w.off = sizeof(preface) - 1;
-    memcpy(io->w.bytes, preface, io->w.off);
+    length = _authority(u, authority, sizeof(authority));
+    if (length <= 0 || (size_t)length >= sizeof(authority)) {
+        return false;
+    }
 
-    io->w.off += _cc_http2_frame_header(io->w.bytes + io->w.off, _CC_HTTP2_FRAME_TYPE_HEADERS_, _CC_HTTP2_FRAME_FLAG_END_HEADERS_, 1, length);
+    length = _build_path(u, path, sizeof(path));
+    if (length <= 0 || (size_t)length >= sizeof(path)) {
+        return false;
+    }
 
-    memcpy(io->w.bytes + io->w.off, headers, length);
-    io->w.off += length;
+    if (_cc_io_buffer_send(e, io, (const byte_t *)preface, (int32_t)(sizeof(preface) - 1)) < 0) {
+        return false;
+    }
 
+    if (_cc_http2_send_settings(e, io, false) < 0) {
+        return false;
+    }
+
+    offset = _cc_hpack_encode_indexed(header_block, sizeof(header_block), _CC_HTTP2_INDEXED_METHOD_GET_);
+    if (offset < 0) {
+        return false;
+    }
+
+    if (u->scheme.ident == _CC_SCHEME_HTTP_) {
+        length = _cc_hpack_encode_indexed(header_block + offset, sizeof(header_block) - (size_t)offset, _CC_HTTP2_INDEXED_SCHEME_HTTP_);
+    } else {
+        length = _cc_hpack_encode_indexed(header_block + offset, sizeof(header_block) - (size_t)offset, _CC_HTTP2_INDEXED_SCHEME_HTTPS_);
+    }
+    if (length < 0) {
+        return false;
+    }
+    offset += length;
+
+    if (path[0] == '/' && path[1] == '\0') {
+        length = _cc_hpack_encode_indexed(header_block + offset, sizeof(header_block) - (size_t)offset, _CC_HTTP2_INDEXED_PATH_);
+    } else {
+        length = _cc_hpack_encode_literal_indexed_name(header_block + offset, sizeof(header_block) - (size_t)offset, _CC_HTTP2_INDEXED_PATH_, (const byte_t *)path, strlen(path));
+    }
+    if (length < 0) {
+        return false;
+    }
+    offset += length;
+
+    length = _cc_hpack_encode_literal_indexed_name(header_block + offset, sizeof(header_block) - (size_t)offset, _CC_HTTP2_INDEXED_AUTHORITY_, (const byte_t *)authority, strlen(authority));
+    if (length < 0) {
+        return false;
+    }
+    offset += length;
+
+    length = _cc_hpack_encode_literal_indexed_name(header_block + offset, sizeof(header_block) - (size_t)offset, _CC_HTTP2_INDEXED_USER_AGENT_, (const byte_t *)"libcc-http2-client", sizeof("libcc-http2-client") - 1);
+    if (length < 0) {
+        return false;
+    }
+    offset += length;
+
+    if (_cc_http2_send_frame(e, io, _CC_HTTP2_FRAME_TYPE_HEADERS_, _CC_HTTP2_FRAME_FLAG_END_HEADERS_ | _CC_HTTP2_FRAME_FLAG_END_STREAM_, client->stream_id, header_block, (uint32_t)offset) < 0) {
+        return false;
+    }
+
+    client->request_sent = true;
     return _cc_io_buffer_flush(e, io) >= 0;
 }
 
@@ -245,29 +260,29 @@ static bool_t _handshaking(_cc_event_t *e, _cc_http_request_t *request) {
         _CC_SET_BIT(_CC_EVENT_READABLE_, e->flags);
         return url_request_header(request, e);
     }
-    //wait SSL handshake complete
     return true;
 }
 
 static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     _cc_http_request_t *request = (_cc_http_request_t *)e->data;
+    _cc_http2_client_t *client = _cc_http2_get_client();
+
+    _CC_UNUSED(async);
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, which)) {
-        //printf("disconnect\n");
-        _cc_logger_warin("_cc_http_request_ _CC_EVENT_CLOSED_ %d",e->ident);
+        _cc_logger_warin("_cc_http_request_ _CC_EVENT_CLOSED_ %d", e->ident);
         _cc_free_http_request(request);
         return false;
-    } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {
-        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
-            if (request->io && request->io->ssl && !request->io->ssl->is_handshaked) {
-                return _handshaking(e, request);
-            }
-        }
-        if (request->response && request->response->keep_alive) {
-            return url_request_header(request, e);
+    }
+
+    if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {
+        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->io && request->io->ssl && !request->io->ssl->is_handshaked) {
+            return _handshaking(e, request);
         }
         return false;
-    } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
+    }
+
+    if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
         _cc_logger_info("url_request connected,%s", request->url.host);
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
             return _handshaking(e, request);
@@ -277,96 +292,81 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, which)) {
-        //printf("send buffer\n");
-        return _cc_io_buffer_flush(e,request->io) >= 0;
+        return _cc_io_buffer_flush(e, request->io) >= 0;
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_READABLE_, which)) {
-        int32_t off = _cc_io_buffer_read(e, request->io);
-        if (off < 0) {
+        int32_t bytes = _cc_io_buffer_read(e, request->io);
+        int32_t offset = 0;
+
+        if (bytes < 0) {
             return false;
-        } else if (off == 0) {
+        }
+        if (bytes == 0) {
             return true;
         }
 
-        off = 0;
-        // 解析帧头
-        while (request->io->r.off >= _CC_HTTP2_FRAME_HEADER_SIZE_) {
-            int32_t r;
-            byte_t *buffer = request->io->r.bytes + off;
+        while ((request->io->r.off - offset) >= _CC_HTTP2_FRAME_HEADER_SIZE_) {
+            byte_t *frame = request->io->r.bytes + offset;
+            byte_t *payload;
             _cc_http2_frame_header_t header;
-            _cc_http2_client_t *client = (_cc_http2_client_t *)&http_clients[0];
+            int32_t frame_size;
 
-            header.length = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
-            header.type = buffer[3];
-            header.flags = buffer[4];
-            header.stream_id = (buffer[5] << 24) | (buffer[6] << 16) | (buffer[7] << 8) | buffer[8];
-            
-            printf("Received frame: type=0x%02x, length=%u, stream_id=%u\n",
-                   header.type, header.length, header.stream_id);
+            header.length = ((uint32_t)frame[0] << 16) | ((uint32_t)frame[1] << 8) | (uint32_t)frame[2];
+            header.type = frame[3];
+            header.flags = frame[4];
+            header.stream_id = ((uint32_t)(frame[5] & 0x7f) << 24) | ((uint32_t)frame[6] << 16) | ((uint32_t)frame[7] << 8) | (uint32_t)frame[8];
+            frame_size = _CC_HTTP2_FRAME_HEADER_SIZE_ + (int32_t)header.length;
+            if ((request->io->r.off - offset) < frame_size) {
+                break;
+            }
 
-            r = (_CC_HTTP2_FRAME_HEADER_SIZE_ + header.length);
-            buffer += _CC_HTTP2_FRAME_HEADER_SIZE_;
-            
+            payload = frame + _CC_HTTP2_FRAME_HEADER_SIZE_;
+
+            printf("Received frame: type=0x%02x, length=%u, stream_id=%u\n", header.type, header.length, header.stream_id);
+
             switch (header.type) {
             case _CC_HTTP2_FRAME_TYPE_DATA_:
                 if (header.length > 0) {
-                    printf("Response data: %.*s\n", header.length, buffer);
+                    printf("Response data: %.*s\n", (int)header.length, (char *)payload);
                 }
                 break;
             case _CC_HTTP2_FRAME_TYPE_HEADERS_:
-                if (header.length > 0) {
-                    // _cc_http2_headers_t headers;
-                    // if (!_cc_http2_parse_headers(buffer, header.length, &headers)) {
-                    //     _cc_logger_error("Failed to parse HEADERS frame");
-                    //     return false;
-                    // }
-                    //printf("Received HEADERS frame: stream_id=%u, field_count=%u\n", header.stream_id, headers.count);
-                    //_cc_http2_free_headers(&headers);
-                }
+                printf("Received HEADERS frame: stream_id=%u, flags=0x%02x\n", header.stream_id, header.flags);
                 break;
             case _CC_HTTP2_FRAME_TYPE_PRIORITY_:
-                if (header.length == 5) {
-                    uint32_t dependent_stream_id = (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
-                    uint8_t weight = buffer[4];
-                    printf("Received PRIORITY frame: stream_id=%u, dependent_stream_id=%u, weight=%u\n",
-                           header.stream_id, dependent_stream_id, weight);
-                    //_cc_http2_update_stream_priority(header.stream_id, dependent_stream_id, weight);
-                } else {
+                if (header.length != 5) {
                     _cc_logger_error("Invalid PRIORITY frame length: %u", header.length);
                     return false;
                 }
                 break;
             case _CC_HTTP2_FRAME_TYPE_RST_STREAM_:
-                if (header.length == 4) {
-                    uint32_t error_code = (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
-                    printf("Received RST_STREAM frame: stream_id=%u, error_code=%u\n", header.stream_id, error_code);
-                    //_cc_http2_close_stream(header.stream_id, error_code);
-                } else {
+                if (header.length != 4) {
                     _cc_logger_error("Invalid RST_STREAM frame length: %u", header.length);
                     return false;
                 }
+                printf("Received RST_STREAM frame: stream_id=%u\n", header.stream_id);
                 break;
             case _CC_HTTP2_FRAME_TYPE_SETTINGS_: {
                 int32_t i;
+                if ((header.flags & _CC_HTTP2_FRAME_FLAG_ACK_) != 0) {
+                    client->settings_acked = true;
+                    break;
+                }
                 if (header.length % 6 != 0) {
                     _cc_logger_error("Invalid SETTINGS frame length: %u", header.length);
                     return false;
                 }
-                for (i = 0; i < header.length; i += 6) {
-                    uint16_t settings_id = (uint16_t)(buffer[i] << 8) | (uint16_t)(buffer[i + 1]);
-                    uint32_t value = (uint32_t)(buffer[i + 2] << 24) | 
-                                     (uint32_t)(buffer[i + 3] << 16) | 
-                                     (uint32_t)(buffer[i + 4] << 8) | 
-                                     (uint32_t)(buffer[i + 5]);
+                for (i = 0; i < (int32_t)header.length; i += 6) {
+                    uint16_t settings_id = (uint16_t)(((uint16_t)payload[i] << 8) | (uint16_t)payload[i + 1]);
+                    uint32_t value = ((uint32_t)payload[i + 2] << 24) | ((uint32_t)payload[i + 3] << 16) | ((uint32_t)payload[i + 4] << 8) | (uint32_t)payload[i + 5];
                     printf("Received SETTINGS frame: id=%u, value=%u\n", settings_id, value);
-                    //_cc_http2_update_settings(settings_id, value);
                     switch (settings_id) {
                     case _CC_HTTP2_SETTINGS_HEADER_TABLE_SIZE_:
                         client->header_table_size = value;
                         break;
                     case _CC_HTTP2_SETTINGS_ENABLE_PUSH_:
-                        client->enable_push = value;
+                        client->enable_push = (uint8_t)value;
                         break;
                     case _CC_HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS_:
                         client->max_concurrent_streams = value;
@@ -377,66 +377,97 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
                     case _CC_HTTP2_SETTINGS_MAX_FRAME_SIZE_:
                         client->max_frame_size = value;
                         break;
+                    case _CC_HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE_:
+                        client->max_header_list_size = value;
+                        break;
                     default:
-                        printf("  Unknown setting id: %u\n", settings_id);
                         break;
                     }
                 }
-            }
+                if (_cc_http2_send_settings(e, request->io, true) < 0) {
+                    return false;
+                }
+                if (_cc_io_buffer_flush(e, request->io) < 0) {
+                    return false;
+                }
                 break;
+            }
             case _CC_HTTP2_FRAME_TYPE_PUSH_PROMISE_:
                 printf("Received PUSH_PROMISE frame: stream_id=%u\n", header.stream_id);
-                //_cc_http2_handle_push_promise(header.stream_id, buffer, header.length);
                 break;
-            case _CC_HTTP2_FRAME_TYPE_PING_: {
-                int32_t ping = _cc_http2_send_ping(header.stream_id, request->io->w.bytes, request->io->w.limit - request->io->w.off, 0x1122334455667788);
-                if (ping > 0) {
-                    request->io->w.off += ping;
-                    _cc_io_buffer_flush(e, request->io);
+            case _CC_HTTP2_FRAME_TYPE_PING_:
+                if ((header.flags & _CC_HTTP2_FRAME_FLAG_ACK_) == 0) {
+                    if (_cc_http2_send_ping(e, request->io, _CC_HTTP2_FRAME_FLAG_ACK_, payload) < 0) {
+                        return false;
+                    }
+                    if (_cc_io_buffer_flush(e, request->io) < 0) {
+                        return false;
+                    }
                 }
-                printf("Received PING frame: stream_id=%u\n", header.stream_id);
-            }
+                printf("Received PING frame\n");
                 break;
             case _CC_HTTP2_FRAME_TYPE_GOAWAY_: {
-                uint32_t last_stream_id = (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
-                uint32_t error_code = (buffer[4] << 24) | (buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
+                uint32_t last_stream_id;
+                uint32_t error_code;
+                if (header.length < 8) {
+                    _cc_logger_error("Invalid GOAWAY frame length: %u", header.length);
+                    return false;
+                }
+                last_stream_id = ((uint32_t)(payload[0] & 0x7f) << 24) | ((uint32_t)payload[1] << 16) | ((uint32_t)payload[2] << 8) | (uint32_t)payload[3];
+                error_code = ((uint32_t)payload[4] << 24) | ((uint32_t)payload[5] << 16) | ((uint32_t)payload[6] << 8) | (uint32_t)payload[7];
                 printf("Received GOAWAY frame: last_stream_id=%u, error_code=%u\n", last_stream_id, error_code);
                 _cc_http2_close_connection(client, last_stream_id);
-            }
-                break;
-            case _CC_HTTP2_FRAME_TYPE_WINDOW_UPDATE_: {
-                uint32_t window_size = (uint32_t)((buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
-                printf("Received WINDOW_UPDATE frame: stream_id=%u, increment=%u\n", header.stream_id, (uint32_t)window_size);
-                client->connection_window_size += window_size;
-            }
-                break;
-            case _CC_HTTP2_FRAME_TYPE_CONTINUATION_:
-                printf("Received CONTINUATION frame: stream_id=%u\n", header.stream_id);
-                //_cc_http2_merge_headers(header.stream_id, buffer, header.length);
-                break;
-            default:
-                printf("Unknown frame type: 0x%02x\n", header.type);
                 return false;
             }
-            request->io->r.off -= r;
-            off += r;
+            case _CC_HTTP2_FRAME_TYPE_WINDOW_UPDATE_: {
+                uint32_t window_size;
+                if (header.length != 4) {
+                    _cc_logger_error("Invalid WINDOW_UPDATE frame length: %u", header.length);
+                    return false;
+                }
+                window_size = ((uint32_t)(payload[0] & 0x7f) << 24) | ((uint32_t)payload[1] << 16) | ((uint32_t)payload[2] << 8) | (uint32_t)payload[3];
+                printf("Received WINDOW_UPDATE frame: stream_id=%u, increment=%u\n", header.stream_id, window_size);
+                if (header.stream_id == 0) {
+                    client->connection_window_size += window_size;
+                } else if (header.stream_id == client->stream_id) {
+                    client->stream_window_size += window_size;
+                }
+                break;
+            }
+            case _CC_HTTP2_FRAME_TYPE_CONTINUATION_:
+                printf("Received CONTINUATION frame: stream_id=%u\n", header.stream_id);
+                break;
+            default:
+                printf("Ignoring frame type: 0x%02x\n", header.type);
+                break;
+            }
+
+            offset += frame_size;
         }
 
-        if (request->io->r.off > 0 && off > 0) {
-            memmove(request->io->r.bytes, request->io->r.bytes + off, request->io->r.off);
+        if (offset > 0) {
+            request->io->r.off -= offset;
+            if (request->io->r.off > 0) {
+                memmove(request->io->r.bytes, request->io->r.bytes + offset, request->io->r.off);
+            }
         }
     }
     return true;
 }
 
 static bool_t url_request(const tchar_t *url, pvoid_t args) {
-    _cc_http_request_t *request = _cc_url_request(url, args);
+    _cc_http_request_t *request = _cc_http_request(url, args);
 
+    if (request == NULL) {
+        return false;
+    }
+
+    _cc_http2_init_client(_cc_http2_get_client());
     if (!url_request_connect(request)) {
         _cc_free_http_request(request);
         return false;
     }
-    memset(&http_clients, 0, sizeof(http_clients));
+
     return true;
 }
 
@@ -502,7 +533,7 @@ int main(int argc, char *const argv[]) {
 
     _cc_alloc_async_event(0, NULL);
 
-    url_request("https://ws.libcc.cn", NULL);
+    url_request("https://www.iconfont.cn/", NULL);
 
     while (getchar() != 'q') {
         _cc_sleep(100);

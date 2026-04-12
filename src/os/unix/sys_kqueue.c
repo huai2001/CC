@@ -64,6 +64,9 @@ _CC_API_PRIVATE(bool_t) _emit_kevent(_cc_async_event_priv_t *priv, _cc_event_t *
 /**/
 _CC_API_PRIVATE(bool_t) _kqueue_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_assert(async != NULL && e != NULL);
+    if (async->ident != _event_async_ident(e->ident)) {
+        return false;
+    }
     return _reset_event(async, e);
 }
 

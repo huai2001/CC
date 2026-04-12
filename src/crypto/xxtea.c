@@ -6,6 +6,19 @@
 
 #define _DELTA_ 0x9e3779b9
 
+_CC_API_PRIVATE(void)
+xxtea_to_key_array(const uint8_t *key, uint32_t out[4]) {
+#if defined(_CC_BYTEORDER_) && (BYTE_ORDER == _CC_LIL_ENDIAN_)
+    memcpy(out, key, 16);
+#else
+    size_t i;
+    memset(out, 0, sizeof(uint32_t) * 4);
+    for (i = 0; i < 16; ++i) {
+        out[i >> 2] |= (uint32_t)key[i] << ((i & 3) << 3);
+    }
+#endif
+}
+
 _CC_API_PRIVATE(uint32_t *)
 xxtea_to_uint_array(const uint8_t *data, size_t len, int input_length, size_t *output_length) {
     uint32_t *out;
@@ -55,6 +68,9 @@ xxtea_to_bytes_array(const uint32_t *data, size_t len, int input_length, size_t 
     }
 
     out = (uint8_t *)_cc_malloc(n + 1);
+    if (!out) {
+        return NULL;
+    }
 
 #if defined(_CC_BYTEORDER_) && (_CC_BYTEORDER_ == _CC_LIL_ENDIAN_)
     memcpy(out, data, n);
@@ -126,8 +142,9 @@ _CC_API_PRIVATE(uint32_t *) xxtea_uint_decrypt(uint32_t *data, size_t len, uint3
 _CC_API_PRIVATE(uint8_t *)
 xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t *output_length) {
     uint8_t *out;
-    uint32_t *data_array, *key_array;
-    size_t data_len, key_len;
+    uint32_t *data_array;
+    uint32_t key_array[4];
+    size_t data_len;
 
     if (!len) {
         return NULL;
@@ -135,19 +152,14 @@ xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t 
 
     data_array = xxtea_to_uint_array(data, len, 1, &data_len);
     if (!data_array) {
-        return (uint8_t *)data;
-    }
-
-    key_array = xxtea_to_uint_array(key, 16, 0, &key_len);
-    if (!key_array) {
-        _cc_free(data_array);
         return NULL;
     }
+
+    xxtea_to_key_array(key, key_array);
 
     out = xxtea_to_bytes_array(xxtea_uint_encrypt(data_array, data_len, key_array), data_len, 0, output_length);
 
     _cc_free(data_array);
-    _cc_free(key_array);
 
     return out;
 }
@@ -155,8 +167,9 @@ xxtea_bytes_encrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t 
 _CC_API_PRIVATE(uint8_t *)
 xxtea_bytes_decrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t *output_length) {
     uint8_t *out;
-    uint32_t *data_array, *key_array;
-    size_t data_len, key_len;
+    uint32_t *data_array;
+    uint32_t key_array[4];
+    size_t data_len;
 
     if (!len) {
         return NULL;
@@ -164,19 +177,14 @@ xxtea_bytes_decrypt(const uint8_t *data, size_t len, const uint8_t *key, size_t 
 
     data_array = xxtea_to_uint_array(data, len, 0, &data_len);
     if (!data_array) {
-        return (uint8_t *)data;
-    }
-
-    key_array = xxtea_to_uint_array(key, 16, 0, &key_len);
-    if (!key_array) {
-        _cc_free(data_array);
         return NULL;
     }
+
+    xxtea_to_key_array(key, key_array);
 
     out = xxtea_to_bytes_array(xxtea_uint_decrypt(data_array, data_len, key_array), data_len, 1, output_length);
 
     _cc_free(data_array);
-    _cc_free(key_array);
 
     return out;
 }

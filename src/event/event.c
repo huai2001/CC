@@ -7,7 +7,10 @@
 #include <sys/resource.h>
 #endif
 
-#define _CC_MAX_STEP_           64
+/* Event pool initialization and expansion step. */
+#ifndef _CC_EVENT_SLOT_STEP_
+#define _CC_EVENT_SLOT_STEP_        64
+#endif
 
 static struct {
     _cc_atomic32_t async_limit;
@@ -50,7 +53,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
         /* try to become the thread that expands slots */
         if (_cc_atomic32_cas(&g_mgr.slot_refcount, 0, 1)) {
             int32_t i,j;
-            int32_t expand_length = g_mgr.slot_length + _CC_MAX_STEP_;
+            int32_t expand_length = g_mgr.slot_length + _CC_EVENT_SLOT_STEP_;
             _cc_event_t *data;
 
             if (g_mgr.slot_limit <= g_mgr.slot_length) {
@@ -68,9 +71,9 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
 
             /* allocate/expand slots */
             g_mgr.slots = (_cc_event_t **)_cc_realloc(g_mgr.slots, sizeof(_cc_event_t*) * expand_length);
-            data = (_cc_event_t *)_cc_calloc(sizeof(_cc_event_t), _CC_MAX_STEP_);
+            data = (_cc_event_t *)_cc_calloc(sizeof(_cc_event_t), _CC_EVENT_SLOT_STEP_);
 
-            for (i = g_mgr.slot_length, j = 0; j < _CC_MAX_STEP_; ++i,++j) {
+            for (i = g_mgr.slot_length, j = 0; j < _CC_EVENT_SLOT_STEP_; ++i,++j) {
                 _cc_event_t *event = data + j;
                 g_mgr.slots[i] = event;
                 event->ident = i;
@@ -105,8 +108,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
             _cc_sleep(0);
         }
     }
-
-    e->ident = (uint32_t)(baseid << 20) | (e->ident & 0x0FFFFF);
+    e->ident = _event_activate_ident(e->ident, baseid);
     return e;
 }
 
@@ -148,32 +150,27 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
 }
 
 /**/
-_CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint32_t ident) {
-    int32_t index = (int32_t)(ident & 0x0FFFFF);
+_CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint64_t ident) {
+    _cc_event_t *e;
+    int32_t index = (int32_t)_event_slot_ident(ident);
     if (g_mgr.slot_length <= index) {
         return NULL;
     }
-#ifdef _CC_DEBUG_
-    {
-        _cc_event_t *e = g_mgr.slots[index];
-        _cc_assert(e != NULL);
-        if (e->ident != ident) {
-            _cc_logger_error("event id:%d is deleted", ident);
-            return NULL;
-        }
-        return e;
+
+    e = g_mgr.slots[index];
+    _cc_assert(e != NULL);
+    if (e->ident != ident) {
+        _cc_logger_error("event id:%llu is deleted", (unsigned long long)ident);
+        return NULL;
     }
-#else
-    return g_mgr.slots[index];
-#endif
-    
+    return e;
 }
 
 /**/
-_CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event_by_id(uint32_t ident) {
-    int16_t i = (ident >> 20) & 0x0FFF;
+_CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event_by_id(uint64_t ident) {
+    int16_t i = _event_async_ident(ident);
     if (g_mgr.async_limit <= i) {
-        _cc_logger_error("async_event id:%d is unregistered!", ident);
+        _cc_logger_error("async_event id:%llu is unregistered!", (unsigned long long)ident);
         return NULL;
     }
     return (_cc_async_event_t *)g_mgr.async[i];
@@ -213,7 +210,7 @@ _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = e->fd;
 
-    e->ident = (e->ident & 0xFFFFF);
+    e->ident = _event_retire_ident(e->ident);
     e->fd = _CC_INVALID_SOCKET_;
     e->flags = _CC_EVENT_UNKNOWN_;
     e->filter = _CC_EVENT_UNKNOWN_;
@@ -248,10 +245,10 @@ bool_t _register_async_event(_cc_async_event_t *async) {
         _cc_event_t *data;
         _cc_queue_cleanup(&g_mgr.idles);
         /*If the allocation fails, it directly aborts, so there is no need to check whether the application is successful, which is meaningless.*/
-        g_mgr.slots = (_cc_event_t **)_cc_calloc(sizeof(_cc_event_t*), _CC_MAX_STEP_);
-        data = (_cc_event_t *)_cc_calloc(sizeof(_cc_event_t), _CC_MAX_STEP_);
+        g_mgr.slots = (_cc_event_t **)_cc_calloc(sizeof(_cc_event_t*), _CC_EVENT_SLOT_STEP_);
+        data = (_cc_event_t *)_cc_calloc(sizeof(_cc_event_t), _CC_EVENT_SLOT_STEP_);
 
-        for (i = 0; i < _CC_MAX_STEP_; i++) {
+        for (i = 0; i < _CC_EVENT_SLOT_STEP_; i++) {
             _cc_event_t *e = (data + i);
             g_mgr.slots[i] = e;
             e->ident = i;
@@ -259,7 +256,7 @@ bool_t _register_async_event(_cc_async_event_t *async) {
         }
         
         g_mgr.slot_limit = _get_max_limit();
-        g_mgr.slot_length = _CC_MAX_STEP_;
+        g_mgr.slot_length = _CC_EVENT_SLOT_STEP_;
         g_mgr.slot_refcount = 0;
         g_mgr.async_limit = 0;
         g_mgr.async = _cc_calloc(0xFFF, sizeof(_cc_async_event_t*));
@@ -299,6 +296,7 @@ bool_t _register_async_event(_cc_async_event_t *async) {
 
     async->changes = _cc_alloc_array(_CC_MAX_CHANGE_EVENTS_);
     async->processed = 0;
+    async->actives = 0;
     async->running = 0;
     async->timer = 0;
     async->diff = 0;
@@ -377,7 +375,7 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
 
     if (_cc_atomic32_dec_ref(&g_mgr.refcount)) {;
         //
-        for (i = 0; i < g_mgr.slot_length; i += _CC_MAX_STEP_) {
+        for (i = 0; i < g_mgr.slot_length; i += _CC_EVENT_SLOT_STEP_) {
             _cc_free(g_mgr.slots[i]);
         }
 
@@ -403,7 +401,7 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
 
 /**/
 bool_t _valid_event(_cc_async_event_t *async, _cc_event_t *e) {
-    return (((e->ident >> 20) & 0xFFF) == async->ident);
+    return (_event_async_ident(e->ident) == async->ident);
 }
 
 _CC_API_PUBLIC(void) _cc_event_set_slot_wait(uint32_t ms) {
@@ -463,7 +461,6 @@ bool_t _reset_event(_cc_async_event_t *async, _cc_event_t *e) {
     if (async->running == 0) {
         return false;
     }
-
     _event_lock(async);
     _cc_array_push(&async->changes, (uintptr_t)e);
     _event_unlock(async);

@@ -33,13 +33,13 @@ _CC_API_PRIVATE(void) _event_cleanup(_cc_async_event_t *async, _cc_event_t *e) {
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _iocp_event_accept_event(_io_context_t *io_context) {
+_CC_API_PRIVATE(bool_t) _iocp_event_accept_event(_cc_event_t *e, _io_context_t *io_context) {
     int result;
 
     io_context->flag = _CC_EVENT_ACCEPT_;
-    result = _WSA_socket_accept(io_context);
+    result = _WSA_socket_accept(e, io_context);
     if (NO_ERROR != result) {
-        _CC_UNSET_BIT(_CC_EVENT_ACCEPT_, io_context->e->filter);
+        _CC_UNSET_BIT(_CC_EVENT_ACCEPT_, e->filter);
         _cc_logger_warin("_WSA_socket_accept:%d, %s", result, _cc_last_error(result));
         return false;
     }
@@ -48,13 +48,13 @@ _CC_API_PRIVATE(bool_t) _iocp_event_accept_event(_io_context_t *io_context) {
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _iocp_event_write_event(_io_context_t *io_context) {
+_CC_API_PRIVATE(bool_t) _iocp_event_write_event(_cc_event_t *e, _io_context_t *io_context) {
     int result;
 
     io_context->flag = _CC_EVENT_WRITABLE_;
-    result = _WSA_socket_send(io_context);
+    result = _WSA_socket_send(e, io_context);
     if (result != NO_ERROR) {
-        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, io_context->e->filter);
+        _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->filter);
         _cc_logger_error("WSASend fail:%d, %s", result, _cc_last_error(result));
         return false;
     }
@@ -63,13 +63,13 @@ _CC_API_PRIVATE(bool_t) _iocp_event_write_event(_io_context_t *io_context) {
 }
 
 /**/
-_CC_API_PRIVATE(bool_t) _iocp_event_receive_event(_io_context_t *io_context) {
+_CC_API_PRIVATE(bool_t) _iocp_event_receive_event(_cc_event_t *e, _io_context_t *io_context) {
     int result;
 
     io_context->flag = _CC_EVENT_READABLE_;
-    result = _WSA_socket_receive(io_context);
+    result = _WSA_socket_receive(e, io_context);
     if (result != NO_ERROR) {
-        _CC_UNSET_BIT(_CC_EVENT_READABLE_, io_context->e->filter);
+        _CC_UNSET_BIT(_CC_EVENT_READABLE_, e->filter);
         _cc_logger_error("_WSAReceive fail:%d, %s", result, _cc_last_error(result));
         return false;
     }
@@ -102,7 +102,7 @@ _CC_API_PRIVATE(bool_t) _emit_iocp_event(_cc_async_event_t *async, _cc_event_t *
         io_context = _io_context_alloc(async->priv, e);
         io_context->fd = fd;
 
-        if (_iocp_event_accept_event(io_context)) {
+        if (_iocp_event_accept_event(e, io_context)) {
             return true;
         }
 
@@ -114,7 +114,7 @@ _CC_API_PRIVATE(bool_t) _emit_iocp_event(_cc_async_event_t *async, _cc_event_t *
     if (_CC_ISSET_BIT(_CC_EVENT_WRITABLE_, addevents)) {
         io_context = _io_context_alloc(async->priv, e);
 
-        if (!_iocp_event_write_event(io_context)) {
+        if (!_iocp_event_write_event(e, io_context)) {
             _io_context_free(async->priv, io_context);
             return false;
         }
@@ -123,7 +123,7 @@ _CC_API_PRIVATE(bool_t) _emit_iocp_event(_cc_async_event_t *async, _cc_event_t *
     if (_CC_ISSET_BIT(_CC_EVENT_READABLE_, addevents)) {
         io_context = _io_context_alloc(async->priv, e);
 
-        if (!_iocp_event_receive_event(io_context)) {
+        if (!_iocp_event_receive_event(e, io_context)) {
             _io_context_free(async->priv, io_context);
             return false;
         }
@@ -149,6 +149,10 @@ _CC_API_PRIVATE(bool_t) _iocp_event_attach(_cc_async_event_t *async, _cc_event_t
     _cc_assert(async != NULL && e != NULL);
 
     if (async->running == 0) {
+        return false;
+    }
+    
+    if (async->ident != _event_async_ident(e->ident)) {
         return false;
     }
 
@@ -196,7 +200,7 @@ _CC_API_PRIVATE(bool_t) _iocp_bind(_cc_async_event_t *async, const _cc_event_t *
 /**/
 _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_async_event_t *async, _cc_event_t *e, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
     _io_context_t *io_context = NULL;
-
+    DWORD dwBytesSent = 0;
     LPFN_CONNECTEX connect_fn = get_connectex_func_ptr(e->fd);
     if (_cc_unlikely(connect_fn == NULL)) {
         return false;
@@ -212,8 +216,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_connect(_cc_async_event_t *async, _cc_event_
 
     io_context = _io_context_alloc(async->priv, e);
     io_context->flag = _CC_EVENT_CONNECT_;
-
-    if (!connect_fn(e->fd, (struct sockaddr *)sa, sa_len, NULL, 0, NULL, &io_context->overlapped)) {
+    if (!connect_fn(e->fd, (struct sockaddr *)sa, sa_len, NULL, 0, &dwBytesSent, &io_context->overlapped)) {
         int err = _cc_last_errno();
         if (err != WSA_IO_PENDING) {
             _io_context_free(async->priv, io_context);
@@ -280,8 +283,7 @@ _CC_API_PRIVATE(_cc_socket_t) _iocp_event_accept(_cc_async_event_t *async, _cc_e
 }
 
 /**/
-_CC_API_PRIVATE(void) _iocp_handle_entry(_cc_async_event_t *async, _io_context_t *io_context) {
-    _cc_event_t *e = io_context->e;
+_CC_API_PRIVATE(void) _iocp_handle_entry(_cc_async_event_t *async, _cc_event_t *e, _io_context_t *io_context) {
     uint32_t which = _CC_EVENT_IS_SOCKET(io_context->flag);
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, e->flags)) {
@@ -335,30 +337,10 @@ _CC_API_PRIVATE(void) _reset(_cc_async_event_t *async, _cc_event_t *e) {
     _reset_event_timeout(async, e);
 }
 
-_io_context_t* _iocp_upcast(_cc_async_event_t *async, LPOVERLAPPED overlapped) {
-    _io_context_t *io_context;
-    if (overlapped == NULL) {
-        return NULL;
-    }
-
-    /**/
-    io_context = _cc_upcast(overlapped, _io_context_t, overlapped);
-
-    /**/
-    if (io_context->e != NULL && io_context->e->ident == io_context->ident) {
-        return io_context;
-    }
-
-    _io_context_free(async->priv, io_context);
-    return NULL;
-}
-
-/**/
 _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t timeout) {
     ULONG_PTR key = 0;
     LPOVERLAPPED overlapped = NULL;
     DWORD number_of_bytes;
-    _io_context_t *io_context = NULL;
 #if (_WIN32_WINNT >= 0x0600)
     OVERLAPPED_ENTRY entries[_CC_IOCP_EVENTS_] = {0};
     ULONG number_of_entries = 0, i;
@@ -389,13 +371,19 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
                 return (bool_t)result;
             }
             /**/
-            io_context = _iocp_upcast(async, overlapped);
-            if (io_context) {
+            if (overlapped) {
+                _io_context_t *io_context = _cc_upcast(overlapped, _io_context_t, overlapped);
+                /* Resolve the live event once per completion and reuse it downstream. */
+                _cc_event_t *e = _cc_get_event_by_id(io_context->ident);
+                if (e == NULL) {
+                    _io_context_free(async->priv, io_context);
+                    continue;
+                }
                 io_context->number_of_bytes = number_of_bytes;
                 if (key == _CC_IOCP_PENDING_) {
-                    _reset(async, io_context->e);
+                    _reset(async, e);
                 } else {
-                    _iocp_handle_entry(async, io_context);
+                    _iocp_handle_entry(async, e, io_context);
                 }
                 _io_context_free(async->priv, io_context);
             }
@@ -409,17 +397,23 @@ _CC_API_PRIVATE(bool_t) _iocp_event_wait(_cc_async_event_t *async, uint32_t time
         if (key == _CC_IOCP_EXIT_) {
             return (bool_t)result;
         }
-        io_context = _iocp_upcast(async, overlapped);
-        if (io_context) {
+        if (overlapped) {
+            _io_context_t *io_context = _cc_upcast(overlapped, _io_context_t, overlapped);
+            _cc_event_t *e = _cc_get_event_by_id(io_context->ident);
+            if (e == NULL) {
+                _io_context_free(async->priv, io_context);
+                goto done;
+            }
             io_context->number_of_bytes = number_of_bytes;
             if (key == _CC_IOCP_PENDING_) {
-                _reset(async, io_context->e);
+                _reset(async, e);
             } else {
-                _iocp_handle_entry(async, io_context);
+                _iocp_handle_entry(async, e, io_context);
             }
             _io_context_free(async->priv, io_context);
         }
     }
+done:
 #endif
 
     if (!result) {

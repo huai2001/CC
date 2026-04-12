@@ -104,13 +104,22 @@ struct _cc_event {
     /* The system has delivered the event flag */
     uint32_t filter;
 
-    //0xFFF(async index)FFFFF(self index)
-    /* read-only */
-    uint32_t ident;
     _cc_socket_t fd;
+#ifdef _CC_EVENT_USE_IOCP_
+    /* accepted socket file descriptor */
+    _cc_socket_t accept_fd;
+#endif
 
-    /* Linked list node */
-    _cc_list_t lnk;
+    /* The timer wheel */
+    uint32_t timeout;
+    uint32_t expire;
+
+    /*
+     * 64-bit local handle.
+     * High 32 bits: generation/version.
+     * Low 32 bits : 0xFFF(async index)FFFFF(self index).
+     */
+    uint64_t ident;
 
     /* A callback function for an event. */
     _cc_event_callback_t callback;
@@ -118,14 +127,8 @@ struct _cc_event {
     /* A user-supplied argument. */
     uintptr_t data;
 
-    /* The timer wheel */
-    uint32_t timeout;
-    uint32_t expire;
-
-#ifdef _CC_EVENT_USE_IOCP_
-    /* accepted socket file descriptor */
-    _cc_socket_t accept_fd;
-#endif
+    /* Linked list node */
+    _cc_list_t lnk;
 };
 
 /*
@@ -143,18 +146,19 @@ struct _cc_async_event {
     uint16_t ident;
     /*Number of events processed*/
     int32_t processed;
+    int32_t actives;
 
     /*timers wheel*/
     uint32_t timer;
     uint32_t diff;
     uint64_t tick;
     /*
-    â”‚  Timer Wheel
-    â”‚  â”œâ”€ nears[256]        // 0-256ms (2^8) 
-    â”‚  â”œâ”€ level[0][64]      // 256-16s (2^14)
-    â”‚  â”œâ”€ level[1][64]      // 16s-17min (2^20)
-    â”‚  â”œâ”€ level[2][64]      // 17min-18h (2^26) 
-    â”‚  â””â”€ level[3][64]      // 18h-47d (2^32)
+    ©¦  Timer Wheel
+    ©¦  ©À©¤ nears[256]        // 0-256ms (2^8) 
+    ©¦  ©À©¤ level[0][64]      // 256-16s (2^14)
+    ©¦  ©À©¤ level[1][64]      // 16s-17min (2^20)
+    ©¦  ©À©¤ level[2][64]      // 17min-18h (2^26) 
+    ©¦  ©¸©¤ level[3][64]      // 18h-47d (2^32)
     */
     _cc_list_t nears[_CC_TIMEOUT_NEAR_];
     _cc_list_t level[_CC_TIMEOUT_MAX_LEVEL_][_CC_TIMEOUT_LEVEL_];
@@ -212,16 +216,16 @@ _CC_API_PUBLIC(void) _cc_free_event(_cc_async_event_t *async, _cc_event_t *e);
 _CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event(void);
 
 /**
- * Lookup an event by its composite identifier (`ident`). Returns NULL if
+ * Lookup an event by its composite 64-bit identifier (`ident`). Returns NULL if
  * the id is invalid or the slot has been recycled.
  */
-_CC_API_PUBLIC(_cc_event_t *) _cc_get_event_by_id(uint32_t ident);
+_CC_API_PUBLIC(_cc_event_t *) _cc_get_event_by_id(uint64_t ident);
 
 /**
  * Return the async event instance associated with `ident` (high bits).
  * Returns NULL if the async id is out of range or unregistered.
  */
-_CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event_by_id(uint32_t ident);
+_CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event_by_id(uint64_t ident);
 
 /* }}} */
 
