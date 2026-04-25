@@ -53,21 +53,20 @@ _CC_API_PUBLIC(void) _cc_once(_cc_once_t* guard, _cc_once_callback_t callback) {
     InitOnceExecuteOnce(&guard->init_once, _os_once_inner, (void*)&data, NULL);
 }
 
-static DWORD RunThread(LPVOID args) {
+static DWORD WINAPI MINGW32_FORCEALIGN RunThreadViaCreateThread(LPVOID args) {
     _cc_thread_running_function(args);
-
     if (pfnEndThread) {
         pfnEndThread(0);
     }
     return 0;
 }
 
-static DWORD WINAPI MINGW32_FORCEALIGN RunThreadViaCreateThread(LPVOID args) {
-   return RunThread(args);
-}
-
 static unsigned __stdcall MINGW32_FORCEALIGN RunThreadViaBeginThreadEx(LPVOID args) {
-    return (unsigned)RunThread(args);
+    _cc_thread_running_function(args);
+    if (pfnEndThread) {
+        pfnEndThread(0);
+    }
+    return 0;
 }
 
 #ifndef STACK_SIZE_PARAM_IS_A_RESERVATION
@@ -84,7 +83,6 @@ bool_t _cc_create_sys_thread(_cc_thread_t* self) {
         self->handle = CreateThread(NULL, self->stack_size, RunThreadViaCreateThread, self, flags, &thread_id);
         pfnEndThread = NULL;
     }
-    
     if (self->handle == NULL) {
         _cc_logger(_CC_LOG_LEVEL_ERROR_, "Not enough resources to create thread");
         return false;

@@ -49,10 +49,12 @@ void _cc_thread_running_function(void *args) {
         }
     }
 }
+
 /**/
 _CC_API_PUBLIC(_cc_thread_t*) _cc_thread(_cc_thread_callback_t callback, const tchar_t *name, pvoid_t args) {
     return _cc_thread_with_stacksize(callback, name, 0, args);
 }
+
 /**/
 _CC_API_PUBLIC(_cc_thread_t*) _cc_thread_with_stacksize(_cc_thread_callback_t callback, const tchar_t *name, size_t stacksize, pvoid_t args) {
     _cc_thread_t *self;
