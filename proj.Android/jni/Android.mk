@@ -82,11 +82,11 @@ LOCAL_SRC_FILES := \
     ../../src/misc/misc.c \
     ../../src/misc/WS.c \
     ../../src/misc/gzip.c \
-    ../../src/http/http-v1.x/header.c \
-    ../../src/http/http-v1.x/request.parser.c \
-    ../../src/http/http-v1.x/response.parser.c \
-    ../../src/http/http-v1.x/request.c \
-    ../../src/http/http-v1.x/request.response.c \
+    ../../src/http/v1/header.c \
+    ../../src/http/v1/request.parser.c \
+    ../../src/http/v1/response.parser.c \
+    ../../src/http/v1/request.c \
+    ../../src/http/v1/request.response.c \
     ../../src/smtp/libsmtp.c \
     ../../src/smtp/connected.c \
     ../../src/smtp/login.c \

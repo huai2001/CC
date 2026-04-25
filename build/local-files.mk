@@ -219,12 +219,12 @@ endif # --end USE_LIB_MYSQL--
 ifdef USE_LIB_URL_REQUEST
 	LOCAL_SRC_FILES += \
 		$(SRCROOT)/src/misc/gzip.c \
-		$(SRCROOT)/src/http/http-v2.x/http2.c \
-		$(SRCROOT)/src/http/http-v1.x/header.c \
-		$(SRCROOT)/src/http/http-v1.x/request.parser.c \
-		$(SRCROOT)/src/http/http-v1.x/response.parser.c \
-		$(SRCROOT)/src/http/http-v1.x/request.c \
-		$(SRCROOT)/src/http/http-v1.x/request.response.c
+		$(SRCROOT)/src/http/v2/http2.c \
+		$(SRCROOT)/src/http/v1/header.c \
+		$(SRCROOT)/src/http/v1/request.parser.c \
+		$(SRCROOT)/src/http/v1/response.parser.c \
+		$(SRCROOT)/src/http/v1/request.c \
+		$(SRCROOT)/src/http/v1/request.response.c
 endif # --end USE_LIB_URL_REQUEST --
 
 ifdef USE_LIB_SMTP
