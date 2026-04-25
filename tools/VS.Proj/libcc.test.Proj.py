@@ -12,8 +12,8 @@ if __name__ == "__main__":
 	vcxproj.OutDir = "..\\bin"
 	vcxproj.Subsystem = "Console"
 
-	vcxproj.addIncludePath(["C:\\0216\\third-party","C:\\0216\\libcc\\include"])
-	vcxproj.addLibraryPath(["C:\\0216\\third-party\\lib\\$(Platform)","C:\\0216\\libcc\\lib\\$(Platform)\\$(Configuration)"])
+	vcxproj.addIncludePath(["C:\\third-party","C:\\libcc\\include"])
+	vcxproj.addLibraryPath(["C:\\third-party\\lib\\$(Platform)","C:\\libcc\\lib\\$(Platform)\\$(Configuration)"])
 	vcxproj.addSource(Sources)
 	vcxproj.addHeader(Headers)
 
