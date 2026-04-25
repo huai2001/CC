@@ -247,7 +247,3 @@ class VCXProj:
 		print(f"创建成功，查看:{filePath}")
 
 		self.Filters()
-
-
-
-
