@@ -1,5 +1,8 @@
 #include <libcc/crypto/base64.h>
+#include <libcc/crypto/md5.h>
+#include <libcc/crypto/sha.h>
 #include <libcc/alloc.h>
+#include <libcc/buf.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>

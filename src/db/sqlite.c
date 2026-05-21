@@ -244,6 +244,7 @@ _CC_API_PRIVATE(const tchar_t*) code_as_string(const int32_t err_code) {
 _CC_API_PRIVATE(_cc_sql_t*) _sqlite_connect(const tchar_t *sql_connection_string) {
     sqlite3 *sql = NULL;
     _cc_sql_t *ctx = NULL;
+    bool_t use_WAL = false;
     _cc_url_t params;
 
     if (!_cc_parse_url(&params, sql_connection_string)) {
@@ -256,20 +257,30 @@ _CC_API_PRIVATE(_cc_sql_t*) _sqlite_connect(const tchar_t *sql_connection_string
         return NULL;
     }
 
+    if (params.query) {
+        const tchar_t *r;
+        r = _tcsstr(params.query, _T("WAL="));
+        if (r && _tcsnicmp(r + 5, _T("true"), 4) == 0) {
+            use_WAL = true;
+        }
+    }
+
     _cc_free_url(&params);
     ctx = (_cc_sql_t *)_cc_malloc(sizeof(_cc_sql_t));
     ctx->sql = sql;
     ctx->transaction = false;
 
-   sqlite3_exec(ctx->sql, "PRAGMA synchronous = OFF", 0, 0, 0);
-   sqlite3_exec(ctx->sql, "PRAGMA cache_size = 8000", 0, 0, 0);
-   sqlite3_exec(ctx->sql, "PRAGMA count_changes = 1", 0, 0, 0);
-   sqlite3_exec(ctx->sql, "PRAGMA case_sensitive_like = 1", 0, 0, 0);
+    sqlite3_exec(ctx->sql, "PRAGMA synchronous = OFF", 0, 0, 0);
+    sqlite3_exec(ctx->sql, "PRAGMA cache_size = 8000", 0, 0, 0);
+    sqlite3_exec(ctx->sql, "PRAGMA count_changes = 1", 0, 0, 0);
+    sqlite3_exec(ctx->sql, "PRAGMA case_sensitive_like = 1", 0, 0, 0);
 
-   sqlite3_exec(ctx->sql, "PRAGMA secure_delete = ON", 0, 0, 0);
-   sqlite3_exec(ctx->sql, "PRAGMA temp_store = MEMORY", 0, 0, 0);
-   //sqlite3_exec(ctx->sql, "PRAGMA journal_mode = WAL", 0, 0, 0);
-   sqlite3_exec(ctx->sql, "PRAGMA journal_size_limit = 10485760", 0, 0, 0);
+    sqlite3_exec(ctx->sql, "PRAGMA secure_delete = ON", 0, 0, 0);
+    sqlite3_exec(ctx->sql, "PRAGMA temp_store = MEMORY", 0, 0, 0);
+    if (use_WAL) {
+        sqlite3_exec(ctx->sql, "PRAGMA journal_mode = WAL", 0, 0, 0);
+        sqlite3_exec(ctx->sql, "PRAGMA journal_size_limit = 10485760", 0, 0, 0);
+    }
 
     return ctx;
 }
@@ -281,10 +292,10 @@ _CC_API_PRIVATE(bool_t) _sqlite_disconnect(_cc_sql_t *ctx) {
         int res = _sqlite3_close(ctx->sql);
         if (res != SQLITE_OK) {
             _cc_logger_error("_sqlite3_close: %s", _sqlite3_errmsg(ctx->sql));
-            return false;
         }
-        _cc_free(ctx);
     }
+    
+    _cc_free(ctx);
     return true;
 }
 
@@ -314,7 +325,6 @@ _CC_API_PRIVATE(bool_t) _sqlite_execute(_cc_sql_t *ctx, const tchar_t *sql, size
     int res = SQLITE_OK;
     sqlite3_stmt *stmt = NULL;
     const tchar_t *tail;
-
 
     _cc_assert(ctx != NULL && ctx->sql != NULL);
 
@@ -475,7 +485,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_free_result(_cc_sql_result_t *result) {
     _cc_assert(result != NULL);
     res = _sqlite3_finalize(result->stmt);
     _cc_free(result);
-    return res != SQLITE_OK;
+    return res == SQLITE_OK;
 }
 
 /**/
@@ -531,7 +541,7 @@ _CC_API_PRIVATE(bool_t) _sqlite_bind(_cc_sql_result_t *result, int32_t index, co
             break;
         }
         case _CC_SQL_TYPE_BLOB_:
-            res = sqlite3_bind_blob(result->stmt, index, value, (int)length, SQLITE_STATIC);
+            res = sqlite3_bind_blob(result->stmt, index, value, (int)length, SQLITE_TRANSIENT);
             break;
         case _CC_SQL_TYPE_NULL_:
             res = sqlite3_bind_null(result->stmt, index);
@@ -573,6 +583,7 @@ _CC_API_PRIVATE(float64_t) _sqlite_get_float(_cc_sql_result_t *result, int32_t i
 
 _CC_API_PRIVATE(size_t) _sqlite_get_string(_cc_sql_result_t *result, int32_t index, tchar_t *buffer, size_t length) {
     size_t bytes_length;
+    byte_t *dst = (byte_t*)buffer;
     const tchar_t *v = (const tchar_t *)_sqlite3_column_text(result->stmt, index);
     *buffer = 0;
     if (v == NULL) {
@@ -589,8 +600,8 @@ _CC_API_PRIVATE(size_t) _sqlite_get_string(_cc_sql_result_t *result, int32_t ind
     }
 
     //_tcsncpy(buffer, v, bytes_length);
-    memcpy(buffer, v, bytes_length * sizeof(tchar_t));
-    buffer[bytes_length] = 0;
+    memcpy(dst, v, bytes_length);
+    dst[bytes_length] = 0;
     return bytes_length;
 }
 

@@ -381,6 +381,7 @@ int main(int argc, char *const argv[]) {
         return 1;
     }
     _SSL_setup(openSSL, "/var/ssl/server.crt", "/var/ssl/server.key",NULL);
+    //_SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
 #endif
 
     _http_listener(NULL, 5500);

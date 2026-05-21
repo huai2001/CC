@@ -37,6 +37,7 @@ typedef struct _cc_SSL {
     _cc_OpenSSL_t *ctx;
 } _cc_SSL_t;
 
+/*
 #ifdef _CC_USE_OPENSSL_
 #if OPENSSL_VERSION_NUMBER < OPENSSL_VERSION_3_0_0
     #define _SSL_X509_NAME_HASH X509_NAME_hash
@@ -45,6 +46,8 @@ typedef struct _cc_SSL {
         return X509_NAME_hash_ex(x, NULL, NULL, NULL);
     }
 #endif
+*/
+
 #endif
 _CC_API_PUBLIC(bool_t) _SSL_setup(_cc_OpenSSL_t *ssl,
                                 const tchar_t *cert_file,
