@@ -1,5 +1,5 @@
 #include <libcc/string.h>
-#include <libcc/os.h>
+#include <libcc/cores.h>
 
 
 /** B0A1-F7FE

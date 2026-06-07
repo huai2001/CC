@@ -1,7 +1,7 @@
 #ifndef _C_CC_DIRENT_H_INCLUDED_
 #define _C_CC_DIRENT_H_INCLUDED_
 
-#include "os.h"
+#include "cores.h"
 
 #if defined(__CC_WINDOWS__)
     #ifndef __CC_WIN32_CE__

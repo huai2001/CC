@@ -1,4 +1,3 @@
-#include <libcc/os.h>
 #include <libcc/power.h>
 
 bool_t _cc_get_sys_power_info(_CC_POWER_STATE_ENUM_*, int32_t*, byte_t*);

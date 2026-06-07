@@ -1,5 +1,4 @@
 #include <libcc/atomic.h>
-#include <libcc/os.h>
 #include <libcc/logger.h>
 #include <libcc/socket.h>
 #include <string.h>

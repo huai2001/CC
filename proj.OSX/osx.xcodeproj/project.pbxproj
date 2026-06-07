@@ -17,11 +17,9 @@
 		4217A4C62EEC1FA8006262EC /* misc.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 4217A4432EEC1FA8006262EC /* misc.c.h */; };
 		4217A4C92EEC1FA8006262EC /* xxtea.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4072EEC1FA8006262EC /* xxtea.c */; };
 		4217A4CA2EEC1FA8006262EC /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4AE2EEC1FA8006262EC /* list.c */; };
-		4217A4CB2EEC1FA8006262EC /* http2.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A42B2EEC1FA8006262EC /* http2.c */; };
 		4217A4CC2EEC1FA8006262EC /* connected.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4832EEC1FA8006262EC /* connected.c */; };
 		4217A4CF2EEC1FA8006262EC /* sqlite.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A40B2EEC1FA8006262EC /* sqlite.c */; };
 		4217A4D02EEC1FA8006262EC /* sds.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4B52EEC1FA8006262EC /* sds.c */; };
-		4217A4D22EEC1FA8006262EC /* response.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4292EEC1FA8006262EC /* response.parser.c */; };
 		4217A4D42EEC1FA8006262EC /* alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A43B2EEC1FA8006262EC /* alloc.c */; };
 		4217A4D62EEC1FA8006262EC /* ini.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4302EEC1FA8006262EC /* ini.parser.c */; };
 		4217A4DA2EEC1FA8006262EC /* UTF.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4B92EEC1FA8006262EC /* UTF.c */; };
@@ -45,12 +43,10 @@
 		4217A4F72EEC1FA8006262EC /* GBK.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4AC2EEC1FA8006262EC /* GBK.c */; };
 		4217A4F82EEC1FA8006262EC /* json.object.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4382EEC1FA8006262EC /* json.object.c */; };
 		4217A4FA2EEC1FA8006262EC /* string.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4B62EEC1FA8006262EC /* string.c */; };
-		4217A4FB2EEC1FA8006262EC /* header.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4272EEC1FA8006262EC /* header.c */; };
 		4217A4FC2EEC1FA8006262EC /* sys_cond.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A48E2EEC1FA8006262EC /* sys_cond.c */; };
 		4217A4FF2EEC1FA8006262EC /* aes.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3FB2EEC1FA8006262EC /* aes.c */; };
 		4217A5002EEC1FA8006262EC /* hmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4AD2EEC1FA8006262EC /* hmap.c */; };
 		4217A5012EEC1FA8006262EC /* sqlsvr.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A40C2EEC1FA8006262EC /* sqlsvr.c */; };
-		4217A5022EEC1FA8006262EC /* sys_mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A48A2EEC1FA8006262EC /* sys_mutex.c */; };
 		4217A5062EEC1FA8006262EC /* logger.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4AF2EEC1FA8006262EC /* logger.c */; };
 		4217A5072EEC1FA8006262EC /* libsmtp.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4852EEC1FA8006262EC /* libsmtp.c */; };
 		4217A5082EEC1FA8006262EC /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4462EEC1FA8006262EC /* socket.c */; };
@@ -67,7 +63,6 @@
 		4217A51D2EEC1FA8006262EC /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A42E2EEC1FA8006262EC /* ini.c */; };
 		4217A51F2EEC1FA8006262EC /* syslog.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4B72EEC1FA8006262EC /* syslog.c */; };
 		4217A5212EEC1FA8006262EC /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4AB2EEC1FA8006262EC /* file.c */; };
-		4217A5232EEC1FA8006262EC /* request.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4282EEC1FA8006262EC /* request.parser.c */; };
 		4217A5262EEC1FA8006262EC /* xml.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4A32EEC1FA8006262EC /* xml.c */; };
 		4217A5292EEC1FA8006262EC /* timeout.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4182EEC1FA8006262EC /* timeout.c */; };
 		4217A52A2EEC1FA8006262EC /* json.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4352EEC1FA8006262EC /* json.c */; };
@@ -99,8 +94,6 @@
 		421DEAB02F149DDC005678DE /* base32.c in Sources */ = {isa = PBXBuildFile; fileRef = 421DEAAF2F149DDC005678DE /* base32.c */; };
 		4245A4E42F20B7DA00C24096 /* osx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4217A3E42EEC1F76006262EC /* osx.framework */; };
 		4245A4E62F20B7EB00C24096 /* osx.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4217A3E42EEC1F76006262EC /* osx.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		425720D02F0A04A50060EE45 /* request.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720CE2F0A04A50060EE45 /* request.c */; };
-		425720D12F0A04A50060EE45 /* request.response.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720CF2F0A04A50060EE45 /* request.response.c */; };
 		425720D42F0A07060060EE45 /* libodbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 425720D32F0A07060060EE45 /* libodbc.a */; };
 		425720E02F0A071C0060EE45 /* sys_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720DC2F0A071C0060EE45 /* sys_time.c */; };
 		425720E12F0A071C0060EE45 /* sys_poll.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720DA2F0A071C0060EE45 /* sys_poll.c */; };
@@ -109,6 +102,13 @@
 		425720E62F0A071C0060EE45 /* sys_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720DD2F0A071C0060EE45 /* sys_unix.c */; };
 		425720E72F0A071C0060EE45 /* sys_loadso.c in Sources */ = {isa = PBXBuildFile; fileRef = 425720D82F0A071C0060EE45 /* sys_loadso.c */; };
 		425720E92F0A075C0060EE45 /* libmysqlclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 425720E82F0A075C0060EE45 /* libmysqlclient.a */; };
+		4257EA4C2FD4F05F00E19277 /* header.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA432FD4F05F00E19277 /* header.c */; };
+		4257EA4D2FD4F05F00E19277 /* http2.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA492FD4F05F00E19277 /* http2.c */; };
+		4257EA4E2FD4F05F00E19277 /* response.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA472FD4F05F00E19277 /* response.parser.c */; };
+		4257EA4F2FD4F05F00E19277 /* request.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA452FD4F05F00E19277 /* request.parser.c */; };
+		4257EA502FD4F05F00E19277 /* request.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA442FD4F05F00E19277 /* request.c */; };
+		4257EA512FD4F05F00E19277 /* request.response.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA462FD4F05F00E19277 /* request.response.c */; };
+		4257EA532FD4F08600E19277 /* sys_mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA522FD4F08600E19277 /* sys_mutex.c */; };
 		4284D28D2F288CC600B15BD6 /* google.auth.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28A2F288CC600B15BD6 /* google.auth.c */; };
 		4284D28E2F288CC600B15BD6 /* rwbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28B2F288CC600B15BD6 /* rwbuf.c */; };
 		4284D28F2F288CC600B15BD6 /* snowflake.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28C2F288CC600B15BD6 /* snowflake.c */; };
@@ -156,10 +156,6 @@
 		4217A4162EEC1FA8006262EC /* select.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = select.c; sourceTree = "<group>"; };
 		4217A4172EEC1FA8006262EC /* tcp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tcp.c; sourceTree = "<group>"; };
 		4217A4182EEC1FA8006262EC /* timeout.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = timeout.c; sourceTree = "<group>"; };
-		4217A4272EEC1FA8006262EC /* header.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = header.c; sourceTree = "<group>"; };
-		4217A4282EEC1FA8006262EC /* request.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.parser.c; sourceTree = "<group>"; };
-		4217A4292EEC1FA8006262EC /* response.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = response.parser.c; sourceTree = "<group>"; };
-		4217A42B2EEC1FA8006262EC /* http2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = http2.c; sourceTree = "<group>"; };
 		4217A42E2EEC1FA8006262EC /* ini.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ini.c; sourceTree = "<group>"; };
 		4217A42F2EEC1FA8006262EC /* ini.c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ini.c.h; sourceTree = "<group>"; };
 		4217A4302EEC1FA8006262EC /* ini.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ini.parser.c; sourceTree = "<group>"; };
@@ -190,7 +186,6 @@
 		4217A4842EEC1FA8006262EC /* from_rcpt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = from_rcpt.c; sourceTree = "<group>"; };
 		4217A4852EEC1FA8006262EC /* libsmtp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = libsmtp.c; sourceTree = "<group>"; };
 		4217A4862EEC1FA8006262EC /* login.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = login.c; sourceTree = "<group>"; };
-		4217A48A2EEC1FA8006262EC /* sys_mutex.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_mutex.c; sourceTree = "<group>"; };
 		4217A48B2EEC1FA8006262EC /* sys_sem.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_sem.c; sourceTree = "<group>"; };
 		4217A48C2EEC1FA8006262EC /* sys_thread.c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sys_thread.c.h; sourceTree = "<group>"; };
 		4217A48E2EEC1FA8006262EC /* sys_cond.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_cond.c; sourceTree = "<group>"; };
@@ -222,8 +217,6 @@
 		4217A4BA2EEC1FA8006262EC /* uuid.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = uuid.c; sourceTree = "<group>"; };
 		421DEAAF2F149DDC005678DE /* base32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base32.c; sourceTree = "<group>"; };
 		4245A4D52F20B7C800C24096 /* tools.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tools.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		425720CE2F0A04A50060EE45 /* request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.c; sourceTree = "<group>"; };
-		425720CF2F0A04A50060EE45 /* request.response.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.response.c; sourceTree = "<group>"; };
 		425720D32F0A07060060EE45 /* libodbc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libodbc.a; path = ../../homebrew/Cellar/unixodbc/2.3.12/lib/libodbc.a; sourceTree = "<group>"; };
 		425720D72F0A071C0060EE45 /* sys_kqueue.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_kqueue.c; sourceTree = "<group>"; };
 		425720D82F0A071C0060EE45 /* sys_loadso.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_loadso.c; sourceTree = "<group>"; };
@@ -232,6 +225,13 @@
 		425720DC2F0A071C0060EE45 /* sys_time.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_time.c; sourceTree = "<group>"; };
 		425720DD2F0A071C0060EE45 /* sys_unix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_unix.c; sourceTree = "<group>"; };
 		425720E82F0A075C0060EE45 /* libmysqlclient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmysqlclient.a; path = "../../homebrew/Cellar/mysql-client/9.5.0/lib/libmysqlclient.a"; sourceTree = "<group>"; };
+		4257EA432FD4F05F00E19277 /* header.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = header.c; sourceTree = "<group>"; };
+		4257EA442FD4F05F00E19277 /* request.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.c; sourceTree = "<group>"; };
+		4257EA452FD4F05F00E19277 /* request.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.parser.c; sourceTree = "<group>"; };
+		4257EA462FD4F05F00E19277 /* request.response.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.response.c; sourceTree = "<group>"; };
+		4257EA472FD4F05F00E19277 /* response.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = response.parser.c; sourceTree = "<group>"; };
+		4257EA492FD4F05F00E19277 /* http2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = http2.c; sourceTree = "<group>"; };
+		4257EA522FD4F08600E19277 /* sys_mutex.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_mutex.c; sourceTree = "<group>"; };
 		4284D28A2F288CC600B15BD6 /* google.auth.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = google.auth.c; sourceTree = "<group>"; };
 		4284D28B2F288CC600B15BD6 /* rwbuf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rwbuf.c; sourceTree = "<group>"; };
 		4284D28C2F288CC600B15BD6 /* snowflake.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = snowflake.c; sourceTree = "<group>"; };
@@ -343,35 +343,6 @@
 			path = event;
 			sourceTree = "<group>";
 		};
-		4217A42A2EEC1FA8006262EC /* http-v1.x */ = {
-			isa = PBXGroup;
-			children = (
-				425720CE2F0A04A50060EE45 /* request.c */,
-				425720CF2F0A04A50060EE45 /* request.response.c */,
-				4217A4272EEC1FA8006262EC /* header.c */,
-				4217A4282EEC1FA8006262EC /* request.parser.c */,
-				4217A4292EEC1FA8006262EC /* response.parser.c */,
-			);
-			path = "http-v1.x";
-			sourceTree = "<group>";
-		};
-		4217A42C2EEC1FA8006262EC /* http-v2.x */ = {
-			isa = PBXGroup;
-			children = (
-				4217A42B2EEC1FA8006262EC /* http2.c */,
-			);
-			path = "http-v2.x";
-			sourceTree = "<group>";
-		};
-		4217A42D2EEC1FA8006262EC /* http */ = {
-			isa = PBXGroup;
-			children = (
-				4217A42A2EEC1FA8006262EC /* http-v1.x */,
-				4217A42C2EEC1FA8006262EC /* http-v2.x */,
-			);
-			path = http;
-			sourceTree = "<group>";
-		};
 		4217A4312EEC1FA8006262EC /* ini */ = {
 			isa = PBXGroup;
 			children = (
@@ -456,7 +427,6 @@
 		4217A48D2EEC1FA8006262EC /* apple */ = {
 			isa = PBXGroup;
 			children = (
-				4217A48A2EEC1FA8006262EC /* sys_mutex.c */,
 				4217A48B2EEC1FA8006262EC /* sys_sem.c */,
 				4217A48C2EEC1FA8006262EC /* sys_thread.c.h */,
 			);
@@ -466,6 +436,7 @@
 		4217A4932EEC1FA8006262EC /* pthread */ = {
 			isa = PBXGroup;
 			children = (
+				4257EA522FD4F08600E19277 /* sys_mutex.c */,
 				4217A48E2EEC1FA8006262EC /* sys_cond.c */,
 				4217A4912EEC1FA8006262EC /* sys_thread.c */,
 				4217A4922EEC1FA8006262EC /* sys_thread.c.h */,
@@ -496,11 +467,11 @@
 		4217A4BB2EEC1FA8006262EC /* src */ = {
 			isa = PBXGroup;
 			children = (
+				4257EA4B2FD4F05F00E19277 /* http */,
 				4217A3F22EEC1FA8006262EC /* atomic */,
 				4217A4082EEC1FA8006262EC /* crypto */,
 				4217A40D2EEC1FA8006262EC /* db */,
 				4217A4192EEC1FA8006262EC /* event */,
-				4217A42D2EEC1FA8006262EC /* http */,
 				4217A4312EEC1FA8006262EC /* ini */,
 				4217A43A2EEC1FA8006262EC /* json */,
 				4217A43F2EEC1FA8006262EC /* malloc */,
@@ -558,6 +529,35 @@
 				425720DD2F0A071C0060EE45 /* sys_unix.c */,
 			);
 			path = unix;
+			sourceTree = "<group>";
+		};
+		4257EA482FD4F05F00E19277 /* v1 */ = {
+			isa = PBXGroup;
+			children = (
+				4257EA432FD4F05F00E19277 /* header.c */,
+				4257EA442FD4F05F00E19277 /* request.c */,
+				4257EA452FD4F05F00E19277 /* request.parser.c */,
+				4257EA462FD4F05F00E19277 /* request.response.c */,
+				4257EA472FD4F05F00E19277 /* response.parser.c */,
+			);
+			path = v1;
+			sourceTree = "<group>";
+		};
+		4257EA4A2FD4F05F00E19277 /* v2 */ = {
+			isa = PBXGroup;
+			children = (
+				4257EA492FD4F05F00E19277 /* http2.c */,
+			);
+			path = v2;
+			sourceTree = "<group>";
+		};
+		4257EA4B2FD4F05F00E19277 /* http */ = {
+			isa = PBXGroup;
+			children = (
+				4257EA482FD4F05F00E19277 /* v1 */,
+				4257EA4A2FD4F05F00E19277 /* v2 */,
+			);
+			path = http;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -708,11 +708,10 @@
 			files = (
 				4217A4C92EEC1FA8006262EC /* xxtea.c in Sources */,
 				4217A4CA2EEC1FA8006262EC /* list.c in Sources */,
-				4217A4CB2EEC1FA8006262EC /* http2.c in Sources */,
 				4217A4CC2EEC1FA8006262EC /* connected.c in Sources */,
 				4217A4CF2EEC1FA8006262EC /* sqlite.c in Sources */,
 				4217A4D02EEC1FA8006262EC /* sds.c in Sources */,
-				4217A4D22EEC1FA8006262EC /* response.parser.c in Sources */,
+				4257EA532FD4F08600E19277 /* sys_mutex.c in Sources */,
 				4217A4D42EEC1FA8006262EC /* alloc.c in Sources */,
 				4217A4D62EEC1FA8006262EC /* ini.parser.c in Sources */,
 				4217A4DA2EEC1FA8006262EC /* UTF.c in Sources */,
@@ -742,14 +741,10 @@
 				4217A4F72EEC1FA8006262EC /* GBK.c in Sources */,
 				4217A4F82EEC1FA8006262EC /* json.object.c in Sources */,
 				4217A4FA2EEC1FA8006262EC /* string.c in Sources */,
-				4217A4FB2EEC1FA8006262EC /* header.c in Sources */,
 				4217A4FC2EEC1FA8006262EC /* sys_cond.c in Sources */,
 				4217A4FF2EEC1FA8006262EC /* aes.c in Sources */,
 				4217A5002EEC1FA8006262EC /* hmap.c in Sources */,
 				4217A5012EEC1FA8006262EC /* sqlsvr.c in Sources */,
-				425720D02F0A04A50060EE45 /* request.c in Sources */,
-				425720D12F0A04A50060EE45 /* request.response.c in Sources */,
-				4217A5022EEC1FA8006262EC /* sys_mutex.c in Sources */,
 				4217A5062EEC1FA8006262EC /* logger.c in Sources */,
 				4217A5072EEC1FA8006262EC /* libsmtp.c in Sources */,
 				4217A5082EEC1FA8006262EC /* socket.c in Sources */,
@@ -767,7 +762,6 @@
 				4217A51D2EEC1FA8006262EC /* ini.c in Sources */,
 				4217A51F2EEC1FA8006262EC /* syslog.c in Sources */,
 				4217A5212EEC1FA8006262EC /* file.c in Sources */,
-				4217A5232EEC1FA8006262EC /* request.parser.c in Sources */,
 				4217A5262EEC1FA8006262EC /* xml.c in Sources */,
 				4217A5292EEC1FA8006262EC /* timeout.c in Sources */,
 				4217A52A2EEC1FA8006262EC /* json.c in Sources */,
@@ -792,6 +786,12 @@
 				4217A5512EEC1FA8006262EC /* sha1.c in Sources */,
 				4217A5542EEC1FA8006262EC /* loop.c in Sources */,
 				4217A5582EEC1FA8006262EC /* ring.c in Sources */,
+				4257EA4C2FD4F05F00E19277 /* header.c in Sources */,
+				4257EA4D2FD4F05F00E19277 /* http2.c in Sources */,
+				4257EA4E2FD4F05F00E19277 /* response.parser.c in Sources */,
+				4257EA4F2FD4F05F00E19277 /* request.parser.c in Sources */,
+				4257EA502FD4F05F00E19277 /* request.c in Sources */,
+				4257EA512FD4F05F00E19277 /* request.response.c in Sources */,
 				4217A55C2EEC1FA8006262EC /* sys_locale.m in Sources */,
 				4217A55D2EEC1FA8006262EC /* sys_osx.m in Sources */,
 				4217A55F2EEC1FA8006262EC /* sys_dirent.m in Sources */,

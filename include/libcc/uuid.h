@@ -3,7 +3,7 @@
 #ifndef _C_CC_UUID_H_INCLUDED_
 #define _C_CC_UUID_H_INCLUDED_
 
-#include "os.h"
+#include "cores.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

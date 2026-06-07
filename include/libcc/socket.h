@@ -1,7 +1,7 @@
 #ifndef _C_CC_SOCKET_H_INCLUDED_
 #define _C_CC_SOCKET_H_INCLUDED_
 
-#include "os.h"
+#include "cores.h"
 #include "mutex.h"
 
 #ifdef __CC_WINDOWS__

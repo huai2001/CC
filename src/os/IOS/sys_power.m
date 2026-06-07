@@ -1,7 +1,7 @@
 #import <UIKit/UIKit.h>
 #include <libcc/power.h>
-#include <libcc/os.h>
 #include <libcc/time.h>
+
 #ifndef __CC_APPLE_TVOS1__
 static uint64_t UIKitLastPowerInfoQuery = 0;
 #if 0

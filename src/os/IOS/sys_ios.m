@@ -1,7 +1,7 @@
 #import <UIKit/UIKit.h>
-#include <libcc/os.h>
 #include <mach/mach.h>
 #include <sys/sysctl.h>
+#include <libcc/cores.h>
 
 _CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url) {
     @autoreleasepool {

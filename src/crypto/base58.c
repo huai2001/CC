@@ -26,7 +26,7 @@ static const uint8_t base58_alphabet_table[] = {
 
 /* {{{ */
 _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tchar_t *output, size_t output_length) {
-    byte_t *out_ptr = (byte_t *)output;
+    byte_t *temp;
     size_t idx = 0;
     size_t total = 0;
     size_t leading_zeros = 0;
@@ -39,11 +39,10 @@ _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tch
 
     /* Count leading zeros (Bitcoin style) */
     while (leading_zeros < length && input[leading_zeros] == 0) {
-        if (total >= output_length) {
+        if (leading_zeros >= output_length) {
             return 0;
         }
-        output[total++] = base58_table[0];
-        leading_zeros++;
+        output[leading_zeros++] = base58_table[0];
     }
 
     input += leading_zeros;
@@ -55,18 +54,21 @@ _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tch
         return 0;
     }
 
+     /* Temporary buffer for encoding */
+    temp = ((byte_t *)output) + leading_zeros;
+
     /* Encoding - process each input byte */
     for (i = 0; i < length; i++) {
         unsigned int carry = input[i];
         
         for (j = 0; j < idx; j++) {
-            carry += (unsigned int)out_ptr[j] << 8;
-            out_ptr[j] = (byte_t)(carry % 58);
+            carry += (unsigned int)temp[j] << 8;
+            temp[j] = (byte_t)(carry % 58);
             carry /= 58;
         }
         
         while (carry > 0) {
-            out_ptr[idx++] = (byte_t)(carry % 58);
+            temp[idx++] = (byte_t)(carry % 58);
             carry /= 58;
         }
     }
@@ -74,17 +76,19 @@ _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tch
     /* Apply alphabet and reverse the result */
     total = idx / 2;
     for (i = 0; i < total; i++) {
-        byte_t temp = base58_table[out_ptr[i]];
-        out_ptr[i] = base58_table[out_ptr[idx - i - 1]];
-        out_ptr[idx - i - 1] = temp;
+        byte_t tmp = base58_table[temp[i]];
+        temp[i] = base58_table[temp[idx - i - 1]];
+        temp[idx - i - 1] = tmp;
     }
     if (idx & 1) {
-        out_ptr[total] = base58_table[out_ptr[total]];
+        temp[total] = base58_table[temp[total]];
     }
 
     /* Move encoded data after leading zeros */
     if (leading_zeros > 0 && idx > 0) {
-        memmove(output + leading_zeros, out_ptr, idx);
+        for (i = 0; i < leading_zeros; i++) {
+            output[i] = base58_table[0];
+        }
     }
 
     total = leading_zeros + idx;
@@ -94,7 +98,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_encode(const byte_t *input, size_t length, tch
 
 /* {{{ */
 _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, byte_t *output, size_t output_length) {
-    byte_t *out_ptr = output;
+    byte_t *temp = output;
     size_t idx = 0;
     size_t total = 0;
     size_t leading_ones = 0;
@@ -107,11 +111,10 @@ _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, by
 
     /* Count leading ones (map to leading zeros) */
     while (leading_ones < length && input[leading_ones] == _T('1')) {
-        if (total >= output_length) {
+        if (leading_ones >= output_length) {
             return 0;
         }
-        out_ptr[total++] = 0;
-        leading_ones++;
+        temp[leading_ones++] = 0;
     }
 
     input += leading_ones;
@@ -132,8 +135,8 @@ _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, by
         }
         
         for (j = 0; j < idx; j++) {
-            carry += (unsigned int)out_ptr[leading_ones + j] * 58;
-            out_ptr[leading_ones + j] = (byte_t)(carry & 0xFF);
+            carry += (unsigned int)temp[leading_ones + j] * 58;
+            temp[leading_ones + j] = (byte_t)(carry & 0xFF);
             carry >>= 8;
         }
         
@@ -141,7 +144,7 @@ _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, by
             if (leading_ones + idx >= output_length) {
                 return 0;
             }
-            out_ptr[leading_ones + idx++] = (byte_t)(carry & 0xFF);
+            temp[leading_ones + idx++] = (byte_t)(carry & 0xFF);
             carry >>= 8;
         }
     }
@@ -149,9 +152,9 @@ _CC_API_PUBLIC(size_t) _cc_base58_decode(const tchar_t *input, size_t length, by
     /* Reverse the result */
     total = idx / 2;
     for (i = 0; i < total; i++) {
-        byte_t temp = out_ptr[leading_ones + i];
-        out_ptr[leading_ones + i] = out_ptr[leading_ones + idx - i - 1];
-        out_ptr[leading_ones + idx - i - 1] = temp;
+        byte_t tmp = temp[leading_ones + i];
+        temp[leading_ones + i] = temp[leading_ones + idx - i - 1];
+        temp[leading_ones + idx - i - 1] = tmp;
     }
 
     total = leading_ones + idx;

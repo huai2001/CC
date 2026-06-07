@@ -1,7 +1,7 @@
 #ifndef _C_CC_BASE32_H_INCLUDED_
 #define _C_CC_BASE32_H_INCLUDED_
 
-#include "../os.h"
+#include "../cores.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

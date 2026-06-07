@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <libcc/os.h>
+#include <libcc/cores.h>
 #include <libcc/time.h>
 
 #ifdef _CC_HAVE_SYSCONF_

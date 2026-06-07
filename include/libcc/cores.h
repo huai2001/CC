@@ -1,7 +1,5 @@
-#ifndef _C_CC_OS_H_INCLUDED_
-#define _C_CC_OS_H_INCLUDED_
-
-#include "types.h"
+#ifndef _C_CC_CORES_H_INCLUDED_
+#define _C_CC_CORES_H_INCLUDED_
 
 /* _taccess include */
 #ifdef __CC_WINDOWS__
@@ -22,6 +20,7 @@
 #include "file.h"
 #include "cpu.h"
 #include "rand.h"
+#include "endian.h"
 
 #define _cc_abort(fmt, ...) do {\
     _cc_logger_format(_CC_LOG_LEVEL_ALERT_, fmt, ##__VA_ARGS__);\
@@ -243,6 +242,9 @@ _CC_API_PUBLIC(int32_t) _cc_get_clipboard_text(tchar_t *str, int32_t len);
 _CC_API_PUBLIC(bool_t) _cc_has_clipboard_text(void);
 
 /**/
+_CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url);
+
+/**/
 #ifdef __CC_IPHONEOS__
     _CC_API_PUBLIC(int) _cc_ios_unlink(const tchar_t *file); 
     #define _cc_unlink(x) _cc_ios_unlink(x)
@@ -250,13 +252,6 @@ _CC_API_PUBLIC(bool_t) _cc_has_clipboard_text(void);
     #define _cc_unlink(x) _tunlink(x)
 #endif /*__CC_IPHONEOS__*/
 
-#ifdef __CC_ANDROID__
-_CC_FORCE_INLINE_ bool_t _cc_open_url(const tchar_t *url) {
-    return Android_JNI_OpenURL(url);
-}
-#else
-_CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url);
-#endif
 
 /**
  * @brief Get the current CPU usage percentage of the system
@@ -290,4 +285,4 @@ _CC_API_PUBLIC(void) _cc_get_memory_usage(double* total, double* used);
 }
 #endif
 
-#endif /* _C_CC_OS_H_INCLUDED_ */
+#endif /* _C_CC_CORES_H_INCLUDED_ */

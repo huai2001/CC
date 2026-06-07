@@ -1,7 +1,7 @@
 #ifndef _C_CC_DES_H_INCLUDED_
 #define _C_CC_DES_H_INCLUDED_
 
-#include "../os.h"
+#include "../cores.h"
 
 #define _CC_DES_ENCRYPT_ 1
 #define _CC_DES_DECRYPT_ 0

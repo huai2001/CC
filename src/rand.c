@@ -1,4 +1,3 @@
-#include <libcc/os.h>
 #include <libcc/math.h>
 #include <libcc/time.h>
 #include <libcc/rand.h>
@@ -7,6 +6,11 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
+#ifdef __CC_ANDROID__
+#include <unistd.h>
+#include <fcntl.h>
+#endif
 
 /* FreeBSD kernel */
 #if defined(__FreeBSD_kernel__) && defined(__GLIBC__)

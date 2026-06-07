@@ -4,7 +4,7 @@
 
 void test_base58_encode() {
     tchar_t output[100] = {0};
-    size_t result = _cc_base58_encode((byte_t*)"dsafdsaf", sizeof("dsafdsaf") - 1, output, sizeof(output));
+    size_t result = _cc_base58_encode((byte_t*)"dsafdsaf!@#$%^&*()", sizeof("dsafdsaf!@#$%^&*()") - 1, output, sizeof(output));
     assert(result > 0);
     assert(output[0] != 0);
     printf("output: %s\n", output);//HoVs9wvz68d
@@ -12,7 +12,7 @@ void test_base58_encode() {
 
 void test_base58_decode() {
     byte_t output[100] = {0};
-    size_t result = _cc_base58_decode("HoVs9wvz68d", sizeof("HoVs9wvz68d") - 1, output, sizeof(output));
+    size_t result = _cc_base58_decode("5AeksYxgZQ74p4cv6MqckaJmN", sizeof("5AeksYxgZQ74p4cv6MqckaJmN") - 1, output, sizeof(output));
     assert(result > 0);
     assert(output[0] != 0);
     printf("output: %s\n", output);

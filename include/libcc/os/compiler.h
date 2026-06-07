@@ -162,6 +162,19 @@
     #endif
 #endif /* _cc_alignas not defined */
 
+/* Definition of the typeof keyword
+   In C23, we can use the standard keyword.
+   Otherwise we use some extensions of the compilers. */
+#ifndef _cc_typeof
+    #ifdef _MSC_VER
+        #define _cc_typeof(x) decltype(x)
+    #elif defined(__GNUC__)   
+        #define _cc_typeof(x) __typeof__(x)
+    #else
+        #define _cc_typeof(x) typeof(x)
+    #endif
+#endif
+
 /**
  * Define compiler
  */

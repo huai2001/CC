@@ -1,6 +1,6 @@
-#include <libcc/os.h>
 #include <libcc/loadso.h>
 #include <libcc/logger.h>
+#include <libcc/cores.h>
 #include <dlfcn.h>
 #include <stdio.h>
 #include <string.h>

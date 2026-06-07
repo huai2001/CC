@@ -1,7 +1,7 @@
 #ifndef _C_CC_ATOMIC_H_INCLUDED_
 #define _C_CC_ATOMIC_H_INCLUDED_
 
-#include "os.h"
+#include "cores.h"
 #include <libcc/time.h>
 
 #if __CC_STDC_VERSION__ >= 2011

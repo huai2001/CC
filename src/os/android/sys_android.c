@@ -1034,15 +1034,6 @@ _CC_API_PUBLIC(bool_t) Android_JNI_GetLocale(tchar_t *buf, size_t buf_length) {
     return result;
 }
 
-_CC_API_PUBLIC(bool_t) Android_JNI_OpenURL(const tchar_t *url) {
-    bool_t result;
-    JNIEnv *env = Android_JNI_GetEnv();
-    jstring jurl = (*env)->NewStringUTF(env, url);
-    result = (*env)->CallStaticBooleanMethod(env, mJNIMainClass, midOpenURL, jurl);
-    (*env)->DeleteLocalRef(env, jurl);
-    return result;
-}
-
 _CC_API_PUBLIC(int) Android_JNI_OpenFileDescriptor(const tchar_t *uri, const tchar_t *mode) {
     // Get fopen-style modes
     const tchar_t *p;
@@ -1095,6 +1086,16 @@ _CC_API_PUBLIC(int) Android_JNI_OpenFileDescriptor(const tchar_t *uri, const tch
     // }
 
     return fd;
+}
+
+/**/
+_CC_API_PUBLIC(bool_t) _cc_open_url(const tchar_t *url) {
+    bool_t result;
+    JNIEnv *env = Android_JNI_GetEnv();
+    jstring jurl = (*env)->NewStringUTF(env, url);
+    result = (*env)->CallStaticBooleanMethod(env, mJNIMainClass, midOpenURL, jurl);
+    (*env)->DeleteLocalRef(env, jurl);
+    return result;
 }
 
 _CC_API_PUBLIC(size_t) _cc_get_device_name(tchar_t *cname, size_t length) {

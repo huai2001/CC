@@ -1,4 +1,4 @@
-#include <libcc/os/windows.h>
+#include <libcc/cores.h>
 #include <libcc/power.h>
 
 /**/

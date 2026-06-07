@@ -71,8 +71,6 @@ _CC_API_PUBLIC(bool_t) Android_JNI_GetLocale(tchar_t *buf, size_t buflen);
 // Show toast notification
 _CC_API_PUBLIC(bool_t) Android_JNI_ShowToast(const tchar_t *message, int duration, int gravity, int xOffset, int yOffset);
 
-_CC_API_PUBLIC(bool_t) Android_JNI_OpenURL(const tchar_t *url);
-
 _CC_API_PUBLIC(int) Android_JNI_GetSDKVersion(void);
 _CC_API_PUBLIC(int) Android_JNI_GetNetworkType(void);
 /**

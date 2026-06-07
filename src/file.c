@@ -1,5 +1,4 @@
 #include <libcc/alloc.h>
-#include <libcc/os.h>
 #include <libcc/logger.h>
 
 #include <fcntl.h>

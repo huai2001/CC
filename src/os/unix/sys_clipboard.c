@@ -1,5 +1,4 @@
 #include <libcc/alloc.h>
-#include <libcc/os.h>
 #include <unistd.h>
 
 #if defined(__CC_FREEBSD__) || defined(__CC_OPENBSD__)

@@ -1,5 +1,4 @@
 #include <libcc/alloc.h>
-#include <libcc/os.h>
 #include <tlhelp32.h>
 
 static HWND _clipboard_handle = NULL;
