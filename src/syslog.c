@@ -153,7 +153,7 @@ _CC_API_PUBLIC(void) _cc_syslog_send(const byte_t *msg, size_t length) {
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_open_syslog(byte_t facility, const tchar_t *app, const tchar_t *ip, const uint16_t port) {
+_CC_API_PUBLIC(void) _cc_open_syslog(uint8_t facility, const tchar_t *app, const tchar_t *ip, const uint16_t port) {
     tchar_t host[512] = {0};
     int rcv_buf_size = _CC_8K_BUFFER_SIZE_;
     int snd_buf_size = _CC_8K_BUFFER_SIZE_;

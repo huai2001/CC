@@ -121,6 +121,11 @@ int main() {
     } else {
         printf("%d URL tests failed!\n", failed);
     }
-
+    char_t *urls = "http://user:pass@www.domain.com/index.php?id=1&tid=2#top";
+    _cc_url_t url;
+    _cc_alloc_url(&url, urls);
+    printf("Scheme: %s\nHost: %s\nPort: %d\nPath: %s\nRequest: %s\nQuery: %s\nFragment: %s\nUsername: %s\nPassword: %s\n",
+           url.scheme.value, url.host, url.port, url.path, url.request, url.query, url.fragment, url.username, url.password);
+    _cc_free_url(&url);
     return failed;
 }

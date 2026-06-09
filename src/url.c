@@ -12,6 +12,8 @@
 
 static tchar_t *_URL_PATH_ROOT_ = _T("/");
 
+#define _IS_SLASH(x) ((x) == _T('\\') || (x) == _T('/'))
+
 /*Scheme name*/
 typedef struct _cc_url_scheme {
     uint32_t ident;
@@ -20,7 +22,7 @@ typedef struct _cc_url_scheme {
     tchar_t *value;
 } _cc_url_scheme_t;
 
-#define _URL_SCHEME_SUPPORTED_MAP(XX)                                                                                  \
+#define _URL_SCHEME_MAP(XX)                                                                                            \
     XX(HTTP)                                                                                                           \
     XX(HTTPS)                                                                                                          \
     XX(WS)                                                                                                             \
@@ -35,9 +37,9 @@ typedef struct _cc_url_scheme {
     XX(EXCEL)                                                                                                          \
     XX(ORACLE)
 
-const _cc_url_scheme_t _url_supported_schemes[] = {
+const _cc_url_scheme_t _url_schemes[] = {
 #define XX(_CODE_) {_CC_SCHEME_##_CODE_##_, _CC_PORT_##_CODE_##_, sizeof(#_CODE_) - 1, _T(#_CODE_)},
-    _URL_SCHEME_SUPPORTED_MAP(XX)
+    _URL_SCHEME_MAP(XX)
 #undef XX
 };
 
@@ -49,7 +51,7 @@ const _cc_url_scheme_t _url_supported_schemes[] = {
 /**/
 _CC_API_PRIVATE(bool_t) _url_exists_user_password(const tchar_t *s) {
     const tchar_t *p = s;
-    while (*p && *p != _T('/')) {
+    while (*p && _IS_SLASH(*p) == false) {
         if (*p == _T('@')) {
             return true;
         }
@@ -70,12 +72,8 @@ _CC_API_PRIVATE(_cc_sds_t) _url_user_password_copy(const tchar_t *s, size_t leng
  */
 _CC_API_PRIVATE(void) parse_url_scheme(_cc_url_t *u, const tchar_t *scheme, int32_t scheme_length) {
     int32_t i;
-
-    u->scheme.ident = _CC_SCHEME_UNKNOWN_;
-    u->port = 0;
-
-    for (i = 0; i < _cc_countof(_url_supported_schemes); i++) {
-        const _cc_url_scheme_t *r = &_url_supported_schemes[i];
+    for (i = 0; i < _cc_countof(_url_schemes); i++) {
+        const _cc_url_scheme_t *r = &_url_schemes[i];
         if (r->value_length == scheme_length && 0 == _tcsnicmp(scheme, r->value, r->value_length)) {
             u->scheme.ident = r->ident;
             u->scheme.value = r->value;
@@ -84,7 +82,9 @@ _CC_API_PRIVATE(void) parse_url_scheme(_cc_url_t *u, const tchar_t *scheme, int3
         }
     }
 
+    u->scheme.ident = _CC_SCHEME_UNKNOWN_;
     u->scheme.value = _cc_sds_alloc(scheme, scheme_length);
+    u->port = 0;
     return;
 }
 
@@ -124,8 +124,8 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
     /*init url*/
     memset(u, 0, sizeof(_cc_url_t));
     cursor = url;
-
-    if (*cursor == _T('/')) {
+    
+    if (_IS_SLASH(*cursor)) {
         goto URL_PRASE_PATH_PARAMS;
     }
     /*
@@ -144,12 +144,12 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
         cursor = (ptr + 3);
     } else {
         /*not found the character*/
-        u->scheme.ident = _url_supported_schemes[0].ident;
-        u->scheme.value = _url_supported_schemes[0].value;
-        u->port = _url_supported_schemes[0].port;
+        u->scheme.ident = _url_schemes[0].ident;
+        u->scheme.value = _cc_sds_alloc(_url_schemes[0].value, _url_schemes[0].value_length);
+        u->port = _url_schemes[0].port;
     }
     /*not host*/
-    if (*cursor == _T('/')) {
+    if (_IS_SLASH(*cursor)) {
         goto URL_PRASE_PATH_PARAMS;
     }
 
@@ -170,7 +170,7 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
             }
             ptr++;
             /* End of <UserName>:<Password> specification */
-        } while (*ptr && *ptr != _T('/'));
+        } while (*ptr && _IS_SLASH(*ptr) == false);
 
         /*User and Password specification*/
         if (user_name) {
@@ -205,7 +205,7 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
     } else {
         while (*ptr) {
             /* Port number is specified. */
-            if (_T(':') == *ptr || _T('/') == *ptr) {
+            if (_T(':') == *ptr || _IS_SLASH(*ptr)) {
                 break;
             }
             ptr++;
@@ -247,7 +247,7 @@ _CC_API_PRIVATE(_cc_url_t *) _parser_url(_cc_url_t *u, const tchar_t *url) {
     }
 
     /* Skip '/' */
-    if (_T('/') != *cursor) {
+    if (!_IS_SLASH(*cursor)) {
         _cc_free_url(u);
         return NULL;
     }

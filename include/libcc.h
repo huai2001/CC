@@ -1,7 +1,6 @@
 #ifndef _C_CC_LIBCC_H_INCLUDED_
 #define _C_CC_LIBCC_H_INCLUDED_
 
-#include "libcc/endian.h"
 #include "libcc/rand.h"
 #include "libcc/rwbuf.h"
 #include "libcc/buf.h"

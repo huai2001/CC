@@ -1,10 +1,11 @@
 #ifndef _C_CC_MATH_H_INCLUDED_
 #define _C_CC_MATH_H_INCLUDED_
 
-#include "endian.h"
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
+
+#include "types.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

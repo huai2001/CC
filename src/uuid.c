@@ -1,4 +1,3 @@
-#include <libcc/endian.h>
 #include <libcc/string.h>
 #include <libcc/time.h>
 #include <libcc/uuid.h>

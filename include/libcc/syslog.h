@@ -1,7 +1,7 @@
 #ifndef _C_CC_SYSLOG_H_INCLUDED_
 #define _C_CC_SYSLOG_H_INCLUDED_
 
-#include "endian.h"
+#include "cores.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -77,7 +77,7 @@ _CC_API_PUBLIC(void) _cc_syslogA(uint8_t level, const char_t* msg, size_t length
 /**/
 _CC_API_PUBLIC(size_t) _cc_syslog_header(uint8_t pri, tchar_t *buffer, size_t buffer_length);
 /**/
-_CC_API_PUBLIC(void) _cc_syslog_send(const uint8_t *msg, size_t length);
+_CC_API_PUBLIC(void) _cc_syslog_send(const byte_t *msg, size_t length);
 
 #endif
 

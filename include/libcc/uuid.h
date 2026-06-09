@@ -1,5 +1,3 @@
-
-
 #ifndef _C_CC_UUID_H_INCLUDED_
 #define _C_CC_UUID_H_INCLUDED_
 
