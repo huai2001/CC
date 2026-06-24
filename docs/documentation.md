@@ -2257,20 +2257,17 @@ _cc_loggerA_format(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_,
 #define _cc_logger_info _cc_loggerW_info
 #define _cc_logger_error _cc_loggerW_error
 #define _cc_logger_alert _cc_loggerW_alert
-#define _cc_logger_syslog _cc_syslogW
 #else
 #ifdef __CC_MSVC__
 #define _cc_logger_format(LEVEL, FMT, ...) _cc_loggerA_format(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##__VA_ARGS__)
 #else
 #define _cc_logger_format(LEVEL, FMT, ARGS...) _cc_loggerA_format(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##ARGS)
 #endif
-#define _cc_logger(LEVEL, MSG) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, MSG, sizeof(MSG) - 1)
 #define _cc_logger_warin _cc_loggerA_warin
 #define _cc_logger_debug _cc_loggerA_debug
 #define _cc_logger_info _cc_loggerA_info
 #define _cc_logger_error _cc_loggerA_error
 #define _cc_logger_alert _cc_loggerA_alert
-#define _cc_logger_syslog _cc_syslogA
 #endif
 ```
 

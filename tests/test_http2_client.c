@@ -270,7 +270,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
     _CC_UNUSED(async);
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, which)) {
-        _cc_logger_warin("_cc_http_request_ _CC_EVENT_CLOSED_ %d", e->ident);
+        printf("_cc_http_request_ _CC_EVENT_CLOSED_ %d", e->ident);
         _cc_free_http_request(request);
         return false;
     }
@@ -283,7 +283,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
     }
 
     if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
-        _cc_logger_info("url_request connected,%s", request->url.host);
+        printf("url_request connected,%s", request->url.host);
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
             return _handshaking(e, request);
         }
@@ -336,13 +336,13 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
                 break;
             case _CC_HTTP2_FRAME_TYPE_PRIORITY_:
                 if (header.length != 5) {
-                    _cc_logger_error("Invalid PRIORITY frame length: %u", header.length);
+                    printf("Invalid PRIORITY frame length: %u", header.length);
                     return false;
                 }
                 break;
             case _CC_HTTP2_FRAME_TYPE_RST_STREAM_:
                 if (header.length != 4) {
-                    _cc_logger_error("Invalid RST_STREAM frame length: %u", header.length);
+                    printf("Invalid RST_STREAM frame length: %u", header.length);
                     return false;
                 }
                 printf("Received RST_STREAM frame: stream_id=%u\n", header.stream_id);
@@ -354,7 +354,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
                     break;
                 }
                 if (header.length % 6 != 0) {
-                    _cc_logger_error("Invalid SETTINGS frame length: %u", header.length);
+                    printf("Invalid SETTINGS frame length: %u", header.length);
                     return false;
                 }
                 for (i = 0; i < (int32_t)header.length; i += 6) {
@@ -410,7 +410,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
                 uint32_t last_stream_id;
                 uint32_t error_code;
                 if (header.length < 8) {
-                    _cc_logger_error("Invalid GOAWAY frame length: %u", header.length);
+                    printf("Invalid GOAWAY frame length: %u", header.length);
                     return false;
                 }
                 last_stream_id = ((uint32_t)(payload[0] & 0x7f) << 24) | ((uint32_t)payload[1] << 16) | ((uint32_t)payload[2] << 8) | (uint32_t)payload[3];
@@ -422,7 +422,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
             case _CC_HTTP2_FRAME_TYPE_WINDOW_UPDATE_: {
                 uint32_t window_size;
                 if (header.length != 4) {
-                    _cc_logger_error("Invalid WINDOW_UPDATE frame length: %u", header.length);
+                    printf("Invalid WINDOW_UPDATE frame length: %u", header.length);
                     return false;
                 }
                 window_size = ((uint32_t)(payload[0] & 0x7f) << 24) | ((uint32_t)payload[1] << 16) | ((uint32_t)payload[2] << 8) | (uint32_t)payload[3];
@@ -483,7 +483,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     /*Open then socket*/
     fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (fd == -1) {
-        _cc_logger_error("socket fail:%s.", _cc_last_error(_cc_last_errno()));
+        printf("socket fail:%s.", _cc_last_error(_cc_last_errno()));
         return false;
     }
 

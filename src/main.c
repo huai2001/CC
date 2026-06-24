@@ -20,11 +20,14 @@ __attribute__((constructor)) void _libcc_attach(void) {
         return;
     }
     _libcc_initialized = true;
+    _libcc_cleaned = false;
 
     srand((uint32_t)time(NULL));
 #ifdef _CC_USE_DEBUG_MALLOC_
     _attach_debug_taracked();
 #endif
+    __install_logger();
+
     _cc_get_cpu_cores();
     _cc_install_socket();
 #ifdef _CC_USE_OPENSSL_
@@ -38,6 +41,7 @@ __attribute__((destructor)) void _libcc_detach(void) {
         return;
     }
     _libcc_cleaned = true;
+    _libcc_initialized = false;
 
     _cc_uninstall_socket();
 

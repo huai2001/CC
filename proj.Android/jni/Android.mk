@@ -51,7 +51,6 @@ LOCAL_SRC_FILES := \
     ../../src/rand.c \
     ../../src/ring.c \
     ../../src/logger.c \
-    ../../src/syslog.c \
     ../../src/cpu.c \
     ../../src/file.c \
 	../../src/snowflake.c \

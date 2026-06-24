@@ -59,7 +59,7 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        _cc_logger_debug("thread %d accept fail %s.", _cc_get_thread_id(NULL), _cc_last_error(_cc_last_errno()));
+        printf("thread %d accept fail %s.", _cc_get_thread_id(NULL), _cc_last_error(_cc_last_errno()));
         return false;
     }
 
@@ -93,16 +93,16 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
     #endif
 
     if (async2->attach(async2, event) == false) {
-        _cc_logger_debug("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
+        printf("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
         return false;
     }
-    _cc_logger_debug("%d accept.", event->ident);
+    printf("%d accept.", event->ident);
     return true;
 }
 
 static bool_t _handle_close(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_logger_debug("%d handle close.", e->ident);
+    printf("%d handle close.", e->ident);
     if (e->data) {
         _http_t *http = (_http_t*)e->data;
         if (http->io) {
@@ -229,7 +229,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
         return true;
     }
 
-    _cc_logger_debug("%d read.", off);
+    printf("%d read.", off);
 
     if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
         return false;
@@ -262,6 +262,12 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
     }
 
     if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
+        _cc_rb_t *node;
+        _cc_rbtree_for(node, &http->request->headers) {
+            _cc_http_header_t *header = _cc_upcast(node, _cc_http_header_t, lnk);
+            printf("header:%s=%s", header->keyword, header->value);
+        }
+
         if (_tcsicmp(http->request->method, _T("OPTIONS")) == 0) {
             response_options(e, io);
         } else if (http->request->script[0] == '/' && http->request->script[1] == 0) {
@@ -269,7 +275,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
         } else {
             response_not_found(e, io);
         }
-        _cc_logger_info("http:%s %s %s",http->request->method,http->request->script,http->request->protocol);
+        printf("http:%s %s %s",http->request->method,http->request->script,http->request->protocol);
 
         if (_tcsicmp(http->request->method, _T("POST")) == 0) {
             // FILE *fp = fopen("./raw.txt", "wb");
@@ -293,7 +299,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
 static bool_t _handle_write(_cc_async_event_t *async, _cc_event_t *e) {
     _http_t *http = (_http_t*)e->data;
     _cc_io_buffer_t *io = http->io;
-    _cc_logger_debug("%d handle write.", e->ident);
+    printf("%d handle write.", e->ident);
     if (io->w.off) {
         if (_cc_io_buffer_flush(e, http->io) < 0) {
             return false;
@@ -319,7 +325,7 @@ static bool_t _handle_timeout(_cc_async_event_t *async, _cc_event_t *e) {
         }
     }
 #endif
-    _cc_logger_debug("%d handle timeout.", e->ident);
+    printf("%d handle timeout.", e->ident);
     return false;
 }
 

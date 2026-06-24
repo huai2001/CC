@@ -35,11 +35,11 @@ _CC_API_PRIVATE(bool_t) _net_cb(_cc_async_event_t* async, _cc_event_t* e, const 
                     break;
                 }
                 if ( !smtp->response_cb(smtp, (byte_t*)start, p - start) ) {
-                    _cc_logger_error("%d, %.*s",(int)smtp->state, (int)(p - start), start);
+                    printf("%d, %.*s",(int)smtp->state, (int)(p - start), start);
                     _cc_smtp_logout(smtp);
                     break;
                 } else {
-                    _cc_logger_info("%d,%.*s",(int)smtp->state, (int)(p - start), start);
+                    printf("%d,%.*s",(int)smtp->state, (int)(p - start), start);
                 }
                 offset += (p - start) + 1;
                 start = p + 1;

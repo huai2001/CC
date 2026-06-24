@@ -62,17 +62,17 @@ static bool_t url_request_success(_cc_http_request_t *request) {
 
     _cc_rbtree_for(node, &response->headers) {
         _cc_http_header_t *header = _cc_upcast(node, _cc_http_header_t, lnk);
-        _cc_logger_debug("header:%s=%s", header->keyword, header->value);
+        printf("header:%s=%s", header->keyword, header->value);
     }
 
     switch (response->status) {
     case _CC_HTTP_STATUS_OK_:{
         _cc_json_t *root = _cc_json_parse((tchar_t*)request->buffer.bytes, request->buffer.length);
         if (root) {
-            _cc_logger_warin("url_request success,%s", request->url.host);
+            printf("url_request success,%s", request->url.host);
             _cc_free_json(root);
         } else {
-            _cc_logger_alert("json parse fail,%s\n\n", _cc_json_error());
+            printf("json parse fail,%s\n\n", _cc_json_error());
         }
         _cc_buf_cleanup(&request->buffer);
     }
@@ -89,7 +89,7 @@ static bool_t url_request_success(_cc_http_request_t *request) {
     }
     }
 
-    _cc_logger_warin("url_request fail,%s\n\n", request->url.host);
+    printf("url_request fail,%s\n\n", request->url.host);
     return true;
 }
 
@@ -106,7 +106,7 @@ static bool_t _url_timeout_callback(_cc_async_event_t *timer, _cc_event_t *e, co
     if (which == _CC_EVENT_CLOSED_) {
         return false;
     }
-    _cc_logger_warin("url-timout reset connect,%d",e->ident);
+    printf("url-timout reset connect,%d",e->ident);
     return (url_request_connect(request))?false:true;
 }
 
@@ -128,7 +128,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, which)) {
         //printf("disconnect\n");
-        _cc_logger_warin("_cc_http_request_ _CC_EVENT_CLOSED_ %d",e->ident);
+        printf("_cc_http_request_ _CC_EVENT_CLOSED_ %d",e->ident);
         if (_cc_async_event_is_running()) {
             _cc_add_event_timeout(_cc_get_async_event(), 10000, _url_timeout_callback, (uintptr_t)request);
         } else {
@@ -146,7 +146,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_CONNECT_, which)) {
-        _cc_logger_info("url_request connected,%s", request->url.host);
+        printf("url_request connected,%s", request->url.host);
         if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
             return _handshaking(e, request);
         }
@@ -209,7 +209,7 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
     /*Open then socket*/
     fd = _cc_socket(AF_INET, _CC_SOCK_NONBLOCK_ | _CC_SOCK_CLOEXEC_ | SOCK_STREAM, 0);
     if (fd == -1) {
-        _cc_logger_error("socket fail:%s.", _cc_last_error(_cc_last_errno()));
+        printf("socket fail:%s.", _cc_last_error(_cc_last_errno()));
         return false;
     }
 
@@ -271,6 +271,7 @@ int main(int argc, char *const argv[]) {
     openSSL = _SSL_init(_CC_SSL_DEFAULT_PROTOCOLS_);
 
     _cc_alloc_async_event(0, NULL);
+    _cc_logger_dump();
 
     url_request("https://api.trongrid.io/wallet/getnowblock", NULL);
     //url_request("https://api.trongrid.io/wallet/getnowblock", NULL);

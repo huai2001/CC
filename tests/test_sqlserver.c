@@ -104,9 +104,9 @@ int main(int argc, char *const arvg[]) {
     conn_ptr = sql_delegate.connect(strConnect);
     
     if(conn_ptr) {
-        _cc_logger_error("connection succed\n");
+        printf("connection succed\n");
     } else {
-        _cc_logger_error("connection failed\n");
+        printf("connection failed\n");
         return 0;
     }
     //sql_delegate.execute(conn_ptr, _CC_SQL("CREATE TABLE [test] ([mid] INT,[price] DECIMAL(15,2),[text] VARCHAR(200), [date] DATETIME)"), NULL);

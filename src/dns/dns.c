@@ -3,52 +3,53 @@
 #include <libcc/event.h>
 #include "dns.h"
 
-// List of DNS Servers registered on the system
-static struct in_addr dns_servers[DNS_SERVERS_MCOUNT];
-static int dns_server_count = 0;
-
-_CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int type);
-_CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *);
-
-_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *, uint8_t *, uint8_t *, int *);
-_CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *, uint8_t *, uint8_t *, _cc_dns_record_t *);
-
 _CC_API_PRIVATE(void) dns_cleanup_records(_cc_dns_record_t *records, uint16_t count) {
     uint16_t i;
     if (records == NULL) {
         return;
     }
-
     for (i = 0; i < count; i++) {
         _cc_dns_record_t *r = records + i;
         _cc_free(r->name);
-        _cc_free(r->rdata);
         r->name = NULL;
-        r->rdata = NULL;
+        _cc_if_free(r->rdata);
     }
     _cc_free(records);
 }
-/*
- * This will convert 3www6google3com to www.google.com
- * got it :)
- * */
-_CC_API_PRIVATE(int) _domain(char_t *buf, int dest_length) {
-    int i, j, offset;
-    for (i = 0; i < dest_length; i++) {
-        offset = (int)buf[i];
-        for (j = 0; j < offset; j++, i++) {
-            buf[i] = buf[i + 1];
-        }
-        buf[i] = '.';
+
+_CC_API_PRIVATE(bool_t) dns_skip_name(uint8_t *buffer, uint8_t *buffer_end, size_t *offset) {
+    if (buffer == NULL || buffer_end == NULL || offset == NULL) {
+        return false;
     }
-    // remove the last dot
-    buf[i - 1] = 0;
-    return i;
+
+    size_t pos = *offset;
+    while (pos < (size_t)(buffer_end - buffer)) {
+        uint8_t len = buffer[pos];
+        if (len == 0) {
+            *offset = pos + 1;
+            return true;
+        }
+
+        if ((len & 0xC0) == 0xC0) {
+            if (pos + 1 >= (size_t)(buffer_end - buffer)) {
+                return false;
+            }
+            *offset = pos + 2;
+            return true;
+        }
+
+        pos += (size_t)len + 1;
+        if (pos > (size_t)(buffer_end - buffer)) {
+            return false;
+        }
+    }
+
+    return false;
 }
 
-_CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int type) {
+_CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, size_t length, const char_t *host, int type) {
     int offset;
-    int label_len = 0;
+    int label_length = 0;
     struct QUESTION *q;
     char_t *p;
     char_t *dot;
@@ -59,7 +60,7 @@ _CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int ty
      * */
     p = (char_t *)buf;
     dot = p++;
-    end = (char_t *)buf + 512;
+    end = (char_t *)buf + length;
 
     while (*host) {
         if (p >= end) {
@@ -67,20 +68,20 @@ _CC_API_PRIVATE(int) dns_build_question(uint8_t *buf, const char_t *host, int ty
         }
 
         if (*host == '.') {
-            if (label_len <= 0 || label_len > 63) {
+            if (label_length <= 0 || label_length > 63) {
                 return -1;
             }
             *dot = (p - dot) - 1;
             dot = p++;
-            label_len = 0;
+            label_length = 0;
             host++;
             continue;
         }
         *p++ = *host++;
-        label_len++;
+        label_length++;
     }
 
-    if (label_len <= 0 || label_len > 63 || p >= end) {
+    if (label_length <= 0 || label_length > 63 || p >= end) {
         return -1;
     }
 
@@ -125,348 +126,109 @@ _CC_API_PRIVATE(void) dump_type(const byte_t *rdata, const uint16_t type) {
     }
 }
 
-_CC_API_PRIVATE(void) dump(const _cc_dns_t *dns) {
-    // print answers
+_CC_API_PRIVATE(void) dump(const _cc_dns_record_t *records, uint16_t count) {
     int16_t i;
-    _tprintf(_T("Answer Records : %d \n"), dns->header.answer);
-
-    for ( i = 0; i < dns->header.answer; i++) {
-        _cc_dns_record_t *r = dns->answers + i;
+    for ( i = 0; i < count; i++) {
+        const _cc_dns_record_t *r = records + i;
         _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
         dump_type(r->rdata, r->type);
     }
-
-    // print authorities
-    _tprintf(_T("Authoritive Records : %d \n"), dns->header.author);
-
-    for ( i = 0; i < dns->header.author; i++) {
-        _cc_dns_record_t *r = dns->authorities + i;
-        _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
-        dump_type(r->rdata, r->type);
-    }
-
-    // print additional resource records
-    _tprintf(_T("Additional Records : %d \n"), dns->header.addition);
-
-    for ( i = 0; i < dns->header.addition; i++) {
-        _cc_dns_record_t *r = dns->additional + i;
-        _tprintf(_T("Name : %s TTL:%d "), r->name, r->ttl);
-        dump_type(r->rdata, r->type);
-    }
-}
-
-_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which) {
-    if (which & _CC_EVENT_READABLE_) {
-        uint16_t i;
-        int recv_len;
-        uint8_t *reader;
-        uint8_t *buffer_end;
-        int offset;
-        byte_t buffer[_CC_IO_BUFFER_SIZE_];
-        struct sockaddr_in dest;
-        socklen_t sa_len = (socklen_t)sizeof(struct sockaddr_in);
-        _cc_dns_header_t *header;
-        _cc_dns_record_t *record;
-        _cc_dns_t *dns = (_cc_dns_t *)e->data;
-        uint16_t header_flags;
-        int16_t error_code = 0;
-
-        printf("Receiving answer...\n");
-        recv_len = recvfrom(e->fd, (char *)buffer, _cc_countof(buffer), 0, (struct sockaddr *)&dest, (socklen_t *)&sa_len);
-        /* Check for valid DNS header */
-        if (recv_len < 12) {
-            return false;
-        }
-        buffer_end = buffer + recv_len;
-
-        header = (_cc_dns_header_t *)buffer;
-        /*
-        rcode = header->flags & 15;
-        z = (header->flags >> 4) & 7;
-        ra = (header->flags >> 7) & 1;
-        rd = (header->flags >> 8) & 1;
-        tc = (header->flags >> 9) & 1;
-        aa = (header->flags >> 10) & 1;
-        opcode = (header->flags >> 11) & 15;
-        type = (header->flags >> 15) & 1;
-        */
-
-        header_flags = _cc_swap16(header->flags);
-
-        /* Check the truncated response flag first */
-        if (header_flags & 0x0200) {
-            return false;
-        }
-
-        printf("Now check the reply code:%d,%x\n", header_flags & 0x000F, header_flags);
-        /* Now check the reply code */
-
-        // switch (header->flags & 0x000F) {
-        //     /* Format error with sent query */
-        //     case DNS_R_FORMAT_ERROR:
-        //         printf("Format error with sent query\n");
-        //         error_code = _CC_DNS_ERR_BAD_FORMAT_;
-        //         break;
-        //     /* No such name exists */
-        //     case DNS_R_NAME_ERROR:
-        //         printf("No such name exists\n");
-        //         error_code = _CC_DNS_ERR_NO_SUCH_NAME_;
-        //         break;
-        //     /* Server reports failure */
-        //     case DNS_R_SERVER_FAILURE:
-        //         printf("Server reports failure\n");
-        //         error_code = _CC_DNS_ERR_SERVER_FAILURE_;
-        //         break;
-        //     /* Requested query not supported */
-        //     case DNS_R_NOT_IMPLEMENTED:
-        //         printf("Requested query not supported\n");
-        //         error_code = _CC_DNS_ERR_NOT_IMPLEMENTED_;
-        //         break;
-        //     /* Server refused to handle query */
-        //     case DNS_R_REFUSED:
-        //         printf("Server refused to handle query\n");
-        //         error_code = _CC_DNS_ERR_QUERY_REFUSED_;
-        //         break;
-        // }
-
-        if (error_code != 0) {
-            return false;
-        }
-
-        dns->error_code = error_code;
-
-        /* Note that a root server will most likely ignore queries that
-         * request recursive resolution. */
-        dns->header.ident = _cc_swap16(header->ident);
-        dns->header.flags = header_flags;
-        dns->header.quests = _cc_swap16(header->quests);
-        dns->header.answer = _cc_swap16(header->answer);
-        dns->header.author = _cc_swap16(header->author);
-        dns->header.addition = _cc_swap16(header->addition);
-
-        printf("\nThe response contains : %d", recv_len);
-        printf("\n %d Questions.", dns->header.quests);
-        printf("\n %d Answers.", dns->header.answer);
-        printf("\n %d Authoritative Servers.", dns->header.author);
-        printf("\n %d Additional records.\n\n", dns->header.addition);
-
-        // move ahead of the dns header and the query field
-        offset = sizeof(_cc_dns_header_t);
-
-        /* So far all is fine. Now parse response into lists of items */
-        /* Assume that the question section remains unchanged and start
-         * with the answers section instead. */
-        for (i = 0; i < dns->header.quests; i++) {
-            /* Read the Question Name */
-#if 0
-            char_t name[256];
-            int name_length = 0;
-            /* Read the length byte by byte until we get 0 which means end of name */
-            while (*(buffer + offset) != 0) {
-                if (name_length < _cc_countof(name)) {
-                    name[name_length++] = (char_t) *(buffer + offset);
-                }
-                offset++;
-            }
-            offset++;
-            name[name_length] = 0;
-            name_length = _domain(name, name_length);
-            printf("question name:%s\n", name);
-#else
-            while (offset < recv_len && buffer[offset] != 0) {
-                offset++;
-            }
-            if (offset >= recv_len) {
-                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
-                goto DNS_PARSE_FAILED;
-            }
-            offset++;
-#endif
-            /* Read the QTYPE and QCLASS */
-            if ((offset + (int)sizeof(struct QUESTION)) > recv_len) {
-                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
-                goto DNS_PARSE_FAILED;
-            }
-            offset += sizeof(struct QUESTION);
-        }
-
-        if (offset >= recv_len) {
-            dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
-            goto DNS_PARSE_FAILED;
-        }
-        reader = &buffer[offset];
-
-        record = (_cc_dns_record_t *)_cc_calloc(dns->header.answer,sizeof(_cc_dns_record_t));
-        dns->answers = record;
-        // Start reading answers
-        for (i = 0; i < dns->header.answer; i++) {
-            _cc_dns_record_t *r = record + i;
-            reader = dns_read_rdata(reader, buffer, buffer_end, r);
-            if (reader == NULL) {
-                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
-                goto DNS_PARSE_FAILED;
-            }
-        }
-
-        record = (_cc_dns_record_t *)_cc_calloc(dns->header.author,sizeof(_cc_dns_record_t));
-        dns->authorities = record;
-        // read authorities
-        for (i = 0; i < dns->header.author; i++) {
-            _cc_dns_record_t *r = record + i;
-            reader = dns_read_rdata(reader, buffer, buffer_end, r);
-            if (reader == NULL) {
-                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
-                goto DNS_PARSE_FAILED;
-            }
-        }
-
-        record = (_cc_dns_record_t *)_cc_calloc(dns->header.addition,sizeof(_cc_dns_record_t));
-        dns->additional = record;
-        // read additional
-        for (i = 0; i < dns->header.addition; i++) {
-            _cc_dns_record_t *r = record + i;
-            reader = dns_read_rdata(reader, buffer, buffer_end, r);
-            if (reader == NULL) {
-                dns->error_code = _CC_DNS_ERR_BAD_FORMAT_;
-                goto DNS_PARSE_FAILED;
-            }
-        }
-        dump(dns);
-        return true;
-
-DNS_PARSE_FAILED:
-        dns_cleanup_records(dns->answers, dns->header.answer);
-        dns_cleanup_records(dns->authorities, dns->header.author);
-        dns_cleanup_records(dns->additional, dns->header.addition);
-        dns->answers = NULL;
-        dns->authorities = NULL;
-        dns->additional = NULL;
-        dns->header.answer = 0;
-        dns->header.author = 0;
-        dns->header.addition = 0;
-        return false;
-    }
-
-    if (which & _CC_EVENT_TIMEOUT_) {
-        return false;
-    }
-
-    return true;
-}
-
-int _cc_dns_lookup(_cc_dns_t *dns, const char_t *host, int type) {
-    uint8_t buf[DNS_BUFFER_SIZE];
-    int offset;
-
-    _cc_socket_t dns_sock;
-    _cc_dns_header_t *header;
-
-    struct sockaddr_in dest;
-
-    dns->answers = NULL;
-    dns->authorities = NULL;
-    dns->additional = NULL;
-
-    // UDP packet for DNS queries
-    dns_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (dns_sock == _CC_INVALID_SOCKET_) {
-        return _CC_DNS_ERR_SEE_ERRNO_;
-    }
-
-    dns_ipv4_addr(&dest);
-
-    offset = sizeof(_cc_dns_header_t);
-
-    // point to the query portion
-    offset = dns_build_question(&buf[offset], host, type);
-    if (offset < 0) {
-        _cc_close_socket(dns_sock);
-        return _CC_DNS_ERR_FORMAT_ERROR_;
-    }
-    offset += sizeof(_cc_dns_header_t);
-
-    // Set the DNS structure to standard queries
-    header = (_cc_dns_header_t *)&buf;
-    memset(header, 0, sizeof(_cc_dns_header_t));
-    header->ident = (uint16_t)htons(_cc_getpid());
-
-    // Set standard codes and flags
-    header->flags = htons(0x0100); // recursion desired (RD)
-    header->quests = htons(1);
-
-    if (offset > 512) {
-        _cc_close_socket(dns_sock);
-        printf("Question too big for UDP ('%d' bytes)\n", offset);
-        return _CC_DNS_ERR_QUERY_TOO_LONG_;
-    }
-
-    printf("Sending Packet...\n");
-    if (sendto(dns_sock, (char *)buf, offset, 0, (struct sockaddr *)&dest, sizeof(dest)) < 0) {
-        _cc_close_socket(dns_sock);
-        return _CC_DNS_ERR_SEE_ERRNO_;
-    }
-
-    {
-        _cc_async_event_t *async = _cc_get_async_event();
-        if (async == NULL) {
-            _cc_close_socket(dns_sock);
-            return _CC_DNS_ERR_SEE_ERRNO_;
-        }
-
-        _cc_event_t *e = _cc_alloc_event(async, _CC_EVENT_READABLE_ | _CC_EVENT_TIMEOUT_);
-        if (e) {
-            e->fd = dns_sock;
-            e->callback = _dns_response_callback;
-            e->timeout = 60000;
-            e->data = (uintptr_t)dns;
-            if (!async->attach(async, e)) {
-                _cc_logger_error("thread %d attach socket (%d) event fial.", _cc_get_thread_id(NULL), dns_sock);
-                _cc_free_event(async, e);
-                return _CC_DNS_ERR_SEE_ERRNO_;
-            }
-            return 0;
-        }
-    }
-    _cc_close_socket(dns_sock);
-    return _CC_DNS_ERR_ENOMEM_;
-}
-
-void _cc_dns_free(_cc_dns_t *dns) {
-    dump(dns);
-
-    if (dns->answers) {
-        dns_cleanup_records(dns->answers, dns->header.answer);
-    }
-
-    if (dns->authorities) {
-        dns_cleanup_records(dns->authorities, dns->header.author);
-    }
-
-    if (dns->additional) {
-        dns_cleanup_records(dns->additional, dns->header.addition);
-    }
-    dns->answers = NULL;
-    dns->authorities = NULL;
-    dns->additional = NULL;
-
-    dns->header.answer = 0;
-    dns->header.author = 0;
-    dns->header.addition = 0;
 }
 
 /*
  *
  * */
-_CC_API_PRIVATE(void) dns_ipv4_addr(struct sockaddr_in *addr) {
-    _cc_assert(addr != NULL);
+_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *reader, uint8_t *buffer, uint8_t *buffer_end, int *count, uint16_t *length) {
+    bool_t jumped = false;
+    char_t name[256];
 
-    memset(addr, 0, sizeof(struct sockaddr_in));
+    int name_index = 0;
+    int max_steps;
+    uint8_t *ptr;
 
-    addr->sin_family = AF_INET;
-    addr->sin_port = 13568; // or htons(53);
+    if (reader == NULL || buffer == NULL || buffer_end == NULL || count == NULL) {
+        return NULL;
+    }
 
-    memcpy(&addr->sin_addr, &dns_servers[0], sizeof(addr->sin_addr));
+    if (reader >= buffer_end) {
+        return NULL;
+    }
+
+    if (length) {
+        *length = 0;
+    }
+    *count = 0;
+    ptr = reader;
+    max_steps = (int)(buffer_end - buffer);
+
+    while (ptr < buffer_end && max_steps-- > 0) {
+        uint8_t len = *ptr;
+
+        if ((len & 0xC0) == 0xC0) {
+            uint16_t offset;
+            if (ptr + 1 >= buffer_end) {
+                return NULL;
+            }
+
+            offset = (uint16_t)(((len & 0x3F) << 8) | *(ptr + 1));
+            if (offset >= (uint16_t)(buffer_end - buffer)) {
+                return NULL;
+            }
+
+            if (!jumped) {
+                *count += 2;
+            }
+            ptr = buffer + offset;
+            jumped = true;
+            continue;
+        }
+
+        if (len == 0) {
+            if (!jumped) {
+                *count += 1;
+            }
+            break;
+        }
+
+        if (ptr + 1 + len > buffer_end) {
+            return NULL;
+        }
+
+        if (name_index + len + 1 >= _cc_countof(name)) {
+            return NULL;
+        }
+
+        memcpy(name + name_index, ptr + 1, len);
+        name_index += len;
+        name[name_index++] = '.';
+
+        if (!jumped) {
+            *count += 1 + len;
+        }
+
+        ptr += 1 + len;
+    }
+
+    if (ptr >= buffer_end) {
+        return NULL;
+    }
+
+    if (name_index == 0) {
+        name[0] = 0;
+        return NULL;
+    }
+
+    name[name_index - 1] = 0;
+    if (length) {
+        *length = (uint16_t)(name_index - 1);
+    }
+
+    ptr = (uint8_t*)_cc_malloc(name_index);
+    memcpy(ptr, name, (size_t)(name_index - 1));
+    ptr[name_index - 1] = 0;
+    return ptr;
 }
+
 /*
  *
  * */
@@ -478,7 +240,7 @@ _CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, uint8
         return NULL;
     }
 
-    rescord->name = (char_t *)dns_read_name(reader, buffer, buffer_end, &stop);
+    rescord->name = (char_t *)dns_read_name(reader, buffer, buffer_end, &stop, &rescord->name_length);
     if (rescord->name == NULL) {
         return NULL;
     }
@@ -504,7 +266,7 @@ _CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, uint8
 
     switch (rescord->type) {
     case _CC_DNS_T_CNAME_: {
-        rescord->rdata = dns_read_name(reader, buffer, buffer_end, &stop);
+        rescord->rdata = dns_read_name(reader, buffer, buffer_end, &stop, &rescord->length);
         if (rescord->rdata == NULL) {
             return NULL;
         }
@@ -518,7 +280,6 @@ _CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, uint8
         if ((buffer_end - reader) < rescord->length) {
             return NULL;
         }
-
         rescord->rdata = (uint8_t *)_cc_malloc(rescord->length);
         memcpy(rescord->rdata, (reader), rescord->length);
         reader += rescord->length;
@@ -527,78 +288,112 @@ _CC_API_PRIVATE(uint8_t*) dns_read_rdata(uint8_t *reader, uint8_t *buffer, uint8
 
     return reader;
 }
-/*
- *
- * */
-_CC_API_PRIVATE(uint8_t*) dns_read_name(uint8_t *reader, uint8_t *buffer, uint8_t *buffer_end, int *count) {
-    int offset;
-    bool_t jumped = false;
-    char_t name[256];
-    int name_length = _cc_countof(name);
-    int max_steps;
-
-    int i = 0;
-
-    if (reader == NULL || buffer == NULL || buffer_end == NULL || count == NULL) {
-        return NULL;
-    }
-
-    max_steps = (int)(buffer_end - buffer);
-    if (max_steps <= 0) {
-        return NULL;
-    }
-
-    *count = 1;
-
-    // read the names in 3www6google3com format
-    while (reader < buffer_end && *reader != 0 && max_steps-- > 0) {
-        if (*reader >= 192) {
-            if ((reader + 1) >= buffer_end) {
-                return NULL;
-            }
-            offset = (*reader) * 256 + *(reader + 1) - 49152; // 49152 = 11000000 00000000 ;)
-            if (offset <= 0 || (buffer + offset) >= buffer_end) {
-                return NULL;
-            }
-            reader = buffer + offset - 1;
-            // we have jumped to another location so counting wont go up!
-            jumped = true;
-        } else if (i < name_length) {
-            name[i++] = *reader;
-        }
-
-        reader++;
-
-        if (!jumped) {
-            // if we havent jumped to another location then we can count up
-            *count += 1;
-        }
-    }
-
-    if (reader >= buffer_end || max_steps <= 0) {
-        return NULL;
-    }
-
-    // string complete
-    if (name_length > i) {
-        name[i] = 0;
-        name_length = i;
-    }
-
-    if (jumped) {
-        // number of steps we actually moved forward in the packet
-        *count += 1;
-    }
-
-    // now convert 3www6google3com0 to www.google.com
-    name_length = _domain(name, name_length);
-
-    return (uint8_t *)_cc_sds_alloc((const char *)name, name_length);
-}
 
 /*
  * Get the DNS servers from /etc/resolv.conf file on Linux/unix
  * */
+// List of DNS Servers registered on the system
+static struct in_addr dns_servers[DNS_SERVERS_MCOUNT];
+static int dns_server_count = 0;
+
+/* Answer modifier callback storage */
+static bool_t (*g_answer_modifier)( _cc_dns_record_t *rec, void *ctx ) = NULL;
+static void *g_answer_modifier_ctx = NULL;
+
+_CC_API_PUBLIC(void) _cc_dns_set_answer_modifier(bool_t (*fn)(_cc_dns_record_t *rec, void *ctx), void *ctx) {
+    g_answer_modifier = fn;
+    g_answer_modifier_ctx = ctx;
+}
+
+/* write a domain name in label format (no compression) */
+static int dns_write_name(uint8_t *out, size_t outlen, const char *name) {
+    if (!out || !name) return -1;
+    size_t pos = 0;
+    const char *start = name;
+    const char *p = name;
+    while (1) {
+        if (*p == '.' || *p == '\0') {
+            size_t labellen = (size_t)(p - start);
+            if (labellen > 63) return -1;
+            if (pos + 1 + labellen > outlen) return -1;
+            out[pos++] = (uint8_t)labellen;
+            if (labellen) {
+                memcpy(out + pos, start, labellen);
+                pos += labellen;
+            }
+            if (*p == '\0') {
+                if (pos + 1 > outlen) return -1;
+                out[pos++] = 0;
+                break;
+            }
+            p++;
+            start = p;
+            continue;
+        }
+        p++;
+    }
+    return (int)pos;
+}
+
+/* Rebuild a DNS response containing header, original question(s) and provided answers.
+   This implementation writes names without compression. Returns length on success, -1 on error. */
+_CC_API_PUBLIC(int) _cc_dns_rebuild_response(uint8_t *outbuf, size_t outlen, uint8_t *orig_resp, size_t orig_len, _cc_dns_record_t *answers, uint16_t answer_count, uint16_t author_count, uint16_t add_count, size_t question_offset) {
+    if (!outbuf || !orig_resp || orig_len < sizeof(_cc_dns_header_t)) return -1;
+    if (question_offset > orig_len) return -1;
+
+    /* copy header */
+    if (outlen < sizeof(_cc_dns_header_t)) return -1;
+    memcpy(outbuf, orig_resp, sizeof(_cc_dns_header_t));
+    _cc_dns_header_t *oh = (_cc_dns_header_t *)outbuf;
+
+    /* set counts */
+    oh->answer = htons(answer_count);
+    oh->author = htons(author_count);
+    oh->addition = htons(add_count);
+
+    size_t pos = sizeof(_cc_dns_header_t);
+
+    /* copy questions from original packet (header..question_offset) */
+    size_t qlen = question_offset - sizeof(_cc_dns_header_t);
+    if (question_offset < sizeof(_cc_dns_header_t)) return -1;
+    if (pos + qlen > outlen) return -1;
+    memcpy(outbuf + pos, orig_resp + sizeof(_cc_dns_header_t), qlen);
+    pos += qlen;
+
+    /* now append answers */
+    for (uint16_t i = 0; i < answer_count; i++) {
+        _cc_dns_record_t *r = answers + i;
+        /* write name */
+        int wrote = dns_write_name(outbuf + pos, outlen - pos, r->name ? r->name : "");
+        if (wrote < 0) return -1;
+        pos += (size_t)wrote;
+
+        /* R_DATA struct */
+        if (pos + sizeof(struct R_DATA) > outlen) return -1;
+        struct R_DATA rd;
+        rd.type = htons(r->type);
+        rd.classes = htons(r->classes);
+        rd.ttl = htonl(r->ttl);
+        rd.length = htons(r->length);
+        memcpy(outbuf + pos, &rd, sizeof(struct R_DATA));
+        pos += sizeof(struct R_DATA);
+
+        /* rdata */
+        if (r->type == _CC_DNS_T_CNAME_) {
+            /* r->rdata is a textual name; write as labels */
+            int wn = dns_write_name(outbuf + pos, outlen - pos, (const char *)r->rdata);
+            if (wn < 0) return -1;
+            pos += (size_t)wn;
+        } else {
+            if (pos + r->length > outlen) return -1;
+            memcpy(outbuf + pos, r->rdata, r->length);
+            pos += r->length;
+        }
+    }
+
+    return (int)pos;
+}
+
 void _cc_dns_servers(const tchar_t *servers[], int count) {
 #ifndef __CC_WINDOWS__
     FILE *fp;
@@ -640,36 +435,182 @@ void _cc_dns_servers(const tchar_t *servers[], int count) {
     }
 }
 
-#ifdef _TESTES_
-int main(int argc, char *argv[]) {
-    tchar_t *domain;
-    tchar_t hostname[100];
-    tchar_t *dns_servers_list[2] = {"114.114.114.114", "223.5.5.5"};
+int _cc_dns_question(uint8_t *question, size_t length, const char_t *host, int type) {
+    int offset;
 
-    _cc_dns_t dns;
-    memset(&dns, 0, sizeof(_cc_dns_t));
-    _cc_install_socket();
+    _cc_dns_header_t *header;
 
-    /*Get the DNS servers from the resolv.conf file*/
-    _cc_dns_servers((const tchar_t **)dns_servers_list, _cc_countof(dns_servers_list));
+    offset = sizeof(_cc_dns_header_t);
 
-    if (argc <= 1) {
-        // Get the hostname from the terminal
-        printf("Enter Hostname to Lookup : ");
-        scanf("%s", hostname);
-        domain = hostname;
-        _cc_dns_lookup(&dns, hostname, _CC_DNS_T_A_);
-    } else {
-        _cc_dns_lookup(&dns, argv[0], _CC_DNS_T_A_);
+    // point to the query portion
+    offset = dns_build_question(question + offset, length, host, type);
+    if (offset < 0) {
+        return _CC_DNS_ERR_FORMAT_ERROR_;
+    }
+    offset += sizeof(_cc_dns_header_t);
+    if (offset > (int)length) {
+        return _CC_DNS_ERR_QUERY_TOO_LONG_;
     }
 
-    /*Now get the ip of this hostname , A record*/
-    //_cc_dns_lookup(&dns, "www.baidu.com", _CC_DNS_T_A_);
+    // Set the DNS structure to standard queries
+    header = (_cc_dns_header_t *)question;
+    memset(header, 0, sizeof(_cc_dns_header_t));
+    header->ident = (uint16_t)htons(_cc_getpid());
 
-    _cc_dns_free(&dns);
+    // Set standard codes and flags
+    header->flags = htons(0x0100); // recursion desired (RD)
+    header->quests = htons(1);
 
-    _cc_uninstall_socket();
-    return 0;
+    if (offset > 512) {
+        printf("Question too big for UDP ('%d' bytes)\n", offset);
+        return _CC_DNS_ERR_QUERY_TOO_LONG_;
+    }
+
+    return offset;
 }
 
-#endif
+int _cc_dns_response(uint8_t *response, size_t length) {
+    _cc_dns_header_t *header;
+    _cc_dns_record_t *additions = NULL;
+    _cc_dns_record_t *answers = NULL;
+    _cc_dns_record_t *authors = NULL;
+    uint16_t header_flags;
+    size_t offset;
+    uint8_t *reader;
+    int i;
+
+    if (response == NULL || length < sizeof(_cc_dns_header_t)) {
+        return _CC_DNS_ERR_BAD_FORMAT_;
+    }
+
+    header = (_cc_dns_header_t *)response;
+    header_flags = _cc_swap16(header->flags);
+    uint16_t rcode = header_flags & 0x000F;
+
+    if (header_flags & 0x0200) {
+        return _CC_DNS_ERR_REPLY_TRUNCATED_;
+    }
+
+    if (rcode != DNS_R_NO_ERROR) {
+        switch (rcode) {
+        case DNS_R_FORMAT_ERROR:
+            return _CC_DNS_ERR_BAD_FORMAT_;
+        case DNS_R_NAME_ERROR:
+            return _CC_DNS_ERR_NO_SUCH_NAME_;
+        case DNS_R_SERVER_FAILURE:
+            return _CC_DNS_ERR_SERVER_FAILURE_;
+        case DNS_R_NOT_IMPLEMENTED:
+            return _CC_DNS_ERR_NOT_IMPLEMENTED_;
+        case DNS_R_REFUSED:
+            return _CC_DNS_ERR_QUERY_REFUSED_;
+        default:
+            return _CC_DNS_ERR_BAD_FORMAT_;
+        }
+    }
+
+    printf("Now check the reply code:%d,%x\n", rcode, header_flags);
+
+    uint16_t quests = _cc_swap16(header->quests);
+    uint16_t answer = _cc_swap16(header->answer);
+    uint16_t author = _cc_swap16(header->author);
+    uint16_t addition = _cc_swap16(header->addition);
+
+    printf("\nThe response contains : %ld", length);
+    printf("\n %d Questions.", quests);
+    printf("\n %d Answers.", answer);
+    printf("\n %d Authoritative Servers.", author);
+    printf("\n %d Additional records.\n\n", addition);
+
+    // move ahead of the dns header and the query field
+    offset = sizeof(_cc_dns_header_t);
+
+    /* So far all is fine. Now parse response into lists of items */
+    /* Assume that the question section remains unchanged and start
+        * with the answers section instead. */
+    for (i = 0; i < (int)quests; i++) {
+        if (!dns_skip_name(response, response + length, &offset)) {
+            return _CC_DNS_ERR_BAD_FORMAT_;
+        }
+
+        if (offset + sizeof(struct QUESTION) > length) {
+            return _CC_DNS_ERR_BAD_FORMAT_;
+        }
+        offset += sizeof(struct QUESTION);
+    }
+
+    if (offset > length) {
+        return _CC_DNS_ERR_BAD_FORMAT_;
+    }
+
+    reader = response + offset;
+
+    if (answer > 0) {
+        answers = (_cc_dns_record_t *)_cc_calloc(answer, sizeof(_cc_dns_record_t));
+        for (i = 0; i < answer; i++) {
+            _cc_dns_record_t *r = answers + i;
+            reader = dns_read_rdata(reader, response, response + length, r);
+            if (reader == NULL) {
+                goto DNS_PARSE_FAILED;
+            }
+        }
+    }
+    _tprintf(_T("Answer Records : %u \n"), answer);
+    dump(answers, answer);
+
+    /* apply modifier callback if set */
+    if (g_answer_modifier) {
+        for (i = 0; i < (int)answer; i++) {
+            g_answer_modifier(answers + i, g_answer_modifier_ctx);
+        }
+    }
+
+    if (author > 0) {
+        authors = (_cc_dns_record_t *)_cc_calloc(author, sizeof(_cc_dns_record_t));
+        for (i = 0; i < author; i++) {
+            _cc_dns_record_t *r = authors + i;
+            reader = dns_read_rdata(reader, response, response + length, r);
+            if (reader == NULL) {
+                goto DNS_PARSE_FAILED;
+            }
+        }
+    }
+    _tprintf(_T("Authoritative Records : %u \n"), author);
+    dump(authors, author);
+
+    if (addition > 0) {
+        additions = (_cc_dns_record_t *)_cc_calloc(addition, sizeof(_cc_dns_record_t));
+        for (i = 0; i < addition; i++) {
+            _cc_dns_record_t *r = additions + i;
+            reader = dns_read_rdata(reader, response, response + length, r);
+            if (reader == NULL) {
+                goto DNS_PARSE_FAILED;
+            }
+        }
+    }
+    _tprintf(_T("Additional Records : %u \n"), addition);
+    dump(additions, addition);
+
+    /* attempt to rebuild response and overwrite original if fits */
+    if (answer > 0) {
+        uint8_t *tmp = (_cc_malloc(65536));
+        if (tmp) {
+            int rebuilt = _cc_dns_rebuild_response(tmp, 65536, response, length, answers, answer, author, addition, offset);
+            if (rebuilt > 0 && (size_t)rebuilt <= length) {
+                memcpy(response, tmp, (size_t)rebuilt);
+            }
+            _cc_free(tmp);
+        }
+    }
+    dns_cleanup_records(answers, answer);
+    dns_cleanup_records(authors, author);
+    dns_cleanup_records(additions, addition);
+
+    return 1;
+
+
+DNS_PARSE_FAILED:
+    dns_cleanup_records(answers, answer);
+    dns_cleanup_records(authors, author);
+    dns_cleanup_records(additions, addition);
+    return _CC_DNS_ERR_BAD_FORMAT_;
+}

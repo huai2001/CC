@@ -3,62 +3,70 @@
 #include <libcc/thread.h>
 #include <libcc/event.h>
 
-_CC_API_PRIVATE(bool_t) _dns_response_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
-    if (which & _CC_EVENT_READABLE_) {
-        struct sockaddr_in sa;
-        int32_t n = 0;
-//        int32_t res = 0;
-//        int32_t offset = 0;
-//        struct QUESTION *q;
-//        _cc_dns_header_t *dns_header;
-//        _cc_dns_question_t dns_question;
-        byte_t buffer[_CC_IO_BUFFER_SIZE_];
-        socklen_t sa_len = (socklen_t)sizeof(sa);
-
-        n = (int32_t)recvfrom(e->fd, (char*)&buffer, _CC_IO_BUFFER_SIZE_, 0, (struct sockaddr *)&sa, &sa_len);
-        
-        if (n < sizeof(_cc_dns_header_t)) {
-            return true;
-        }
-        /*
-        dns_header = (_cc_dns_header_t*)&buffer;
-        offset = sizeof(_cc_dns_header_t);
-        dns_question.name = (char_t*)dns_read_name(&buffer[offset], buffer, &res);
-        dns_question.name_length = res;
-        offset += res;
-
-        q = (struct QUESTION*)&buffer[offset];
-        dns_question.type = ntohs(q->type);
-        dns_question.classes = ntohs(q->classes);
-
-        printf("DNS:%s\n", dns_question.name);
-
-        _cc_free(dns_question.name);
-        */
-        return true;
-    }
+#define DNS_PORT 53
 /*
-    if (which & _CC_EVENT_TIMEOUT_) {
-        return false;
+ * This will convert 3www6google3com to www.google.com
+ * got it :)
+ * */
+_CC_API_PRIVATE(int) dns_read_name(char_t *domain_name, size_t domain_name_length, uint8_t *buffer, size_t buffer_length) {
+    int offset = 0;
+    size_t pos = 0;
+    if (domain_name == NULL || buffer == NULL || buffer_length == 0) {
+        return -1;
     }
-
-    if (which & _CC_EVENT_CLOSED_) {
-        return false;
+    while (offset < (int)buffer_length && pos < (int)domain_name_length) {
+        uint8_t length = buffer[offset];
+        if (length == 0) {
+            domain_name[pos - 1] = '\0';
+            return pos;
+        }
+        if (length > 63 || (offset + 1 + length) > (int)buffer_length) {
+            return -1;
+        }
+        memcpy(domain_name + pos, buffer + offset + 1, length);
+        pos += length;
+        domain_name[pos++] = '.';
+        offset += length + 1;
     }
-*/
-    return false;
+    return -1;
 }
 
 bool_t _cc_dns_listen(void) {
+    _cc_socket_t sockfd;
     struct sockaddr_in sa;
-    _cc_async_event_t *async = _cc_get_async_event();
-    _cc_event_t *e = _cc_alloc_event(async, _CC_EVENT_ACCEPT_);
-    if (e) {
-        e->callback = _dns_response_callback;
-        e->timeout = 60000;
+    int opt = 1;
 
-        _cc_inet_ipv4_addr(&sa, NULL, 53);
-        return _cc_tcp_listen(async, e, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in));
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("Socket creation failed");
+        return false;
+    }
+
+    _cc_inet_ipv4_addr(&sa, NULL, DNS_PORT);
+
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
+    if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+        perror("Bind failed");
+        return false;
+    }
+    printf("DNS Server listening on port %d...\n", DNS_PORT);
+    while (1) {
+        struct sockaddr_in client_addr;
+        socklen_t client_len = sizeof(client_addr);
+        byte_t buffer[65535];
+        int n = (int)recvfrom(sockfd, (char *)buffer, sizeof(buffer), 0, (struct sockaddr *)&client_addr, &client_len);
+        if (n < 0) {
+            perror("recvfrom failed");
+            continue;
+        }
+        _cc_dns_header_t *dns_header = (_cc_dns_header_t *)buffer;
+        printf("Received DNS query from %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        tchar_t domain_name[512];
+        int offset = sizeof(_cc_dns_header_t);
+        int domain_length = dns_read_name(domain_name, 512, &buffer[offset], n - offset);
+
+        printf("DNS request for %s\n", domain_name);
+        struct QUESTION *q = (struct QUESTION *)&buffer[offset + domain_length + 1];
+        printf("DNS Type: %d, Class: %d\n", ntohs(q->type), ntohs(q->classes));
     }
     return false;
 }

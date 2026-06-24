@@ -203,7 +203,7 @@ int free_disk(const char* mount) {
     
     // 获取文件系统信息
     if (statvfs(mount, &buf) == -1) {
-        _cc_logger(_CC_LOG_LEVEL_ERROR_, "Unable to obtain file system information");
+        _cc_logger_error("Unable to obtain file system information");
         close(fd);
         _cc_unlink(temp_file);
         return -1;

@@ -23,7 +23,7 @@
 #include "endian.h"
 
 #define _cc_abort(fmt, ...) do {\
-    _cc_logger_format(_CC_LOG_LEVEL_ALERT_, fmt, ##__VA_ARGS__);\
+    _cc_logger(_CC_LOG_LEVEL_ALERT_, fmt, ##__VA_ARGS__);\
     abort();\
 } while (0)
 

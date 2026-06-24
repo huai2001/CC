@@ -64,9 +64,11 @@ typedef struct _cc_dns {
 #define _CC_DNS_T_LOC_            29       /* Location information (RFC-1876) */
 #define _CC_DNS_T_SRV_            33       /* Service information (RFC-2782) */
 #define _CC_DNS_T_A6_             38       /* IPv6 A6 address record (RFC-2874) */
+#define _CC_DNS_T_SVCB_           64       /**/
+#define _CC_DNS_T_HTTPS_          65       /**/
 /* the following appear in query records only! */
 #define _CC_DNS_T_AXFR_           252      /* Zone transfer */
-#define _CC_DNS_T_ANY_            255        /* All records */
+#define _CC_DNS_T_ANY_            255      /* All records */
 
 
 #define _CC_DNS_OP_QUERY_         0
@@ -78,25 +80,28 @@ typedef struct _cc_dns {
 /* 
  * #define's for Libdns error codes
  */
-#define _CC_DNS_ERR_FORMAT_ERROR_            1  /* Format error of request string */
-#define _CC_DNS_ERR_TOKEN_TOO_LONG_          2  /* A token was longer than 63 */
-#define _CC_DNS_ERR_SEE_ERRNO_               3  /* Look at value of errno */
-#define _CC_DNS_ERR_NULL_PARAM_              4  /* A NULL parameter was given */
-#define _CC_DNS_ERR_INVALID_QUERY_           5  /* The given _cc_dns_t is invalid */
-#define _CC_DNS_ERR_PARAM_ERROR_             6  /* Function given invalid param */
-#define _CC_DNS_ERR_QUERY_TOO_LONG_          7  /* The whole query is too big
+#define _CC_DNS_ERR_FORMAT_ERROR_            -1  /* Format error of request string */
+#define _CC_DNS_ERR_TOKEN_TOO_LONG_          -2  /* A token was longer than 63 */
+#define _CC_DNS_ERR_SEE_ERRNO_               -3  /* Look at value of errno */
+#define _CC_DNS_ERR_NULL_PARAM_              -4  /* A NULL parameter was given */
+#define _CC_DNS_ERR_INVALID_QUERY_           -5  /* The given _cc_dns_t is invalid */
+#define _CC_DNS_ERR_PARAM_ERROR_             -6  /* Function given invalid param */
+#define _CC_DNS_ERR_QUERY_TOO_LONG_          -7  /* The whole query is too big
                                                  * (> 512 for UDP) */
-#define _CC_DNS_ERR_REPLY_TRUNCATED_         8  /* The response was truncated */
-#define _CC_DNS_ERR_NO_SUCH_NAME_            9  /* requested name doesn't exist */
-#define _CC_DNS_ERR_QUERY_REFUSED_          10  /* Server refused to handle query */
-#define _CC_DNS_ERR_BAD_FORMAT_             11  /* sent query was badly formatted */
-#define _CC_DNS_ERR_SERVER_FAILURE_         12  /* Server failure */
-#define _CC_DNS_ERR_NOT_IMPLEMENTED_        13  /* Query type not supported */
-#define _CC_DNS_ERR_TIMEDOUT_               14  /* Timed out waiting for reply */
-#define _CC_DNS_ERR_ENOMEM_                 15  /* Out of memory*/
+#define _CC_DNS_ERR_REPLY_TRUNCATED_         -8  /* The response was truncated */
+#define _CC_DNS_ERR_NO_SUCH_NAME_            -9  /* requested name doesn't exist */
+#define _CC_DNS_ERR_QUERY_REFUSED_          -10  /* Server refused to handle query */
+#define _CC_DNS_ERR_BAD_FORMAT_             -11  /* sent query was badly formatted */
+#define _CC_DNS_ERR_SERVER_FAILURE_         -12  /* Server failure */
+#define _CC_DNS_ERR_NOT_IMPLEMENTED_        -13  /* Query type not supported */
+#define _CC_DNS_ERR_TIMEDOUT_               -14  /* Timed out waiting for reply */
+#define _CC_DNS_ERR_ENOMEM_                 -15  /* Out of memory*/
 
 /**/
-_CC_API_PUBLIC(int) _cc_dns_lookup(_cc_dns_t* dns, const char_t* host, int type);
+_CC_API_PUBLIC(int) _cc_dns_question(uint8_t *question, size_t length, const char_t *host, int type) ;
+_CC_API_PUBLIC(int) _cc_dns_response(uint8_t *response, size_t length);
+_CC_API_PUBLIC(void) _cc_dns_set_answer_modifier(bool_t (*fn)(_cc_dns_record_t *rec, void *ctx), void *ctx);
+_CC_API_PUBLIC(int) _cc_dns_rebuild_response(uint8_t *outbuf, size_t outlen, uint8_t *orig_resp, size_t orig_len, _cc_dns_record_t *answers, uint16_t answer_count, uint16_t author_count, uint16_t add_count, size_t question_offset);
 /**/
 _CC_API_PUBLIC(void) _cc_dns_free(_cc_dns_t* dns);
 /**/

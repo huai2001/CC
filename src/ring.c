@@ -3,14 +3,12 @@
 #include <libcc/ring.h>
 #include <libcc/string.h>
 
-#define _CC_RING_EXPAND_ 1
-
 /**/
 _CC_API_PUBLIC(bool_t) _cc_alloc_ring(_cc_ring_t *ctx, int32_t slot_size) {
     _cc_assert(ctx != NULL);
 
     ctx->size = _max(slot_size, 10);
-    ctx->data = (pvoid_t)_cc_calloc(ctx->size, sizeof(pvoid_t));
+    ctx->data = (intptr_t*)_cc_calloc(ctx->size, sizeof(intptr_t));
     if (_cc_unlikely(ctx->data == NULL)) {
         return false;
     }
@@ -41,7 +39,7 @@ _CC_API_PUBLIC(bool_t) _cc_ring_empty(_cc_ring_t *ctx) {
 }
 
 /**/
-_CC_API_PUBLIC(bool_t) _cc_ring_push(_cc_ring_t *ctx, pvoid_t data) {
+_CC_API_PUBLIC(bool_t) _cc_ring_push(_cc_ring_t *ctx, intptr_t data) {
     uint32_t w;
     _cc_assert(ctx != NULL);
 
@@ -61,21 +59,18 @@ _CC_API_PUBLIC(bool_t) _cc_ring_push(_cc_ring_t *ctx, pvoid_t data) {
 }
 
 /**/
-_CC_API_PUBLIC(pvoid_t) _cc_ring_pop(_cc_ring_t *ctx) {
-    uint32_t r;
-    pvoid_t data;
+_CC_API_PUBLIC(intptr_t) _cc_ring_pop(_cc_ring_t *ctx) {
+    intptr_t data;
     _cc_assert(ctx != NULL);
 
     if (ctx->r == ctx->w) {
-        return NULL;
+        return 0;
     }
 
     _cc_spin_lock(&ctx->lock);
-    r = (ctx->r + 1) % ctx->size;
-
     data = ctx->data[ctx->r];
-    ctx->r = r;
-
+    ctx->r = (ctx->r + 1) % ctx->size;
     _cc_unlock(&ctx->lock);
+
     return data;
 }

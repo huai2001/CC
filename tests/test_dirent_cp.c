@@ -13,7 +13,7 @@ bool_t _cc_copyfile(const tchar_t* existing_file_name, const tchar_t* new_file_n
  
     input = _topen(existing_file_name, O_RDONLY);
     if (input <= 0) {
-        _cc_logger_error("Could't open file:%s\n", existing_file_name);
+        _tprintf("Could't open file:%s\n", existing_file_name);
         return false;
     }
 
@@ -28,7 +28,7 @@ bool_t _cc_copyfile(const tchar_t* existing_file_name, const tchar_t* new_file_n
 
     output = _topen(new_file_name, O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
     if(output <= 0) {
-        _cc_logger_error("Could't open or write file:%s\n", new_file_name);
+        _tprintf("Could't open or write file:%s\n", new_file_name);
         close(input);
         return false;
     }
@@ -48,7 +48,7 @@ bool_t _cc_copyfile(const tchar_t* existing_file_name, const tchar_t* new_file_n
             r = -1;
             if (w < 0) {
                 int r = _cc_last_errno();
-                _cc_logger_error("write error: %s (%d)", _cc_last_error(r), r);
+                _tprintf("write error: %s (%d)", _cc_last_error(r), r);
             }
             break;
         }
@@ -77,7 +77,7 @@ size_t OpenDeepDirectory(const tchar_t *sourceDirectory, const tchar_t *targetDi
     size_t filesCount = 0;
     
     if( (dpath = opendir(sourceDirectory)) == NULL) {
-        _cc_logger_error("Could't open directory:%s\n", sourceDirectory);
+        _tprintf("Could't open directory:%s\n", sourceDirectory);
         return 0;
     }
     

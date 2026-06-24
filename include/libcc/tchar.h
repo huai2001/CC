@@ -108,6 +108,7 @@ extern "C" {
 #define _tcstoul        wcstoul
 #define _tcscat         wcscat
 #define _tcschr         wcschr
+#define _tcsrchr        wcsrchr
 #define _tcscmp         wcscmp
 #define _tcscpy         wcscpy
 #define _tcscspn        wcscspn
@@ -116,7 +117,6 @@ extern "C" {
 #define _tcsncmp        wcsncmp
 #define _tcsncpy        wcsncpy
 #define _tcspbrk        wcspbrk
-#define _tcsrchr        wcsrchr
 #define _tcsspn         wcsspn
 #define _tcsstr         wcsstr
 #define _tcstok         wcstok
@@ -384,6 +384,7 @@ extern "C" {
 #define _tcstoul        strtoul
 #define _tcscat         strcat
 #define _tcschr         strchr
+#define _tcsrchr        strrchr
 #define _tcscmp         strcmp
 #define _tcscpy         strcpy
 #define _tcscspn        strcspn
@@ -392,7 +393,6 @@ extern "C" {
 #define _tcsncmp        strncmp
 #define _tcsncpy        strncpy
 #define _tcspbrk        strpbrk
-#define _tcsrchr        strrchr
 #define _tcsspn         strspn
 #define _tcsstr         strstr
 #define _tcstok         strtok

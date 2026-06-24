@@ -73,7 +73,6 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/rand.c \
 	$(SRCROOT)/src/ring.c \
 	$(SRCROOT)/src/logger.c \
-	$(SRCROOT)/src/syslog.c \
 	$(SRCROOT)/src/cpu.c \
 	$(SRCROOT)/src/file.c \
 	$(SRCROOT)/src/snowflake.c \

@@ -56,7 +56,7 @@ _CC_API_PRIVATE(bool_t) _ws_response_header(_cc_event_t *e, _cc_ws_t *ws) {
     _cc_io_buffer_t *io = (_cc_io_buffer_t*)ws->io;
 
     length = (int32_t)_snprintf(results, _cc_countof(results), "%s258EAFA5-E914-47DA-95CA-C5AB0DC85B11", ws_key->value);
-    //_cc_logger_debug("Sec-WebSocket-Key: %s",ws_key->value);
+    //printf("Sec-WebSocket-Key: %s",ws_key->value);
 
     _cc_sha1_init(&c);
     c.update(&c, (byte_t*)results, length);
@@ -111,7 +111,7 @@ _CC_API_PRIVATE(bool_t) _ws_unpack(_cc_event_t *e) {
                 case WS_OP_PING:
                 case WS_OP_PONG:
                     if (ws->header.payload > (int64_t)io->r.limit) {
-                        _cc_logger_debug("big data fail. operation 0x%x", ws->header.operation);
+                        printf("big data fail. operation 0x%x", ws->header.operation);
                         return false;
                     }
                     break;
@@ -125,7 +125,7 @@ _CC_API_PRIVATE(bool_t) _ws_unpack(_cc_event_t *e) {
                     return false;
                 default:
                     /* not handled or failed */
-                    _cc_logger_debug("Unhandled ext operation 0x%x", ws->header.operation);
+                    printf("Unhandled ext operation 0x%x", ws->header.operation);
                     return false;
             }
         }
@@ -134,7 +134,7 @@ _CC_API_PRIVATE(bool_t) _ws_unpack(_cc_event_t *e) {
             int64_t length = (io->r.off - off);
             if (ws->header.payload > (int64_t)io->r.limit) {
                 int64_t remaining = ws->header.payload - ws->length;
-                //_cc_logger_debug("big data. operation 0x%x", ws->header.operation);
+                //printf("big data. operation 0x%x", ws->header.operation);
                 if (remaining <= length) {
                     //copy data
                     //memcpy(ws->buf + ws->length, io->r.bytes + off, remaining);
@@ -252,7 +252,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
 
         fd = async->accept(async, e, (_cc_sockaddr_t*)&remote_addr, &remote_addr_len);
         if (fd == _CC_INVALID_SOCKET_) {
-            _cc_logger_error("accept fail %s.", _cc_last_error(_cc_last_errno()));
+            printf("accept fail %s.", _cc_last_error(_cc_last_errno()));
             return true;
         }
 
@@ -276,7 +276,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         event->data = (uintptr_t)_ws_alloc(fd);
 
         if (async2->attach(async2, event) == false) {
-            _cc_logger_debug("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
+            printf("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
             _cc_free_event(async2, event);
             _ws_free(ws);
             return true;
@@ -285,7 +285,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         {
             struct sockaddr_in *remote_ip = (struct sockaddr_in *)&remote_addr;
             byte_t *ip_addr = (byte_t *)&remote_ip->sin_addr.s_addr;
-            _cc_logger_debug("TCP accept [%d,%d,%d,%d] %d,%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], event->ident >> 20 ,event->ident % 0x0FFFF);
+            printf("TCP accept [%d,%d,%d,%d] %d,%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], event->ident >> 20 ,event->ident % 0x0FFFF);
         }
 
         return true;
@@ -305,13 +305,13 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         }
     }
 #endif
-        _cc_logger_debug("TCP timeout %d:%d", e->ident >> 20 ,e->ident % 0x0FFFF);
+        printf("TCP timeout %d:%d", e->ident >> 20 ,e->ident % 0x0FFFF);
         if (_ws_heartbeat(e, WS_OP_PONG)) {
             return true;
         }
         return false;
     } else if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug("%d:%d disconnect to client.", e->ident >> 20 ,e->ident % 0x0FFFF);
+        printf("%d:%d disconnect to client.", e->ident >> 20 ,e->ident % 0x0FFFF);
         if (e->data) {
             _ws_free((_cc_ws_t*)e->data);
         }
@@ -323,7 +323,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
         do {
             int32_t off = _cc_io_buffer_read(e, io);
             if (off < 0) {
-                _cc_logger_debug("read fail %s.", _cc_last_error(_cc_last_errno()));
+                printf("read fail %s.", _cc_last_error(_cc_last_errno()));
                 return false;
             } else if (off == 0) {
                 break;
@@ -380,8 +380,8 @@ int main(int argc, char *const argv[]) {
     if (openSSL == NULL) {
         return 1;
     }
-    _SSL_setup(openSSL, "/var/ssl/server.crt", "/var/ssl/server.key",NULL);
-    //_SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
+    //_SSL_setup(openSSL, "/var/ssl/server.crt", "/var/ssl/server.key",NULL);
+    _SSL_setup(openSSL, "/var/ssl/ws.libcc.cn_bundle.crt", "/var/ssl/ws.libcc.cn.key",NULL);
 #endif
 
     _http_listener(NULL, 5500);

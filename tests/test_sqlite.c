@@ -39,7 +39,7 @@ bool_t scanFile(const tchar_t *directory, _cc_sql_result_t *result) {
     size_t size = 0;
     
     if( (dpath = opendir(directory)) == NULL) {
-        _cc_logger_error("Couldn't open directory:%s", directory);
+        _tprintf(_T("Couldn't open directory:%s"), directory);
         return false;
     }
     

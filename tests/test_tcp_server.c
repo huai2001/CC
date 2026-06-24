@@ -16,7 +16,7 @@ void _do_accept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        _cc_logger_debug("thread %d accept fail %s.", _cc_get_thread_id(NULL),
+        printf("thread %d accept fail %s.", _cc_get_thread_id(NULL),
                          _cc_last_error(_cc_last_errno()));
         return ;
     }
@@ -34,25 +34,25 @@ void _do_accept(_cc_async_event_t *async, _cc_event_t *e) {
     event->timeout = e->timeout;
 
     if (async2->attach(async2, event) == false) {
-        _cc_logger_debug("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
+        printf("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
     }
     {
         struct sockaddr_in* remote_ip = (struct sockaddr_in*)&remote_addr;
         byte_t *ip_addr = (byte_t *)&remote_ip->sin_addr.s_addr;
-        _cc_logger_debug("TCP accept [%d,%d,%d,%d] fd:%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
+        printf("TCP accept [%d,%d,%d,%d] fd:%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
     }
 }
 
 static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_ACCEPT_) {
-		_cc_logger_debug("%d accept.", e->ident);
+		printf("%d accept.", e->ident);
         _do_accept(async,e);
         return true;
     }
 
 	if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug("%d disconnect.", e->ident);
+        printf("%d disconnect.", e->ident);
         return false;
     }
 
@@ -60,23 +60,23 @@ static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const 
         byte_t buf[_CC_IO_BUFFER_SIZE_];
         int off = _cc_recv(e->fd, buf, _cc_countof(buf));
         if (off < 0) {
-            _cc_logger_debug("%d recv fail.", e->ident);
+            printf("%d recv fail.", e->ident);
             return false;
         } else if (off == 0) {
-            _cc_logger_debug("%d client close.", e->ident);
+            printf("%d client close.", e->ident);
             return false;
         }
         buf[off] = 0;
-        _cc_logger_debug("%d: %.*s",e->ident, off, buf);
+        printf("%d: %.*s",e->ident, off, buf);
     }
 
     if (which & _CC_EVENT_WRITABLE_) {
-        _cc_logger_debug("%d writeable.", e->ident);
+        printf("%d writeable.", e->ident);
         return false;
     }
 
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_debug("%d timeout.", e->ident);
+        printf("%d timeout.", e->ident);
         return false;
     }
     return true;
