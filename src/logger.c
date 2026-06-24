@@ -189,12 +189,11 @@ _CC_API_PUBLIC(void) _cc_loggerW_dump(_cc_loggerW_func_t pfun) {
     _cc_mutex_unlock(ringW.lock);
 }
 
-
 static void header(uint8_t level, time_t timestamp) {
     struct tm tm_now;
     static const char  SYSLOG_LEVEL_CODE[_CC_LOG_LEVEL_DEBUG_ + 1] = {'G', 'A', 'C', 'E', 'W', 'N', 'I', 'D'};
     _cc_localtime(&timestamp, &tm_now);
-    printf(_T("<%c>%04d-%02d-%02d %02d:%02d:%02d "),
+    printf("<%c>%04d-%02d-%02d %02d:%02d:%02d ",
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday,
                                 tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec);
