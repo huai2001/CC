@@ -2183,10 +2183,10 @@ INI 查找属性字符串值
 -   开发环境可开启 DEBUG 级别日志
 -   不同级别日志建议输出到不同文件
 
-### \_cc_loggerW_format()
+### \_cc_loggerW()
 
 ``` c
-_CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerW(const tchar_t *file, int line, uint8_t level, const wchar_t* fmt, ...);
 ```
 
 宽字符版本日志输出函数，支持格式化字符串和可变参数。
@@ -2202,7 +2202,7 @@ _CC_API_PUBLIC(void) _cc_loggerW_format(const tchar_t *file, int line, uint8_t l
 **示例代码**
 
 ``` c
-_cc_loggerW_format(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_, 
+_cc_loggerW(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_, 
                   L"Failed to open file: %s", L"config.txt");
 ```
 
@@ -2212,10 +2212,10 @@ _cc_loggerW_format(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_,
 -   格式化字符串必须使用宽字符 (L\"...\")
 -   性能敏感场景建议使用静态日志宏
 
-### \_cc_loggerA_format()
+### \_cc_loggerA()
 
 ``` c
-_CC_API_PUBLIC(void) _cc_loggerA_format(const tchar_t *file, int line, uint8_t level, const char_t* fmt, ...);
+_CC_API_PUBLIC(void) _cc_loggerA(const tchar_t *file, int line, uint8_t level, const char_t* fmt, ...);
 ```
 
 多字节字符版本日志输出函数，支持格式化字符串和可变参数。
@@ -2231,7 +2231,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_format(const tchar_t *file, int line, uint8_t l
 **示例代码**
 
 ``` c
-_cc_loggerA_format(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_, 
+_cc_loggerA(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_, 
                   "Failed to open file: %s", "config.txt");
 ```
 
@@ -2246,35 +2246,35 @@ _cc_loggerA_format(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_,
 ``` c
 /**/
 #ifdef _CC_UNICODE_
-#ifdef __CC_MSVC__
-#define _cc_logger_format(LEVEL, FMT, ...) _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##__VA_ARGS__)
+    #ifdef __CC_MSVC__
+        #define _cc_logger(LEVEL, FMT, ...) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##__VA_ARGS__)
+    #else
+        #define _cc_logger(LEVEL, FMT, ARGS...) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##ARGS)
+    #endif
+    
+    #define _cc_logger_warin _cc_loggerW_warin
+    #define _cc_logger_debug _cc_loggerW_debug
+    #define _cc_logger_info _cc_loggerW_info
+    #define _cc_logger_error _cc_loggerW_error
+    #define _cc_logger_alert _cc_loggerW_alert
 #else
-#define _cc_logger_format(LEVEL, FMT, ARGS...) _cc_loggerW_format(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##ARGS)
-#endif
-#define _cc_logger(LEVEL, MSG) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, MSG, sizeof(MSG) - 1)
-#define _cc_logger_warin _cc_loggerW_warin
-#define _cc_logger_debug _cc_loggerW_debug
-#define _cc_logger_info _cc_loggerW_info
-#define _cc_logger_error _cc_loggerW_error
-#define _cc_logger_alert _cc_loggerW_alert
-#else
-#ifdef __CC_MSVC__
-#define _cc_logger_format(LEVEL, FMT, ...) _cc_loggerA_format(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##__VA_ARGS__)
-#else
-#define _cc_logger_format(LEVEL, FMT, ARGS...) _cc_loggerA_format(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##ARGS)
-#endif
-#define _cc_logger_warin _cc_loggerA_warin
-#define _cc_logger_debug _cc_loggerA_debug
-#define _cc_logger_info _cc_loggerA_info
-#define _cc_logger_error _cc_loggerA_error
-#define _cc_logger_alert _cc_loggerA_alert
+    #ifdef __CC_MSVC__
+        #define _cc_logger(LEVEL, FMT, ...) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##__VA_ARGS__)
+    #else
+        #define _cc_logger(LEVEL, FMT, ARGS...) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##ARGS)
+    #endif
+
+    #define _cc_logger_warin _cc_loggerA_warin
+    #define _cc_logger_debug _cc_loggerA_debug
+    #define _cc_logger_info _cc_loggerA_info
+    #define _cc_logger_error _cc_loggerA_error
+    #define _cc_logger_alert _cc_loggerA_alert
 #endif
 ```
 
 **宏说明**
 
--   `_cc_logger_format` - 自动选择宽字符或多字节版本
--   `_cc_logger` - 静态字符串日志宏（性能更高）
+-   `_cc_logger` - 自动选择宽字符或多字节版本
 -   `_cc_logger_*` - 各日志级别的快捷宏
 
 **示例代码**
@@ -2283,19 +2283,13 @@ _cc_loggerA_format(__FILE__, __LINE__, _CC_LOG_LEVEL_ERROR_,
 // 动态字符串示例
 _cc_logger_error("Error code: %d", errno);
 
-// 静态字符串示例
-_cc_logger(_CC_LOG_LEVEL_INFO_, "System initialized");
-
 // 快捷宏示例
 _cc_logger_debug("Debug value: %f", debug_value);
-_cc_logger(_CC_LOG_LEVEL_ALERT_, "Critical alert!");
+_cc_logger_alert("Critical alert!");
 ```
 
 **性能建议**
 
--   频繁调用的日志建议使用静态字符串宏
--   调试日志可用条件编译控制
--   生产环境关闭 DEBUG 级别日志
 ## Syslog
 Syslog（系统日志）是一种用于在互联网协议（TCP/IP）网络中传递记录消息的标准协议，它采用主从式架构，允许设备和应用程序将事件消息发送到中央日志服务器进行集中管理和分析
 
@@ -2343,61 +2337,39 @@ Syslog（系统日志）是一种用于在互联网协议（TCP/IP）网络中�
         _CC_LOG_LEVEL_DEBUG_      // Debug-level messages
     };
 ```
-### \_cc_open_syslog()
-
-``` c
-_CC_API_PUBLIC(void) _cc_open_syslog(uint8_t facility, const tchar_t *app_name, const tchar_t *ip, const uint16_t port);
-```
-
-初始化 Syslog 远程服务连接，使用 UDP
-协议将日志消息发送到指定的日志服务器。
-
-**参数说明**
-
--   `facility` - 日志来源标识，取值范围 0-23，用于区分不同系统组件（如内核、用户程序等）
--   `app_name` - 应用程序名称，用于在日志服务器中标识日志来源
--   `ip` - 日志服务器的 IP 地址，支持 IPv4 和 IPv6
--   `port` - 日志服务器的端口号，默认为 514
-
-**示例代码**
-
-``` c
-_cc_open_syslog(_CC_LOG_FACILITY_USER_, "my_app", "192.168.1.100", 514);
-```
-
-**注意事项**
-
--   需确保网络连接正常且日志服务器已启动
--   调用后需通过 `_cc_close_syslog` 关闭连接
--   UDP 协议不保证消息可靠性，重要日志建议增加重试机制
-
-### \_cc_close_syslog()
-
-``` c
-_CC_API_PUBLIC(void) _cc_close_syslog(void);
-```
-
-关闭 Syslog 远程服务连接，停止日志发送。
-
-**示例代码**
-
-``` c
-_cc_open_syslog(_CC_LOG_FACILITY_USER_, "my_app", "192.168.1.100", 514);
-// 发送日志...
-_cc_close_syslog();
-```
-
-**注意事项**
-
--   调用后将无法继续发送日志，需重新调用 `_cc_open_syslog` 初始化
--   建议在程序退出前调用，确保资源释放
 
 ### \_cc_syslog_header()
 
 ``` c
-_CC_API_PUBLIC(size_t) _cc_syslog_header(uint8_t pri, tchar_t *buffer, size_t buffer_length);
-```
+int syslog_pid = _cc_getpid();
+int syslog_fd = 0;
+char_t *syslog_host = "libcc";
+char_t *syslog_app = "app";
 
+_CC_API_PUBLIC(size_t) _cc_syslog_header(uint8_t pri, tchar_t *buffer, size_t buffer_length) {
+#ifndef _CC_SYSLOG_RFC5424_
+    tchar_t syslog_timestamp[64];
+#endif
+    struct tm tm_now;
+    time_t now = time(NULL);
+
+    _cc_localtime(&now, &tm_now);
+
+#ifdef _CC_SYSLOG_RFC5424_
+    // RFC 5424
+    return _sntprintf(buffer, buffer_length, _T("<%d>%d %04d-%02d-%02dT%02d:%02d:%02dZ %s %s %d ID:%lld "),
+                                (int)pri, _CC_SYSLOG_VERSIOV_, 
+                                tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday,
+                                tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, 
+                                syslog_host, syslog_app, syslog_pid, syslog_fd);
+#else
+    // RFC 3164
+    _tcsftime(syslog_timestamp, _cc_countof(syslog_timestamp), _T("%b %d %H:%M:%S"), &tm_now);
+    return _sntprintf(buffer, buffer_length, _T("<%d>%s %s %s[%d]: "),
+                                (int)pri, syslog_timestamp, syslog_host, syslog_app, syslog_pid);
+#endif
+}
+```
 生成符合 RFC 标准的 Syslog 消息头。
 
 **参数说明**
@@ -2415,44 +2387,9 @@ _CC_API_PUBLIC(size_t) _cc_syslog_header(uint8_t pri, tchar_t *buffer, size_t bu
 
 ``` c
 tchar_t header[1024];
-size_t len = _cc_syslog_header(_CC_LOG_FACILITY_USER_ * 8 + _CC_LOG_LEVEL_INFO, header, 1024);
+size_t len = _cc_syslog_header(_CC_SYSLOG_PRI(_CC_LOG_FACILITY_USER_,_CC_LOG_LEVEL_INFO), header, 1024);
 if (len == 0) {
     printf("Failed to format syslog header\n");
 }
 ```
-
-**注意事项**
-
--   缓冲区需足够大以容纳消息头
--   生成的头部需与消息体一起通过 `_cc_syslog_send` 发送
-
-### \_cc_syslog_send()
-
-``` c
-_CC_API_PUBLIC(void) _cc_syslog_send(const uint8_t *msg, size_t length);
-```
-
-通过 UDP 协议发送格式化后的 Syslog 消息到日志服务器。
-
-**参数说明**
-
--   `msg` - 完整的 Syslog 消息，包含头部和内容
--   `length` - 消息长度（字节）
-
-**示例代码**
-
-``` c
-tchar_t header[1024];
-size_t len = _cc_syslog_header(_CC_LOG_FACILITY_USER_ * 8 + _CC_LOG_LEVEL_INFO, header, 1024);
-if (len > 0) {
-    strcat(header + len , "Hello, syslog!", 14);
-    _cc_syslog_send((const uint8_t *)header, len + 14);
-}
-```
-
-**注意事项**
-
--   需先调用 `_cc_open_syslog` 初始化连接
--   UDP 协议不保证消息可靠性，重要日志建议增加确认机制
--   单次发送的消息长度不应超过网络 MTU
 ## Utility

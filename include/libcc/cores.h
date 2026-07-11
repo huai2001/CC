@@ -1,6 +1,8 @@
 #ifndef _C_CC_CORES_H_INCLUDED_
 #define _C_CC_CORES_H_INCLUDED_
 
+#include "endian.h"
+
 /* _taccess include */
 #ifdef __CC_WINDOWS__
 #include  <io.h>
@@ -16,11 +18,6 @@
 #else
     #include "os/unix.h"
 #endif
-
-#include "file.h"
-#include "cpu.h"
-#include "rand.h"
-#include "endian.h"
 
 #define _cc_abort(fmt, ...) do {\
     _cc_logger(_CC_LOG_LEVEL_ALERT_, fmt, ##__VA_ARGS__);\
@@ -85,20 +82,20 @@
     
 #define _cc_countof _countof
 /**
- *   Calculate the address of the base of the structure given its type, and an
- *   address of a field within the structure.
+ *  Calculate the address of the base of the structure given its type, and an
+ *  address of a field within the structure.
+ * 
+ *  Fully compatible with MSVC, GCC, Clang, and any compiler that supports the C89/C99 standards.
  */
-#ifndef _cc_upcast
-
-#define _cc_upcast(_address, _type, _member) \
-    (_type *)((char *)_address - ((size_t) &((_type *)0)->_member))
-/*
-#define _cc_upcast(_address, _type, _member) ({ \
-    const typeof( ((_type *)0)->_member ) *__mptr = (_address); \
-    (_type *)( (char *)__mptr - ((size_t) &((_type *)0)->_member) );\
-})
-*/
-#endif
+#ifdef __CC_MSVC__
+    #define _cc_upcast(_address, _type, _member) \
+        (_type *)((char *)_address - ((size_t) &((_type *)0)->_member))
+#else
+    #define _cc_upcast(_address, _type, _member) ({ \
+        const typeof( ((_type *)0)->_member ) *__mptr = (_address); \
+        (_type *)( (char *)__mptr - ((size_t) &((_type *)0)->_member) );\
+    })
+#endif /* __CC_MSVC__ */
 
 /*
  * msvc and icc7 compile memset() to the inline "rep stos"

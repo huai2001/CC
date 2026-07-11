@@ -6,6 +6,7 @@
 
 #define _CC_SYSLOG_PORT_ 514
 #define _CC_SYSLOG_VERSIOV_ 1
+#define _CC_SYSLOG_RFC5424_ 0
 
 // PRI = Facility * 8 + Severity
 #define _CC_SYSLOG_PRI(F, L) (((F) << 3) | ((L) & 0x7))
@@ -138,28 +139,29 @@ _CC_API_PUBLIC(void) _cc_loggerW(const wchar_t *file, int line, uint8_t level, c
 
 /**/
 #ifdef _CC_UNICODE_
-#ifdef __CC_MSVC__
-#define _cc_logger(LEVEL, FMT, ...) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##__VA_ARGS__)
+    #ifdef __CC_MSVC__
+        #define _cc_logger(LEVEL, FMT, ...) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##__VA_ARGS__)
+    #else
+        #define _cc_logger(LEVEL, FMT, ARGS...) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##ARGS)
+    #endif
+
+    #define _cc_logger_warin _cc_loggerW_warin
+    #define _cc_logger_debug _cc_loggerW_debug
+    #define _cc_logger_info _cc_loggerW_info
+    #define _cc_logger_error _cc_loggerW_error
+    #define _cc_logger_alert _cc_loggerW_alert
 #else
-#define _cc_logger(LEVEL, FMT, ARGS...) _cc_loggerW(_CL(_CC_FILE_), _CC_LINE_, LEVEL, _CL(FMT), ##ARGS)
-#endif
-#define _cc_logger_warin _cc_loggerW_warin
-#define _cc_logger_debug _cc_loggerW_debug
-#define _cc_logger_info _cc_loggerW_info
-#define _cc_logger_error _cc_loggerW_error
-#define _cc_logger_alert _cc_loggerW_alert
-#define _cc_logger_syslog _cc_syslogW
-#else
-#ifdef __CC_MSVC__
-#define _cc_logger(LEVEL, FMT, ...) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##__VA_ARGS__)
-#else
-#define _cc_logger(LEVEL, FMT, ARGS...) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##ARGS)
-#endif
-#define _cc_logger_warin _cc_loggerA_warin
-#define _cc_logger_debug _cc_loggerA_debug
-#define _cc_logger_info _cc_loggerA_info
-#define _cc_logger_error _cc_loggerA_error
-#define _cc_logger_alert _cc_loggerA_alert
+    #ifdef __CC_MSVC__
+        #define _cc_logger(LEVEL, FMT, ...) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##__VA_ARGS__)
+    #else
+        #define _cc_logger(LEVEL, FMT, ARGS...) _cc_loggerA(_CC_FILE_, _CC_LINE_, LEVEL, FMT, ##ARGS)
+    #endif
+
+    #define _cc_logger_warin _cc_loggerA_warin
+    #define _cc_logger_debug _cc_loggerA_debug
+    #define _cc_logger_info _cc_loggerA_info
+    #define _cc_logger_error _cc_loggerA_error
+    #define _cc_logger_alert _cc_loggerA_alert
 #endif
 
 /* Ends C function definitions when using C++ */

@@ -6,10 +6,6 @@
 #include <libcc/logger.h>
 #include <libcc/string.h>
 
-#ifdef __CC_WINDOWS__
-#include <libcc/os/windows.h>
-#endif
-
 #define _LOGGER_BUFFER_LIMIT_  (1L << 8)
 #define _LOGGER_BUFFER_LIMIT_MASK_ (_LOGGER_BUFFER_LIMIT_ - 1)
 #define _LOGGER_MESSAGE_LIMIT_  (2048)
@@ -76,21 +72,26 @@ void __uninstall_logger(void) {
 }
 
 _CC_API_PUBLIC(void) _cc_loggerA(const char_t *file, int line, uint8_t level, const char_t *fmt, ...) {
-    char tmp[_LOGGER_MESSAGE_LIMIT_];
+    char msg[_LOGGER_MESSAGE_LIMIT_];
     va_list ap;
     struct logger_entryA *log;
     int n,m = 0;    
     char_t *fname = strrchr(file, _CC_SLASH_C_);
     if (fname) {
-        m = snprintf(tmp, _cc_countof(tmp), "%s(%d) ", fname + 1, line);
+        m = snprintf(msg, _cc_countof(msg), "%s(%d) ", fname + 1, line);
+        if (m < 0 || m >= _cc_countof(msg)) {
+            m = 0;
+        }
     }
 
     va_start(ap, fmt);
-    n = vsnprintf(tmp + m, _cc_countof(tmp) - m, fmt, ap);
+    n = vsnprintf(msg + m, _cc_countof(msg) - m, fmt, ap);
     va_end(ap);
 
-    if (n < 0) {
+    if (n < 0 || (n == 0 && m == 0)) {
         return;
+    } else if ((n + m) >= _cc_countof(msg)) {
+        n = _cc_countof(msg) - m - 1;
     }
 
     _cc_mutex_lock(ringA.lock);
@@ -104,27 +105,32 @@ _CC_API_PUBLIC(void) _cc_loggerA(const char_t *file, int line, uint8_t level, co
 
     log->timestamp = time(NULL);
     log->length = n + m;
-    memcpy(log->message, tmp, log->length);
+    memcpy(log->message, msg, log->length);
     log->message[log->length] = 0;
     log->level = level;
 }
 
 _CC_API_PUBLIC(void) _cc_loggerW(const wchar_t *file, int line, uint8_t level, const wchar_t *fmt, ...) {
-    wchar_t tmp[_LOGGER_MESSAGE_LIMIT_];
+    wchar_t msg[_LOGGER_MESSAGE_LIMIT_];
     va_list ap;
     struct logger_entryW *log;
     int n,m = 0;
     wchar_t *fname = wcsrchr(file, _CC_SLASH_C_);
     if (fname) {
-        m = swprintf(tmp, _cc_countof(tmp), L"%s(%d)", fname + 1, line);
+        m = swprintf(msg, _cc_countof(msg), L"%s(%d)", fname + 1, line);
+        if (m < 0 || m >= _cc_countof(msg)) {
+            m = 0;
+        }
     }
 
     va_start(ap, fmt);
-    n = vswprintf(tmp + m, _cc_countof(tmp) - m, fmt, ap);
+    n = vswprintf(msg + m, _cc_countof(msg) - m, fmt, ap);
     va_end(ap);
 
-    if (n < 0) {
+    if (n < 0 || (n == 0 && m == 0)) {
         return;
+    } else if ((n + m) >= _cc_countof(msg)) {
+        n = _cc_countof(msg) - m - 1;
     }
 
     _cc_mutex_lock(ringW.lock);
@@ -138,7 +144,7 @@ _CC_API_PUBLIC(void) _cc_loggerW(const wchar_t *file, int line, uint8_t level, c
 
     log->timestamp = time(NULL);
     log->length = n + m;
-    memcpy(log->message, tmp, log->length * sizeof(wchar_t));
+    memcpy(log->message, msg, log->length * sizeof(wchar_t));
     log->message[log->length] = 0;
     log->level = level;
 }
@@ -158,6 +164,7 @@ _CC_API_PUBLIC(void) _cc_loggerA_dump(_cc_loggerA_func_t pfun) {
         pfun(log->level, log->timestamp, log->message, log->length);
 
         _cc_mutex_lock(ringA.lock);
+
         if (r == ringA.r) {
             ringA.r = (ringA.r + 1) & _LOGGER_BUFFER_LIMIT_MASK_;
         }
@@ -181,31 +188,42 @@ _CC_API_PUBLIC(void) _cc_loggerW_dump(_cc_loggerW_func_t pfun) {
         pfun(log->level, log->timestamp, log->message, log->length);
 
         _cc_mutex_lock(ringW.lock);
+
         if (r == ringW.r) {
             ringW.r = (ringW.r + 1) & _LOGGER_BUFFER_LIMIT_MASK_;
         }
         log->level = 0xff;
     } while (1);
+
     _cc_mutex_unlock(ringW.lock);
 }
 
 static void header(uint8_t level, time_t timestamp) {
     struct tm tm_now;
-    static const char  SYSLOG_LEVEL_CODE[_CC_LOG_LEVEL_DEBUG_ + 1] = {'G', 'A', 'C', 'E', 'W', 'N', 'I', 'D'};
+    static const char SYSLOG_LEVEL_CODE[_CC_LOG_LEVEL_DEBUG_ + 1] = {'G', 'A', 'C', 'E', 'W', 'N', 'I', 'D'};
     _cc_localtime(&timestamp, &tm_now);
     printf("<%c>%04d-%02d-%02d %02d:%02d:%02d ",
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday,
                                 tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec);
 }
-static void _alog (uint8_t level, time_t timestamp, const char_t *msg, int32_t length) {
+
+static void _alog(uint8_t level, time_t timestamp, const char_t *msg, int32_t length) {
+    const char_t ch = *(msg + length - sizeof(char_t));
     header(level, timestamp);
-    printf("%.*s\n", length, msg);
+    fwrite(msg, sizeof(char_t), length, stdout);
+    if (ch != '\n' && ch != '\r') {
+        fputwc('\n', stdout);
+    }
 }
 
 static void _wlog(uint8_t level, time_t timestamp, const wchar_t *msg, int32_t length) {
+    const wchar_t ch = *(msg + length - sizeof(wchar_t));
     header(level, timestamp);
-    wprintf(L"%.*s\n", msg);
+    fwrite(msg, sizeof(wchar_t), length, stdout);
+    if (ch != L'\n' && ch != L'\r') {
+        fputwc(L'\n', stdout);
+    }
 }
 
 static int _dump(void *args) {

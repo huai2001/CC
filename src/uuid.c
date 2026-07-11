@@ -1,5 +1,6 @@
 #include <libcc/string.h>
 #include <libcc/time.h>
+#include <libcc/rand.h>
 #include <libcc/uuid.h>
 #include <sys/types.h>
 

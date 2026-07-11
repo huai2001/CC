@@ -1,4 +1,5 @@
 #include <libcc/alloc.h>
+#include <libcc/file.h>
 #import <Foundation/Foundation.h>
 
 _CC_API_PRIVATE(FILE*) _osx_open_file_m(const tchar_t *file, const tchar_t *mode) {

@@ -10,7 +10,7 @@
             "defines": ["_DEBUG","UNICODE","_unicode"],
             "macFrameworkPath": [],
             "compilerPath": "D:\\msys2\\ucrt64\\bin\\gcc",
-            "cStandard": "c99",
+            "cStandard": "c17",
             "cppStandard": "c++11",
             "intelliSenseMode": "windows-gcc-x64",
             "configurationProvider": "ms-vscode.makefile-tools"
@@ -23,7 +23,7 @@
             "defines": [],
             "macFrameworkPath": [],
             "compilerPath": "/usr/bin/clang",
-            "cStandard": "c99",
+            "cStandard": "c17",
             "cppStandard": "c++11",
             "intelliSenseMode": "macos-clang-x64",
             "configurationProvider": "ms-vscode.makefile-tools"

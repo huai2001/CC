@@ -35,11 +35,11 @@ void test_accept(_cc_async_event_t *async, _cc_event_t *e) {
     event->timeout = e->timeout;
 
     if (async2->attach(async2, event) == false) {
-        _tprintf("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
+        _cc_logger_error("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
         return ;
     }
-	_tprintf("%d accept.", event->ident & 0xFFFF);
+	_cc_logger_debug("%d accept.\n", event->ident & 0xFFFF);
 }
 
 static int times = 0;
@@ -49,12 +49,12 @@ static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, cons
         test_accept(async,e);
         return true;
     } else if (which & _CC_EVENT_CONNECT_) {
-        _tprintf("%d connected.", e->ident & 0xFFFF);
+        _cc_logger_debug("%d connected.\n", e->ident & 0xFFFF);
         return true;
     }
 
 	if (which & _CC_EVENT_CLOSED_) {
-        _tprintf("%d disconnect.", e->ident & 0xFFFF);
+        _cc_logger_debug("%d disconnect.", e->ident & 0xFFFF);
         return false;
     }
 
@@ -62,19 +62,19 @@ static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, cons
         byte_t buf[_CC_IO_BUFFER_SIZE_];
         int off = _cc_recv(e->fd, buf, _cc_countof(buf));
         if (off < 0) {
-            _tprintf("%d recv fail.", e->ident & 0xFFFF);
+            _cc_logger_error("%d recv fail.", e->ident & 0xFFFF);
             return false;
         } else if (off == 0) {
-            _tprintf("%d client close.", e->ident & 0xFFFF);
+            _cc_logger_error("%d client close.", e->ident & 0xFFFF);
             return false;
         }
         if (_strnicmp((char_t*)buf, "ping", 5) == 0){
             if (_cc_send(e->fd, (byte_t*)"pong", 5) < 0) {
-                _tprintf("%d send pong fail.", e->ident & 0xFFFF);
+                _cc_logger_error("%d send pong fail.", e->ident & 0xFFFF);
                 return false;
             }
         } else if (_strnicmp((char_t*)buf, "close", 5) == 0){
-            _tprintf("%d client close.", e->ident & 0xFFFF);
+            _cc_logger_info("%d client close.", e->ident & 0xFFFF);
             return false;
         }
         buf[off] = 0;
@@ -82,7 +82,7 @@ static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, cons
     }
 
     if (which & _CC_EVENT_WRITABLE_) {
-        _tprintf("%d writeable.", e->ident & 0xFFFF);
+        _cc_logger_error("%d writeable.", e->ident & 0xFFFF);
         return false;
     }
 
@@ -90,11 +90,11 @@ static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, cons
         //_tprintf("%d timeout.", e->ident & 0xFFFF);
         if (times++ > 10000) {
             if (_cc_send(e->fd, (byte_t*)"close", 5) < 0) {
-                _tprintf("%d send close fail.", e->ident & 0xFFFF);
+                _cc_logger_error("%d send close fail.", e->ident & 0xFFFF);
                 return false;
             }
         } else if (_cc_send(e->fd, (byte_t*)"ping", 5) < 0) {
-            _tprintf("%d send ping fail.", e->ident & 0xFFFF);
+            _cc_logger_error("%d send ping fail.", e->ident & 0xFFFF);
             return false;
         }
     }
@@ -102,12 +102,12 @@ static bool_t test_event_callback(_cc_async_event_t *async, _cc_event_t *e, cons
 }
 static bool_t test_event_timeout_callback(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_TIMEOUT_) {
-        _tprintf("%d timer timeout. %ld", e->ident & 0xFFFF, e->data);
+        _cc_logger_error("%d timer timeout. %ld", e->ident & 0xFFFF, e->data);
         return false;
     }
 
     if (which & _CC_EVENT_CLOSED_) {
-        _tprintf("%d destroy timeout. %ld", e->ident & 0xFFFF, e->data);
+        _cc_logger_debug("%d destroy timeout. %ld", e->ident & 0xFFFF, e->data);
     }       
     return false;
 }

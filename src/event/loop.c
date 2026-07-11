@@ -1,3 +1,4 @@
+#include <libcc/cpu.h>
 #include <libcc/alloc.h>
 #include <libcc/thread.h>
 #include "event.c.h"

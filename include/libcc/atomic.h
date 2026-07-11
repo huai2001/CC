@@ -2,14 +2,13 @@
 #define _C_CC_ATOMIC_H_INCLUDED_
 
 #include "cores.h"
-#include <libcc/time.h>
+#include "time.h"
 
 #if __CC_STDC_VERSION__ >= 2011
 #include <stdatomic.h>
 #endif
 
 #if defined(__CC_WINDOWS__)
-    #include <libcc/os/windows.h>
     /* Need to do this here because intrin.h has C++ code in it */
     /* Visual Studio 2005 has a bug where intrin.h conflicts with winnt.h */
     #if defined(__CC_MSVC__) && (__CC_MSVC__ >= 1500)

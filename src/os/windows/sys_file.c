@@ -1,4 +1,5 @@
 #include <libcc/alloc.h>
+#include <libcc/file.h>
 
 #ifdef __CC_WIN32_CE__
 /*-- Called from fileio.c */

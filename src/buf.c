@@ -1,5 +1,6 @@
 #include <libcc/alloc.h>
 #include <libcc/buf.h>
+#include <libcc/file.h>
 #include <libcc/string.h>
 #include <libcc/UTF.h>
 

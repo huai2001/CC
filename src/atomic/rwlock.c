@@ -1,4 +1,4 @@
-
+#include <libcc/cpu.h>
 #include <libcc/atomic.h>
 #ifndef __CC_WINDOWS__
 #include <pthread.h>

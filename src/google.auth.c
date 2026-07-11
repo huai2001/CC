@@ -1,4 +1,5 @@
 #include <libcc/time.h>
+#include <libcc/rand.h>
 #include <libcc/crypto/hmac.h>
 #include <libcc/crypto/base32.h>
 

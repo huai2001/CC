@@ -4,10 +4,6 @@
 #include "types.h"
 #include <string.h>
 
-#ifdef __CC_WINDOWS__
-#include "./os/windows.h"
-#endif
-
 #define _CC_FILE_SEEK_SET_ 0       /**< Seek from the beginning of data */
 #define _CC_FILE_SEEK_CUR_ 1       /**< Seek relative to current read point */
 #define _CC_FILE_SEEK_END_ 2       /**< Seek relative to the end of data */
