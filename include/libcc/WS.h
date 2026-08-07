@@ -101,7 +101,9 @@ typedef struct _cc_ws_header {
 } _cc_ws_header_t;
 
 /**/
-_CC_API_PUBLIC(void) _cc_ws_mask(byte_t *data, int64_t length, byte_t *mask, int64_t offset);
+_CC_API_PUBLIC(bool_t) _cc_ws_mask(byte_t *data, int64_t length, byte_t *mask, int64_t offset);
+/**/
+_CC_API_PUBLIC(bool_t) _cc_ws_mask_copy(byte_t *dst, int64_t dst_length, byte_t *src, int64_t src_length, byte_t *mask, int64_t offset);
 /**/
 _CC_API_PUBLIC(int32_t) _cc_ws_header(byte_t *header, byte_t operation, int64_t length, byte_t *mask);
 /**/

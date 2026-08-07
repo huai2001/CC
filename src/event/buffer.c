@@ -2,7 +2,7 @@
 #include <libcc/math.h>
 #include "event.c.h"
 
-_CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit) {
+_CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit, _cc_SSL_t *ssl) {
     _cc_io_buffer_t *io = (_cc_io_buffer_t *)_cc_malloc(sizeof(_cc_io_buffer_t));
     io->r.limit = limit;
     io->r.off = 0;
@@ -13,7 +13,7 @@ _CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit) {
     io->w.bytes = (byte_t*)_cc_calloc(limit,sizeof(byte_t));
 
 #ifdef _CC_USE_OPENSSL_
-    io->ssl = NULL;
+    io->ssl = ssl;
 #endif
     io->lock_of_writable = _cc_alloc_mutex();
     return io;
@@ -124,7 +124,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_flush(_cc_event_t *e, _cc_io_buffer_t *dat
         _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     } else if (off < 0) {
         int er = _cc_last_errno();
-        if (er == _CC_EAGAIN_ || er == _CC_EINTR_) {
+        if (er == _CC_EAGAIN_ || er == _CC_EINTR_ || er == _CC_EWOULDBLOCK_) {
             /* transient, keep buffer and mark writable */
             _CC_SET_BIT(_CC_EVENT_WRITABLE_, e->flags);
             off = 0;
@@ -161,7 +161,7 @@ _CC_API_PUBLIC(int32_t) _cc_io_buffer_read(_cc_event_t *e, _cc_io_buffer_t *data
         return -1;
     } else if (off < 0) {
         int er = _cc_last_errno();
-        if (er == _CC_EINTR_ || er == _CC_EAGAIN_) {
+        if (er == _CC_EINTR_ || er == _CC_EAGAIN_ || er == _CC_EWOULDBLOCK_) {
             return 0;
         }
         _cc_logger_warin("fd:%d fail to recv (%d): %s", e->fd, er, _cc_last_error(er));

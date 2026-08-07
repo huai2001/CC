@@ -1,7 +1,7 @@
 ##################################################
 SRCROOT	:= $(abspath ..)
 
-TARGET_NAME ?= cc
+PROJECT_NAME ?= cc
 LIBCC_SRC_ROOT ?= $(SRCROOT)
 
 include $(SRCROOT)/build/local-init.mk

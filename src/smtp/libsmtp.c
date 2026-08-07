@@ -113,7 +113,7 @@ _CC_API_PUBLIC(bool_t) libsmtp_send_email(_cc_smtp_t* smtp) {
 
 _CC_API_PUBLIC(_cc_smtp_t *) _cc_alloc_smtp(const char_t *from_name, const char_t *from) {
     _cc_smtp_t *smtp = (_cc_smtp_t *)_cc_malloc(sizeof(_cc_smtp_t));
-    smtp->io = _cc_alloc_io_buffer(_CC_16K_BUFFER_SIZE_);
+    smtp->io = _cc_alloc_io_buffer(_CC_16K_BUFFER_SIZE_,NULL);
 
     smtp->user = NULL;
     smtp->password = NULL;

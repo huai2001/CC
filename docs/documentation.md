@@ -901,7 +901,7 @@ struct _cc_io_buffer {
 ### \_cc_alloc_io_buffer()
 
 ``` c
-_CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit);
+_CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit,_cc_SSL_t *ssl);
 ```
 
 动态分配一个 IO Buffer 结构体，并初始化其读写缓冲区。
@@ -909,7 +909,7 @@ _CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit);
 **参数说明**
 
 -   `limit` - 读写缓冲区的初始大小（字节数），建议根据实际需求设置合理值
-
+-   `ssl` - SSL 句柄 负责 SSL 协议
 **返回值**
 
 -   **成功**：返回指向新分配的 IO Buffer 的指针
@@ -918,7 +918,7 @@ _CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit);
 **示例代码**
 
 ``` c
-_cc_io_buffer_t *buffer = _cc_alloc_io_buffer(4096);
+_cc_io_buffer_t *buffer = _cc_alloc_io_buffer(4096, NULL);
 if (!buffer) {
     printf("Failed to allocate IO buffer\n");
     return;
@@ -937,7 +937,7 @@ if (!buffer) {
 _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io);
 ```
 
-释放 IO Buffer 结构体及其关联的缓冲区资源。
+释放 IO Buffer 结构体及其关联的缓冲区资源。注意：如何 \_cc_alloc_io_buffer 中绑定了SSL 那么也会同时释放 SSL 资源。
 
 **参数说明**
 
@@ -946,13 +946,15 @@ _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io);
 **示例代码**
 
 ``` c
-_cc_io_buffer_t *buffer = _cc_alloc_io_buffer(4096);
+_cc_SSL_t *ssl = _SSL_accept(openSSL, fd);
+_cc_io_buffer_t *buffer = _cc_alloc_io_buffer(4096, ssl);
 // 使用 buffer...
+// 释放 buffer 和 SSL资源。
 _cc_free_io_buffer(buffer);
 ```
 
 **注意事项**
-
+-   绑定了SSL 那么也会同时释放 SSL 资源。
 -   释放后指针将不可用，避免重复释放
 -   建议在程序退出前释放所有分配的 IO Buffer
 

@@ -5,9 +5,9 @@ LOCAL_SRC_FILES = $(SRC_TESTS_DIR)/test_$(build).o
 
 
 ifdef target_name
-	TARGET_NAME = $(target_name)
+	PROJECT_NAME = $(target_name)
 else
-	TARGET_NAME = $(build)
+	PROJECT_NAME = $(build)
 endif
 
 MACROS	+= _CC_USE_OPENSSL_=1

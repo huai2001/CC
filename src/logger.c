@@ -198,11 +198,18 @@ _CC_API_PUBLIC(void) _cc_loggerW_dump(_cc_loggerW_func_t pfun) {
     _cc_mutex_unlock(ringW.lock);
 }
 
+static const char *SYSLOG_LEVEL_COLORS[_CC_LOG_LEVEL_DEBUG_ + 1] = {
+    //EMERG,    ALERT,      CRIT,       ERR,        WARNING,    NOTICE,     INFO,       DEBUG
+    "\x1b[94m", "\x1b[31m", "\x1b[94m", "\x1b[31m", "\x1b[36m", "\x1b[35m", "\x1b[32m", "\x1b[34m"
+};
+
 static void header(uint8_t level, time_t timestamp) {
-    struct tm tm_now;
+
     static const char SYSLOG_LEVEL_CODE[_CC_LOG_LEVEL_DEBUG_ + 1] = {'G', 'A', 'C', 'E', 'W', 'N', 'I', 'D'};
+    struct tm tm_now;
     _cc_localtime(&timestamp, &tm_now);
-    printf("<%c>%04d-%02d-%02d %02d:%02d:%02d ",
+    printf("%s<%c>\x1b[0m\x1b[90m%04d-%02d-%02d %02d:%02d:%02d\x1b[0m ",
+                                SYSLOG_LEVEL_COLORS[level],
                                 SYSLOG_LEVEL_CODE[level], 
                                 tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday,
                                 tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec);
@@ -211,7 +218,9 @@ static void header(uint8_t level, time_t timestamp) {
 static void _alog(uint8_t level, time_t timestamp, const char_t *msg, int32_t length) {
     const char_t ch = *(msg + length - sizeof(char_t));
     header(level, timestamp);
+    fputs(SYSLOG_LEVEL_COLORS[level], stdout);
     fwrite(msg, sizeof(char_t), length, stdout);
+    fputs("\x1b[0m", stdout);
     if (ch != '\n' && ch != '\r') {
         fputwc('\n', stdout);
     }
@@ -220,7 +229,9 @@ static void _alog(uint8_t level, time_t timestamp, const char_t *msg, int32_t le
 static void _wlog(uint8_t level, time_t timestamp, const wchar_t *msg, int32_t length) {
     const wchar_t ch = *(msg + length - sizeof(wchar_t));
     header(level, timestamp);
+    fputs(SYSLOG_LEVEL_COLORS[level], stdout);
     fwrite(msg, sizeof(wchar_t), length, stdout);
+    fputs("\x1b[0m", stdout);
     if (ch != L'\n' && ch != L'\r') {
         fputwc(L'\n', stdout);
     }

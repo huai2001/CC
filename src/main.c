@@ -40,9 +40,11 @@ __attribute__((destructor)) void _libcc_detach(void) {
     if (_libcc_cleaned) {
         return;
     }
+    
     _libcc_cleaned = true;
     _libcc_initialized = false;
 
+    __uninstall_logger();
     _cc_uninstall_socket();
 
 #ifdef _CC_USE_DEBUG_MALLOC_

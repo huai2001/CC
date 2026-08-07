@@ -76,7 +76,7 @@ else ifeq ($(PLATFORM), osx)
 	CC		= clang
 	CFLAGS  += -mmacosx-version-min=$(MIN_VERSION)
 	LDFLAGS += -Wl,-rpath,./ -mmacosx-version-min=$(MIN_VERSION) -Bsymbolic-functions -framework Foundation -framework CoreLocation -framework Cocoa
-	INSTALL_NAME = -install_name @loader_path/lib$(TARGET_NAME)$@
+	INSTALL_NAME = -install_name @loader_path/lib$(PROJECT_NAME)$@
 else ifeq ($(PLATFORM), linux)
 	LDFLAGS += -Wl,--rpath=./
 else ifeq ($(PLATFORM), freebsd)
@@ -125,8 +125,8 @@ else
 endif
 
 ##编译过程中间文件输出目录
-EXT_OBJ_PATH  = $(SRCROOT)/obj/$(ARCH)/$(CONFIGURATION)/$(TARGET_NAME)
-EXT_LST_PATH  = $(SRCROOT)/lst/$(ARCH)/$(CONFIGURATION)/$(TARGET_NAME)
+EXT_OBJ_PATH  = $(SRCROOT)/obj/$(ARCH)/$(CONFIGURATION)/$(PROJECT_NAME)
+EXT_LST_PATH  = $(SRCROOT)/lst/$(ARCH)/$(CONFIGURATION)/$(PROJECT_NAME)
 EXT_LIB_PATH  = $(SRCROOT)/lib/$(ARCH)/$(CONFIGURATION)
 EXT_BIN_PATH  = $(SRCROOT)/bin/$(ARCH)/$(CONFIGURATION)
 

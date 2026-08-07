@@ -113,7 +113,7 @@ static bool_t test_event_timeout_callback(_cc_async_event_t *async, _cc_event_t 
 }
 
 void test_buffer_allocation() {
-    _cc_io_buffer_t *buffer = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
+    _cc_io_buffer_t *buffer = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_,NULL);
     assert(buffer != NULL);
     _cc_free_io_buffer(buffer);
 }

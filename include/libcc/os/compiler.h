@@ -97,8 +97,8 @@
 /**
  * INTRIN_COMPILER_NAME.
  */
-#define _CC_MACTOSTR(x) #x
-#define _CC_MACROVALUESTR(x) _CC_MACTOSTR(x)
+#define _CC_MACRO_TO_STR(x) #x
+#define _CC_MACRO_VALUE_STR(x) _CC_MACRO_TO_STR(x)
 
 #ifdef __clang__
 /**

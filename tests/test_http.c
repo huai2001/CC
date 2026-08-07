@@ -71,14 +71,17 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
 
     _cc_set_socket_nonblock(fd, 1);
 
+
     http = (_http_t*)_cc_malloc(sizeof(_http_t));
     http->state = _CC_HTTP_STATE_HEADER_;
     http->request = NULL;
     http->payload = 0;
-    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
 #if ENABLE_SSL
-    http->io->ssl = _SSL_accept(httpSSL, fd);
+    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_, _SSL_accept(httpSSL, fd));
+#else
+    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_, NULL);
 #endif
+    
     _cc_alloc_buf(&http->buffer, _CC_IO_BUFFER_SIZE_);
     event->fd = fd;
     event->callback = e->callback;

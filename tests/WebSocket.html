@@ -110,7 +110,11 @@
         };
         
         if ("WebSocket" in window) {
-            _.ws = new WebSocket("wss://ws.libcc.cn:5500");
+            _.ws = new WebSocket("ws://ws.libcc.cn:5500",["Text","HTML"], {
+              headers: {
+                'X-Custom-Header': 'custom-value'
+              }
+            });
             addLog("WebSocket 正在连接中", 'success');
             _.ws.onopen = function() {
                 addLog("WebSocket 连接已建立", 'success');
@@ -123,14 +127,39 @@
             };
             
             _.ws.onclose = function() {
-                addLog("WebSocket 连接已关闭");
+                console.log('Code:', event.code);       // 状态码，如 1000, 1006, 4001
+                console.log('Reason:', event.reason);   // 服务端返回的原因字符串（可能为空）
+                console.log('WasClean:', event.wasClean); // 是否正常关闭
+
+                // 根据 code 进行详细错误打印和处理
+                switch (event.code) {
+                    case 1000:
+                        addLog('正常关闭');
+                        break;
+                    case 1001:
+                        addLog('端点离开（如页面刷新、服务器重启）', 'error');
+                        break;
+                    case 1006:
+                        addLog('异常关闭 (1006): 可能是网络中断、握手失败(401/404/502)、或代理超时', 'error');
+                        // 此时应检查 Network 面板中的 WS 请求，查看 HTTP 状态码
+                        break;
+                    case 1011:
+                        addLog('服务器内部错误 (1011)');
+                        break;
+                    default:
+                        if (event.code >= 4000 && event.code <= 4999) {
+                            addLog(`应用层自定义错误: Code ${event.code}, Reason: ${event.reason}`, 'error');
+                        } else {
+                            addLog(`未知关闭代码: ${event.code}`, 'error');
+                        }
+                }
                 _.ws = null;
                 _.is_connected = false;
                 btnStatus(0);
             };
             
             _.ws.onerror = function(e) {
-                addLog("WebSocket 发生错误"+JSON.stringify(e), 'error');
+                console.log(e);
                 _.ws = null;
                 _.is_connected = false;
             }

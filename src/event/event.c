@@ -46,7 +46,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
         lnk = _cc_queue_sync_pop(&g_mgr.idles);
 
         if (lnk != &g_mgr.idles && lnk != NULL) {
-            e = _cc_upcast(lnk, _cc_event_t, lnk);
+            e = _cc_upcast((_cc_list_t*)lnk, _cc_event_t, lnk);
             break;
         }
 
@@ -98,7 +98,7 @@ _CC_API_PRIVATE(_cc_event_t*) _cc_reserve_event(uint16_t baseid) {
             lnk = _cc_queue_sync_pop(&g_mgr.idles);
             if (lnk != &g_mgr.idles && lnk != NULL) {
                 _cc_mutex_unlock(g_mgr.slot_lock);
-                e = _cc_upcast(lnk, _cc_event_t, lnk);
+                e = _cc_upcast((_cc_list_t*)lnk, _cc_event_t, lnk);
                 break;
             }
             /* wait with timeout to avoid lost wakeups */

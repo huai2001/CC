@@ -3,25 +3,49 @@
 #include <libcc/rand.h>
 
 /**/
-_CC_API_PUBLIC(void) _cc_ws_mask(byte_t *data, int64_t length, byte_t *mask, int64_t offset) {
+_CC_API_PUBLIC(bool_t) _cc_ws_mask(byte_t *ptr, int64_t length, byte_t *mask, int64_t offset) {
     int64_t i = offset, n = length + offset;
-    byte_t *mask_ptr = mask;
-    byte_t *data_ptr = data;
-    
+    if (ptr == NULL || length <= 0 || mask == NULL) {
+        return false;
+    }
     // Process 4 bytes at a time for better performance
     length = (n / 4) * 4; // Adjust n to ensure we don't go out of bounds
-    for (; i < length; i += 4, data_ptr += 4) {
-        data_ptr[0] ^= mask_ptr[i & 0x03];
-        data_ptr[1] ^= mask_ptr[(i + 1) & 0x03];
-        data_ptr[2] ^= mask_ptr[(i + 2) & 0x03];
-        data_ptr[3] ^= mask_ptr[(i + 3) & 0x03];
+    for (; i < length; i += 4, ptr += 4) {
+        ptr[0] ^= mask[i & 0x03];
+        ptr[1] ^= mask[(i + 1) & 0x03];
+        ptr[2] ^= mask[(i + 2) & 0x03];
+        ptr[3] ^= mask[(i + 3) & 0x03];
     }
     // Process remaining bytes
-    for (; i < n; i++, data_ptr++) {
-        *data_ptr ^= mask_ptr[i & 0x03];
+    for (; i < n; i++, ptr++) {
+        *ptr ^= mask[i & 0x03];
     }
+    return true;
 }
 
+/**/
+_CC_API_PUBLIC(bool_t) _cc_ws_mask_copy(byte_t *dst, int64_t dst_length, byte_t *src, int64_t src_length, byte_t *mask, int64_t offset) {
+    int64_t i = offset, n = src_length + offset;
+    if (dst == NULL || src == NULL || mask == NULL) {
+        return false;
+    }
+    if (dst_length < src_length) {
+        return false;
+    }
+
+    src_length = (n / 4) * 4; // Adjust n to ensure we don't go out of bounds
+    for (; i < src_length; i += 4, src += 4, dst += 4) {
+        dst[0] = src[0] ^ mask[i & 0x03];
+        dst[1] = src[1] ^ mask[(i + 1) & 0x03];
+        dst[2] = src[2] ^ mask[(i + 2) & 0x03];
+        dst[3] = src[3] ^ mask[(i + 3) & 0x03];
+    }
+
+    for (; i < n; i++, src++, dst++) {
+        *dst = *src ^ mask[i & 0x03];
+    }
+    return true;
+}
 
 /**/
 _CC_API_PUBLIC(int32_t) _cc_ws_reverse_header(byte_t *header, byte_t operation, int64_t length, byte_t *mask) {

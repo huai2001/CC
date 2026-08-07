@@ -197,7 +197,7 @@ _CC_API_PUBLIC(void) _cc_http_header_free(_cc_http_header_t *m);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_http_header_push(_cc_rbtree_t *ctx, _cc_http_header_t *data);
 /**/
-_CC_API_PUBLIC(const _cc_http_header_t*) _cc_http_header_find(_cc_rbtree_t *ctx, const tchar_t *keyword);
+_CC_API_PUBLIC(const _cc_http_header_t*) _cc_http_header_find(const _cc_rbtree_t *ctx, const tchar_t *keyword);
 /**/
 _CC_API_PUBLIC(void) _cc_http_header_free_all(_cc_rbtree_t *ctx);
 /**/

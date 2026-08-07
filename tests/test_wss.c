@@ -23,9 +23,11 @@ _CC_API_PRIVATE(_cc_ws_t*) _ws_alloc(_cc_socket_t fd) {
     ws->request = NULL;
     ws->header.state = WS_DATA_OK;
 
-    ws->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
+    
 #if ENABLE_SSL
-    ws->io->ssl = _SSL_accept(openSSL, fd);
+    ws->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_,_SSL_accept(openSSL, fd));
+#else
+    ws->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_,NULL);
 #endif
     return ws;
 }

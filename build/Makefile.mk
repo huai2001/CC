@@ -1,3 +1,4 @@
+CFLAGS += -D_CC_PROJECT_NAME_=$(PROJECT_NAME)
 ## get all macro
 CFLAGS	+= $(addprefix -D,$(sort $(MACROS)))
 ## get all include path
@@ -48,33 +49,32 @@ LOCAL_OBJ_FILES := $(LOCAL_SRC_FILES:.c=.o)
 LOCAL_OBJ_FILES := $(LOCAL_OBJ_FILES:.m=.o)
 LOCAL_OBJ_FILES := $(subst $(SRCROOT),$(EXT_OBJ_PATH),$(LOCAL_OBJ_FILES))
 
-
 # 包含依赖文件
 -include $(LOCAL_OBJ_FILES:.o=.d)
 
 ##将.o文件编译成动态文件(.so,dll)##
 $(SO_SUF) $(DLL_SUF): $(LOCAL_OBJ_FILES)
 	@$(MKDIR) -p $(EXT_BIN_PATH)
-	$(CC) -shared -o $(EXT_BIN_PATH)/lib$(TARGET_NAME)$@ $^ $(LDFLAGS) $(INSTALL_NAME)
-	$(call build-successfully,$(EXT_BIN_PATH),lib$(TARGET_NAME)$@)
+	$(CC) -shared -o $(EXT_BIN_PATH)/lib$(PROJECT_NAME)$@ $^ $(LDFLAGS) $(INSTALL_NAME)
+	$(call build-successfully,$(EXT_BIN_PATH),lib$(PROJECT_NAME)$@)
 
 ##将.o文件编译成动态文件(.dylib)##
 $(DYLIB_SUF): $(LOCAL_OBJ_FILES)
 	@$(MKDIR) -p $(EXT_BIN_PATH)
-	$(CC) -dynamiclib -o $(EXT_BIN_PATH)/lib$(TARGET_NAME)$@ $^ $(LDFLAGS) $(INSTALL_NAME)
-	$(call build-successfully,$(EXT_BIN_PATH),lib$(TARGET_NAME)$@)
+	$(CC) -dynamiclib -o $(EXT_BIN_PATH)/lib$(PROJECT_NAME)$@ $^ $(LDFLAGS) $(INSTALL_NAME)
+	$(call build-successfully,$(EXT_BIN_PATH),lib$(PROJECT_NAME)$@)
 
 ##将.o文件编译成可执行文件##
 $(BIN_SUF): $(LOCAL_OBJ_FILES)
 	@$(MKDIR) -p $(EXT_BIN_PATH)
-	$(CC) -o $(EXT_BIN_PATH)/$(TARGET_NAME) $^ $(LDFLAGS)
-	$(call build-successfully,$(EXT_BIN_PATH),$(TARGET_NAME))
+	$(CC) -o $(EXT_BIN_PATH)/$(PROJECT_NAME) $^ $(LDFLAGS)
+	$(call build-successfully,$(EXT_BIN_PATH),$(PROJECT_NAME))
 
 ##将.o文件编译成lib文件(.a)##
 $(LIB_SUF): $(LOCAL_OBJ_FILES)
 	@$(MKDIR) -p $(EXT_LIB_PATH)
-	$(AR) $(EXT_LIB_PATH)/lib$(TARGET_NAME).static$@ $^
-	$(call build-successfully,$(EXT_LIB_PATH),lib$(TARGET_NAME).static$@)
+	$(AR) $(EXT_LIB_PATH)/lib$(PROJECT_NAME).static$@ $^
+	$(call build-successfully,$(EXT_LIB_PATH),lib$(PROJECT_NAME).static$@)
 
 ##将.cpp文件编译成目标文件(.o)##
 $(EXT_OBJ_PATH)/%$(OBJ_SUF): $(SRCROOT)/%$(CPP_SUF)

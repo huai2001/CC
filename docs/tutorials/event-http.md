@@ -139,7 +139,7 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
     http->request = NULL;
     http->payload = 0;
     http->file = NULL;
-    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
+    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_,NULL);
     _cc_alloc_buf(&http->buffer, _CC_IO_BUFFER_SIZE_);
 
     // 配置事件参数

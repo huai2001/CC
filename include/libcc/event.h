@@ -235,8 +235,7 @@ _CC_API_PUBLIC(_cc_async_event_t *) _cc_get_async_event_by_id(uint64_t ident);
  * `limit` bytes. Returns the allocated `_cc_io_buffer_t*` or NULL.
  * The write buffer is protected by an internal mutex for concurrent use.
  */
-_CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit);
-
+_CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit, _cc_SSL_t *ssl);
 /**
  * Free an `_cc_io_buffer_t` and its internal memory. Caller must ensure
  * no concurrent users remain.

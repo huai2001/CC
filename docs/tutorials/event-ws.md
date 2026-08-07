@@ -70,16 +70,17 @@ typedef struct _ws {
 ```c
 /* 分配一个 WebSocket 结构体 */
 _CC_API_PRIVATE(_cc_ws_t*) _ws_alloc(_cc_socket_t fd) {
+    _cc_SSL_t *ssl = NULL;
     _cc_ws_t *ws = (_cc_ws_t*)_cc_malloc(sizeof(_cc_ws_t));
     ws->state = _CC_HTTP_STATUS_HEADER_;
     ws->request = NULL;
     ws->header.state = WS_DATA_OK;
 
-    // 分配网络 IO 读写缓存区
-    ws->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
-    
     // 如果支持 SSL 的 WSS 协议，创建 SSL_accept
-    // ws->io->ssl = _SSL_accept(openSSL, fd);
+    // ssl = _SSL_accept(openSSL, fd);
+    // 分配网络 IO 读写缓存区
+    ws->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_, ssl);
+    
     return ws;
 }
 

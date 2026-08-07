@@ -188,7 +188,7 @@ _CC_API_PUBLIC(_cc_http_request_t*) _cc_http_request(const tchar_t *url, pvoid_t
         return NULL;
     }
 
-    request->io = _cc_alloc_io_buffer(_CC_8K_BUFFER_SIZE_);
+    request->io = _cc_alloc_io_buffer(_CC_8K_BUFFER_SIZE_, NULL);
 
     request->state = _CC_HTTP_STATE_HEADER_;
     request->response = NULL;

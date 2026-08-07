@@ -123,9 +123,9 @@ _CC_API_PUBLIC(_cc_socket_t) _cc_socket_accept(_cc_socket_t fd, _cc_sockaddr_t *
 
 _CC_API_PRIVATE(bool_t) would_block(const int err) {
 #ifdef __CC_WINDOWS__
-    return (err == WSAEWOULDBLOCK) ? true : false;
+    return (err == WSAEWOULDBLOCK);
 #else
-    return ((err == EWOULDBLOCK) || (err == EAGAIN) || (err == EINPROGRESS)) ? true : false;
+    return ((err == EWOULDBLOCK) || (err == EAGAIN) || (err == EINPROGRESS));
 #endif
 }
 

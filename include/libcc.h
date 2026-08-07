@@ -2,6 +2,7 @@
 #define _C_CC_LIBCC_H_INCLUDED_
 
 #include "libcc/cpu.h"
+#include "libcc/file.h"
 #include "libcc/rand.h"
 #include "libcc/rwbuf.h"
 #include "libcc/buf.h"

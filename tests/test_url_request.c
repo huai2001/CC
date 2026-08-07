@@ -136,8 +136,8 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
         }
         return false;
     } else if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, which)) {    
-        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_) {
-            if (request->io && request->io->ssl && !request->io->ssl->is_handshaked) {
+        if (request->url.scheme.ident == _CC_SCHEME_HTTPS_ && request->io && request->io->ssl) {
+            if (request->io->ssl->is_handshaked == false) {
                 return _handshaking(e, request);
             }
         }
