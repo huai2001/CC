@@ -1,6 +1,7 @@
 #ifndef _C_CC_SQL_H_INCLUDED_
 #define _C_CC_SQL_H_INCLUDED_
 
+#include <time.h>
 #include "types.h"
 
 #ifndef __CC_WINDOWS__

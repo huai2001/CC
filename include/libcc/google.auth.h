@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 /* Generate a random Base32 secret key */
-_CC_API_PUBLIC(int32_t) _cc_generate_secret(char *secret, size_t length);
+_CC_API_PUBLIC(void) _cc_generate_secret(tchar_t *secret, size_t length);
 /**/
 _CC_API_PUBLIC(uint32_t) _cc_generate_totp(const tchar_t *secret, uint32_t time_step_seconds);
 /* Verify TOTP code with a window of allowed steps */
