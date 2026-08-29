@@ -153,7 +153,7 @@ _CC_API_PUBLIC(_cc_async_event_t*) _cc_get_async_event(void) {
 _CC_API_PUBLIC(_cc_event_t*) _cc_get_event_by_id(uint64_t ident) {
     _cc_event_t *e;
     int32_t index = (int32_t)_event_slot_ident(ident);
-    if (g_mgr.slot_length <= index) {
+    if (g_mgr.slot_length <= index || ident == 0) {
         return NULL;
     }
 
@@ -236,7 +236,7 @@ _CC_API_PUBLIC(void) _cc_print_cycle_processed(void) {
 }
 */
 /**/
-bool_t _register_async_event(_cc_async_event_t *async) {
+_CC_API_DYLIB_PRIVATE(bool_t) _register_async_event(_cc_async_event_t *async) {
     int32_t i, j;
     int32_t async_limit;
     _cc_assert(async != NULL);
@@ -347,7 +347,7 @@ _CC_API_PRIVATE(void) _event_link_free(_cc_async_event_t *async, _cc_list_t *hea
 }
 
 /**/
-bool_t _unregister_async_event(_cc_async_event_t *async) {
+_CC_API_DYLIB_PRIVATE(bool_t) _unregister_async_event(_cc_async_event_t *async) {
     int32_t i, j;
     _cc_assert(async != NULL);
 
@@ -400,7 +400,7 @@ bool_t _unregister_async_event(_cc_async_event_t *async) {
 }
 
 /**/
-bool_t _valid_event(_cc_async_event_t *async, _cc_event_t *e) {
+_CC_API_DYLIB_PRIVATE(bool_t) _valid_event(_cc_async_event_t *async, _cc_event_t *e) {
     return (_event_async_ident(e->ident) == async->ident);
 }
 
@@ -410,7 +410,7 @@ _CC_API_PUBLIC(void) _cc_event_set_slot_wait(uint32_t ms) {
 }
 
 /**/
-bool_t _valid_fd(_cc_socket_t fd) {
+_CC_API_DYLIB_PRIVATE(bool_t) _valid_fd(_cc_socket_t fd) {
     int r = 0;
     socklen_t length = sizeof(r);
 
@@ -432,7 +432,7 @@ bool_t _valid_fd(_cc_socket_t fd) {
 }
 
 /**/
-bool_t _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which) {
+_CC_API_DYLIB_PRIVATE(bool_t) _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which) {
     /**/
     async->processed++;
     _cc_list_swap(&async->pending, &e->lnk);
@@ -457,7 +457,7 @@ bool_t _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which)
 }
 
 /**/
-bool_t _reset_event(_cc_async_event_t *async, _cc_event_t *e) {
+_CC_API_DYLIB_PRIVATE(bool_t) _reset_event(_cc_async_event_t *async, _cc_event_t *e) {
     if (async->running == 0) {
         return false;
     }
@@ -469,7 +469,7 @@ bool_t _reset_event(_cc_async_event_t *async, _cc_event_t *e) {
 }
 
 /**/
-void _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
+_CC_API_DYLIB_PRIVATE(void) _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
     if (_CC_ISSET_BIT(_CC_EVENT_TIMEOUT_, e->flags)) {
         e->expire = async->timer + e->timeout;
         _add_event_timeout(async, e);
@@ -479,7 +479,7 @@ void _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
 }
 
 /**/
-void _reset_event_pending(_cc_async_event_t *async, void (*_reset)(_cc_async_event_t *, _cc_event_t *)) {
+_CC_API_DYLIB_PRIVATE(void) _reset_event_pending(_cc_async_event_t *async, void (*_reset)(_cc_async_event_t *, _cc_event_t *)) {
     _cc_list_t *head;
     _cc_list_t *next;
     _cc_list_t *curr;
@@ -509,7 +509,7 @@ void _reset_event_pending(_cc_async_event_t *async, void (*_reset)(_cc_async_eve
 }
 
 /**/
-bool_t _disconnect_event(_cc_async_event_t *async, _cc_event_t *e) {
+_CC_API_DYLIB_PRIVATE(bool_t) _disconnect_event(_cc_async_event_t *async, _cc_event_t *e) {
     /**/
     if (e->flags & (_CC_EVENT_SOCKET_ | _CC_EVENT_FILE_)) {
         _cc_shutdown_socket(e->fd, _CC_SHUT_RD_);

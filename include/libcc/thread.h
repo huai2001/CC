@@ -67,7 +67,7 @@ typedef enum {
 } _CC_THREAD_PRIORITY_EMUM_;
 
 /* This is the function called to run a thread */
-void _cc_thread_running_function(pvoid_t);
+_CC_API_DYLIB_PRIVATE(void) _cc_thread_running_function(pvoid_t);
 
 /**/
 _CC_API_PUBLIC(void)  _cc_once(_cc_once_t* guard, _cc_once_callback_t callback);

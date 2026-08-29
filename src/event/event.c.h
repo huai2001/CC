@@ -75,34 +75,34 @@ _CC_FORCE_INLINE_ uint64_t _event_retire_ident(uint64_t ident) {
 }
 /*
  */
-bool_t _register_async_event(_cc_async_event_t *async);
+_CC_API_DYLIB_PRIVATE(bool_t) _register_async_event(_cc_async_event_t *async);
 /*
  */
-bool_t _unregister_async_event(_cc_async_event_t *async);
+_CC_API_DYLIB_PRIVATE(bool_t) _unregister_async_event(_cc_async_event_t *async);
 /*
  */
-bool_t _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which);
+_CC_API_DYLIB_PRIVATE(bool_t) _event_callback(_cc_async_event_t *async, _cc_event_t *e, uint32_t which);
 /*
  */
-bool_t _valid_fd(_cc_socket_t fd);
+_CC_API_DYLIB_PRIVATE(bool_t) _valid_fd(_cc_socket_t fd);
 /*
  */
-bool_t _disconnect_event(_cc_async_event_t *async, _cc_event_t *e);
+_CC_API_DYLIB_PRIVATE(bool_t) _disconnect_event(_cc_async_event_t *async, _cc_event_t *e);
 /*
  */
-bool_t _reset_event(_cc_async_event_t *async, _cc_event_t *e);
+_CC_API_DYLIB_PRIVATE(bool_t) _reset_event(_cc_async_event_t *async, _cc_event_t *e);
 /*
  */
-void _reset_event_pending(_cc_async_event_t *async, void (*func)(_cc_async_event_t *, _cc_event_t *));
+_CC_API_DYLIB_PRIVATE(void) _reset_event_pending(_cc_async_event_t *async, void (*func)(_cc_async_event_t *, _cc_event_t *));
 /*
  */
-void _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
+_CC_API_DYLIB_PRIVATE(void) _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
 /*
  */
-void _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
+_CC_API_DYLIB_PRIVATE(void) _reset_event_timeout(_cc_async_event_t *async, _cc_event_t *e);
 /*
  */
-void _update_event_timeout(_cc_async_event_t *async, uint32_t timeout);
+_CC_API_DYLIB_PRIVATE(void) _update_event_timeout(_cc_async_event_t *async, uint32_t timeout);
 
 
 /* Ends C function definitions when using C++ */

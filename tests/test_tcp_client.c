@@ -6,20 +6,20 @@
 
 static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_CONNECT_) {
-        printf("connected event %d", e->ident);
+        printf("connected event %d.\n", (int)(e->ident & 0xFFFF));
         return true;
     } else if (which & _CC_EVENT_CLOSED_) {
-        printf("closed event %d", e->ident);
+        printf("closed event %d.\n", (int)(e->ident & 0xFFFF));
         return false;
     } else if (which & _CC_EVENT_READABLE_) {
-        printf("readable event %d", e->ident);
+        printf("readable event %d.\n", (int)(e->ident & 0xFFFF));
         byte_t buf[_CC_IO_BUFFER_SIZE_];
         int off = _cc_recv(e->fd, buf, _cc_countof(buf));
         if (off < 0) {
-            printf("%d recv fail.", e->ident);
+            printf("%d recv fail.\n", (int)(e->ident & 0xFFFF));
             return false;
         } else if (off == 0) {
-            printf("%d client close.", e->ident);
+            printf("%d client close.\n", (int)(e->ident & 0xFFFF));
             return false;
         }
         buf[off] = 0;
@@ -27,12 +27,12 @@ static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const 
     }
 
     if (which & _CC_EVENT_WRITABLE_) {
-        printf("writable event %d", e->ident);
+        printf("writable event %d\n", (int)(e->ident & 0xFFFF));
         _CC_UNSET_BIT(_CC_EVENT_WRITABLE_, e->flags);
     }
 
     if (which & _CC_EVENT_TIMEOUT_) {
-        printf("timeout event %d", e->ident);
+        printf("timeout event %d\n", (int)(e->ident & 0xFFFF));
         return false;
     }
 
@@ -55,7 +55,7 @@ bool_t _connect_server(const tchar_t *host, uint16_t port) {
     event->callback = _do_event_handler;
 
     _cc_inet_ipv4_addr(&sa, host, port);
-    printf("connect to %s:%d!",host,port);
+    printf("connect to %s:%d!\n",host,port);
     if (!_cc_tcp_connect(async, event, (_cc_sockaddr_t *)&sa, sizeof(struct sockaddr_in))) {
         _cc_free_event(async, event);
         return false;
@@ -67,7 +67,7 @@ int main (int argc, char * const argv[]) {
     int c;
     _cc_alloc_async_event(0, NULL);
 
-    _connect_server(_T("127.0.0.1"), 5500);
+    _connect_server(_T("127.0.0.1"), 5600);
 
     while((c = getchar()) != 'q') {
         _cc_sleep(100);

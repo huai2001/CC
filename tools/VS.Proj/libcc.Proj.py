@@ -100,7 +100,7 @@ LIBCCHeaders = [
 	"include/libcc/atomic.h",
 	"include/libcc/rwbuf.h",
 	"include/libcc/buf.h",
-	"include/libcc/os.h",
+	"include/libcc/cores.h",
 	"include/libcc/dirent.h",
 	"include/libcc/list.h",
 	"include/libcc/endian.h",

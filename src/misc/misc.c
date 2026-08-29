@@ -4,12 +4,12 @@
 #include "misc.c.h"
 
 static _cc_syntax_error_t _cc_global_syntax_error = {NULL, 0};
-void _cc_syntax_error(_cc_syntax_error_t *error) {
+_CC_API_DYLIB_PRIVATE(void) _cc_syntax_error(_cc_syntax_error_t *error) {
     _cc_global_syntax_error.content = error->content;
     _cc_global_syntax_error.position = error->position;
 }
 
-const tchar_t* _cc_get_syntax_error(void) {
+_CC_API_DYLIB_PRIVATE(const tchar_t*) _cc_get_syntax_error(void) {
     if (_cc_global_syntax_error.position) {
         return (_cc_global_syntax_error.content + _cc_global_syntax_error.position);
     }

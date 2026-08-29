@@ -53,7 +53,7 @@ static bool_t checked_setname = false;
 static int (*ppthread_setname_np)(pthread_t, const char *) = NULL;
 #endif
 
-_CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *self) {
+_CC_API_DYLIB_PRIVATE(bool_t) _cc_create_sys_thread(_cc_thread_t *self) {
     pthread_attr_t type;
 /* do this here before any threads exist, so there's no race condition. */
 #if defined(__CC_LINUX__) || defined(__CC_MACOSX__) || defined(__CC_IPHONEOS__)
@@ -87,7 +87,7 @@ _CC_API_PUBLIC(bool_t) _cc_create_sys_thread(_cc_thread_t *self) {
     return true;
 }
 
-_CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t *name) {
+_CC_API_DYLIB_PRIVATE(void) _cc_setup_sys_thread(const tchar_t *name) {
     /* NativeClient does not yet support signals.*/
 #if !defined(__CC_NACL__)
     int32_t i;
@@ -123,7 +123,7 @@ _CC_API_PUBLIC(void) _cc_setup_sys_thread(const tchar_t *name) {
 #endif
 }
 
-_CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
+_CC_API_DYLIB_PRIVATE(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
 #if __CC_NACL__
     /* FIXME: Setting thread priority does not seem to be supported in NACL */
     return 0;
@@ -175,11 +175,11 @@ _CC_API_PUBLIC(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ pri
 #endif /* __CC_LINUX__ */
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_current_sys_thread_id(void) {
+_CC_API_DYLIB_PRIVATE(size_t) _cc_get_current_sys_thread_id(void) {
     return (size_t)pthread_self();
 }
 
-_CC_API_PUBLIC(size_t) _cc_get_sys_thread_id(_cc_thread_t *self) {
+_CC_API_DYLIB_PRIVATE(size_t) _cc_get_sys_thread_id(_cc_thread_t *self) {
     size_t id;
 
     if (self) {
@@ -190,11 +190,11 @@ _CC_API_PUBLIC(size_t) _cc_get_sys_thread_id(_cc_thread_t *self) {
     return (id);
 }
 
-_CC_API_PUBLIC(void) _cc_wait_sys_thread(_cc_thread_t *self) {
+_CC_API_DYLIB_PRIVATE(void) _cc_wait_sys_thread(_cc_thread_t *self) {
     pthread_join(self->handle, 0);
     pthread_detach(self->handle);
 }
 
-_CC_API_PUBLIC(void) _cc_detach_sys_thread(_cc_thread_t *self) {
+_CC_API_DYLIB_PRIVATE(void) _cc_detach_sys_thread(_cc_thread_t *self) {
     pthread_detach(self->handle);
 }

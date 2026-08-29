@@ -86,6 +86,10 @@ struct _cc_io_buffer {
     _cc_io_data_t w;
     _cc_mutex_t *lock_of_writable;
     _cc_SSL_t *ssl;
+#ifdef _CC_DEBUG_
+    uint64_t read_bytes;
+    uint64_t write_bytes;
+#endif
 };
 
 /*
@@ -99,6 +103,9 @@ struct _cc_io_buffer {
  * - `timeout`/`expire`: used by the timer wheel when this event has a timeout
  */
 struct _cc_event {
+    /* Linked list node */
+    _cc_list_t lnk;
+
     /* One or more _CC_EVENT_* flags */
     uint32_t flags;
     /* The system has delivered the event flag */
@@ -109,11 +116,6 @@ struct _cc_event {
     /* accepted socket file descriptor */
     _cc_socket_t accept_fd;
 #endif
-
-    /* The timer wheel */
-    uint32_t timeout;
-    uint32_t expire;
-
     /*
      * 64-bit local handle.
      * High 32 bits: generation/version.
@@ -127,8 +129,9 @@ struct _cc_event {
     /* A user-supplied argument. */
     uintptr_t data;
 
-    /* Linked list node */
-    _cc_list_t lnk;
+    /* The timer wheel */
+    uint32_t timeout;
+    uint32_t expire;
 };
 
 /*

@@ -123,7 +123,10 @@ _CC_API_PUBLIC(int32_t) _cc_ws_header(byte_t *header, byte_t operation, int64_t 
 _CC_API_PUBLIC(int32_t) _cc_ws_header_parser(_cc_ws_header_t *header, byte_t *bytes, int32_t length) {
     int64_t payload;
     int32_t offset = 2;
-
+    //unused flag
+    //rsv1 = (bytes[0] & 0x40);
+    //rsv2 = (bytes[0] & 0x20);
+    //rsv3 = (bytes[0] & 0x10);
     header->fragment = bytes[0];
     header->operation = (bytes[0] & 0x0F);
     header->mask = (bytes[1] & 0x80);

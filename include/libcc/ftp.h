@@ -117,11 +117,11 @@ struct _cc_ftp {
 };
 
 /**/
-void libftp_set_error_info(const char_t *p, int32_t len);
+_CC_API_DYLIB_PRIVATE(void) libftp_set_error_info(const char_t *p, int32_t len);
 /**/
-void libftp_setup(_cc_ftp_t *ftp, uint16_t flag, _cc_ftp_resp_callback_t fn, pvoid_t data);
+_CC_API_DYLIB_PRIVATE(void) libftp_setup(_cc_ftp_t *ftp, uint16_t flag, _cc_ftp_resp_callback_t fn, pvoid_t data);
 /**/
-void libftp_del_attach(_cc_ftp_t *ftp);
+_CC_API_DYLIB_PRIVATE(void) libftp_del_attach(_cc_ftp_t *ftp);
 
 /**/
 _CC_API_PUBLIC(int32_t) _ftp_send_command(_cc_event_t*, const pvoid_t, int32_t);

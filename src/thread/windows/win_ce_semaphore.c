@@ -1,11 +1,11 @@
 #include <libcc/thread/windows/win_ce_semaphore.h>
 
 _CC_API_PRIVATE(SYNCHHANDLE) CleanUp(SYNCHHANDLE hSynch, DWORD Flags);
-
-SYNCHHANDLE CreateSemaphoreCE(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, /* pointer to security attributes */
-                              LONG lInitialCount,                          /* initial count */
-                              LONG lMaximumCount,                          /* maximum count */
-                              LPCTSTR lpName) {
+_CC_API_DYLIB_PRIVATE(SYNCHHANDLE) CreateSemaphoreCE(
+                                LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, /* pointer to security attributes */
+                                LONG lInitialCount,                          /* initial count */
+                                LONG lMaximumCount,                          /* maximum count */
+                                LPCTSTR lpName) {
     /* Semaphore for use with Windows CE that does not support them directly.
        Requires a counter, a mutex to protect the counter, and an
        autoreset event.
@@ -57,10 +57,8 @@ SYNCHHANDLE CreateSemaphoreCE(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, /* po
 
     return result;
 }
-
-BOOL ReleaseSemaphoreCE(SYNCHHANDLE hSemCE, LONG cReleaseCount, LPLONG lpPreviousCount)
 /* Windows CE equivalent to ReleaseSemaphore. */
-{
+_CC_API_DYLIB_PRIVATE(BOOL) ReleaseSemaphoreCE(SYNCHHANDLE hSemCE, LONG cReleaseCount, LPLONG lpPreviousCount) {
     BOOL Result = true;
 
     /* Gain access to the object to assure that the release count
@@ -90,10 +88,8 @@ BOOL ReleaseSemaphoreCE(SYNCHHANDLE hSemCE, LONG cReleaseCount, LPLONG lpPreviou
 
     return Result;
 }
-
-DWORD WaitForSemaphoreCE(SYNCHHANDLE hSemCE, DWORD dwMilliseconds)
 /* Windows CE semaphore equivalent of WaitForSingleObject. */
-{
+_CC_API_DYLIB_PRIVATE(DWORD) WaitForSemaphoreCE(SYNCHHANDLE hSemCE, DWORD dwMilliseconds) {
     DWORD WaitResult;
 
     WaitResult = WaitForSingleObject(hSemCE->hMutex, dwMilliseconds);
@@ -151,7 +147,7 @@ DWORD WaitForSemaphoreCE(SYNCHHANDLE hSemCE, DWORD dwMilliseconds)
 
 /* Close a synchronization handle.
    Improvement: Test for a valid handle before dereferencing the handle. */
-BOOL CloseSynchHandle(SYNCHHANDLE hSynch) {
+_CC_API_DYLIB_PRIVATE(BOOL) CloseSynchHandle(SYNCHHANDLE hSynch) {
     BOOL Result = true;
     if (hSynch->hEvent != NULL) {
         Result = Result && CloseHandle(hSynch->hEvent);

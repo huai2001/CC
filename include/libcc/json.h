@@ -26,9 +26,11 @@ enum _CC_JSON_TYPES_ {
 
 /* The JSON structre */
 typedef struct _cc_json {
+    /* Red-black tree iterator for object members */
+    _cc_rb_t lnk;
+    _cc_sds_t name;
     /* The type of the ctx, as above. */
     byte_t type;
-    _cc_sds_t name;
     union {
         bool_t uni_boolean;
         float64_t uni_float;
@@ -37,8 +39,6 @@ typedef struct _cc_json {
         _cc_array_t uni_array;
         _cc_sds_t uni_string;
     } element;
-    /* Red-black tree iterator for object members */
-    _cc_rb_t lnk;
 } _cc_json_t;
 
 /**/

@@ -29,7 +29,7 @@
 #define _CC_MAX_PATH_           1024
 #endif
 
-#define _CC_1K_BUFFER_SIZE_     (1024)
+#define _CC_1K_BUFFER_SIZE_     (1 << 10)
 #define _CC_2K_BUFFER_SIZE_     (1 << 11)
 #define _CC_4K_BUFFER_SIZE_     (1 << 12)
 #define _CC_8K_BUFFER_SIZE_     (1 << 13)

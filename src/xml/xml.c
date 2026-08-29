@@ -2,7 +2,7 @@
 /*
  * Utility to jump whitespace and cr/lf
  */
-bool_t _XML_jump_whitespace(_cc_sbuf_t *const buffer) {
+_CC_API_DYLIB_PRIVATE(bool_t) _XML_jump_whitespace(_cc_sbuf_t *const buffer) {
     register const tchar_t *ptr = 0;
     if (_cc_unlikely((buffer == NULL) || (buffer->content == NULL))) {
         return false;
@@ -25,7 +25,7 @@ bool_t _XML_jump_whitespace(_cc_sbuf_t *const buffer) {
 }
 
 /**/
-bool_t _XML_attr_push(_cc_rbtree_t *ctx, _cc_sds_t name, _cc_sds_t value) {
+_CC_API_DYLIB_PRIVATE(bool_t) _XML_attr_push(_cc_rbtree_t *ctx, _cc_sds_t name, _cc_sds_t value) {
     int32_t result = 0;
     _cc_xml_attr_t *item = NULL;
     _cc_rb_t **node = &(ctx->rb_node), *parent = NULL;

@@ -46,7 +46,7 @@ extern "C" {
 #endif
 
 /**/
-int __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len);
+_CC_API_DYLIB_PRIVATE(int) __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len);
 
 /***/
 _CC_API_PUBLIC(bool_t) _cc_install_socket(void);

@@ -35,7 +35,7 @@ _CC_API_PRIVATE(void) _timeout_shift(_cc_async_event_t *async) {
 }
 
 /**/
-void _timeout_execute(_cc_async_event_t *async) {
+_CC_API_DYLIB_PRIVATE(void) _timeout_execute(_cc_async_event_t *async) {
     int i = async->timer & _CC_TIMEOUT_NEAR_MASK_;
 
     if (!_cc_list_empty(&async->nears[i])) {
@@ -53,7 +53,7 @@ void _timeout_execute(_cc_async_event_t *async) {
 }
 
 /**/
-void _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
+_CC_API_DYLIB_PRIVATE(void) _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
     uint32_t elapsed = async->timer;
     uint32_t expire = e->expire;
     uint32_t mask;
@@ -77,7 +77,7 @@ void _add_event_timeout(_cc_async_event_t *async, _cc_event_t *e) {
 }
 
 /**/
-void _update_event_timeout(_cc_async_event_t *async, uint32_t timeout) {
+_CC_API_DYLIB_PRIVATE(void) _update_event_timeout(_cc_async_event_t *async, uint32_t timeout) {
     uint64_t tick = _cc_get_ticks();
 
     if (_cc_unlikely(tick < async->tick)) {

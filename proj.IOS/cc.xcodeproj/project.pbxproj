@@ -83,7 +83,6 @@
 		42B96AC92E885AAE009FE2F7 /* md4.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969B72E885AAE009FE2F7 /* md4.c */; };
 		42B96ACA2E885AAE009FE2F7 /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A5B2E885AAE009FE2F7 /* crc.c */; };
 		42B96ACD2E885AAE009FE2F7 /* json.array.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969F52E885AAE009FE2F7 /* json.array.c */; };
-		42B96AD42E885AAE009FE2F7 /* syslog.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A682E885AAE009FE2F7 /* syslog.c */; };
 		42B96AD62E885AAE009FE2F7 /* timeout.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969CE2E885AAE009FE2F7 /* timeout.c */; };
 		42B96AD72E885AAE009FE2F7 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969B32E885AAE009FE2F7 /* base64.c */; };
 		42B96AD92E885AAE009FE2F7 /* buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969C72E885AAE009FE2F7 /* buffer.c */; };
@@ -214,7 +213,6 @@
 		42B96A652E885AAE009FE2F7 /* ring.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ring.c; sourceTree = "<group>"; };
 		42B96A662E885AAE009FE2F7 /* sds.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sds.c; sourceTree = "<group>"; };
 		42B96A672E885AAE009FE2F7 /* string.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = string.c; sourceTree = "<group>"; };
-		42B96A682E885AAE009FE2F7 /* syslog.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = syslog.c; sourceTree = "<group>"; };
 		42B96A692E885AAE009FE2F7 /* url.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = url.c; sourceTree = "<group>"; };
 		42B96A6A2E885AAE009FE2F7 /* UTF.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = UTF.c; sourceTree = "<group>"; };
 		42B96A6B2E885AAE009FE2F7 /* uuid.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = uuid.c; sourceTree = "<group>"; };
@@ -508,7 +506,6 @@
 				42B96A662E885AAE009FE2F7 /* sds.c */,
 				42B96A672E885AAE009FE2F7 /* string.c */,
 				4284D2A12F288D4A00B15BD6 /* snowflake.c */,
-				42B96A682E885AAE009FE2F7 /* syslog.c */,
 				42B96A692E885AAE009FE2F7 /* url.c */,
 				42B96A6A2E885AAE009FE2F7 /* UTF.c */,
 				42B96A6B2E885AAE009FE2F7 /* uuid.c */,
@@ -679,7 +676,6 @@
 				42B96AC92E885AAE009FE2F7 /* md4.c in Sources */,
 				42B96ACA2E885AAE009FE2F7 /* crc.c in Sources */,
 				42B96ACD2E885AAE009FE2F7 /* json.array.c in Sources */,
-				42B96AD42E885AAE009FE2F7 /* syslog.c in Sources */,
 				42B96AD62E885AAE009FE2F7 /* timeout.c in Sources */,
 				42B96AD72E885AAE009FE2F7 /* base64.c in Sources */,
 				42B96AD92E885AAE009FE2F7 /* buffer.c in Sources */,

@@ -16,8 +16,6 @@
 		41CDDE2529A3857C008F372C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41CDDE2329A3857C008F372C /* LaunchScreen.storyboard */; };
 		41CDDE2829A3857C008F372C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41CDDE2729A3857C008F372C /* main.m */; };
 		425720BE2F09FD150060EE45 /* cc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; };
-		425720C62F09FDE60060EE45 /* libcrypto.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 425720C42F09FDE60060EE45 /* libcrypto.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		425720C72F09FDE60060EE45 /* libssl.3.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 425720C52F09FDE60060EE45 /* libssl.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		425720CB2F09FFCB0060EE45 /* cc.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 41CDDE3429A385AB008F372C /* cc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		42AA27B82F17384800D5ABE2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42AA27B52F17384800D5ABE2 /* Security.framework */; };
 /* End PBXBuildFile section */
@@ -40,8 +38,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				425720CB2F09FFCB0060EE45 /* cc.framework in CopyFiles */,
-				425720C62F09FDE60060EE45 /* libcrypto.3.dylib in CopyFiles */,
-				425720C72F09FDE60060EE45 /* libssl.3.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,7 +378,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 8X9J3P3289;
 				INFOPLIST_FILE = test/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -405,7 +401,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 8X9J3P3289;
 				INFOPLIST_FILE = test/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

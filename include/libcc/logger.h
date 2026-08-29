@@ -65,15 +65,16 @@ typedef void (*_cc_loggerA_func_t)(uint8_t level, time_t timestamp, const char_t
 typedef void (*_cc_loggerW_func_t)(uint8_t level, time_t timestamp, const wchar_t *msg, int32_t length);
 
 /**/
-void __install_logger(void);
+_CC_API_DYLIB_PRIVATE(void) __install_logger(void);
 /**/
-void __uninstall_logger(void);
+_CC_API_DYLIB_PRIVATE(void) __uninstall_logger(void);
 /**/
 _CC_API_PUBLIC(void) _cc_loggerW_dump(_cc_loggerW_func_t pfun);
 /**/
 _CC_API_PUBLIC(void) _cc_loggerA_dump(_cc_loggerA_func_t pfun);
 /**/
 _CC_API_PUBLIC(void) _cc_logger_dump(void);
+
 /**/
 #ifndef _CL
     #define _CL(x) __CL(x)

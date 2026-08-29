@@ -93,8 +93,7 @@ _CC_API_PUBLIC(bool_t) _cc_register_mysql(_cc_sql_delegate_t *delegator);
 _CC_API_PUBLIC(bool_t) _cc_register_sqlsvr(_cc_sql_delegate_t *delegator);
 /**/
 _CC_API_PUBLIC(bool_t) _cc_register_sqlite(_cc_sql_delegate_t *delegator);
-/**/
-_CC_API_PUBLIC(bool_t) _cc_register_oci8(_cc_sql_delegate_t *delegator);
+
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

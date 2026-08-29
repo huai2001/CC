@@ -9,7 +9,7 @@
 #define SETSOCKOPT_OPTVAL_TYPE (void *)
 #endif
 
-int __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
+_CC_API_DYLIB_PRIVATE(int) __cc_stdlib_socket_connect(_cc_socket_t fd, const _cc_sockaddr_t *sa, const _cc_socklen_t sa_len) {
     if (connect(fd, (struct sockaddr *)sa, sa_len) == -1) {
         int err = _cc_last_errno();
 

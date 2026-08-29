@@ -41,12 +41,12 @@ enum {
 
 /**/
 typedef struct _cc_http_request {
-    uint8_t state;
-    _cc_url_t url;
-    _cc_buf_t buffer;
     _cc_io_buffer_t *io;
     _gzip_t *gzip;
     _cc_http_response_header_t *response;
+    _cc_url_t url;
+    _cc_buf_t buffer;
+    uint8_t state;
     pvoid_t args;
 } _cc_http_request_t;
 

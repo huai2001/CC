@@ -73,7 +73,7 @@ static unsigned __stdcall MINGW32_FORCEALIGN RunThreadViaBeginThreadEx(LPVOID ar
 #define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
 #endif
 /**/
-bool_t _cc_create_sys_thread(_cc_thread_t* self) {
+_CC_API_DYLIB_PRIVATE(bool_t) _cc_create_sys_thread(_cc_thread_t* self) {
     int flags = self->stack_size ? STACK_SIZE_PARAM_IS_A_RESERVATION : 0;
     DWORD thread_id = 0;
     // self->stack_size == 0 means "system default", same as win32 expects
@@ -112,7 +112,7 @@ static LONG NTAPI EmptyVectoredExceptionHandler(EXCEPTION_POINTERS *info) {
     }
 }
 /**/
-void _cc_setup_sys_thread(const tchar_t* name) {
+_CC_API_DYLIB_PRIVATE(void) _cc_setup_sys_thread(const tchar_t* name) {
 /* Visual Studio 2015, MSVC++ 14.0*/
 //#if (__CC_MSVC__ >= 1900) || (defined(__GNUC__) && defined(__i386__))
     PVOID exceptionHandlerHandle;
@@ -162,12 +162,12 @@ void _cc_setup_sys_thread(const tchar_t* name) {
 }
 
 /**/
-size_t _cc_get_current_sys_thread_id(void) {
+_CC_API_DYLIB_PRIVATE(size_t) _cc_get_current_sys_thread_id(void) {
     return ((size_t)GetCurrentThreadId());
 }
 
 /**/
-bool_t _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
+_CC_API_DYLIB_PRIVATE(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
     int value;
 
     if (priority == _CC_THREAD_PRIORITY_LOW_) {
@@ -185,7 +185,7 @@ bool_t _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ priority) {
 }
 
 /**/
-size_t _cc_get_sys_thread_id(_cc_thread_t* self) {
+_CC_API_DYLIB_PRIVATE(size_t) _cc_get_sys_thread_id(_cc_thread_t* self) {
     size_t id;
 
     if (self) {
@@ -197,7 +197,7 @@ size_t _cc_get_sys_thread_id(_cc_thread_t* self) {
 }
 
 /**/
-void _cc_wait_sys_thread(_cc_thread_t* self) {
+_CC_API_DYLIB_PRIVATE(void) _cc_wait_sys_thread(_cc_thread_t* self) {
     if (self->handle != NULL) {
         WaitForSingleObject(self->handle, INFINITE);
         CloseHandle(self->handle);
@@ -206,7 +206,7 @@ void _cc_wait_sys_thread(_cc_thread_t* self) {
     }
 }
 
-void _cc_detach_sys_thread(_cc_thread_t* self) {
+_CC_API_DYLIB_PRIVATE(void) _cc_detach_sys_thread(_cc_thread_t* self) {
     CloseHandle(self->handle);
     self->handle = NULL;
 }

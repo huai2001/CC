@@ -5,7 +5,7 @@
 #include <libcc/event.h>
 #include <libcc/timeout.h>
 static int c = 0;
-static uint16_t port = 5500;
+static uint16_t port = 5600;
 
 void _do_accept(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_socket_t fd;
@@ -16,8 +16,7 @@ void _do_accept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        printf("thread %d accept fail %s.", _cc_get_thread_id(NULL),
-                         _cc_last_error(_cc_last_errno()));
+        printf("thread %ld accept fail %s.\n", _cc_get_thread_id(NULL),  _cc_last_error(_cc_last_errno()));
         return ;
     }
 
@@ -34,25 +33,25 @@ void _do_accept(_cc_async_event_t *async, _cc_event_t *e) {
     event->timeout = e->timeout;
 
     if (async2->attach(async2, event) == false) {
-        printf("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
+        printf("thread %ld add socket (%d) event fial.\n", _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
     }
     {
         struct sockaddr_in* remote_ip = (struct sockaddr_in*)&remote_addr;
         byte_t *ip_addr = (byte_t *)&remote_ip->sin_addr.s_addr;
-        printf("TCP accept [%d,%d,%d,%d] fd:%d", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
+        printf("TCP accept [%d,%d,%d,%d] fd:%d.\n", ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3], fd);
     }
 }
 
 static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_ACCEPT_) {
-		printf("%d accept.", e->ident);
+		printf("%d accept.\n", (int)(e->ident & 0xFFFF));
         _do_accept(async,e);
         return true;
     }
 
 	if (which & _CC_EVENT_CLOSED_) {
-        printf("%d disconnect.", e->ident);
+        printf("%d disconnect.\n", (int)(e->ident & 0xFFFF));
         return false;
     }
 
@@ -60,23 +59,25 @@ static bool_t _do_event_handler(_cc_async_event_t *async, _cc_event_t *e, const 
         byte_t buf[_CC_IO_BUFFER_SIZE_];
         int off = _cc_recv(e->fd, buf, _cc_countof(buf));
         if (off < 0) {
-            printf("%d recv fail.", e->ident);
+            printf("%d recv fail.\n", (int)(e->ident & 0xFFFF));
             return false;
         } else if (off == 0) {
-            printf("%d client close.", e->ident);
+            printf("%d client close.\n", (int)(e->ident & 0xFFFF));
             return false;
         }
         buf[off] = 0;
-        printf("%d: %.*s",e->ident, off, buf);
+        printf("%d: %.*s\n",(int)(e->ident & 0xFFFF), off, buf);
+
+        _cc_send(e->fd, buf, off);
     }
 
     if (which & _CC_EVENT_WRITABLE_) {
-        printf("%d writeable.", e->ident);
+        printf("%d writeable.\n", (int)(e->ident & 0xFFFF));
         return false;
     }
 
     if (which & _CC_EVENT_TIMEOUT_) {
-        printf("%d timeout.", e->ident);
+        printf("%d timeout.\n", (int)(e->ident & 0xFFFF));
         return false;
     }
     return true;
@@ -105,7 +106,6 @@ void test_event_tcp_listen() {
 }
 
 int main() {
-    int i;
     _cc_alloc_async_event(0, NULL);
 
     test_event_tcp_listen();

@@ -169,7 +169,7 @@ class VCXProj:
 				ET.SubElement(ProjectConfiguration, "ConfigurationType").text = self.ConfigurationType
 				ET.SubElement(ProjectConfiguration, "UseDebugLibraries").text = 'true' if config == 'Debug' else 'false'
 				ET.SubElement(ProjectConfiguration, "CharacterSet").text = self.CharacterSet
-				ET.SubElement(ProjectConfiguration, "PlatformToolset").text = self.PlatformToolset
+				#ET.SubElement(ProjectConfiguration, "PlatformToolset").text = self.PlatformToolset
 
 		# Import default props
 		ET.SubElement(Project, "Import", Project="$(VCTargetsPath)\\Microsoft.Cpp.props")
