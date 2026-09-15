@@ -81,13 +81,10 @@ _CC_API_PRIVATE(int) get_file_system_time(struct timeval *tv) {
     ULARGE_INTEGER fft;
     
     if (_getSystemTimeAsFileTimeFunc == NULL) {
-        HMODULE hMod = _cc_load_windows_kernel32();
-        if (hMod) {
-            /* Max possible resolution <1us, win8/server2012 */
-            _getSystemTimeAsFileTimeFunc =
-                (MyGetSystemTimeAsFileTime)GetProcAddress(hMod, "GetSystemTimePreciseAsFileTime");
-        }
 
+        /* Max possible resolution <1us, win8/server2012 */
+        _getSystemTimeAsFileTimeFunc = (MyGetSystemTimeAsFileTime)GetProcAddress(_cc_load_windows_kernel32(), "GetSystemTimePreciseAsFileTime");
+        
         if (!_getSystemTimeAsFileTimeFunc) {
             /* 100ns blocks since 01-Jan-1641 */
             _getSystemTimeAsFileTimeFunc = (MyGetSystemTimeAsFileTime)GetSystemTimeAsFileTime;
