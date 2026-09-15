@@ -158,22 +158,20 @@ _CC_API_PUBLIC(_cc_mutex_t*) _cc_alloc_mutex(void) {
     if (pReleaseSRWLockExclusive == NULL || pAcquireSRWLockExclusive == NULL || pTryAcquireSRWLockExclusive == NULL) {
         /* Try faster implementation for Windows 7 and newer */
         HMODULE kernel32 = _cc_load_windows_kernel32();
-        if (kernel32) {
-            /* Requires Vista: */
-            pInitializeSRWLock = (pfnInitializeSRWLock)GetProcAddress(kernel32, "InitializeSRWLock");
-            pReleaseSRWLockExclusive = (pfnReleaseSRWLockExclusive)GetProcAddress(kernel32, "ReleaseSRWLockExclusive");
-            pAcquireSRWLockExclusive = (pfnAcquireSRWLockExclusive)GetProcAddress(kernel32, "AcquireSRWLockExclusive");
-            /* Requires 7: */
-            pTryAcquireSRWLockExclusive =
-                (pfnTryAcquireSRWLockExclusive)GetProcAddress(kernel32, "TryAcquireSRWLockExclusive");
-            if (pReleaseSRWLockExclusive && pAcquireSRWLockExclusive && pTryAcquireSRWLockExclusive) {
-                _cc_mutex_impl_active.Create = _cc_alloc_mutex_srw;
-                _cc_mutex_impl_active.Destroy = _cc_free_mutex_srw;
-                _cc_mutex_impl_active.Lock = _cc_mutex_lock_srw;
-                _cc_mutex_impl_active.TryLock = _cc_mutex_try_lock_srw;
-                _cc_mutex_impl_active.Unlock = _cc_mutex_unlock_srw;
-                _cc_mutex_impl_active.Type = _CC_MUTEX_SRW_;
-            }
+        /* Requires Vista: */
+        pInitializeSRWLock = (pfnInitializeSRWLock)GetProcAddress(kernel32, "InitializeSRWLock");
+        pReleaseSRWLockExclusive = (pfnReleaseSRWLockExclusive)GetProcAddress(kernel32, "ReleaseSRWLockExclusive");
+        pAcquireSRWLockExclusive = (pfnAcquireSRWLockExclusive)GetProcAddress(kernel32, "AcquireSRWLockExclusive");
+        /* Requires 7: */
+        pTryAcquireSRWLockExclusive =
+            (pfnTryAcquireSRWLockExclusive)GetProcAddress(kernel32, "TryAcquireSRWLockExclusive");
+        if (pReleaseSRWLockExclusive && pAcquireSRWLockExclusive && pTryAcquireSRWLockExclusive) {
+            _cc_mutex_impl_active.Create = _cc_alloc_mutex_srw;
+            _cc_mutex_impl_active.Destroy = _cc_free_mutex_srw;
+            _cc_mutex_impl_active.Lock = _cc_mutex_lock_srw;
+            _cc_mutex_impl_active.TryLock = _cc_mutex_try_lock_srw;
+            _cc_mutex_impl_active.Unlock = _cc_mutex_unlock_srw;
+            _cc_mutex_impl_active.Type = _CC_MUTEX_SRW_;
         }
     }
 #endif
