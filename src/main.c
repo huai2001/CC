@@ -52,7 +52,7 @@ __attribute__((destructor)) void _libcc_detach(void) {
 #endif
 }
 
-#if defined(__CC_WINDOWS__) && defined (_CC_API_USE_DYNAMIC_)
+#if defined(__CC_WINDOWS__) && defined (_CC_USE_API_DYNAMIC_)
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved ) {
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:

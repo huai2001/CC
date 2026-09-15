@@ -1,5 +1,5 @@
 ifdef shared
-	MACROS += _CC_API_USE_DYNAMIC_
+	MACROS += _CC_USE_API_DYNAMIC_
 endif
 
 INCLUDE_PATH	+= $(SRCROOT)/include

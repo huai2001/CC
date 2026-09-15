@@ -333,7 +333,7 @@
     #endif
 #endif /* __CC_CALL__ */
 
-#if defined(_CC_API_USE_DYNAMIC_)
+#if defined(_CC_USE_API_DYNAMIC_)
     #define _CC_API_PUBLIC(x) _CC_API_EXPORT_ x
 #else
     #define _CC_API_PUBLIC(x) _CC_API_IMPORT_ x

@@ -176,7 +176,7 @@ if __name__ == "__main__":
 	vcxproj.ImportLibrary = "..\\lib"
 
 	Librarys = ["libmysql.lib","sqlite3.lib","zlib.lib","libssl.lib","libcrypto.lib"]
-	Macros = ["_CC_API_USE_DYNAMIC_","_CC_USE_OPENSSL_","_WINDOWS","_USRDLL"]
+	Macros = ["_CC_USE_API_DYNAMIC_","_CC_USE_OPENSSL_","_WINDOWS","_USRDLL"]
 
 	vcxproj.addIncludePath(["C:\\libcc\\include"])
 	vcxproj.addLibraryPath(["C:\\libcc\\lib\\$(Platform)\\$(Configuration)"])

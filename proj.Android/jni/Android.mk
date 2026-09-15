@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_CFLAGS += -D_CC_API_USE_DYNAMIC_
+LOCAL_CFLAGS += -D_CC_USE_API_DYNAMIC_
 
 ifeq ($(NDK_DEBUG),1)
     LOCAL_CFLAGS +=  -DDEBUG

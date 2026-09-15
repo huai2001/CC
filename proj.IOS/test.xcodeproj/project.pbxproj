@@ -58,8 +58,6 @@
 		41CDDE2629A3857C008F372C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		41CDDE2729A3857C008F372C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		41CDDE2F29A385AB008F372C /* cc.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = cc.xcodeproj; sourceTree = "<group>"; };
-		425720BF2F09FD2D0060EE45 /* libcrypto.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.3.dylib; path = ../lib/arm64/libcrypto.3.dylib; sourceTree = "<group>"; };
-		425720C02F09FD2D0060EE45 /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.3.dylib; path = ../lib/arm64/libssl.3.dylib; sourceTree = "<group>"; };
 		42AA27B52F17384800D5ABE2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -125,8 +123,6 @@
 			isa = PBXGroup;
 			children = (
 				42AA27B52F17384800D5ABE2 /* Security.framework */,
-				425720BF2F09FD2D0060EE45 /* libcrypto.3.dylib */,
-				425720C02F09FD2D0060EE45 /* libssl.3.dylib */,
 				416D42AF29DAC4CF00205B24 /* WebKit.framework */,
 			);
 			name = Frameworks;

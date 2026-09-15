@@ -100,7 +100,7 @@
         //最小字体大小 当将javaScriptEnabled属性设置为NO时，可以看到明显的效果
         preference.minimumFontSize = 0;
         //设置是否支持javaScript 默认是支持的
-        preference.javaScriptEnabled = YES;
+        //preference.javaScriptEnabled = YES;
         // 在iOS上默认为NO，表示是否允许不经过用户交互由javaScript自动打开窗口
         preference.javaScriptCanOpenWindowsAutomatically = YES;
         config.preferences = preference;
