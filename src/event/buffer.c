@@ -2,7 +2,7 @@
 #include <libcc/math.h>
 #include "event.c.h"
 
-_CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit, _cc_SSL_t *ssl) {
+_CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit) {
     _cc_io_buffer_t *io = (_cc_io_buffer_t *)_cc_malloc(sizeof(_cc_io_buffer_t));
     io->r.limit = limit;
     io->r.off = 0;
@@ -11,10 +11,8 @@ _CC_API_PUBLIC(_cc_io_buffer_t*) _cc_alloc_io_buffer(int32_t limit, _cc_SSL_t *s
     io->w.limit = limit;
     io->w.off = 0;
     io->w.bytes = (byte_t*)_cc_calloc(limit,sizeof(byte_t));
-
-#ifdef _CC_USE_OPENSSL_
-    io->ssl = ssl;
-#endif
+    
+    io->ssl = NULL;
     io->lock_of_writable = _cc_alloc_mutex();
 
 #ifdef _CC_DEBUG_

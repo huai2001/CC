@@ -2,7 +2,7 @@
 #include <libcc/logger.h>
 
 /**/
-_CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
+_CC_API_PUBLIC(uintptr_t) _cc_load_object(const tchar_t *sofile) {
     HINSTANCE handle;
     /* Prevent ugly popups from killing our app */
 #ifndef _WIN32_WCE
@@ -28,20 +28,24 @@ _CC_API_PUBLIC(pvoid_t) _cc_load_object(const tchar_t *sofile) {
 #ifndef _WIN32_WCE
     SetErrorMode(em);
 #endif
-    return (void *)handle;
+    return (uintptr_t)handle;
 }
 
 /**/
-_CC_API_PUBLIC(pvoid_t) _cc_load_function(pvoid_t handle, const char_t *name) {
+_CC_API_PUBLIC(uintptr_t) _cc_load_function(uintptr_t handle, const char_t *name) {
     if (handle != NULL) {
-        return (pvoid_t)GetProcAddress((HMODULE)handle, name);
+        uintptr_t symbol = (uintptr_t)GetProcAddress((HMODULE)handle, name);
+        if (symbol == 0) {
+            _cc_logger_error("Failed dlsym(%s): %s", name, (tchar_t *)dlerror());
+        }
+        return symbol;
     }
     return NULL;
 }
 
 /**/
-_CC_API_PUBLIC(void) _cc_unload_object(pvoid_t handle) {
-    if (handle != NULL) {
+_CC_API_PUBLIC(void) _cc_unload_object(uintptr_t handle) {
+    if (handle) {
         FreeLibrary((HMODULE)handle);
     }
 }

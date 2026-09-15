@@ -121,7 +121,7 @@ int main(void) {
     _cc_logger_info(_T("Server listening on port 8081"));
 
     /* 事件循环 */
-    while (async.running) {
+    while (async.flag & 0x0F) {
         async.wait(&async, 100);
     }
 
@@ -211,7 +211,7 @@ int main(void) {
     }
 
     /* 事件循环 */
-    while (async.running) {
+    while (async.flag & 0x0F) {
         async.wait(&async, 100);
     }
 

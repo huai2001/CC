@@ -2,7 +2,7 @@
 #include <libcc/event.h>
 #include <libcc/http_request.h>
 
-#define ENABLE_SSL 0
+#define ENABLE_SSL 1
 
 #if ENABLE_SSL
 _cc_OpenSSL_t *httpSSL = NULL;
@@ -59,7 +59,7 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
 
     fd = async->accept(async, e, (_cc_sockaddr_t *)&remote_addr, &remote_addr_len);
     if (fd == _CC_INVALID_SOCKET_) {
-        printf("thread %d accept fail %s.", _cc_get_thread_id(NULL), _cc_last_error(_cc_last_errno()));
+        printf("thread %zu accept fail %s.\n", _cc_get_thread_id(NULL), _cc_last_error(_cc_last_errno()));
         return false;
     }
 
@@ -76,10 +76,11 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
     http->state = _CC_HTTP_STATE_HEADER_;
     http->request = NULL;
     http->payload = 0;
+    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
 #if ENABLE_SSL
-    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_, _SSL_accept(httpSSL, fd));
-#else
-    http->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_, NULL);
+    if (httpSSL && http->io) {
+        http->io->ssl = _SSL_accept(httpSSL, fd);
+    }
 #endif
     
     _cc_alloc_buf(&http->buffer, _CC_IO_BUFFER_SIZE_);
@@ -96,16 +97,16 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
     #endif
 
     if (async2->attach(async2, event) == false) {
-        printf("thread %d add socket (%d) event fial.", _cc_get_thread_id(NULL), fd);
+        printf("thread %zu add socket (%d) event fial.\n", _cc_get_thread_id(NULL), fd);
         _cc_free_event(async2, event);
         return false;
     }
-    printf("%d accept.", event->ident);
+    printf("%llu accept.\n", event->ident);
     return true;
 }
 
 static bool_t _handle_close(_cc_async_event_t *async, _cc_event_t *e) {
-    printf("%d handle close.", e->ident);
+    printf("%llu handle close.\n", e->ident);
     if (e->data) {
         _http_t *http = (_http_t*)e->data;
         if (http->io) {
@@ -222,17 +223,15 @@ _CC_API_PRIVATE(bool_t) _is_keep_alive(_cc_rbtree_t *headers) {
 static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
     _http_t *http = (_http_t*)e->data;
     _cc_io_buffer_t *io = http->io;
-    int32_t off = _cc_io_buffer_read(e, io);
 #ifdef __CC_APPLE__
     do {
 #endif
+    int32_t off = _cc_io_buffer_read(e, io);
     if (off < 0) {
         return false;
     } else if (off == 0) {
         return true;
     }
-
-    printf("%d read.", off);
 
     if (http->state == _CC_HTTP_STATE_ESTABLISHED_) {
         return false;
@@ -268,7 +267,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
         _cc_rb_t *node;
         _cc_rbtree_for(node, &http->request->headers) {
             _cc_http_header_t *header = _cc_upcast(node, _cc_http_header_t, lnk);
-            printf("header:%s=%s", header->keyword, header->value);
+            printf("header:%s=%s\n", header->keyword, header->value);
         }
 
         if (_tcsicmp(http->request->method, _T("OPTIONS")) == 0) {
@@ -278,7 +277,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
         } else {
             response_not_found(e, io);
         }
-        printf("http:%s %s %s",http->request->method,http->request->script,http->request->protocol);
+        printf("http:%s %s %s\n",http->request->method,http->request->script,http->request->protocol);
 
         if (_tcsicmp(http->request->method, _T("POST")) == 0) {
             // FILE *fp = fopen("./raw.txt", "wb");
@@ -286,7 +285,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
             //     fwrite(http->buffer.bytes, 1, http->buffer.length,fp);
             //     fclose(fp);
             // }
-            printf("RAW:%.*s\n",(int)http->buffer.length, http->buffer.bytes);
+            printf("%.*s\n",(int)http->buffer.length, http->buffer.bytes);
         }
 
         http->buffer.length = 0;
@@ -302,7 +301,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
 static bool_t _handle_write(_cc_async_event_t *async, _cc_event_t *e) {
     _http_t *http = (_http_t*)e->data;
     _cc_io_buffer_t *io = http->io;
-    printf("%d handle write.", e->ident);
+    printf("%llu handle write.\n", e->ident);
     if (io->w.off) {
         if (_cc_io_buffer_flush(e, http->io) < 0) {
             return false;
@@ -328,7 +327,7 @@ static bool_t _handle_timeout(_cc_async_event_t *async, _cc_event_t *e) {
         }
     }
 #endif
-    printf("%d handle timeout.", e->ident);
+    printf("%llu handle timeout.\n", e->ident);
     return false;
 }
 
@@ -362,7 +361,7 @@ int main(int argc, char *const argv[]) {
     if (httpSSL == NULL) {
         return 1;
     }
-    _SSL_setup(httpSSL, "/var/ssl/m.libcc.cn_bundle.crt", "/var/ssl/m.libcc.cn.key",NULL);
+    _SSL_setup(httpSSL, "/opt/www/ssl/ws.libcc.cn_bundle.crt", "/opt/www/ssl/ws.libcc.cn.key",NULL);
 #endif
 
     _http_listener(NULL, 8080);

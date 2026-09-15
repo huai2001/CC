@@ -4,20 +4,20 @@
 #include <libcc/thread.h>
 
 /**/
-_CC_API_DYLIB_PRIVATE(bool_t) _cc_create_sys_thread(_cc_thread_t* self);
+_CC_API_HIDDEN(bool_t) _cc_create_sys_thread(_cc_thread_t* self);
 /**/
-_CC_API_DYLIB_PRIVATE(size_t) _cc_get_current_sys_thread_id(void);
+_CC_API_HIDDEN(size_t) _cc_get_current_sys_thread_id(void);
 /**/
-_CC_API_DYLIB_PRIVATE(size_t) _cc_get_sys_thread_id(_cc_thread_t* self);
+_CC_API_HIDDEN(size_t) _cc_get_sys_thread_id(_cc_thread_t* self);
 /**/
-_CC_API_DYLIB_PRIVATE(void) _cc_setup_sys_thread(const tchar_t* name);
+_CC_API_HIDDEN(void) _cc_setup_sys_thread(const tchar_t* name);
 /**/
-_CC_API_DYLIB_PRIVATE(void) _cc_wait_sys_thread(_cc_thread_t* self);
+_CC_API_HIDDEN(void) _cc_wait_sys_thread(_cc_thread_t* self);
 /**/
-_CC_API_DYLIB_PRIVATE(void) _cc_detach_sys_thread(_cc_thread_t* self);
+_CC_API_HIDDEN(void) _cc_detach_sys_thread(_cc_thread_t* self);
 
 /**/
-_CC_API_DYLIB_PRIVATE(void) _cc_thread_running_function(void *args) {
+_CC_API_HIDDEN(void) _cc_thread_running_function(void *args) {
     _cc_thread_t *self;
     _cc_thread_callback_t user_func;
     void *user_args;

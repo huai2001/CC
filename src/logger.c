@@ -80,7 +80,7 @@ static void _wlog(uint8_t level, time_t timestamp, const wchar_t *msg, int32_t l
 }
 
 /**/
-_CC_API_DYLIB_PRIVATE(void) __install_logger(void) {
+_CC_API_HIDDEN(void) __install_logger(void) {
     memset(ringW.buffers, 0, sizeof(ringW.buffers));
     memset(ringA.buffers, 0, sizeof(ringA.buffers));
     if (!ringW.lock) {
@@ -92,7 +92,7 @@ _CC_API_DYLIB_PRIVATE(void) __install_logger(void) {
 }
 
 /**/
-_CC_API_DYLIB_PRIVATE(void) __uninstall_logger(void) {
+_CC_API_HIDDEN(void) __uninstall_logger(void) {
     if (logger_running && logger_thread) {
         logger_running = false;
         _cc_wait_thread(logger_thread, NULL);

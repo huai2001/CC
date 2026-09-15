@@ -310,6 +310,7 @@ _CC_API_PUBLIC(bool_t) start(int16_t port) {
     while (running) {
         async.wait(&async, 100);
     }
+
     async.quit(&async);
     return running;
 }

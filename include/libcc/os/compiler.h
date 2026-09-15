@@ -221,14 +221,14 @@
         #if __GNUC__ < 4
             #undef _CC_API_EXPORT_
             #define _CC_API_EXPORT_ __declspec(export)
-            #define _CC_API_DYLIB_PRIVATE(x) x
+            #define _CC_API_HIDDEN(x) x
         #else
-            #define _CC_API_DYLIB_PRIVATE(x) __attribute__((visibility("hidden"))) x
+            #define _CC_API_HIDDEN(x) __attribute__((visibility("hidden"))) x
         #endif
     #else
         #define _CC_API_EXPORT_ __declspec(dllexport)
         #define _CC_API_IMPORT_ __declspec(dllimport)
-        #define _CC_API_DYLIB_PRIVATE(x) x
+        #define _CC_API_HIDDEN(x) x
     #endif
 
     /* ConceptGCC compiler:
@@ -310,7 +310,7 @@
     /* Some compilers use a special export keyword */
     #define _CC_API_EXPORT_ __declspec(dllexport)
     #define _CC_API_IMPORT_ __declspec(dllimport)
-    #define _CC_API_DYLIB_PRIVATE(x) x
+    #define _CC_API_HIDDEN(x) x
 
     /* close windows.h min/max */
     #define NOMINMAX
@@ -335,10 +335,8 @@
 
 #if defined(_CC_API_USE_DYNAMIC_)
     #define _CC_API_PUBLIC(x) _CC_API_EXPORT_ x
-#elif defined(_CC_API_IMPORT_DYNAMIC_)
-    #define _CC_API_PUBLIC(x) _CC_API_IMPORT_ x
 #else
-    #define _CC_API_PUBLIC(x) x
+    #define _CC_API_PUBLIC(x) _CC_API_IMPORT_ x
 #endif
 
 #define _CC_API_PRIVATE(x) static x

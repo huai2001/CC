@@ -148,7 +148,7 @@ _CC_API_PRIVATE(bool_t) _iocp_event_reset(_cc_async_event_t *async, _cc_event_t 
 _CC_API_PRIVATE(bool_t) _iocp_event_attach(_cc_async_event_t *async, _cc_event_t *e) {
     _cc_assert(async != NULL && e != NULL);
 
-    if (async->running == 0) {
+    if ((async->flag & 0x0F) == 0) {
         return false;
     }
     

@@ -291,7 +291,7 @@ static void event_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32
 typedef struct _cc_async_event _cc_async_event_t;
 struct _cc_async_event {
     /*是否运行中*/
-    byte_t running;
+    byte_t flag;
     /*唯一ID*/
     uint16_t ident;
     /*事件回调计数*/
@@ -634,11 +634,11 @@ _CC_API_PUBLIC(bool_t) _cc_async_event_is_running(void);
 ``` c
 static bool_t timeout_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_debug(_T("%d timer timeout. arg:%ld"), e->ident, e->data);
+        printf(_T("%llu timer timeout. arg:%ld\n"), e->ident, e->data);
         _cc_async_event_abort();
         return false;
     } else if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug(_T("%d destroy timeout. arg:%ld"), e->ident, e->data);
+        printf(_T("%llu destroy timeout. arg:%ld\n"), e->ident, e->data);
     }
     //返回false 停止计时器，true 继续定时回调
     return true;
@@ -761,13 +761,12 @@ _CC_API_PUBLIC(_cc_event_t*) _cc_add_event_timeout(_cc_async_event_t *async, uin
 ``` c
 static bool_t timeout_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_debug(_T("%d timer timeout. arg:%ld"), e->ident, e->data);
+        printf(_T("%llu timer timeout. arg:%ld\n"), e->ident, e->data);
     } else if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug(_T("%d destroy timeout. arg:%ld"), e->ident, e->data);
-        //退出Event Loog
-        async->running = false;
+        printf(_T("%llu destroy timeout. arg:%ld\n"), e->ident, e->data);
+        return false;
     }
-    //返回false 停止计时器，并释放，true 继续定时触发
+    // 返回 true 继续定时触发，false 停止计时器并释放
     return true;
 }
 
@@ -822,11 +821,10 @@ if (!_cc_kill_event_timeout(async, timer)) {
 ``` c
 static bool_t timeout_handler(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_debug(_T("%d timer timeout. arg:%ld"), e->ident, e->data);
+        printf(_T("%llu timer timeout. arg:%ld\n"), e->ident, e->data);
     } else if (which & _CC_EVENT_CLOSED_) {
-        _cc_logger_debug(_T("%d destroy timeout. arg:%ld"), e->ident, e->data);
-        //退出Event Loog
-        async->running = false;
+        printf(_T("%llu destroy timeout. arg:%ld\n"), e->ident, e->data);
+        return false;
     }
     // 返回 true 继续定时触发，false 停止计时器并释放
     return true;
@@ -843,8 +841,9 @@ int main(int argc, char *const argv[]) {
     event = _cc_add_event_timeout(&async, 20000, timeout_handler, 2);
     //删除定时器
     _cc_kill_event_timeout(&async, event);
+    
     // Event loop
-    while(async.running) {
+    while((async.flag & 0x0F) == 1) {
         async.wait(&async, 100/* 0.1 sec */);
     }
 
@@ -901,7 +900,7 @@ struct _cc_io_buffer {
 ### \_cc_alloc_io_buffer()
 
 ``` c
-_CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit,_cc_SSL_t *ssl);
+_CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit);
 ```
 
 动态分配一个 IO Buffer 结构体，并初始化其读写缓冲区。
@@ -909,7 +908,6 @@ _CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit,_cc_SSL_t *s
 **参数说明**
 
 -   `limit` - 读写缓冲区的初始大小（字节数），建议根据实际需求设置合理值
--   `ssl` - SSL 句柄 负责 SSL 协议
 **返回值**
 
 -   **成功**：返回指向新分配的 IO Buffer 的指针
@@ -918,7 +916,7 @@ _CC_API_PUBLIC(_cc_io_buffer_t *) _cc_alloc_io_buffer(int32_t limit,_cc_SSL_t *s
 **示例代码**
 
 ``` c
-_cc_io_buffer_t *buffer = _cc_alloc_io_buffer(4096, NULL);
+_cc_io_buffer_t *buffer = _cc_alloc_io_buffer(4096);
 if (!buffer) {
     printf("Failed to allocate IO buffer\n");
     return;
@@ -946,8 +944,10 @@ _CC_API_PUBLIC(void) _cc_free_io_buffer(_cc_io_buffer_t *io);
 **示例代码**
 
 ``` c
-_cc_SSL_t *ssl = _SSL_accept(openSSL, fd);
-_cc_io_buffer_t *buffer = _cc_alloc_io_buffer(4096, ssl);
+_cc_io_buffer_t *io = _cc_alloc_io_buffer(4096);
+if (io && openSSL) {
+    io->ssl = _SSL_accept(openSSL, fd);
+}
 // 使用 buffer...
 // 释放 buffer 和 SSL资源。
 _cc_free_io_buffer(buffer);

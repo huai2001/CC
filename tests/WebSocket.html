@@ -110,7 +110,7 @@
         };
         
         if ("WebSocket" in window) {
-            _.ws = new WebSocket("ws://ws.libcc.cn:5500",["Text","HTML"], {
+            _.ws = new WebSocket("wss://ws.libcc.cn:5500",["Text","HTML"], {
               headers: {
                 'X-Custom-Header': 'custom-value'
               }

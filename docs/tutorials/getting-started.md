@@ -90,9 +90,9 @@ include $(LIBCC_SRC_ROOT)/build/Makefile.mk
 
 static bool_t timer_cb(_cc_async_event_t *async, _cc_event_t *e, const uint32_t which) {
     if (which & _CC_EVENT_TIMEOUT_) {
-        _cc_logger_info(_T("[event-loop] timeout ident=%d data=%ld"), e->ident, e->data);
+        _cc_logger_info(_T("[event-loop] timeout ident=%llu data=%ld"), e->ident, e->data);
         /* 停止事件循环 */
-        async->running = false;
+        async->flag &= 0xF0;
         return false;
     }
     return true;
@@ -117,7 +117,7 @@ int main(void) {
     }
 
     /* 事件循环 */
-    while (async.running) {
+    while (async.flag & 0x0F) {
         async.wait(&async, 500);
     }
 

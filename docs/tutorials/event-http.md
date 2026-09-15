@@ -168,7 +168,7 @@ static bool_t _handle_accept(_cc_async_event_t *async, _cc_event_t *e) {
  * @return 是否成功释放资源
  */
 static bool_t _handle_close(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_logger_debug(_T("%d _handle_close."), e->ident);
+    _cc_logger_debug(_T("%llu _handle_close."), e->ident);
     
     if (e->data) {
         _http_t *http = (_http_t*)e->data;
@@ -416,7 +416,7 @@ static bool_t _handle_read(_cc_async_event_t *async, _cc_event_t *e) {
 static bool_t _handle_write(_cc_async_event_t *async, _cc_event_t *e) {
     _http_t *http = (_http_t*)e->data;
     _cc_io_buffer_t *io = http->io;
-    _cc_logger_debug(_T("%d onWrite."), e->ident);
+    _cc_logger_debug(_T("%llu onWrite."), e->ident);
     
     // 刷新缓冲区数据
     if (io->w.off) {
@@ -456,7 +456,7 @@ static bool_t _handle_write(_cc_async_event_t *async, _cc_event_t *e) {
  * @return 是否保持连接
  */
 static bool_t _handle_timeout(_cc_async_event_t *async, _cc_event_t *e) {
-    _cc_logger_debug(_T("%d onTimeout."), e->ident);
+    _cc_logger_debug(_T("%llu onTimeout."), e->ident);
     return false; // 返回false表示关闭连接
 }
 ```

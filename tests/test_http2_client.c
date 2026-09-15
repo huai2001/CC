@@ -270,7 +270,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
     _CC_UNUSED(async);
 
     if (_CC_ISSET_BIT(_CC_EVENT_CLOSED_, which)) {
-        printf("_cc_http_request_ _CC_EVENT_CLOSED_ %d", e->ident);
+        printf("_cc_http_request_ _CC_EVENT_CLOSED_ %llu", e->ident);
         _cc_free_http_request(request);
         return false;
     }

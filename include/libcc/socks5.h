@@ -56,7 +56,7 @@ typedef struct _socks5 {
     byte_t state;
     byte_t method;
     _cc_event_t *e;
-    _cc_union_sockaddr_t addr;
+    _cc_sockaddr_storage_t addr;
     uint16_t port;
 } _cc_socks5_t;
 

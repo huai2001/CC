@@ -64,13 +64,7 @@ typedef int                     _cc_socket_t;
 typedef struct addrinfo         _cc_addrinfo_t;
 typedef socklen_t               _cc_socklen_t;
 typedef struct sockaddr         _cc_sockaddr_t;
-
-typedef union {
-    struct sockaddr addr;
-    struct sockaddr_in addr_in;
-    struct sockaddr_in6 addr_in6;
-    struct sockaddr_un addr_un;
-} _cc_union_sockaddr_t;
+typedef struct sockaddr_storage _cc_sockaddr_storage_t;
 
 #define _cc_getsockopt(__sock, __level, __optname, __optval , __optlen)\
     getsockopt(__sock, __level, __optname, (pvoid_t)__optval , (socklen_t*)__optlen)

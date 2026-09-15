@@ -198,8 +198,7 @@ static bool_t _http_request_callback(_cc_async_event_t *async, _cc_event_t *e, c
 static bool_t url_request_connect(_cc_http_request_t *request) {
     _cc_socket_t fd;
     _cc_event_t *e;
-    _cc_sockaddr_t *sockaddr_ptr;
-    _cc_union_sockaddr_t sockaddr;
+    _cc_sockaddr_storage_t sockaddr;
     socklen_t sockaddr_len;
     _cc_async_event_t *async = _cc_get_async_event();
     if (request == NULL) {
@@ -235,8 +234,8 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
 
     /* Determine address family */
     if (request->url.ipv6) {
-        _cc_inet_ipv6_addr(&sockaddr.addr_in6, request->url.host, request->url.port);
-        sockaddr_ptr = (_cc_sockaddr_t*)&sockaddr.addr_in6;
+        struct sockaddr_in6 *addr_in6 = (struct sockaddr_in6*)&sockaddr;
+        _cc_inet_ipv6_addr(addr_in6, request->url.host, request->url.port);
         sockaddr_len = sizeof(struct sockaddr_in6);
         /* required to get parallel v4 + v6 working */
         e->flags |= _CC_EVENT_SOCKET_IPV6_;
@@ -244,12 +243,12 @@ static bool_t url_request_connect(_cc_http_request_t *request) {
         _cc_socket_ipv6only(e->fd);
 #endif
     } else {
-        _cc_inet_ipv4_addr(&sockaddr.addr_in, request->url.host, request->url.port);
-        sockaddr_ptr = (_cc_sockaddr_t*)&sockaddr.addr_in;
+        struct sockaddr_in *addr_in = (struct sockaddr_in*)&sockaddr;
+        _cc_inet_ipv4_addr(addr_in, request->url.host, request->url.port);
         sockaddr_len = sizeof(struct sockaddr_in);
     }
 
-    if (async->connect(async, e, sockaddr_ptr, sockaddr_len)) {
+    if (async->connect(async, e, (_cc_sockaddr_t*)&sockaddr, sockaddr_len)) {
         return true;
     }
 

@@ -39,19 +39,19 @@ typedef struct {
 } _cc_syntax_error_t;
 
 /**/
-_CC_API_DYLIB_PRIVATE(void) _cc_syntax_error(_cc_syntax_error_t *error);
+_CC_API_HIDDEN(void) _cc_syntax_error(_cc_syntax_error_t *error);
 /**/
-_CC_API_DYLIB_PRIVATE(const tchar_t*) _cc_get_syntax_error(void);
+_CC_API_HIDDEN(const tchar_t*) _cc_get_syntax_error(void);
 
 /* Render seconds since 1970 as an RFC822 date string.  Return
 ** a pointer to that string in a static buffer.
 */
-_CC_API_DYLIB_PRIVATE(tchar_t*) get_rfc822_date(time_t t);
+_CC_API_HIDDEN(tchar_t*) get_rfc822_date(time_t t);
 /*
 ** Parse an RFC822-formatted timestamp as we'd expect from HTTP and return
 ** a Unix epoch time. <= zero is returned on failure.
 */
-_CC_API_DYLIB_PRIVATE(time_t) get_rfc822_time(const tchar_t* rfc822_date);
+_CC_API_HIDDEN(time_t) get_rfc822_time(const tchar_t* rfc822_date);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

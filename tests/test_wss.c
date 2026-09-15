@@ -59,10 +59,11 @@ _CC_API_PRIVATE(_WS_channel_t*) _WS_alloc(_cc_socket_t fd) {
     channel->buf = NULL;
 #endif
 
+    channel->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_);
 #if _WS_ENABLE_SSL_
-    channel->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_, _SSL_accept(WS_SSL, fd));
-#else
-    channel->io = _cc_alloc_io_buffer(_CC_IO_BUFFER_SIZE_, NULL);
+    if (WS_SSL && channel->io) {
+        channel->io->ssl = _SSL_accept(WS_SSL, fd);
+    }
 #endif
 
     _cc_list_cleanup(&channel->lnk);
