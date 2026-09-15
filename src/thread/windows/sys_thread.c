@@ -117,45 +117,37 @@ _CC_API_HIDDEN(void) _cc_setup_sys_thread(const tchar_t* name) {
 //#if (__CC_MSVC__ >= 1900) || (defined(__GNUC__) && defined(__i386__))
     PVOID exceptionHandlerHandle;
     pfnSetThreadDescription pSetThreadDescription = NULL;
-    HMODULE kernel32 = 0;
-#ifndef _CC_UNICODE_
-    wchar_t buf[512];
-#endif
+
     if (name == NULL) {
         return;
     }
 
-    kernel32 = _cc_load_windows_kernel32();
-    if (kernel32) {
-        pSetThreadDescription = (pfnSetThreadDescription)_cc_load_function(kernel32, "SetThreadDescription");
-        if (pSetThreadDescription == NULL) {
-            return;
-        }
-    }
+    pSetThreadDescription = (pfnSetThreadDescription)_cc_load_function(_cc_load_windows_kernel32(), "SetThreadDescription");
     if (pSetThreadDescription) {
     #ifndef _CC_UNICODE_
-        _cc_a2w(name, (int32_t)strlen(name), buf, _cc_countof(buf));
-        pSetThreadDescription(GetCurrentThread(), buf);
+        wchar_t w_name[512];
+        _cc_a2w(name, (int32_t)strlen(name), w_name, _cc_countof(w_name));
+        pSetThreadDescription(GetCurrentThread(), w_name);
     #else
         pSetThreadDescription(GetCurrentThread(), name);
     #endif
-    }
-    /* Presumably some version of Visual Studio will understand
-       SetThreadDescription(), but we still need to deal with older OSes and
-       debuggers. Set it with the arcane exception magic, too. */
-    exceptionHandlerHandle = AddVectoredExceptionHandler(1, EmptyVectoredExceptionHandler);
-    if (exceptionHandlerHandle) {
-        THREADNAME_INFO inf;
-        // This magic tells the debugger to name a thread if it's listening.
-        memset(&inf, 0, sizeof(THREADNAME_INFO));
-        inf.dwType = 0x1000;
-        inf.szName = (LPCSTR)name;
-        inf.dwThreadID = (DWORD)-1;
-        inf.dwFlags = 0;
+        /* Presumably some version of Visual Studio will understand
+           SetThreadDescription(), but we still need to deal with older OSes and
+           debuggers. Set it with the arcane exception magic, too. */
+        exceptionHandlerHandle = AddVectoredExceptionHandler(1, EmptyVectoredExceptionHandler);
+        if (exceptionHandlerHandle) {
+            THREADNAME_INFO inf;
+            // This magic tells the debugger to name a thread if it's listening.
+            memset(&inf, 0, sizeof(THREADNAME_INFO));
+            inf.dwType = 0x1000;
+            inf.szName = (LPCSTR)name;
+            inf.dwThreadID = (DWORD)-1;
+            inf.dwFlags = 0;
 
-        // The debugger catches this, renames the thread, continues on.
-        RaiseException(CC_DEBUGGER_NAME_EXCEPTION_CODE, 0, sizeof(inf) / sizeof(ULONG_PTR), (const ULONG_PTR *)&inf);
-        RemoveVectoredExceptionHandler(exceptionHandlerHandle);
+            // The debugger catches this, renames the thread, continues on.
+            RaiseException(CC_DEBUGGER_NAME_EXCEPTION_CODE, 0, sizeof(inf) / sizeof(ULONG_PTR), (const ULONG_PTR *)&inf);
+            RemoveVectoredExceptionHandler(exceptionHandlerHandle);
+        }
     }
 //#endif
     return;
