@@ -10,8 +10,6 @@
     #pragma comment(lib, "DbgHelp.lib")
 #endif
 
-static HMODULE _kernel32_handle = NULL;
-
 #ifndef _CC_DISABLED_DUMPER_
 
 #include <Dbghelp.h>
@@ -31,13 +29,14 @@ static tchar_t _minidump_module_path[_CC_MAX_PATH_] = {0};
 static tchar_t _minidump_app_name[_CC_MAX_PATH_] = {0};
 static HMODULE _dbghelp_handle = NULL;
 static HANDLE _current_process = NULL;
-MINIDUMPWRITEDUMP _call_minidump_writedump = NULL;
+static MINIDUMPWRITEDUMP _call_minidump_writedump = NULL;
 static _cc_dumper_callback_t _dumper_callback = NULL;
 
-static void init_get_version(void) {
+_CC_API_PRIVATE(void) init_get_version(void) {
     HMODULE ntdll_module = GetModuleHandleW(L"ntdll.dll");
     if (ntdll_module == NULL) {
         _cc_logger_error("GetModuleHandle(ntdll.dll) Error Code:%d.", _cc_last_errno());
+        return;
     }
     _call_get_version = (RTLGETVERSION_PTR)GetProcAddress(ntdll_module, "RtlGetVersion");
 }
@@ -59,7 +58,9 @@ _CC_API_PUBLIC(void) _cc_get_os_version(uint32_t *major, uint32_t *minor, uint32
     if (!_call_get_version) {
         return;
     }
-    
+
+    ZeroMemory(&os_info, sizeof(os_info));
+    os_info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOW);
     _call_get_version(&os_info);
 
     if (major) {
@@ -67,7 +68,7 @@ _CC_API_PUBLIC(void) _cc_get_os_version(uint32_t *major, uint32_t *minor, uint32
     }
 
     if (minor) {
-        *minor = os_info.dwMajorVersion;
+        *minor = os_info.dwMinorVersion;
     }
 
     if (build) {
@@ -76,14 +77,9 @@ _CC_API_PUBLIC(void) _cc_get_os_version(uint32_t *major, uint32_t *minor, uint32
 }
 
 _CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32() {
-    if (_kernel32_handle == NULL) {
-        _kernel32_handle = GetModuleHandleW(L"KERNEL32.dll");
-        if (_kernel32_handle == NULL) {
-            _cc_logger_error("GetModuleHandle(KERNEL32.dll) Error Code:%d.", _cc_last_errno());
-            return NULL;
-        }
-    }
-    return _kernel32_handle;
+    // The KERNEL32.dll is always present in the process and can be directly accessed by obtaining the handle.
+    // GetModuleHandleW is extremely efficient and safe in this scenario.
+    return GetModuleHandleW(L"KERNEL32.dll");
 }
 
 _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length) {
