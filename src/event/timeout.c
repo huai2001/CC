@@ -33,11 +33,8 @@ _CC_API_PRIVATE(void) _timeout_shift(_cc_async_event_t *async) {
     }
 }
 
-/**/
-_CC_API_PRIVATE(void) _timeout_execute(_cc_async_event_t *async, int slot) {
-    // Execute the timeout events for the given near slot index `slot`
-    _cc_list_t *head = &async->nears[slot];
-
+/* Execute the timeout events in the given slot list.*/
+_CC_API_PRIVATE(void) _timeout_execute(_cc_async_event_t *async, _cc_list_t *head) {
     _cc_list_for_each(it, head, {
         _cc_event_t *e = _cc_upcast(it, _cc_event_t, lnk);
         /**/
@@ -51,20 +48,20 @@ _CC_API_PRIVATE(void) _timeout_execute(_cc_async_event_t *async, int slot) {
 }
 
 _CC_FORCE_INLINE_ void _timeout_step(_cc_async_event_t *async) {
-    int slot;
+    _cc_list_t *head;
     
-    slot = async->timer & _CC_TIMEOUT_NEAR_MASK_;
-    if (!_cc_list_empty(&async->nears[slot])) {
+    head = &async->nears[async->timer & _CC_TIMEOUT_NEAR_MASK_];
+    if (!_cc_list_empty(head)) {
         /*try to dispatch timeout 0*/
-        _timeout_execute(async, slot);
+        _timeout_execute(async, head);
     }
 
     /*shift time first, and then callback timeout*/
     _timeout_shift(async);
 
-    slot = async->timer & _CC_TIMEOUT_NEAR_MASK_;
-    if (!_cc_list_empty(&async->nears[slot])) {
-        _timeout_execute(async, slot);
+    head = &async->nears[async->timer & _CC_TIMEOUT_NEAR_MASK_];
+    if (!_cc_list_empty(head)) {
+        _timeout_execute(async, head);
     }
 }
 
