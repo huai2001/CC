@@ -1,6 +1,6 @@
 
-#ifndef _C_CC_GOOGLE_AUTH_H_INCLUDED_
-#define _C_CC_GOOGLE_AUTH_H_INCLUDED_
+#ifndef _C_CC_TOTP_H_INCLUDED_
+#define _C_CC_TOTP_H_INCLUDED_
 
 #include "event.h"
 
@@ -20,6 +20,6 @@ _CC_API_PUBLIC(bool_t) _cc_verify_totp(const tchar_t *secret, uint32_t code, uin
 }
 #endif
 
-#endif /* _C_CC_GOOGLE_AUTH_H_INCLUDED_ */
+#endif /* _C_CC_TOTP_H_INCLUDED_ */
 
 

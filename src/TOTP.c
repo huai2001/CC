@@ -24,10 +24,12 @@ static uint32_t hotp(_cc_hasher_t* hmac, uint64_t counter) {
     
     /* Dynamic truncation */
     offset = digest[_CC_SHA1_DIGEST_LENGTH_ - 1] & 0x0F;
+
     code = ((uint32_t)(digest[offset] & 0x7F) << 24) |
            ((uint32_t)(digest[offset + 1] & 0xFF) << 16) |
            ((uint32_t)(digest[offset + 2] & 0xFF) << 8) |
            (uint32_t)(digest[offset + 3] & 0xFF);
+
     return code % 1000000; /* 6-digit code */
 }
 

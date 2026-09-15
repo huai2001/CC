@@ -108,7 +108,7 @@
 		4257EA502FD4F05F00E19277 /* request.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA442FD4F05F00E19277 /* request.c */; };
 		4257EA512FD4F05F00E19277 /* request.response.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA462FD4F05F00E19277 /* request.response.c */; };
 		4257EA532FD4F08600E19277 /* sys_mutex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA522FD4F08600E19277 /* sys_mutex.c */; };
-		4284D28D2F288CC600B15BD6 /* google.auth.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28A2F288CC600B15BD6 /* google.auth.c */; };
+		4284D28D2F288CC600B15BD6 /* TOTP.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28A2F288CC600B15BD6 /* TOTP.c */; };
 		4284D28E2F288CC600B15BD6 /* rwbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28B2F288CC600B15BD6 /* rwbuf.c */; };
 		4284D28F2F288CC600B15BD6 /* snowflake.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D28C2F288CC600B15BD6 /* snowflake.c */; };
 		42907D422F177621008AE8C9 /* OpenSSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 42907D412F177621008AE8C9 /* OpenSSL.c */; };
@@ -230,7 +230,7 @@
 		4257EA472FD4F05F00E19277 /* response.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = response.parser.c; sourceTree = "<group>"; };
 		4257EA492FD4F05F00E19277 /* http2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = http2.c; sourceTree = "<group>"; };
 		4257EA522FD4F08600E19277 /* sys_mutex.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = sys_mutex.c; sourceTree = "<group>"; };
-		4284D28A2F288CC600B15BD6 /* google.auth.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = google.auth.c; sourceTree = "<group>"; };
+		4284D28A2F288CC600B15BD6 /* TOTP.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = TOTP.c; sourceTree = "<group>"; };
 		4284D28B2F288CC600B15BD6 /* rwbuf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rwbuf.c; sourceTree = "<group>"; };
 		4284D28C2F288CC600B15BD6 /* snowflake.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = snowflake.c; sourceTree = "<group>"; };
 		42907D412F177621008AE8C9 /* OpenSSL.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = OpenSSL.c; sourceTree = "<group>"; };
@@ -485,7 +485,7 @@
 				4217A4AA2EEC1FA8006262EC /* crc.c */,
 				4217A4AB2EEC1FA8006262EC /* file.c */,
 				4217A4AC2EEC1FA8006262EC /* GBK.c */,
-				4284D28A2F288CC600B15BD6 /* google.auth.c */,
+				4284D28A2F288CC600B15BD6 /* TOTP.c */,
 				4217A4AD2EEC1FA8006262EC /* hmap.c */,
 				4217A4AE2EEC1FA8006262EC /* list.c */,
 				4217A4AF2EEC1FA8006262EC /* logger.c */,
@@ -793,7 +793,7 @@
 				4217A55F2EEC1FA8006262EC /* sys_dirent.m in Sources */,
 				4217A5612EEC1FA8006262EC /* crc.c in Sources */,
 				4217A5622EEC1FA8006262EC /* sha256.c in Sources */,
-				4284D28D2F288CC600B15BD6 /* google.auth.c in Sources */,
+				4284D28D2F288CC600B15BD6 /* TOTP.c in Sources */,
 				4284D28E2F288CC600B15BD6 /* rwbuf.c in Sources */,
 				4284D28F2F288CC600B15BD6 /* snowflake.c in Sources */,
 			);

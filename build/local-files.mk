@@ -76,7 +76,7 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/cpu.c \
 	$(SRCROOT)/src/file.c \
 	$(SRCROOT)/src/snowflake.c \
-	$(SRCROOT)/src/google.auth.c \
+	$(SRCROOT)/src/TOTP.c \
 	$(SRCROOT)/src/malloc/alloc.c \
 	$(SRCROOT)/src/thread/thread.c \
 	$(SRCROOT)/src/atomic/atomic.c \

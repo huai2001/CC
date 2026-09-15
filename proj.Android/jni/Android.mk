@@ -54,7 +54,7 @@ LOCAL_SRC_FILES := \
     ../../src/cpu.c \
     ../../src/file.c \
 	../../src/snowflake.c \
-	../../src/google.auth.c \
+	../../src/TOTP.c \
     ../../src/malloc/alloc.c \
     ../../src/thread/thread.c \
     ../../src/atomic/atomic.c \

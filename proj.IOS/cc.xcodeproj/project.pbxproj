@@ -40,7 +40,7 @@
 		4257EA352FD4EF0100E19277 /* http2.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA2F2FD4EF0100E19277 /* http2.c */; };
 		4257EA362FD4EF0100E19277 /* request.response.c in Sources */ = {isa = PBXBuildFile; fileRef = 4257EA2C2FD4EF0100E19277 /* request.response.c */; };
 		4284D2A22F288D4A00B15BD6 /* rwbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D2A02F288D4A00B15BD6 /* rwbuf.c */; };
-		4284D2A32F288D4A00B15BD6 /* google.auth.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D29F2F288D4A00B15BD6 /* google.auth.c */; };
+		4284D2A32F288D4A00B15BD6 /* TOTP.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D29F2F288D4A00B15BD6 /* TOTP.c */; };
 		4284D2A42F288D4A00B15BD6 /* snowflake.c in Sources */ = {isa = PBXBuildFile; fileRef = 4284D2A12F288D4A00B15BD6 /* snowflake.c */; };
 		42907D2A2F174F3D008AE8C9 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 42907D292F174F3D008AE8C9 /* libsqlite3.tbd */; };
 		42907D2C2F175E0D008AE8C9 /* OpenSSL.c in Sources */ = {isa = PBXBuildFile; fileRef = 42907D2B2F175E0D008AE8C9 /* OpenSSL.c */; };
@@ -144,7 +144,7 @@
 		4257EA2C2FD4EF0100E19277 /* request.response.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = request.response.c; sourceTree = "<group>"; };
 		4257EA2D2FD4EF0100E19277 /* response.parser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = response.parser.c; sourceTree = "<group>"; };
 		4257EA2F2FD4EF0100E19277 /* http2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = http2.c; sourceTree = "<group>"; };
-		4284D29F2F288D4A00B15BD6 /* google.auth.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = google.auth.c; sourceTree = "<group>"; };
+		4284D29F2F288D4A00B15BD6 /* TOTP.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = TOTP.c; sourceTree = "<group>"; };
 		4284D2A02F288D4A00B15BD6 /* rwbuf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rwbuf.c; sourceTree = "<group>"; };
 		4284D2A12F288D4A00B15BD6 /* snowflake.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = snowflake.c; sourceTree = "<group>"; };
 		42907D292F174F3D008AE8C9 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk/usr/lib/libsqlite3.tbd; sourceTree = DEVELOPER_DIR; };
@@ -493,7 +493,7 @@
 				42B96A5B2E885AAE009FE2F7 /* crc.c */,
 				42B96A5C2E885AAE009FE2F7 /* file.c */,
 				42B96A5D2E885AAE009FE2F7 /* GBK.c */,
-				4284D29F2F288D4A00B15BD6 /* google.auth.c */,
+				4284D29F2F288D4A00B15BD6 /* TOTP.c */,
 				4284D2A02F288D4A00B15BD6 /* rwbuf.c */,
 				42B96A5E2E885AAE009FE2F7 /* hmap.c */,
 				42B96A5F2E885AAE009FE2F7 /* list.c */,
@@ -663,7 +663,7 @@
 				42B96AAC2E885AAE009FE2F7 /* connected.c in Sources */,
 				42B96AAF2E885AAE009FE2F7 /* hmap.c in Sources */,
 				4284D2A22F288D4A00B15BD6 /* rwbuf.c in Sources */,
-				4284D2A32F288D4A00B15BD6 /* google.auth.c in Sources */,
+				4284D2A32F288D4A00B15BD6 /* TOTP.c in Sources */,
 				4284D2A42F288D4A00B15BD6 /* snowflake.c in Sources */,
 				42B96AB12E885AAE009FE2F7 /* uuid.c in Sources */,
 				42B96AB22E885AAE009FE2F7 /* alloc.c in Sources */,
