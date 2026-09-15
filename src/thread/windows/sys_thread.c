@@ -169,6 +169,7 @@ _CC_API_HIDDEN(bool_t) _cc_set_sys_thread_priority(_CC_THREAD_PRIORITY_EMUM_ pri
     } else {
         value = THREAD_PRIORITY_NORMAL;
     }
+    
     if (!SetThreadPriority(GetCurrentThread(), value)) {
         _cc_logger(_CC_LOG_LEVEL_ERROR_, "Set Thread Priority Error.");
         return false;
