@@ -18,8 +18,6 @@ bool_t _json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) 
     _cc_rbtree_t *root;
     _cc_rb_t **node;
     _cc_rb_t *parent = NULL;
-    _cc_json_t *curr;
-    int32_t result;
 
     _cc_assert(ctx != NULL);
     _cc_assert(item != NULL);
@@ -28,8 +26,8 @@ bool_t _json_object_push(_cc_json_t *ctx, _cc_json_t *item, bool_t replacement) 
     node = &(root->rb_node);
 
     while (*node) {
-        curr = _cc_upcast((*node), _cc_json_t, lnk);
-        result = _tcscmp(curr->name, item->name);
+        _cc_json_t *curr = _cc_upcast((*node), _cc_json_t, lnk);
+        int32_t result = _tcscmp(curr->name, item->name);
 
         parent = *node;
 
