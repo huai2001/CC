@@ -1,6 +1,6 @@
 #include "ini.c.h"
 
-static void _ini_free_rb_node(_cc_rb_t* node) {
+static void _INI_free_rb_node(_cc_rb_t* node) {
     _INI_free(_cc_upcast(node, _cc_ini_t, lnk));
 }
 
@@ -19,7 +19,7 @@ void _INI_free(_cc_ini_t* p) {
     }
     switch(p->type) {
     case _CC_INI_SECTION_:
-        _cc_rbtree_free_all(&p->element.uni_object, _ini_free_rb_node);
+        _cc_rbtree_free_all(&p->element.uni_object, _INI_free_rb_node);
         break;
     case _CC_INI_STRING_:
         if (p->element.uni_string) {
@@ -61,22 +61,18 @@ _cc_ini_t* _INI_push(_cc_rbtree_t* root, _cc_sds_t name, int type) {
 
 /**/
 _CC_API_PUBLIC(_cc_ini_t*) _cc_ini_find(_cc_ini_t* item, const tchar_t* name) {
-    int32_t result = 0;
     _cc_rb_t *node = item->element.uni_object.rb_node;
-
     while (node) {    
         _cc_ini_t* element = _cc_upcast(node, _cc_ini_t, lnk);
-        result = _tcscmp(name, element->name);
-        if (result < 0) {
-            node = node->left;
-        } else if (result > 0) {
-            node = node->right;
-        } else {
-            return element;
+        int32_t result = _tcscmp(name, element->name);
+        if (result == 0) {
+            return item;
         }
+        node = (result < 0) ? node->left : node->right;
     }
     return NULL;
 }
+
 /**/
 _CC_API_PUBLIC(_cc_sds_t) _cc_ini_find_string(_cc_ini_t* ctx, const tchar_t* name) {
     _cc_ini_t* node = _cc_ini_find(ctx, name);
@@ -86,6 +82,7 @@ _CC_API_PUBLIC(_cc_sds_t) _cc_ini_find_string(_cc_ini_t* ctx, const tchar_t* nam
     }
     return NULL;
 }
+
 /**/
 _CC_API_PUBLIC(void) _cc_free_ini(_cc_ini_t* ctx) {
     
@@ -94,7 +91,7 @@ _CC_API_PUBLIC(void) _cc_free_ini(_cc_ini_t* ctx) {
     }
 
     if (ctx->type == _CC_INI_SECTION_) {
-        _cc_rbtree_free_all(&ctx->element.uni_object, _ini_free_rb_node);
+        _cc_rbtree_free_all(&ctx->element.uni_object, _INI_free_rb_node);
     }
 
     _cc_free(ctx);
