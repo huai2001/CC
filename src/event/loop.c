@@ -3,10 +3,10 @@
 #include <libcc/thread.h>
 #include "event.c.h"
 
-static struct {
+volatile static struct {
     bool_t keep_active;
     int32_t count;
-    _cc_async_event_t *async_events;
+    _cc_async_event_t *asyncs;
     _cc_thread_t **threads;
     void (*callback)(_cc_async_event_t*, bool_t);
 } g = {false, 0, NULL, NULL, NULL};
@@ -35,7 +35,7 @@ _CC_API_PRIVATE(int32_t) _running(pvoid_t args) {
 _CC_API_PUBLIC(bool_t) _cc_alloc_async_event(int32_t cores, void (*cb)(_cc_async_event_t*,bool_t)) {
     int32_t i;
     _cc_thread_t** threads;
-    _cc_async_event_t *async_events;
+    _cc_async_event_t *asyncs;
 
     if (g.keep_active) {
         return false;
@@ -50,26 +50,26 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_async_event(int32_t cores, void (*cb)(_cc_async
         cores = 4095;
     }
 
-    async_events = (_cc_async_event_t *)_cc_calloc(cores, sizeof(_cc_async_event_t));
-    if (async_events == NULL) {
+    asyncs = (_cc_async_event_t *)_cc_calloc(cores, sizeof(_cc_async_event_t));
+    if (asyncs == NULL) {
         return false;
     }
 
     threads = (_cc_thread_t **)_cc_calloc(cores, sizeof(_cc_thread_t *));
     if (threads == NULL) {
-        _cc_free(async_events);
+        _cc_free(asyncs);
         return false;
     }
 
     g.keep_active = true;
     g.count = 0;
-    g.async_events = async_events;
+    g.asyncs = asyncs;
     g.threads = threads;
     g.callback = cb;
 
     for (i = 0; i < cores; ++i) {
         _cc_thread_t *thread;
-        _cc_async_event_t *n = (_cc_async_event_t *)(async_events + i);
+        _cc_async_event_t *n = (_cc_async_event_t *)(asyncs + i);
 
         if (_cc_register_poller(n) == false) {
             continue;
@@ -88,11 +88,11 @@ _CC_API_PUBLIC(bool_t) _cc_alloc_async_event(int32_t cores, void (*cb)(_cc_async
 
     if (g.count == 0) {
         g.keep_active = false;
-        g.async_events = NULL;
+        g.asyncs = NULL;
         g.threads = NULL;
         g.callback = NULL;
         _cc_free(threads);
-        _cc_free(async_events);
+        _cc_free(asyncs);
         return false;
     }
     
@@ -117,9 +117,9 @@ _CC_API_PUBLIC(bool_t) _cc_free_async_event(void) {
         g.threads = NULL;
     }
 
-    if (g.async_events) {
-        _cc_free(g.async_events);
-        g.async_events = NULL;
+    if (g.asyncs) {
+        _cc_free(g.asyncs);
+        g.asyncs = NULL;
     }
 
     g.count = 0;
