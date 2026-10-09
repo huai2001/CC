@@ -51,11 +51,11 @@ bool_t _cc_write_BMP(const tchar_t *file_name, _cc_image_t *image) {
     imageHeader.Colors = 0;
     imageHeader.ImportantColors = 0;
 
-    // data size is rounded up to next larger 4 bytes boundary
-    imageHeader.BitmapDataSize = imageHeader.Width * imageHeader.BPP / 8;
-    imageHeader.BitmapDataSize = (imageHeader.BitmapDataSize + 3) & ~3;
-    imageHeader.BitmapDataSize *= imageHeader.Height;
+    // length of one row in bytes, rounded up to nearest 4-byte boundary
+    row_size = ((imageHeader.BPP / 8 * imageHeader.Width) + 3) & ~3;
 
+    // data size is rounded up to next larger 4 bytes boundary
+    imageHeader.BitmapDataSize = row_size * imageHeader.Height;
     // file size is data size plus offset to data
     imageHeader.FileSize = imageHeader.BitmapDataOffset + imageHeader.BitmapDataSize;
 
@@ -63,8 +63,6 @@ bool_t _cc_write_BMP(const tchar_t *file_name, _cc_image_t *image) {
     // length of one row of the source image in bytes
     row_stride = (image->channel * imageHeader.Width);
 
-    // length of one row in bytes, rounded up to nearest 4-byte boundary
-    row_size = ((3 * imageHeader.Width) + 3) & ~3;
 
     row = (byte_t*)_cc_malloc(row_size);
     if (row == NULL) {
