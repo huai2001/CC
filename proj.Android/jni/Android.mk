@@ -58,7 +58,6 @@ LOCAL_SRC_FILES := \
     ../../src/malloc/alloc.c \
     ../../src/thread/thread.c \
     ../../src/atomic/atomic.c \
-    ../../src/atomic/rwlock.c \
     ../../src/event/event.c \
     ../../src/event/loop.c \
     ../../src/event/select.c \

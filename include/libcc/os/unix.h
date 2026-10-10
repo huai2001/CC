@@ -3,7 +3,7 @@
 
 #include <sys/errno.h>
 #include <unistd.h>
-#include "../string.h"
+#include "../types.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -21,8 +21,10 @@ extern "C" {
 #define _unlink unlink
 #endif
 
-/***/
-#define _cc_getpid() ((uint32_t)getpid())
+/**/
+_CC_FORCE_INLINE_ int32_t _cc_getpid(void) {
+    return ((uint32_t)getpid());
+}
 
 /**/
 _CC_FORCE_INLINE_ int32_t _cc_last_errno(void) {
@@ -38,10 +40,6 @@ _CC_FORCE_INLINE_ void _cc_set_last_errno(int32_t _errno) {
 _CC_FORCE_INLINE_ const tchar_t* _cc_last_error(int32_t _errno) {
     return strerror(_errno);
 }
-/**/
-_CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1,int32_t s1_len,wchar_t* s2,int32_t size);
-/**/
-_CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1,int32_t s1_len,char_t* s2,int32_t size);
 
 #ifndef _CC_DISABLED_DUMPER_
 
@@ -58,6 +56,8 @@ typedef void (*_cc_dumper_callback_t)(byte_t status, pvoid_t dump_exception_info
 /**/
 #define _cc_uninstall_dumper() ((void)0)
 
+#endif /*ndef _CC_DISABLED_DUMPER_ */
+
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length);
 /**/
@@ -67,7 +67,11 @@ _CC_API_PUBLIC(size_t) _cc_get_device_name(tchar_t *cname, size_t length);
 /**/
 _CC_API_PUBLIC(void) _cc_get_os_version(uint32_t *major, uint32_t *minor, uint32_t *build);
 
-#endif /*ndef _CC_DISABLED_DUMPER_ */
+
+/**/
+_CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1,int32_t s1_len,wchar_t* s2,int32_t size);
+/**/
+_CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1,int32_t s1_len,char_t* s2,int32_t size);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

@@ -1,213 +1,113 @@
+#include <libcc/cpu.h>
 #include <libcc/atomic.h>
-
-_CC_API_PUBLIC(int32_t) _cc_atomic32_load(_cc_atomic32_t *a) {
-#if __CC_STDC_VERSION__ >= 2011
-    return (int32_t)atomic_load(a);
-#elif defined(__CC_GNUC__)
-    return __atomic_load_n(a, __ATOMIC_SEQ_CST);
-#else
-    int32_t value;
-    do {
-        value = (int32_t)*a;
-    } while (!_cc_atomic32_cas(a, value, value));
-    return value;
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
-
-_CC_API_PUBLIC(int64_t) _cc_atomic64_load(_cc_atomic64_t *a) {
-#if __CC_STDC_VERSION__ >= 2011
-    return (int64_t)atomic_load(a);
-#elif defined(__CC_GNUC__)
-    return __atomic_load_n(a, __ATOMIC_SEQ_CST);
-#else
-    int64_t value;
-    do {
-        value = (int64_t)*a;
-    } while (!_cc_atomic64_cas(a, value, value));
-    return value;
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
-
-_CC_API_PUBLIC(int32_t) _cc_atomic32_add(_cc_atomic32_t *a, int32_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_add(a, v);
-#elif defined(__CC_MSVC__)
-#if (defined(_M_IA64) || defined(_M_AMD64))
-    return (int32_t)InterlockedExchangeAdd(a, v);
-#else
-    return (int32_t)InterlockedExchangeAdd((long *)a, v);
+#ifndef __CC_WINDOWS__
+#include <pthread.h>
 #endif
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_add(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_fetch_and_add(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_sub(_cc_atomic32_t *a, int32_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_sub(a, v);
-#elif defined(__CC_MSVC__)
-#if (defined(_M_IA64) || defined(_M_AMD64))
-    return (int32_t)InterlockedExchangeAdd(a, -v);
-#else
-    return (int32_t)InterlockedExchangeAdd((long *)a, -v);
+#if defined(__CC_SOLARIS__)
+#include <atomic.h>
 #endif
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_sub(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_fetch_and_sub(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
 
-_CC_API_PUBLIC(int32_t) _cc_atomic32_set(_cc_atomic32_t *a, int32_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_exchange(a, v);
-#elif defined(__CC_MSVC__)
-#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
-    return (int32_t)InterlockedExchange(a, v);
+#define _CC_RWLOCK_WLOCK_ (-1)
+
+_CC_API_PUBLIC(void) _cc_cpu_pause(void) {
+#if __CC_WINDOWS__
+#if defined(__BORLANDC__) || (__WATCOMC__ < 1230)
+/*
+ * Borland C++ 5.5 (tasm32) and Open Watcom C prior to 1.3
+ * do not understand the "pause" instruction
+ */
 #else
-    return (int32_t)InterlockedExchange((long *)a, v);
+    __asm { pause }
 #endif
-#elif defined(__CC_GNUC__)
-    return __atomic_exchange_n(a, v, __ATOMIC_SEQ_CST);
 #else
-    return __sync_lock_test_and_set(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
-
-_CC_API_PUBLIC(int32_t) _cc_atomic32_and(_cc_atomic32_t *a, int32_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_and(a, v);
-#elif defined(__CC_MSVC__)
-    return (int32_t)_InterlockedAnd(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_and(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_and_and_fetch(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
-
-_CC_API_PUBLIC(int32_t) _cc_atomic32_or(_cc_atomic32_t *a, int32_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_or(a, v);
-#elif defined(__CC_MSVC__)
-    return (int32_t)_InterlockedOr(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_or(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_fetch_and_or(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
-
-_CC_API_PUBLIC(int32_t) _cc_atomic32_xor(_cc_atomic32_t *a, int32_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_xor(a, v);
-#elif defined(__CC_MSVC__)
-    return (int32_t)_InterlockedXor(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_xor(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_fetch_and_xor(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
-
-_CC_API_PUBLIC(bool_t) _cc_atomic32_cas(_cc_atomic32_t *a, int32_t v1, int32_t v2) {
-#if __CC_STDC_VERSION__ >= 2011
-    return (bool_t)atomic_compare_exchange_strong(a, &v1, v2);
-#elif defined(__CC_MSVC__)
-#if (defined(_M_IA64) || defined(_M_AMD64)) && !defined(RC_INVOKED)
-    return (bool_t)((int32_t)InterlockedCompareExchange(a, v2, v1) == v1);
-#else
-    return (bool_t)((int32_t)InterlockedCompareExchange((long *)a, v2, v1) == v1);
+#if (__i386__ || __i386 || __amd64__ || __amd64)
+    __asm__ __volatile__("pause");
+#elif __aarch64__
+    __asm__ __volatile__("yield");
 #endif
-#elif defined(__CC_GNUC__)
-    return __atomic_compare_exchange_n(a, &v1, v2, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
-#else
-    return (bool_t)__sync_bool_compare_and_swap(a, v1, v2);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
+#endif
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_add(_cc_atomic64_t *a, int64_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_add(a, v);
-#elif defined(__CC_MSVC__)
-    return (int64_t)InterlockedExchangeAdd64(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_add(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_fetch_and_add(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
+/**/
+_CC_API_PUBLIC(void) _cc_lock_init(_cc_atomic_lock_t *lock) {
+    *lock = 0;
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_sub(_cc_atomic64_t *a, int64_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_sub(a, v);
-#elif defined(__CC_MSVC__)
-    return (int64_t)InterlockedExchangeAdd64(a, -v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_sub(a, v, __ATOMIC_SEQ_CST);
+/**/
+_CC_API_PUBLIC(void) _cc_lock(_cc_atomic_lock_t *lock, uint32_t value, uint32_t spin) {
+    uint32_t i, n;
+    for (;;) {
+        if (*lock == 0 && _cc_atomic32_cas(lock, 0, value)) {
+            return;
+        }
+
+        if (_cc_cpu_cores > 0) {
+            for (n = 1; n < spin; n <<= 1) {
+                for (i = 0; i < n; i++) {
+                    _cc_cpu_pause();
+                }
+                if (*lock == 0 && _cc_atomic32_cas(lock, 0, value)) {
+                    return;
+                }
+            }
+        }
+#ifdef __CC_WINDOWS__
+        SwitchToThread();
 #else
-    return __sync_fetch_and_sub(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
+        sched_yield();
+        //_cc_nsleep(1);
+#endif
+    }
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_set(_cc_atomic64_t *a, int64_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_exchange(a, v);
-#elif defined(__CC_MSVC__)
-    return (int64_t)InterlockedExchange64(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_exchange_n(a, v, __ATOMIC_SEQ_CST);
+/**/
+_CC_API_PUBLIC(void) _cc_rwlock_rlock(_cc_atomic_lock_t *lock) {
+    int32_t i, n;
+    _cc_atomic32_t readers;
+
+    for (;;) {
+        readers = *lock;
+        if (readers != _CC_RWLOCK_WLOCK_ && _cc_atomic32_cas(lock, readers, readers + 1)) {
+            return;
+        }
+
+        if (_cc_cpu_cores > 1) {
+            for (n = 1; n < _CC_LOCK_SPIN_; n <<= 1) {
+                for (i = 0; i < n; i++) {
+                    _cc_cpu_pause();
+                }
+                readers = *lock;
+                if (readers != _CC_RWLOCK_WLOCK_ && _cc_atomic32_cas(lock, readers, readers + 1)) {
+                    return;
+                }
+            }
+        }
+#ifdef __CC_WINDOWS__
+        SwitchToThread();
 #else
-    return __sync_lock_test_and_set(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
+        sched_yield();
+#endif
+    }
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_and(_cc_atomic64_t *a, int64_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_and(a, v);
-#elif defined(__CC_MSVC__)
-    return (int64_t)InterlockedAnd64(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_and(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_and_and_fetch(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
+/**/
+_CC_API_PUBLIC(void) _cc_rwlock_wlock(_cc_atomic_lock_t *lock) {
+    _cc_lock((_cc_atomic32_t *)lock, _CC_RWLOCK_WLOCK_, _CC_LOCK_SPIN_);
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_or(_cc_atomic64_t *a, int64_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_or(a, v);
-#elif defined(__CC_MSVC__)
-    return (int64_t)InterlockedOr64(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_or(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_fetch_and_or(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
+/**/
+_CC_API_PUBLIC(void) _cc_rwlock_unlock(_cc_atomic_lock_t *lock) {
+    if (*lock == _CC_RWLOCK_WLOCK_) {
+        _cc_atomic32_cas(lock, _CC_RWLOCK_WLOCK_, 0);
+    } else {
+        _cc_atomic32_dec(lock);
+    }
 }
 
-_CC_API_PUBLIC(int64_t) _cc_atomic64_xor(_cc_atomic64_t *a, int64_t v) {
-#if __CC_STDC_VERSION__ >= 2011
-    return atomic_fetch_xor(a, v);
-#elif defined(__CC_MSVC__)
-    return (int64_t)InterlockedXor64(a, v);
-#elif defined(__CC_GNUC__)
-    return __atomic_fetch_xor(a, v, __ATOMIC_SEQ_CST);
-#else
-    return __sync_fetch_and_xor(a, v);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
-}
-
-_CC_API_PUBLIC(bool_t) _cc_atomic64_cas(_cc_atomic64_t *a, int64_t v1, int64_t v2) {
-#if __CC_STDC_VERSION__ >= 2011
-    return (bool_t)atomic_compare_exchange_strong(a, &v1, v2);
-#elif defined(__CC_MSVC__)
-    return (bool_t)((int64_t)InterlockedCompareExchange64(a, v2, v1) == v1);
-#elif defined(__CC_GNUC__)
-    return __atomic_compare_exchange_n(a, (int_least64_t*)&v1, (int_least64_t)v2, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
-#else
-    return (bool_t)__sync_bool_compare_and_swap(a, v1, v2);
-#endif/*__CC_STDC_VERSION__ >= 2011*/
+/**/
+_CC_API_PUBLIC(void) _cc_rwlock_downgrade(_cc_atomic_lock_t *lock) {
+    if (*lock == _CC_RWLOCK_WLOCK_) {
+        *lock = 1;
+    }
 }

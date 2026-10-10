@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <wctype.h>
 #include <limits.h>
+
 #include "tchar.h"
 
 /* Set up for C function definitions, even when using C++ */

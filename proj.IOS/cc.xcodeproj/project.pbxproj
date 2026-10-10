@@ -100,7 +100,6 @@
 		42B96AF82E885AAE009FE2F7 /* base58.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969B22E885AAE009FE2F7 /* base58.c */; };
 		42B96AF92E885AAE009FE2F7 /* sys_cond.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A3F2E885AAE009FE2F7 /* sys_cond.c */; };
 		42B96AFA2E885AAE009FE2F7 /* sqlite.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969C02E885AAE009FE2F7 /* sqlite.c */; };
-		42B96AFD2E885AAE009FE2F7 /* rwlock.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B969AE2E885AAE009FE2F7 /* rwlock.c */; };
 		42B96AFE2E885AAE009FE2F7 /* xml.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 42B96A562E885AAE009FE2F7 /* xml.parser.c */; };
 		42B96B052E885AAE009FE2F7 /* json.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 42B969F62E885AAE009FE2F7 /* json.c.h */; };
 		42B96B072E885AAE009FE2F7 /* ini.c.h in Headers */ = {isa = PBXBuildFile; fileRef = 42B969ED2E885AAE009FE2F7 /* ini.c.h */; };
@@ -152,7 +151,6 @@
 		42AA27B12F1735E700D5ABE2 /* base32.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base32.c; sourceTree = "<group>"; };
 		42B969A62E885A9A009FE2F7 /* cc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = cc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		42B969AD2E885AAE009FE2F7 /* atomic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = atomic.c; sourceTree = "<group>"; };
-		42B969AE2E885AAE009FE2F7 /* rwlock.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rwlock.c; sourceTree = "<group>"; };
 		42B969B02E885AAE009FE2F7 /* aes.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = aes.c; sourceTree = "<group>"; };
 		42B969B12E885AAE009FE2F7 /* base16.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base16.c; sourceTree = "<group>"; };
 		42B969B22E885AAE009FE2F7 /* base58.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base58.c; sourceTree = "<group>"; };
@@ -330,7 +328,6 @@
 			isa = PBXGroup;
 			children = (
 				42B969AD2E885AAE009FE2F7 /* atomic.c */,
-				42B969AE2E885AAE009FE2F7 /* rwlock.c */,
 			);
 			path = atomic;
 			sourceTree = "<group>";
@@ -706,7 +703,6 @@
 				42B96AF82E885AAE009FE2F7 /* base58.c in Sources */,
 				42B96AF92E885AAE009FE2F7 /* sys_cond.c in Sources */,
 				42B96AFA2E885AAE009FE2F7 /* sqlite.c in Sources */,
-				42B96AFD2E885AAE009FE2F7 /* rwlock.c in Sources */,
 				42B96AFE2E885AAE009FE2F7 /* xml.parser.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

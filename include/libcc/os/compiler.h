@@ -2,7 +2,7 @@
 #ifndef _C_CC_CONFIG_COMPILER_H_INCLUDED_
 #define _C_CC_CONFIG_COMPILER_H_INCLUDED_
 
-#include "os.h"
+#include "platform.h"
 
 /* CPU Type Definition*/
 #if defined(__x86_64) || defined(__x86_64__) || \

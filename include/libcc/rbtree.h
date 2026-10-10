@@ -32,6 +32,9 @@ extern "C" {
 
 enum { _CC_RB_RED_ = 0, _CC_RB_BLACK_ };
 
+typedef struct _cc_rb _cc_rb_t;
+typedef struct _cc_rbtree _cc_rbtree_t;
+
 struct _cc_rb {
     // since 2006 parent_color holds both parent ptr + color in otherwise
     // unused low 2 bits
@@ -42,14 +45,10 @@ struct _cc_rb {
     struct _cc_rb *left;
 };
 
-typedef struct _cc_rb _cc_rb_t;
-
 /* The alignment might seem pointless, but allegedly CRIS needs it */
 struct _cc_rbtree {
     _cc_rb_t *rb_node;
 };
-
-typedef struct _cc_rbtree _cc_rbtree_t;
 
 #define _cc_rbtree_entry(ptr, type, member) _cc_upcast(ptr, type, member)
 #define _CC_RB_EMPTY_ROOT(root) ((root)->rb_node == NULL)
@@ -100,4 +99,5 @@ _CC_FORCE_INLINE_ void _cc_rbtree_insert(_cc_rbtree_t *root, _cc_rb_t *node, _cc
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* _C_CC_RB_TREE_H_INCLUDED_ */

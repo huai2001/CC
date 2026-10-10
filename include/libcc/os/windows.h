@@ -26,10 +26,12 @@
     #ifndef WINVER
         #define WINVER __CC_WIN32_CE__
     #endif
+
     #include <ceconfig.h>
     #include <winsock.h>
     #include <MSWSock.h>
     #include <windows.h>
+
 #else    /*Don't optimize if WINDOWS.H has already been included*/
     #if !defined(NO_WIN32_LEAN_AND_MEAN)   
         #ifndef WIN32_LEAN_AND_MEAN
@@ -55,9 +57,6 @@
     #include <ws2tcpip.h>
     #include <windows.h>
 #endif
-
-#include "../string.h"
-#include "../buf.h"
 
 /* Protections */
 #define PROT_NONE           0x00            /* no permissions */
@@ -115,17 +114,6 @@
 #define fileno      _fileno
 #define rmdir       _rmdir
 
-#define _cc_close_handle(H)\
-do {\
-    if (*H) {\
-        CloseHandle(*H);\
-        *H = NULL;\
-    }\
-} while (0)
-
-/**/
-#define _cc_getpid() ((uint32_t)(DWORD)GetCurrentProcessId())
-
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -149,6 +137,11 @@ _CC_API_PUBLIC(HMODULE) _cc_load_windows_kernel32(void);
 /**/
 _CC_API_PUBLIC(void) _cc_unload_windows_kernel32(void);
 
+
+/**/
+_CC_FORCE_INLINE_ int32_t _cc_getpid(void) {
+    return ((uint32_t)(DWORD)GetCurrentProcessId());
+}
 
 /**/
 _CC_FORCE_INLINE_ void _cc_set_last_errno(int32_t _errno) {
@@ -179,9 +172,10 @@ _CC_API_PUBLIC(bool_t) _cc_install_dumper(_cc_dumper_callback_t callback);
 /**/
 _CC_API_PUBLIC(void) _cc_uninstall_dumper(void);
 
+/* }}} */
+
 #endif /*ndef _CC_DISABLED_DUMPER_ */
 
-/* }}} */
 
 /**/
 _CC_API_PUBLIC(size_t) _cc_get_module_file_name(pvoid_t func, tchar_t *module, size_t length);
@@ -191,6 +185,7 @@ _CC_API_PUBLIC(size_t) _cc_get_resolve_symbol(tchar_t *buf, size_t length);
 _CC_API_PUBLIC(size_t) _cc_get_device_name(tchar_t *cname, size_t length);
 /**/
 _CC_API_PUBLIC(void) _cc_get_os_version(uint32_t *major, uint32_t *minor, uint32_t *build);
+
 /**/
 _CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1, int32_t s1_len, wchar_t* s2, int32_t size);
 /**/

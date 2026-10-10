@@ -6,13 +6,11 @@
 #ifndef __CC_WINDOWS__
 
 _CC_API_PUBLIC(int32_t) _cc_a2w(const char_t *s1, int32_t s1_length, wchar_t *s2, int32_t size) {
-    return _cc_utf8_to_utf16((const uint8_t *)s1, (const uint8_t *)(s1 + s1_length),
-                            (uint16_t *)s2, (uint16_t *)(s2 + size));
+    return _cc_utf8_to_utf16((const uint8_t *)s1, (const uint8_t *)(s1 + s1_length), (uint16_t *)s2, (uint16_t *)(s2 + size));
 }
 
 _CC_API_PUBLIC(int32_t) _cc_w2a(const wchar_t *s1, int32_t s1_length, char_t *s2, int32_t size) {
-    return _cc_utf16_to_utf8((const uint16_t *)s1, (const uint16_t *)(s1 + s1_length), 
-                            (uint8_t *)s2, (uint8_t *)(s2 + size));
+    return _cc_utf16_to_utf8((const uint16_t *)s1, (const uint16_t *)(s1 + s1_length), (uint8_t *)s2, (uint8_t *)(s2 + size));
 }
 
 _CC_API_PUBLIC(size_t) _cc_get_cwd(tchar_t *cwd, size_t length) {

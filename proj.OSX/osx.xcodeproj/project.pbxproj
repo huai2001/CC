@@ -75,7 +75,6 @@
 		4217A5392EEC1FA8006262EC /* md4.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4022EEC1FA8006262EC /* md4.c */; };
 		4217A53D2EEC1FA8006262EC /* sys_sem.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A48B2EEC1FA8006262EC /* sys_sem.c */; };
 		4217A5402EEC1FA8006262EC /* json.parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4392EEC1FA8006262EC /* json.parser.c */; };
-		4217A5412EEC1FA8006262EC /* rwlock.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A3F12EEC1FA8006262EC /* rwlock.c */; };
 		4217A5422EEC1FA8006262EC /* buf.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4A82EEC1FA8006262EC /* buf.c */; };
 		4217A5462EEC1FA8006262EC /* rbtree.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4B32EEC1FA8006262EC /* rbtree.c */; };
 		4217A5472EEC1FA8006262EC /* select.c in Sources */ = {isa = PBXBuildFile; fileRef = 4217A4162EEC1FA8006262EC /* select.c */; };
@@ -131,7 +130,6 @@
 /* Begin PBXFileReference section */
 		4217A3E42EEC1F76006262EC /* osx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = osx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4217A3F02EEC1FA8006262EC /* atomic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = atomic.c; sourceTree = "<group>"; };
-		4217A3F12EEC1FA8006262EC /* rwlock.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = rwlock.c; sourceTree = "<group>"; };
 		4217A3FB2EEC1FA8006262EC /* aes.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = aes.c; sourceTree = "<group>"; };
 		4217A3FC2EEC1FA8006262EC /* base16.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base16.c; sourceTree = "<group>"; };
 		4217A3FD2EEC1FA8006262EC /* base58.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = base58.c; sourceTree = "<group>"; };
@@ -290,7 +288,6 @@
 			isa = PBXGroup;
 			children = (
 				4217A3F02EEC1FA8006262EC /* atomic.c */,
-				4217A3F12EEC1FA8006262EC /* rwlock.c */,
 			);
 			path = atomic;
 			sourceTree = "<group>";
@@ -772,7 +769,6 @@
 				4217A5392EEC1FA8006262EC /* md4.c in Sources */,
 				4217A53D2EEC1FA8006262EC /* sys_sem.c in Sources */,
 				4217A5402EEC1FA8006262EC /* json.parser.c in Sources */,
-				4217A5412EEC1FA8006262EC /* rwlock.c in Sources */,
 				4217A5422EEC1FA8006262EC /* buf.c in Sources */,
 				4217A5462EEC1FA8006262EC /* rbtree.c in Sources */,
 				4217A5472EEC1FA8006262EC /* select.c in Sources */,

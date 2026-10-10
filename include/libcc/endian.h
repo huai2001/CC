@@ -203,7 +203,7 @@ _CC_FORCE_INLINE_ uint64_t _cc_swap64(uint64_t x) {
     return x;
 }
 #elif defined(__WATCOMC__) && defined(__386__)
-extern __inline uint64_t _cc_swap64(uint64_t);
+_CC_FORCE_INLINE_ uint64_t _cc_swap64(uint64_t);
 #pragma aux _cc_swap64 = \
   "bswap eax"     \
   "bswap edx"     \

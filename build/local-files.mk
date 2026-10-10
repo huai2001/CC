@@ -80,7 +80,6 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/malloc/alloc.c \
 	$(SRCROOT)/src/thread/thread.c \
 	$(SRCROOT)/src/atomic/atomic.c \
-	$(SRCROOT)/src/atomic/rwlock.c \
 	$(SRCROOT)/src/os/os.c \
 	$(SRCROOT)/src/event/event.c \
 	$(SRCROOT)/src/event/loop.c \
