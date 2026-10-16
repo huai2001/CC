@@ -95,13 +95,12 @@ LOCAL_SRC_FILES += \
 	$(SRCROOT)/src/ini/ini.parser.c\
 	$(SRCROOT)/src/xml/xml.c \
 	$(SRCROOT)/src/xml/xml.parser.c \
-	$(SRCROOT)/src/misc/tick.c \
-	$(SRCROOT)/src/misc/time.c \
-	$(SRCROOT)/src/misc/inet.c \
-	$(SRCROOT)/src/misc/socket.c \
-	$(SRCROOT)/src/misc/power.c  \
-	$(SRCROOT)/src/misc/misc.c \
-	$(SRCROOT)/src/misc/WS.c \
+	$(SRCROOT)/src/tick.c \
+	$(SRCROOT)/src/time.c \
+	$(SRCROOT)/src/inet.c \
+	$(SRCROOT)/src/socket.c \
+	$(SRCROOT)/src/power.c  \
+	$(SRCROOT)/src/misc.c \
 	$(SRCROOT)/src/main.c
 
 ifneq ($(filter $(PLATFORM), freebsd unix),)
@@ -216,8 +215,9 @@ endif # --end USE_LIB_MYSQL--
 
 ifdef USE_LIB_URL_REQUEST
 	LOCAL_SRC_FILES += \
-		$(SRCROOT)/src/misc/gzip.c \
+		$(SRCROOT)/src/gzip.c \
 		$(SRCROOT)/src/http/v2/http2.c \
+		$(SRCROOT)/src/http/v1/WS.header.c \
 		$(SRCROOT)/src/http/v1/header.c \
 		$(SRCROOT)/src/http/v1/request.parser.c \
 		$(SRCROOT)/src/http/v1/response.parser.c \

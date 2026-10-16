@@ -2,7 +2,7 @@
 #define _C_CC_XML_C_H_INCLUDED_
 
 #include <libcc/xml.h>
-#include "../misc/misc.c.h"
+#include "../misc.c.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -10,12 +10,12 @@ extern "C" {
 
 #define _XML_NODE_INIT(_NODE, _TYPE)                                    \
     do {                                                                \
-        memset((_NODE), 0, sizeof(_cc_xml_t));                              \
+        memset((_NODE), 0, sizeof(_cc_xml_t));                          \
         (_NODE)->type = _TYPE;                                          \
-        (_NODE)->name = NULL;                                        \
+        (_NODE)->name = NULL;                                           \
         _cc_rbtree_cleanup(&(_NODE)->attr);                             \
-        _cc_list_cleanup(&(_NODE)->lnk);                       \
-        _cc_list_cleanup(&(_NODE)->element.uni_child);         \
+        _cc_list_cleanup(&(_NODE)->lnk);                                \
+        _cc_list_cleanup(&(_NODE)->element.uni_child);                  \
     } while (0)
 
 /* Utility to jump whitespace and cr/lf,comments */

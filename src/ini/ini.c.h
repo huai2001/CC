@@ -3,7 +3,7 @@
 
 #include <libcc/alloc.h>
 #include <libcc/ini.h>
-#include "../misc/misc.c.h"
+#include "../misc.c.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

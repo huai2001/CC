@@ -17,15 +17,13 @@ enum {
 typedef struct _WS_channel {
     uint8_t state;
     uint8_t flag;
-    uint8_t classify;
-    uint8_t authorized;
 
 #if _WS_SUPPORT_BIG_DATA_
     uint64_t length;
     byte_t* buf;
 #endif
 
-    uint64_t identifier;
+    uint64_t eid;
     //
     uintptr_t data;
     
@@ -46,8 +44,6 @@ _CC_API_PRIVATE(_WS_channel_t*) _WS_alloc(_cc_socket_t fd) {
     _WS_channel_t *channel = (_WS_channel_t*)_cc_malloc(sizeof(_WS_channel_t));
 
     channel->state = _CC_HTTP_STATE_HEADER_;
-    channel->classify = 0xff;
-    channel->authorized = 0;
     channel->remote.port = 0;
     channel->remote.family = 0;
     channel->flag = 0;
@@ -86,9 +82,11 @@ _CC_API_PRIVATE(void) _WS_free(_WS_channel_t *channel) {
     if (channel->io) {
         _cc_free_io_buffer(channel->io);
     }
+
 #if _WS_SUPPORT_BIG_DATA_
     _cc_if_free(channel->buf);
 #endif
+
     _cc_free(channel);
 }
 
@@ -152,6 +150,7 @@ _CC_API_PRIVATE(bool_t) _ws_response_header(_cc_event_t *e, _WS_channel_t *chann
     }
 
     _cc_http_free_request_header((_cc_http_request_header_t**)&channel->data);
+    channel->flags = 0;
 
     //完成握手
 
@@ -200,10 +199,7 @@ bool_t _WS_unpack(_cc_event_t *e) {
 #if _WS_SUPPORT_BIG_DATA_
                     if (channel->header.payload > (int64_t)io->r.limit) {
                         printf("%ld, big data. operation 0x%x", channel->header.payload, channel->header.operation);
-                        if (channel->buf) {
-                            _cc_free(channel->buf);
-                        }
-                        channel->buf = _cc_malloc(channel->header.payload);
+                        channel->buf = _cc_realloc(channel->buf, channel->header.payload);
                     }
 #endif
                     break;
@@ -369,7 +365,7 @@ _CC_API_PRIVATE(bool_t) _ws_handler(_cc_async_event_t *async, _cc_event_t *e, co
     #endif
 
         channel = _WS_alloc(fd);
-        channel->identifier = event->ident;
+        channel->eid = event->ident;
         event->data = (uintptr_t)channel;
 
         if (async_event->attach(async_event, event) == false) {
@@ -472,7 +468,6 @@ bool_t _WS_listener(uint16_t port) {
 
     channel = (_WS_channel_t*)_cc_malloc(sizeof(_WS_channel_t));
     channel->state = _CC_HTTP_STATE_ESTABLISHED_;
-    channel->authorized = 0;
     channel->flag = 0;
     channel->data = 0;
     channel->header.state = WS_DATA_OK;

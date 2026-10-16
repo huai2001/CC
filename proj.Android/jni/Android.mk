@@ -72,14 +72,14 @@ LOCAL_SRC_FILES := \
     ../../src/ini/ini.parser.c\
     ../../src/xml/xml.c \
     ../../src/xml/xml.parser.c \
-    ../../src/misc/tick.c \
-    ../../src/misc/time.c \
-    ../../src/misc/inet.c \
-    ../../src/misc/socket.c \
-    ../../src/misc/power.c  \
-    ../../src/misc/misc.c \
-    ../../src/misc/WS.c \
-    ../../src/misc/gzip.c \
+    ../../src/tick.c \
+    ../../src/time.c \
+    ../../src/inet.c \
+    ../../src/socket.c \
+    ../../src/power.c  \
+    ../../src/misc.c \
+    ../../src/gzip.c \
+    ../../src/http/v1/WS.header.c \
     ../../src/http/v1/header.c \
     ../../src/http/v1/request.parser.c \
     ../../src/http/v1/response.parser.c \
